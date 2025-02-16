@@ -1,440 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caro Game</title>
-<style>
-  body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-  #board { display: grid; grid-template-columns: repeat(15, 30px); gap: 2px; justify-content: center; margin: 20px auto; }
-  .cell { width: 30px; height: 30px; background-color: #f0f0f0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
-  .cell.X { color: blue; }
-  .cell.O { color: red; }
-  button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
-  #controls { margin-bottom: 20px; }
-  select { padding: 5px; font-size: 16px; margin-left: 10px; }
-  #message { font-size: 20px; font-weight: bold; margin-top: 20px; }
-  /* Media Queries for Mobile Devices */
-  @media (max-width: 600px) {
-            .name-input-container input {
-                width: 100%;
-            }
-            .controls {
-                flex-direction: column;
-            }
-            .dice {
-                font-size: 80px;
-            }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
-</style>
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .back-home {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .back-home:hover {
+            background-color: #c0392b;
+        }
+        .back-home i {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        h1 {
+            font-size: 36px;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .game-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .game-card {
+            background-color: #fff;
+            border-radius: 15px;
+            width: 300px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        .game-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid #ddd;
+        }
+        .game-card-content {
+            padding: 15px;
+        }
+        .game-card h2 {
+            font-size: 22px;
+            margin: 0 0 10px;
+            color: #34495e;
+        }
+        .game-card p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin: 0 0 15px;
+            line-height: 1.5;
+        }
+        .game-card a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .game-card a:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+        }
+        footer .footer-container {
+            background-color: #1a252f;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        footer a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            margin-bottom: 15px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            margin: 0 10px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #1abc9c;
+        }
+    </style>
 </head>
 <body>
-<h1> Game Caro</h1>
-<div id="controls">
-  <button id="playAI">Chơi với máy</button>
-  <button id="playHuman">Chơi với người</button>
-  <button id="reset">Làm mới</button>
-  <select id="aiLevel">
-    <option value="easy">Dễ</option>
-    <option value="medium">Trung bình</option>
-    <option value="hard">Khó</option>
-    <option value="veryHard">Siêu khó</option>
-    <option value="impossible">Cực khó</option>
-  </select>
-  <label for="playerChoice">Chọn quân:</label>
-  <select id="playerChoice">
-    <option value="X">X</option>
-    <option value="O">O</option>
-  </select>
-  <label for="winCondition">Số ô để thắng:</label>
-  <select id="winCondition">
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5" selected>5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-  </select>
-</div>
-<div id="message"></div>
-<div id="board"></div>
-<script>
-const boardSize = 15;
-let board = [];
-let currentPlayer = 'X';
-let isPlayingWithAI = false;
-let aiLevel = 'easy';
-let playerChoice = 'X'; // Default player choice
-let winCondition = 5; // Default win condition
-
-function createBoard() {
-  const boardElement = document.getElementById('board');
-  boardElement.innerHTML = '';
-  board = Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
-  for (let i = 0; i < boardSize * boardSize; i++) {
-    const cell = document.createElement('div');
-    cell.classList.add('cell');
-    cell.dataset.row = Math.floor(i / boardSize);
-    cell.dataset.col = i % boardSize;
-    cell.addEventListener('click', handleCellClick);
-    boardElement.appendChild(cell);
-  }
-  document.getElementById('message').textContent = '';
-}
-
-function handleCellClick(event) {
-  const row = parseInt(event.target.dataset.row);
-  const col = parseInt(event.target.dataset.col);
-  if (board[row][col] || checkWinner()) return;
-
-  placeMark(row, col, currentPlayer);
-  if (checkWinner()) {
-    showMessage(`${isPlayingWithAI ? (currentPlayer === playerChoice ? 'Bạn' : 'Máy') : (currentPlayer === 'X' ? 'Player 1' : 'Player 2')} chiến thắng!`);
-    return;
-  }
-  togglePlayer();
-
-  if (isPlayingWithAI && currentPlayer !== playerChoice) {
-    setTimeout(() => makeAIMove(aiLevel), 500);
-  }
-}
-
-function placeMark(row, col, player) {
-  board[row][col] = player;
-  const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-  cell.textContent = player;
-  cell.classList.add(player);
-}
-
-function togglePlayer() {
-  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-}
-
-function checkWinner() {
-  // Check rows, columns, and diagonals
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j <= boardSize - winCondition; j++) {
-      if (checkLine(i, j, 0, 1) || checkLine(j, i, 1, 0)) return true;
-    }
-  }
-  for (let i = 0; i <= boardSize - winCondition; i++) {
-    for (let j = 0; j <= boardSize - winCondition; j++) {
-      if (checkLine(i, j, 1, 1) || checkLine(i, j + winCondition - 1, 1, -1)) return true;
-    }
-  }
-  return false;
-}
-
-function checkLine(row, col, dr, dc) {
-  const mark = board[row][col];
-  if (!mark) return false;
-  for (let i = 0; i < winCondition; i++) {
-    if (board[row + i * dr][col + i * dc] !== mark) return false;
-  }
-  return true;
-}
-
-function makeAIMove(level) {
-  let move;
-  switch (level) {
-    case 'easy':
-      move = getRandomMove();
-      break;
-    case 'medium':
-      move = getMediumMove();
-      break;
-    case 'hard':
-      move = getHardMove();
-      break;
-    case 'veryHard':
-      move = getVeryHardMove();
-      break;
-    case 'impossible':
-      move = getImpossibleMove();
-      break;
-    default:
-      move = getRandomMove();
-  }
-
-  if (move) {
-    placeMark(move.row, move.col, currentPlayer);
-
-    if (checkWinner()) {
-      showMessage('Máy chiến thắng!');
-      return;
-    }
-    togglePlayer();
-  }
-}
-
-
-
-function getRandomMove() {
-  const emptyCells = [];
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) emptyCells.push({ row: i, col: j });
-    }
-  }
-  return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-}
-
-function getMediumMove() {
-  const winningMove = findWinningMove(currentPlayer);
-  if (winningMove) return winningMove;
-
-  const blockingMove = findWinningMove(playerChoice);
-  if (blockingMove) return blockingMove;
-
-  return getRandomMove();
-}
-
-function getHardMove() {
-  const winningMove = findWinningMove(currentPlayer);
-  if (winningMove) return winningMove;
-
-  const blockingMove = findWinningMove(playerChoice);
-  if (blockingMove) return blockingMove;
-
-  const strategicMove = findStrategicMove();
-  if (strategicMove) return strategicMove;
-
-  return getRandomMove();
-}
-
-function getVeryHardMove() {
-  const winningMove = findWinningMove(currentPlayer);
-  if (winningMove) return winningMove;
-
-  const blockingMove = findWinningMove(playerChoice);
-  if (blockingMove) return blockingMove;
-
-  const strategicMove = findStrategicMove();
-  if (strategicMove) return strategicMove;
-
-  const defensiveMove = findDefensiveMove();
-  if (defensiveMove) return defensiveMove;
-
-  return getRandomMove();
-}
-
-function getImpossibleMove() {
-  let bestMove = null;
-  let bestScore = -Infinity;
-
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) {
-        board[i][j] = currentPlayer;
-        let score = evaluateBoard(currentPlayer) - evaluateBoard(playerChoice);
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = { row: i, col: j };
-        }
-        board[i][j] = null;
-      }
-    }
-  }
-
-  return bestMove || getRandomMove();
-}
-
-function findWinningMove(player) {
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) {
-        board[i][j] = player;
-        if (checkWinner()) {
-          board[i][j] = null;
-          return { row: i, col: j };
-        }
-        board[i][j] = null;
-      }
-    }
-  }
-  return null;
-}
-
-function findStrategicMove() {
-  const directions = [
-    { dr: 1, dc: 0 },
-    { dr: 0, dc: 1 },
-    { dr: 1, dc: 1 },
-    { dr: 1, dc: -1 }
-  ];
-
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) {
-        for (const { dr, dc } of directions) {
-          let count = 0;
-          for (let k = 1; k <= winCondition - 1; k++) {
-            const ni = i + dr * k;
-            const nj = j + dc * k;
-            if (ni >= 0 && ni < boardSize && nj >= 0 && nj < boardSize && board[ni][nj] === currentPlayer) {
-              count++;
-            } else {
-              break;
-            }
-          }
-          if (count >= winCondition - 2) return { row: i, col: j };
-        }
-      }
-    }
-  }
-  return null;
-}
-
-function findDefensiveMove() {
-  const directions = [
-    { dr: 1, dc: 0 },
-    { dr: 0, dc: 1 },
-    { dr: 1, dc: 1 },
-    { dr: 1, dc: -1 }
-  ];
-
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) {
-        for (const { dr, dc } of directions) {
-          let count = 0;
-          for (let k = 1; k <= winCondition - 1; k++) {
-            const ni = i + dr * k;
-            const nj = j + dc * k;
-            if (ni >= 0 && ni < boardSize && nj >= 0 && nj < boardSize && board[ni][nj] === playerChoice) {
-              count++;
-            } else {
-              break;
-            }
-          }
-          if (count >= winCondition - 2) return { row: i, col: j };
-        }
-      }
-    }
-  }
-  return null;
-}
-const strategicPatterns = [
-  { pattern: "XXXXX", score: 100000 }, // Thắng ngay
-  { pattern: "_XXXX_", score: 50000 }, // Chờ thắng 2 đầu
-  { pattern: "OXXXX_", score: 10000 }, // Chặn một đầu
-  { pattern: "_XXXXO", score: 10000 },
-  { pattern: "_XXX_", score: 5000 }, // Tạo nước đôi
-  { pattern: "OXXX_", score: 2000 },
-  { pattern: "_XXXO", score: 2000 },
-  { pattern: "_XX_", score: 1000 },
-  { pattern: "OXX_", score: 500 },
-  { pattern: "_XXO", score: 500 }
-];
-
-
-
-function evaluateBoard(player) {
-  let score = 0;
-  const lines = getAllLines();
-  
-  lines.forEach(line => {
-    strategicPatterns.forEach(({ pattern, score: value }) => {
-      if (line.includes(pattern.replace(/X/g, player))) {
-        score += value;
-      }
-    });
-  });
-  return score;
-}
-
-function getAllLines() {
-  let lines = [];
-  
-  // Duyệt tất cả hàng ngang, dọc, chéo
-  for (let i = 0; i < boardSize; i++) {
-    lines.push(board[i].join(""));
-    let col = "";
-    for (let j = 0; j < boardSize; j++) {
-      col += board[j][i] || "_";
-    }
-    lines.push(col);
-  }
-  
-  // Lấy đường chéo
-  for (let d = -(boardSize - 1); d <= boardSize - 1; d++) {
-    let diag1 = "", diag2 = "";
-    for (let i = 0; i < boardSize; i++) {
-      let j1 = i - d;
-      let j2 = boardSize - 1 - i - d;
-      if (j1 >= 0 && j1 < boardSize) diag1 += board[i][j1] || "_";
-      if (j2 >= 0 && j2 < boardSize) diag2 += board[i][j2] || "_";
-    }
-    if (diag1) lines.push(diag1);
-    if (diag2) lines.push(diag2);
-  }
-  
-  return lines;
-}
-
-
-
-function findTrapMove() {
-  const emptyCells = [];
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (!board[i][j]) {
-        board[i][j] = currentPlayer;
-        const winningMove = findWinningMove(currentPlayer);
-        board[i][j] = null;
-        if (winningMove) emptyCells.push({ row: i, col: j });
-      }
-    }
-  }
-  return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-}
-
-function showMessage(message) {
-  document.getElementById('message').textContent = message;
-}
-
-document.getElementById('playAI').addEventListener('click', () => {
-  isPlayingWithAI = true;
-  currentPlayer = playerChoice;
-  createBoard();
-});
-
-document.getElementById('playHuman').addEventListener('click', () => {
-  isPlayingWithAI = false;
-  currentPlayer = 'X';
-  createBoard();
-});
-
-document.getElementById('reset').addEventListener('click', () => {
-  isPlayingWithAI = false;
-  currentPlayer = playerChoice;
-  createBoard();
-});
-
-document.getElementById('aiLevel').addEventListener('change', (event) => {
-  aiLevel = event.target.value;
-});
-
-document.getElementById('playerChoice').addEventListener('change', (event) => {
-  playerChoice = event.target.value;
-  currentPlayer = playerChoice;
-});
-
-document.getElementById('winCondition').addEventListener('change', (event) => {
-  winCondition = parseInt(event.target.value);
-  createBoard();
-});
-
-createBoard();
-</script>
-<footer>
-  <div class="footer-container">
-      <div class="social-icons">
-          <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-      </div>
-      &copy; 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
-  </div>
-</footer>
+    <header>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Trang Chính</a>
+        <h1>Danh Sách Game</h1>
+    </header>
+    <div class="game-list">
+        <div class="game-card">
+            <img src="c:\Users\dell\Downloads\dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Game 1">
+            <div class="game-card-content">
+                <h2>Xúc Xắc</h2>
+                <p>Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
+                <a href="xucxac.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="c:\Users\dell\Downloads\screenshot_1739700778.png" alt="Game 2">
+            <div class="game-card-content">
+                <h2>Quay Tên</h2>
+                <p>Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
+                <a href="quayten.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="c:\Users\dell\Downloads\screenshot_1739700866.png" alt="Game 3">
+            <div class="game-card-content">
+                <h2>Đua Số Ngẫu Nhiên</h2>
+                <p>Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
+                <a href="dua.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="c:\Users\dell\Downloads\thi-dau-co-caro.jpg" alt="Game 4">
+            <div class="game-card-content">
+                <h2>Cờ CaRo</h2>
+                <p>Trò chơi trí tuệ hấp dẫn, tư duy nhạy bén, tạo nên những trận đấu gay cấn và đầy kịch tính! </p>
+                <a href="caro.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+5" alt="Game 5">
+            <div class="game-card-content">
+                <h2>Game 5</h2>
+                <p>Mô tả ngắn gọn về Game 5. Giải trí tuyệt vời!</p>
+                <a href="#">Chơi Ngay</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-container">
+            <div class="social-icons">
+                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+            </div>
+            &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+        </div>
+    </footer>
 </body>
 </html>
