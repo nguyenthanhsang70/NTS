@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .back-home {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .back-home:hover {
+            background-color: #c0392b;
+        }
+        .back-home i {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        h1 {
+            font-size: 36px;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .game-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .game-card {
+            background-color: #fff;
+            border-radius: 15px;
+            width: 300px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        .game-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid #ddd;
+        }
+        .game-card-content {
+            padding: 15px;
+        }
+        .game-card h2 {
+            font-size: 22px;
+            margin: 0 0 10px;
+            color: #34495e;
+        }
+        .game-card p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin: 0 0 15px;
+            line-height: 1.5;
+        }
+        .game-card a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .game-card a:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+        }
+        footer .footer-container {
+            background-color: #1a252f;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        footer a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            margin-bottom: 15px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            margin: 0 10px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #1abc9c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="#" class="back-home"><i class="fas fa-arrow-left"></i> Trang Chính</a>
+        <h1>Danh Sách Game</h1>
+    </header>
+    <div class="game-list">
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+1" alt="Game 1">
+            <div class="game-card-content">
+                <h2>Xúc Xắc</h2>
+                <p>Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
+                <a href="xucxac.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+2" alt="Game 2">
+            <div class="game-card-content">
+                <h2>Quay Tên</h2>
+                <p>Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
+                <a href="quayten.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+3" alt="Game 3">
+            <div class="game-card-content">
+                <h2>Đua Số Ngẫu Nhiên</h2>
+                <p>Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
+                <a href="dua.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+4" alt="Game 4">
+            <div class="game-card-content">
+                <h2>Cờ CaRo</h2>
+                <p>Trò chơi trí tuệ hấp dẫn, tư duy nhạy bén, tạo nên những trận đấu gay cấn và đầy kịch tính! </p>
+                <a href="caro.html">Chơi Ngay</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://via.placeholder.com/300x180?text=Game+5" alt="Game 5">
+            <div class="game-card-content">
+                <h2>Game 5</h2>
+                <p>Mô tả ngắn gọn về Game 5. Giải trí tuyệt vời!</p>
+                <a href="#">Chơi Ngay</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-container">
+            <div class="social-icons">
+                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+            </div>
+            &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+        </div>
+    </footer>
+</body>
+</html>
