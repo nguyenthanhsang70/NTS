@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caro Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        header p {
+            color: #666;
+            font-size: 1em;
+            margin-top: 5px;
+        }
+        .back-container {
+            align-self: flex-start;
+            margin-bottom: 20px;
+        }
+        .back-container a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+        .back-container a i {
+            margin-right: 5px;
+        }
+        .game-container {
+            width: 80%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .controls button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .options div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .options label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .options select, .options input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            gap: 2px;
+            justify-content: center;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+        }
+        .cell.X {
+            color: #007bff;
+        }
+        .cell.O {
+            color: #dc3545;
+        }
+        .cell:hover {
+            background-color: #d1e7dd;
+        }
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #28a745;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+         /* Responsive Design */
+         @media (max-width: 600px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+            .back-container {
+                padding: 6px 10px;
+            }
+            .back-container a {
+                font-size: 0.8rem;
+            }
+            .dice {
+                font-size: 60px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            button {
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+  <!-- <script type="text/javascript" src="ai.js"></script> -->
+    <div class="back-container">
+        <a href="game.html">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    <header>
+        <h1>Caro Game</h1>
+        <p id="game-mode">Chế độ chơi: Chưa chọn</p>
+    </header>
+    <div class="game-container">
+        <div class="controls">
+            <button onclick="startGame('computer')">Chơi với máy</button>
+            <button onclick="startGame('player')">Chơi với người</button>
+            <button onclick="resetBoard()">Làm mới</button>
+        </div>
+        <div class="options">
+            <div>
+                <label>Độ khó:</label>
+                <select id="difficulty" onchange="setDifficulty(this.value)">
+                    <option value="easy">Dễ</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="hard">Khó</option>
+                    <option value="very-hard">Siêu khó</option>
+                    <option value="extreme">Cực khó</option>
+                </select>
+            </div>
+            <div>
+                <label>Chọn quân:</label>
+                <select id="piece" onchange="selectPiece(this.value)">
+                    <option value="X">X</option>
+                    <option value="O">O</option>
+                </select>
+            </div>
+            <div>
+                <label>Số ô để thắng:</label>
+                <input type="number" id="winCondition" value="5" min="3" max="7">
+            </div>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="message" id="message"></div>
+    </div>
+    <script>
+        const boardSize = 10;
+        let boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
+        let currentPlayer = 'X';
+        let computerPlayer = null;
+        let humanPlayer = null;
+        let difficultyLevel = 'medium';
+        let winConditionLength = 5;
+
+        const boardElement = document.getElementById('board');
+        const messageElement = document.getElementById('message');
+        const gameModeElement = document.getElementById('game-mode');
+        const winConditionInput = document.getElementById('winCondition');
+
+        function startGame(mode) {
+            resetBoard();
+            if (mode === 'computer') {
+                computerPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                humanPlayer = currentPlayer;
+                gameModeElement.textContent = `Chế độ chơi: Player vs Máy`;
+                if (computerPlayer === 'X') {
+                    makeComputerMove();
+                }
+            } else {
+                computerPlayer = null;
+                gameModeElement.textContent = `Chế độ chơi: Player 1 vs Player 2`;
+            }
+        }
+
+        function resetBoard() {
+            boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
+            boardElement.innerHTML = '';
+            messageElement.textContent = '';
+            for (let i = 0; i < boardSize * boardSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.addEventListener('click', () => handleCellClick(i));
+                boardElement.appendChild(cell);
+            }
+        }
+
+        function setDifficulty(level) {
+            difficultyLevel = level;
+        }
+
+        function selectPiece(piece) {
+            currentPlayer = piece;
+        }
+
+        function handleCellClick(index) {
+            if (boardState[Math.floor(index / boardSize)][index % boardSize] || computerPlayer === currentPlayer) return;
+
+            placePiece(index, currentPlayer);
+
+            if (checkWin(currentPlayer)) {
+                showMessage(`${currentPlayer} thắng!`);
+                return;
+            }
+
+            if (!boardState.flat().includes(null)) {
+                showMessage('Hòa!');
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+            if (computerPlayer === currentPlayer) {
+                makeComputerMove();
+            }
+        }
+
+        function placePiece(index, player) {
+            const row = Math.floor(index / boardSize);
+            const col = index % boardSize;
+            boardState[row][col] = player;
+            const cell = boardElement.children[index];
+            cell.textContent = player;
+            cell.classList.add(player);
+        }
+
+        function checkWin(player) {
+            winConditionLength = parseInt(winConditionInput.value, 10);
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col <= boardSize - winConditionLength; col++) {
+                    if (checkLine(row, col, 0, 1, player)) return true; // Horizontal
+                }
+            }
+            for (let col = 0; col < boardSize; col++) {
+                for (let row = 0; row <= boardSize - winConditionLength; row++) {
+                    if (checkLine(row, col, 1, 0, player)) return true; // Vertical
+                }
+            }
+            for (let row = 0; row <= boardSize - winConditionLength; row++) {
+                for (let col = 0; col <= boardSize - winConditionLength; col++) {
+                    if (checkLine(row, col, 1, 1, player)) return true; // Diagonal Down-right
+                }
+            }
+            for (let row = 0; row <= boardSize - winConditionLength; row++) {
+                for (let col = winConditionLength - 1; col < boardSize; col++) {
+                    if (checkLine(row, col, 1, -1, player)) return true; // Diagonal Down-left
+                }
+            }
+            return false;
+        }
+
+        function checkLine(row, col, rowDir, colDir, player) {
+            for (let i = 0; i < winConditionLength; i++) {
+                if (boardState[row + i * rowDir][col + i * colDir] !== player) return false;
+            }
+            highlightWinningLine(row, col, rowDir, colDir, player);
+            return true;
+        }
+
+        function highlightWinningLine(row, col, rowDir, colDir, player) {
+            for (let i = 0; i < winConditionLength; i++) {
+                const index = (row + i * rowDir) * boardSize + (col + i * colDir);
+                const cell = boardElement.children[index];
+                cell.style.backgroundColor = player === 'X' ? '#d1e7dd' : '#f8d7da';
+            }
+        }
+
+        function showMessage(msg) {
+            messageElement.textContent = msg;
+        }
+
+        function makeComputerMove() {
+            setTimeout(() => {
+                let move;
+                switch(difficultyLevel) {
+                    case 'easy':
+                        move = getEasyMove();
+                        break;
+                    case 'medium':
+                        move = getMediumMove();
+                        break;
+                    case 'hard':
+                        move = getHardMove();
+                        break;
+                    case 'very-hard':
+                        move = getVeryHardMove();
+                        break;
+                    case 'extreme':
+                        move = getExtremeMove();
+                        break;
+                    default:
+                        move = getMediumMove();
+                }
+                if (move !== null) {
+                    placePiece(move.row * boardSize + move.col, computerPlayer);
+                    if (checkWin(computerPlayer)) {
+                        showMessage(`${computerPlayer} thắng!`);
+                        return;
+                    }
+                    if (!boardState.flat().includes(null)) {
+                        showMessage('Hòa!');
+                        return;
+                    }
+                    currentPlayer = humanPlayer;
+                }
+            }, 500);
+        }
+
+        function getEasyMove() {
+            const availableMoves = [];
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === null) {
+                        availableMoves.push({ row, col });
+                    }
+                }
+            }
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        }
+
+        function getMediumMove() {
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+            const blockingMove = findWinningMove(humanPlayer);
+            if (blockingMove) return blockingMove;
+            return getEasyMove();
+        }
+
+        function getHardMove() {
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+            const blockingMove = findWinningMove(humanPlayer);
+            if (blockingMove) return blockingMove;
+            const strategicMove = findStrategicMove();
+            if (strategicMove) return strategicMove;
+            return getEasyMove();
+        }
+
+        function getVeryHardMove() {
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+            const blockingMove = findWinningMove(humanPlayer);
+            if (blockingMove) return blockingMove;
+            const strategicMove = findStrategicMove();
+            if (strategicMove) return strategicMove;
+            const defensiveMove = findDefensiveMove();
+            if (defensiveMove) return defensiveMove;
+            return getEasyMove();
+        }
+
+        function getExtremeMove() {
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+            const blockingMove = findWinningMove(humanPlayer);
+            if (blockingMove) return blockingMove;
+            const strategicMove = findStrategicMove();
+            if (strategicMove) return strategicMove;
+            const defensiveMove = findDefensiveMove();
+            if (defensiveMove) return defensiveMove;
+            const advancedMove = findAdvancedMove();
+            if (advancedMove) return advancedMove;
+            return getEasyMove();
+        }
+
+        function findWinningMove(player) {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === null) {
+                        boardState[row][col] = player;
+                        if (checkWin(player)) {
+                            boardState[row][col] = null;
+                            return { row, col };
+                        }
+                        boardState[row][col] = null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function findStrategicMove() {
+            const centralMoves = [
+                { row: Math.floor(boardSize / 2), col: Math.floor(boardSize / 2) },
+                { row: Math.floor(boardSize / 2) - 1, col: Math.floor(boardSize / 2) },
+                { row: Math.floor(boardSize / 2), col: Math.floor(boardSize / 2) - 1 },
+                { row: Math.floor(boardSize / 2) - 1, col: Math.floor(boardSize / 2) - 1 }
+            ];
+            for (const move of centralMoves) {
+                if (boardState[move.row] && boardState[move.row][move.col] === null) {
+                    return move;
+                }
+            }
+            return null;
+        }
+
+        function findDefensiveMove() {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === null) {
+                        boardState[row][col] = humanPlayer;
+                        if (checkWin(humanPlayer)) {
+                            boardState[row][col] = null;
+                            return { row, col };
+                        }
+                        boardState[row][col] = null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function findAdvancedMove() {
+            const directions = [
+                { rowDir: 1, colDir: 0 },
+                { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 1 },
+                { rowDir: 1, colDir: -1 }
+            ];
+
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === null) {
+                        for (const dir of directions) {
+                            let count = 0;
+                            let emptyCount = 0;
+                            for (let i = 1; i < winConditionLength; i++) {
+                                const newRow = row + i * dir.rowDir;
+                                const newCol = col + i * dir.colDir;
+                                if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                                    if (boardState[newRow][newCol] === computerPlayer) {
+                                        count++;
+                                    } else if (boardState[newRow][newCol] === null) {
+                                        emptyCount++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (count === winConditionLength - 2 && emptyCount > 0) {
+                                return { row, col };
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        async function AIthink(player, move) {
+    let pastMoves = await analyzePastGames();
+
+    // Ưu tiên chơi những nước đi đã giúp AI thắng trong quá khứ
+    let bestMove = pastMoves.find(m => currGame.sq[m.row][m.col] === Empty);
+    
+    if (bestMove) {
+        move.row = bestMove.row;
+        move.col = bestMove.col;
+    } else {
+        // Chạy Alpha-Beta nếu không có dữ liệu từ trận cũ
+        let XX, YY;
+        let depth = 4;
+        alphabeta(player, -Infinity, Infinity, depth);
+        move.row = XX;
+        move.col = YY;
+    }
+}
+	function openDB() {
+		return new Promise((resolve, reject) => {
+			let request = indexedDB.open("CaroAI_DB", 1);
+			request.onupgradeneeded = function (event) {
+				let db = event.target.result;
+				if (!db.objectStoreNames.contains("matches")) {
+					db.createObjectStore("matches", { keyPath: "id", autoIncrement: true });
+				}
+			};
+			request.onsuccess = function (event) {
+				resolve(event.target.result);
+			};
+			request.onerror = function (event) {
+				reject(event.target.error);
+			};
+		});
+	}
+
+	async function saveMatchData(gameData) {
+		let db = await openDB();
+		let transaction = db.transaction("matches", "readwrite");
+		let store = transaction.objectStore("matches");
+		store.add(gameData);
+	}
+	
+	
+	async function getPastMatches() {
+		let db = await openDB();
+		return new Promise((resolve, reject) => {
+			let transaction = db.transaction("matches", "readonly");
+			let store = transaction.objectStore("matches");
+			let request = store.getAll();
+			
+			request.onsuccess = function () {
+				resolve(request.result);
+			};
+			request.onerror = function () {
+				reject(request.error);
+			};
+		});
+	}
+	
+
+    function cval() {  // Đánh giá bàn cờ với trọng số tốt hơn
+        let cval_value = 0;
+        
+        function val(XO) {
+            let value = 0;
+            let patterns = [
+                { regex: (XO === X) ? /11111/g : /22222/g, score: 1000000 }, // Thắng ngay
+                { regex: (XO === X) ? /011110/g : /022220/g, score: 50000 }, // Tạo nước 4 nước kín
+                { regex: (XO === X) ? /011112|211110/g : /022221|122220/g, score: 10000 }, // 4 nước mở 1 đầu
+                { regex: (XO === X) ? /01110/g : /02220/g, score: 5000 }, // 3 nước mở
+                { regex: (XO === X) ? /0110/g : /0220/g, score: 1000 }, // 2 nước mở
+            ];
+            
+            for (let pattern of patterns) {
+                let matches = valStr.match(pattern.regex) || [];
+                value += matches.length * pattern.score;
+            }
+            return value;
+        }
+        
+        let valStr = '';
+        for (let i = 0; i < 15; i++) {
+            valStr += '0' + currGame.sq[i].join('') + '03';
+        }
+        for (let j = 0; j < 15; j++) {
+            valStr += '0';
+            for (let i = 0; i < 15; i++) {
+                valStr += currGame.sq[i][j];
+            }
+            valStr += '03';
+        }
+        cval_value = val(O) - val(X);
+        return cval_value;
+    }
+
+    function alphabeta(XO, alpha, beta, depth) {
+        if (referee.isWin() === X) return -10000000;
+        if (referee.isWin() === O) return 10000000;
+        if (depth === 0) return cval();
+
+        let moves = [];
+        for (let i = 0; i < 15; i++) {
+            for (let j = 0; j < 15; j++) {
+                if (currGame.sq[i][j] === Empty) {
+                    let score = cval();
+                    moves.push({ row: i, col: j, score });
+                }
+            }
+        }
+        
+        moves.sort((a, b) => (XO === O ? b.score - a.score : a.score - b.score));
+        let bestMove = null;
+        let score;
+        
+        if (XO === O) {
+            for (let move of moves) {
+                currGame.sq[move.row][move.col] = O;
+                score = alphabeta(X, alpha, beta, depth - 1);
+                currGame.sq[move.row][move.col] = Empty;
+                if (score > alpha) {
+                    alpha = score;
+                    bestMove = move;
+                }
+                if (alpha >= beta) break;
+            }
+            if (bestMove) {
+                XX = bestMove.row;
+                YY = bestMove.col;
+            }
+            return alpha;
+        } else {
+            for (let move of moves) {
+                currGame.sq[move.row][move.col] = X;
+                score = alphabeta(O, alpha, beta, depth - 1);
+                currGame.sq[move.row][move.col] = Empty;
+                if (score < beta) beta = score;
+                if (alpha >= beta) break;
+            }
+            return beta;
+        }
+    }
+
+    async function analyzePastGames() {
+		let pastGames = await getPastMatches();
+		let bestMoves = [];
+		
+		pastGames.forEach(game => {
+			game.moves.forEach(move => {
+				if (move.impactScore > 5000) {
+					bestMoves.push(move);
+				}
+			});
+		});
+	
+		return bestMoves;
+	}
+	
+    </script>
+     <footer>
+      <div class="footer-container">
+          <div class="social-icons">
+              <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+              <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+              <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+          </div>
+          &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+      </div>
+  </footer>
+</body>
+</html>
