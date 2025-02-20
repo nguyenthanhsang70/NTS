@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caro Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -71,7 +72,7 @@
         }
         .options {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 15px;
         }
@@ -132,8 +133,7 @@
             font-size: 0.9em;
             color: #666;
         }
-         /* Responsive Design */
-         @media (max-width: 600px) {
+        @media (max-width: 600px) {
             h2 {
                 font-size: 1.5rem;
             }
@@ -142,9 +142,6 @@
             }
             .back-container a {
                 font-size: 0.8rem;
-            }
-            .dice {
-                font-size: 60px;
             }
             .controls {
                 flex-direction: column;
@@ -157,7 +154,6 @@
     </style>
 </head>
 <body>
-  <!-- <script type="text/javascript" src="ai.js"></script> -->
     <div class="back-container">
         <a href="game.html">
             <i class="fas fa-arrow-left"></i> Quay lại
@@ -171,7 +167,7 @@
         <div class="controls">
             <button onclick="startGame('computer')">Chơi với máy</button>
             <button onclick="startGame('player')">Chơi với người</button>
-            <button onclick="resetBoard()">Làm mới</button>
+            <button onclick="resetBoard()">Chơi lại</button>
         </div>
         <div class="options">
             <div>
@@ -185,13 +181,6 @@
                 </select>
             </div>
             <div>
-                <label>Chọn quân:</label>
-                <select id="piece" onchange="selectPiece(this.value)">
-                    <option value="X">X</option>
-                    <option value="O">O</option>
-                </select>
-            </div>
-            <div>
                 <label>Số ô để thắng:</label>
                 <input type="number" id="winCondition" value="5" min="3" max="7">
             </div>
@@ -202,11 +191,13 @@
     <script>
         const boardSize = 10;
         let boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
-        let currentPlayer = 'X';
-        let computerPlayer = null;
-        let humanPlayer = null;
+        let currentPlayer = 'O';
+        const computerPlayer = 'O';
+        const humanPlayer = 'X';
         let difficultyLevel = 'medium';
         let winConditionLength = 5;
+        let currentGameMoves = [];
+        let currentMode = null;
 
         const boardElement = document.getElementById('board');
         const messageElement = document.getElementById('message');
@@ -214,24 +205,30 @@
         const winConditionInput = document.getElementById('winCondition');
 
         function startGame(mode) {
-            resetBoard();
+            resetBoardWithoutStart();
+            currentMode = mode;
             if (mode === 'computer') {
-                computerPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                humanPlayer = currentPlayer;
-                gameModeElement.textContent = `Chế độ chơi: Player vs Máy`;
-                if (computerPlayer === 'X') {
-                    makeComputerMove();
-                }
+                gameModeElement.textContent = `Chế độ chơi: Player (X) vs Máy (O, đi trước)`;
+                currentPlayer = computerPlayer;
+                makeComputerMove(true); // Gọi nước đi đầu tiên không delay
             } else {
-                computerPlayer = null;
                 gameModeElement.textContent = `Chế độ chơi: Player 1 vs Player 2`;
+                currentPlayer = 'X';
             }
         }
 
         function resetBoard() {
+            resetBoardWithoutStart();
+            if (currentMode) {
+                startGame(currentMode); // Tự động bắt đầu lại trò chơi với chế độ hiện tại
+            }
+        }
+
+        function resetBoardWithoutStart() {
             boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
             boardElement.innerHTML = '';
             messageElement.textContent = '';
+            currentGameMoves = [];
             for (let i = 0; i < boardSize * boardSize; i++) {
                 const cell = document.createElement('div');
                 cell.classList.add('cell');
@@ -244,17 +241,13 @@
             difficultyLevel = level;
         }
 
-        function selectPiece(piece) {
-            currentPlayer = piece;
-        }
-
         function handleCellClick(index) {
-            if (boardState[Math.floor(index / boardSize)][index % boardSize] || computerPlayer === currentPlayer) return;
+            if (boardState[Math.floor(index / boardSize)][index % boardSize] || currentPlayer === computerPlayer) return;
 
-            placePiece(index, currentPlayer);
+            placePiece(index, humanPlayer);
 
-            if (checkWin(currentPlayer)) {
-                showMessage(`${currentPlayer} thắng!`);
+            if (checkWin(humanPlayer)) {
+                showMessage(`${humanPlayer} thắng!`);
                 return;
             }
 
@@ -263,90 +256,75 @@
                 return;
             }
 
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-
-            if (computerPlayer === currentPlayer) {
-                makeComputerMove();
-            }
+            currentPlayer = computerPlayer;
+            makeComputerMove();
         }
 
         function placePiece(index, player) {
             const row = Math.floor(index / boardSize);
             const col = index % boardSize;
             boardState[row][col] = player;
-            const cell = boardElement.children[index];
-            cell.textContent = player;
-            cell.classList.add(player);
+            boardElement.children[index].textContent = player;
+            boardElement.children[index].classList.add(player);
+            currentGameMoves.push({ row, col, player });
         }
 
         function checkWin(player) {
             winConditionLength = parseInt(winConditionInput.value, 10);
+            const directions = [
+                { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 0 },
+                { rowDir: 1, colDir: 1 },
+                { rowDir: 1, colDir: -1 }
+            ];
             for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col <= boardSize - winConditionLength; col++) {
-                    if (checkLine(row, col, 0, 1, player)) return true; // Horizontal
-                }
-            }
-            for (let col = 0; col < boardSize; col++) {
-                for (let row = 0; row <= boardSize - winConditionLength; row++) {
-                    if (checkLine(row, col, 1, 0, player)) return true; // Vertical
-                }
-            }
-            for (let row = 0; row <= boardSize - winConditionLength; row++) {
-                for (let col = 0; col <= boardSize - winConditionLength; col++) {
-                    if (checkLine(row, col, 1, 1, player)) return true; // Diagonal Down-right
-                }
-            }
-            for (let row = 0; row <= boardSize - winConditionLength; row++) {
-                for (let col = winConditionLength - 1; col < boardSize; col++) {
-                    if (checkLine(row, col, 1, -1, player)) return true; // Diagonal Down-left
+                for (let col = 0; col < boardSize; col++) {
+                    if (boardState[row][col] === player) {
+                        for (const { rowDir, colDir } of directions) {
+                            let count = 1;
+                            for (let i = 1; i < winConditionLength; i++) {
+                                const newRow = row + i * rowDir;
+                                const newCol = col + i * colDir;
+                                if (newRow >= boardSize || newCol >= boardSize || boardState[newRow][newCol] !== player) break;
+                                count++;
+                            }
+                            if (count === winConditionLength) {
+                                highlightWinningLine(row, col, rowDir, colDir, player);
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
             return false;
         }
 
-        function checkLine(row, col, rowDir, colDir, player) {
-            for (let i = 0; i < winConditionLength; i++) {
-                if (boardState[row + i * rowDir][col + i * colDir] !== player) return false;
-            }
-            highlightWinningLine(row, col, rowDir, colDir, player);
-            return true;
-        }
-
         function highlightWinningLine(row, col, rowDir, colDir, player) {
             for (let i = 0; i < winConditionLength; i++) {
                 const index = (row + i * rowDir) * boardSize + (col + i * colDir);
-                const cell = boardElement.children[index];
-                cell.style.backgroundColor = player === 'X' ? '#d1e7dd' : '#f8d7da';
+                boardElement.children[index].style.backgroundColor = player === 'X' ? '#d1e7dd' : '#f8d7da';
             }
         }
 
         function showMessage(msg) {
             messageElement.textContent = msg;
+            if (msg.includes('thắng') || msg === 'Hòa!') {
+                saveGameResult(msg.includes('X') ? 'X' : msg.includes('O') ? 'O' : 'tie');
+            }
         }
 
-        function makeComputerMove() {
-            setTimeout(() => {
+        function makeComputerMove(noDelay = false) {
+            const executeMove = async () => {
                 let move;
-                switch(difficultyLevel) {
-                    case 'easy':
-                        move = getEasyMove();
-                        break;
-                    case 'medium':
-                        move = getMediumMove();
-                        break;
-                    case 'hard':
-                        move = getHardMove();
-                        break;
-                    case 'very-hard':
-                        move = getVeryHardMove();
-                        break;
-                    case 'extreme':
-                        move = getExtremeMove();
-                        break;
-                    default:
-                        move = getMediumMove();
+                switch (difficultyLevel) {
+                    case 'easy': move = getEasyMove(); break;
+                    case 'medium': move = getMediumMove(); break;
+                    case 'hard': move = await getHardMove(); break;
+                    case 'very-hard': move = await getVeryHardMove(); break;
+                    case 'extreme': move = await getExtremeMove(); break;
+                    default: move = getMediumMove();
                 }
-                if (move !== null) {
+                if (move) {
                     placePiece(move.row * boardSize + move.col, computerPlayer);
                     if (checkWin(computerPlayer)) {
                         showMessage(`${computerPlayer} thắng!`);
@@ -358,316 +336,287 @@
                     }
                     currentPlayer = humanPlayer;
                 }
-            }, 500);
+            };
+
+            if (noDelay) {
+                executeMove(); // Thực hiện ngay lập tức khi bắt đầu hoặc chơi lại
+            } else {
+                setTimeout(executeMove, 100); // Delay cho các nước đi sau trong ván chơi
+            }
         }
 
         function getEasyMove() {
-            const availableMoves = [];
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
-                    if (boardState[row][col] === null) {
-                        availableMoves.push({ row, col });
-                    }
-                }
-            }
-            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            const moves = getPotentialMoves();
+            return moves[Math.floor(Math.random() * moves.length)];
         }
 
         function getMediumMove() {
-            const winningMove = findWinningMove(computerPlayer);
-            if (winningMove) return winningMove;
-            const blockingMove = findWinningMove(humanPlayer);
-            if (blockingMove) return blockingMove;
-            return getEasyMove();
+            return findWinningMove(computerPlayer) || findWinningMove(humanPlayer) || getEasyMove();
         }
 
-        function getHardMove() {
-            const winningMove = findWinningMove(computerPlayer);
-            if (winningMove) return winningMove;
-            const blockingMove = findWinningMove(humanPlayer);
-            if (blockingMove) return blockingMove;
-            const strategicMove = findStrategicMove();
-            if (strategicMove) return strategicMove;
-            return getEasyMove();
+        async function getHardMove() {
+            return findWinningMove(computerPlayer) || 
+                   findWinningMove(humanPlayer) || 
+                   blockTwoInARow(humanPlayer) || 
+                   createThreat(computerPlayer) || 
+                   await runAlphaBeta(computerPlayer, 2) || 
+                   getEasyMove();
         }
 
-        function getVeryHardMove() {
-            const winningMove = findWinningMove(computerPlayer);
-            if (winningMove) return winningMove;
-            const blockingMove = findWinningMove(humanPlayer);
-            if (blockingMove) return blockingMove;
-            const strategicMove = findStrategicMove();
-            if (strategicMove) return strategicMove;
-            const defensiveMove = findDefensiveMove();
-            if (defensiveMove) return defensiveMove;
-            return getEasyMove();
+        async function getVeryHardMove() {
+            return findWinningMove(computerPlayer) || 
+                   findWinningMove(humanPlayer) || 
+                   blockTwoInARow(humanPlayer) || 
+                   createThreat(computerPlayer) || 
+                   await runAlphaBeta(computerPlayer, 3) || 
+                   getEasyMove();
         }
 
-        function getExtremeMove() {
-            const winningMove = findWinningMove(computerPlayer);
-            if (winningMove) return winningMove;
-            const blockingMove = findWinningMove(humanPlayer);
-            if (blockingMove) return blockingMove;
-            const strategicMove = findStrategicMove();
-            if (strategicMove) return strategicMove;
-            const defensiveMove = findDefensiveMove();
-            if (defensiveMove) return defensiveMove;
-            const advancedMove = findAdvancedMove();
-            if (advancedMove) return advancedMove;
-            return getEasyMove();
+        async function getExtremeMove() {
+            return findWinningMove(computerPlayer) || 
+                   findWinningMove(humanPlayer) || 
+                   blockTwoInARow(humanPlayer) || 
+                   createThreat(computerPlayer) || 
+                   await runAlphaBeta(computerPlayer, 4) || 
+                   getEasyMove();
+        }
+
+        function getPotentialMoves() {
+            const moves = [];
+            const range = 2;
+            for (const { row, col } of currentGameMoves) {
+                for (let r = Math.max(0, row - range); r <= Math.min(boardSize - 1, row + range); r++) {
+                    for (let c = Math.max(0, col - range); c <= Math.min(boardSize - 1, col + range); c++) {
+                        if (!boardState[r][c]) moves.push({ row: r, col: c });
+                    }
+                }
+            }
+            return moves.length ? moves : [{ row: Math.floor(boardSize / 2), col: Math.floor(boardSize / 2) }];
         }
 
         function findWinningMove(player) {
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
-                    if (boardState[row][col] === null) {
-                        boardState[row][col] = player;
-                        if (checkWin(player)) {
-                            boardState[row][col] = null;
-                            return { row, col };
-                        }
-                        boardState[row][col] = null;
-                    }
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (checkWin(player)) {
+                    boardState[row][col] = null;
+                    return { row, col };
                 }
+                boardState[row][col] = null;
             }
             return null;
         }
 
-        function findStrategicMove() {
-            const centralMoves = [
-                { row: Math.floor(boardSize / 2), col: Math.floor(boardSize / 2) },
-                { row: Math.floor(boardSize / 2) - 1, col: Math.floor(boardSize / 2) },
-                { row: Math.floor(boardSize / 2), col: Math.floor(boardSize / 2) - 1 },
-                { row: Math.floor(boardSize / 2) - 1, col: Math.floor(boardSize / 2) - 1 }
-            ];
-            for (const move of centralMoves) {
-                if (boardState[move.row] && boardState[move.row][move.col] === null) {
-                    return move;
-                }
-            }
-            return null;
-        }
-
-        function findDefensiveMove() {
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
-                    if (boardState[row][col] === null) {
-                        boardState[row][col] = humanPlayer;
-                        if (checkWin(humanPlayer)) {
-                            boardState[row][col] = null;
-                            return { row, col };
-                        }
-                        boardState[row][col] = null;
-                    }
-                }
-            }
-            return null;
-        }
-
-        function findAdvancedMove() {
+        function blockTwoInARow(player) {
             const directions = [
-                { rowDir: 1, colDir: 0 },
                 { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 0 },
+                { rowDir: 1, colDir: 1 },
+                { rowDir: 1, colDir: -1 }
+            ];
+            for (const { row, col } of currentGameMoves) {
+                if (boardState[row][col] === player) {
+                    for (const dir of directions) {
+                        const nextRow = row + dir.rowDir;
+                        const nextCol = col + dir.colDir;
+                        if (nextRow >= 0 && nextRow < boardSize && nextCol >= 0 && nextCol < boardSize &&
+                            boardState[nextRow][nextCol] === player) {
+                            const blockRow = nextRow + dir.rowDir;
+                            const blockCol = nextCol + dir.colDir;
+                            if (blockRow >= 0 && blockRow < boardSize && blockCol >= 0 && blockCol < boardSize &&
+                                !boardState[blockRow][blockCol]) {
+                                return { row: blockRow, col: blockCol };
+                            }
+                            const prevRow = row - dir.rowDir;
+                            const prevCol = col - dir.colDir;
+                            if (prevRow >= 0 && prevRow < boardSize && prevCol >= 0 && prevCol < boardSize &&
+                                !boardState[prevRow][prevCol]) {
+                                return { row: prevRow, col: prevCol };
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function createThreat(player) {
+            const directions = [
+                { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 0 },
+                { rowDir: 1, colDir: 1 },
+                { rowDir: 1, colDir: -1 }
+            ];
+            for (const { row, col } of getPotentialMoves()) {
+                for (const dir of directions) {
+                    let count = 0;
+                    let emptyCount = 0;
+                    for (let i = 1; i <= 4; i++) {
+                        const newRow = row + i * dir.rowDir;
+                        const newCol = col + i * dir.colDir;
+                        if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                            if (boardState[newRow][newCol] === player) count++;
+                            else if (!boardState[newRow][newCol]) emptyCount++;
+                            else break;
+                        }
+                    }
+                    if (count >= 2 && emptyCount >= 1) return { row, col };
+                }
+            }
+            return null;
+        }
+
+        async function runAlphaBeta(player, depth) {
+            let XX, YY;
+            alphabeta(player, -Infinity, Infinity, depth, (row, col) => {
+                XX = row;
+                YY = col;
+            });
+            return (XX !== undefined && YY !== undefined) ? { row: XX, col: YY } : null;
+        }
+
+        function alphabeta(XO, alpha, beta, depth, setBestMove) {
+            if (checkWin('X')) return XO === 'X' ? -Infinity : Infinity;
+            if (checkWin('O')) return XO === 'O' ? Infinity : -Infinity;
+            if (depth === 0 || !boardState.flat().includes(null)) return evaluateBoard();
+
+            const moves = getPotentialMoves();
+            moves.sort((a, b) => evaluateBoardMove(a.row, a.col, XO) - evaluateBoardMove(b.row, b.col, XO));
+            let bestMove = null;
+
+            if (XO === computerPlayer) {
+                for (const move of moves) {
+                    boardState[move.row][move.col] = XO;
+                    const score = alphabeta(humanPlayer, alpha, beta, depth - 1, setBestMove);
+                    boardState[move.row][move.col] = null;
+                    if (score > alpha) {
+                        alpha = score;
+                        bestMove = move;
+                    }
+                    if (alpha >= beta) break;
+                }
+                if ((depth === 2 || depth === 3 || depth === 4) && bestMove) setBestMove(bestMove.row, bestMove.col);
+                return alpha;
+            } else {
+                for (const move of moves) {
+                    boardState[move.row][move.col] = XO;
+                    const score = alphabeta(computerPlayer, alpha, beta, depth - 1, setBestMove);
+                    boardState[move.row][move.col] = null;
+                    if (score < beta) beta = score;
+                    if (alpha >= beta) break;
+                }
+                return beta;
+            }
+        }
+
+        function evaluateBoardMove(row, col, player) {
+            boardState[row][col] = player;
+            const score = evaluateBoard();
+            boardState[row][col] = null;
+            return score;
+        }
+
+        function evaluateBoard() {
+            let score = 0;
+            const patterns = [
+                { pattern: /OOOOO/g, score: 100000 },
+                { pattern: /XXXXX/g, score: -100000 },
+                { pattern: /0OOOO0/g, score: 1000 },
+                { pattern: /0XXXX0/g, score: -1000 },
+                { pattern: /0OOO0/g, score: 100 },
+                { pattern: /0XXX0/g, score: -100 }
+            ];
+            const directions = [
+                { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 0 },
                 { rowDir: 1, colDir: 1 },
                 { rowDir: 1, colDir: -1 }
             ];
 
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
-                    if (boardState[row][col] === null) {
-                        for (const dir of directions) {
-                            let count = 0;
-                            let emptyCount = 0;
-                            for (let i = 1; i < winConditionLength; i++) {
-                                const newRow = row + i * dir.rowDir;
-                                const newCol = col + i * dir.colDir;
-                                if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
-                                    if (boardState[newRow][newCol] === computerPlayer) {
-                                        count++;
-                                    } else if (boardState[newRow][newCol] === null) {
-                                        emptyCount++;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                            }
-                            if (count === winConditionLength - 2 && emptyCount > 0) {
-                                return { row, col };
-                            }
+            for (const dir of directions) {
+                for (const { row, col } of currentGameMoves) {
+                    let boardStr = '';
+                    for (let i = -winConditionLength; i <= winConditionLength; i++) {
+                        const r = row + i * dir.rowDir;
+                        const c = col + i * dir.colDir;
+                        if (r >= 0 && r < boardSize && c >= 0 && c < boardSize) {
+                            boardStr += boardState[r][c] || '0';
                         }
+                    }
+                    for (const { pattern, score: patternScore } of patterns) {
+                        score += (boardStr.match(pattern) || []).length * patternScore;
                     }
                 }
             }
-            return null;
+            return score;
         }
-        async function AIthink(player, move) {
-    let pastMoves = await analyzePastGames();
 
-    // Ưu tiên chơi những nước đi đã giúp AI thắng trong quá khứ
-    let bestMove = pastMoves.find(m => currGame.sq[m.row][m.col] === Empty);
-    
-    if (bestMove) {
-        move.row = bestMove.row;
-        move.col = bestMove.col;
-    } else {
-        // Chạy Alpha-Beta nếu không có dữ liệu từ trận cũ
-        let XX, YY;
-        let depth = 4;
-        alphabeta(player, -Infinity, Infinity, depth);
-        move.row = XX;
-        move.col = YY;
-    }
-}
-	function openDB() {
-		return new Promise((resolve, reject) => {
-			let request = indexedDB.open("CaroAI_DB", 1);
-			request.onupgradeneeded = function (event) {
-				let db = event.target.result;
-				if (!db.objectStoreNames.contains("matches")) {
-					db.createObjectStore("matches", { keyPath: "id", autoIncrement: true });
-				}
-			};
-			request.onsuccess = function (event) {
-				resolve(event.target.result);
-			};
-			request.onerror = function (event) {
-				reject(event.target.error);
-			};
-		});
-	}
-
-	async function saveMatchData(gameData) {
-		let db = await openDB();
-		let transaction = db.transaction("matches", "readwrite");
-		let store = transaction.objectStore("matches");
-		store.add(gameData);
-	}
-	
-	
-	async function getPastMatches() {
-		let db = await openDB();
-		return new Promise((resolve, reject) => {
-			let transaction = db.transaction("matches", "readonly");
-			let store = transaction.objectStore("matches");
-			let request = store.getAll();
-			
-			request.onsuccess = function () {
-				resolve(request.result);
-			};
-			request.onerror = function () {
-				reject(request.error);
-			};
-		});
-	}
-	
-
-    function cval() {  // Đánh giá bàn cờ với trọng số tốt hơn
-        let cval_value = 0;
-        
-        function val(XO) {
-            let value = 0;
-            let patterns = [
-                { regex: (XO === X) ? /11111/g : /22222/g, score: 1000000 }, // Thắng ngay
-                { regex: (XO === X) ? /011110/g : /022220/g, score: 50000 }, // Tạo nước 4 nước kín
-                { regex: (XO === X) ? /011112|211110/g : /022221|122220/g, score: 10000 }, // 4 nước mở 1 đầu
-                { regex: (XO === X) ? /01110/g : /02220/g, score: 5000 }, // 3 nước mở
-                { regex: (XO === X) ? /0110/g : /0220/g, score: 1000 }, // 2 nước mở
-            ];
-            
-            for (let pattern of patterns) {
-                let matches = valStr.match(pattern.regex) || [];
-                value += matches.length * pattern.score;
-            }
-            return value;
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open("CaroAI_DB", 1);
+                request.onupgradeneeded = event => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains("matches")) {
+                        db.createObjectStore("matches", { keyPath: "id", autoIncrement: true });
+                    }
+                };
+                request.onsuccess = event => resolve(event.target.result);
+                request.onerror = event => reject(event.target.error);
+            });
         }
-        
-        let valStr = '';
-        for (let i = 0; i < 15; i++) {
-            valStr += '0' + currGame.sq[i].join('') + '03';
-        }
-        for (let j = 0; j < 15; j++) {
-            valStr += '0';
-            for (let i = 0; i < 15; i++) {
-                valStr += currGame.sq[i][j];
-            }
-            valStr += '03';
-        }
-        cval_value = val(O) - val(X);
-        return cval_value;
-    }
 
-    function alphabeta(XO, alpha, beta, depth) {
-        if (referee.isWin() === X) return -10000000;
-        if (referee.isWin() === O) return 10000000;
-        if (depth === 0) return cval();
-
-        let moves = [];
-        for (let i = 0; i < 15; i++) {
-            for (let j = 0; j < 15; j++) {
-                if (currGame.sq[i][j] === Empty) {
-                    let score = cval();
-                    moves.push({ row: i, col: j, score });
-                }
-            }
+        async function saveMatchData(gameData) {
+            const db = await openDB();
+            const transaction = db.transaction("matches", "readwrite");
+            transaction.objectStore("matches").add(gameData);
         }
-        
-        moves.sort((a, b) => (XO === O ? b.score - a.score : a.score - b.score));
-        let bestMove = null;
-        let score;
-        
-        if (XO === O) {
-            for (let move of moves) {
-                currGame.sq[move.row][move.col] = O;
-                score = alphabeta(X, alpha, beta, depth - 1);
-                currGame.sq[move.row][move.col] = Empty;
-                if (score > alpha) {
-                    alpha = score;
-                    bestMove = move;
-                }
-                if (alpha >= beta) break;
-            }
-            if (bestMove) {
-                XX = bestMove.row;
-                YY = bestMove.col;
-            }
-            return alpha;
-        } else {
-            for (let move of moves) {
-                currGame.sq[move.row][move.col] = X;
-                score = alphabeta(O, alpha, beta, depth - 1);
-                currGame.sq[move.row][move.col] = Empty;
-                if (score < beta) beta = score;
-                if (alpha >= beta) break;
-            }
-            return beta;
-        }
-    }
 
-    async function analyzePastGames() {
-		let pastGames = await getPastMatches();
-		let bestMoves = [];
-		
-		pastGames.forEach(game => {
-			game.moves.forEach(move => {
-				if (move.impactScore > 5000) {
-					bestMoves.push(move);
-				}
-			});
-		});
-	
-		return bestMoves;
-	}
-	
+        async function getPastMatches(limit = 10) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const request = db.transaction("matches", "readonly").objectStore("matches").getAll();
+                request.onsuccess = () => resolve(request.result.slice(-limit));
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function saveGameResult(winner) {
+            await saveMatchData({
+                moves: currentGameMoves,
+                winner: winner,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        async function analyzePastGames(limit = 10) {
+            const pastGames = await getPastMatches(limit);
+            const moveScores = new Map();
+            pastGames.forEach(game => {
+                game.moves.forEach(move => {
+                    const key = `${move.row},${move.col}`;
+                    if (!moveScores.has(key)) moveScores.set(key, { wins: 0, total: 0 });
+                    const stats = moveScores.get(key);
+                    stats.total++;
+                    if (game.winner === move.player) stats.wins++;
+                });
+            });
+            const bestMoves = [];
+            moveScores.forEach((stats, key) => {
+                const [row, col] = key.split(',').map(Number);
+                const winRate = stats.wins / stats.total;
+                if (stats.total > 1 && winRate > 0.5) bestMoves.push({ row, col, winRate });
+            });
+            return bestMoves.sort((a, b) => b.winRate - a.winRate);
+        }
     </script>
-     <footer>
-      <div class="footer-container">
-          <div class="social-icons">
-              <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
-              <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
-              <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-          </div>
-          &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
-      </div>
-  </footer>
+    <footer>
+        <div class="footer-container">
+            <div class="social-icons">
+                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+            </div>
+            © 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+        </div>
+    </footer>
 </body>
 </html>
