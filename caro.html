@@ -234,31 +234,31 @@
             color: #ecf0f1; /* Light text on hover */
         }
         @media (max-width: 600px) {
-    .board {
-        grid-template-columns: repeat(10, 30px); /* Giảm kích thước ô */
-        gap: 1px; /* Giảm khoảng cách giữa các ô */
-    }
-    .cell {
-        width: 30px; /* Giảm kích thước ô */
-        height: 30px;
-        font-size: 1.2em; /* Giảm kích thước font chữ */
-    }
-    .game-container {
-        width: 100%; /* Chiếm toàn bộ chiều rộng màn hình */
-        padding: 10px; /* Giảm padding */
-    }
-    .controls button {
-        padding: 8px 12px; /* Giảm padding của nút */
-        font-size: 0.9em; /* Giảm kích thước font chữ của nút */
-    }
-    .options select, .player-options select {
-        max-width: 100%; /* Đảm bảo dropdown chiếm toàn bộ chiều rộng */
-        font-size: 0.9em; /* Giảm kích thước font chữ của dropdown */
-    }
-    .message {
-        font-size: 1em; /* Giảm kích thước font chữ của thông báo */
-    }
-}
+            .board {
+                grid-template-columns: repeat(10, 30px); /* Giảm kích thước ô */
+                gap: 1px; /* Giảm khoảng cách giữa các ô */
+            }
+            .cell {
+                width: 30px; /* Giảm kích thước ô */
+                height: 30px;
+                font-size: 1.2em; /* Giảm kích thước font chữ */
+            }
+            .game-container {
+                width: 100%; /* Chiếm toàn bộ chiều rộng màn hình */
+                padding: 10px; /* Giảm padding */
+            }
+            .controls button {
+                padding: 8px 12px; /* Giảm padding của nút */
+                font-size: 0.9em; /* Giảm kích thước font chữ của nút */
+            }
+            .options select, .player-options select {
+                max-width: 100%; /* Đảm bảo dropdown chiếm toàn bộ chiều rộng */
+                font-size: 0.9em; /* Giảm kích thước font chữ của dropdown */
+            }
+            .message {
+                font-size: 1em; /* Giảm kích thước font chữ của thông báo */
+            }
+        }
     </style>
 </head>
 <body>
@@ -376,7 +376,7 @@
                 currentPlayer = computerPlayer;
                 humanPlayer = 'X';
                 computerPlayer = 'O';
-                winConditionLength = 3; // Reset to default for computer mode
+                winConditionLength = 5; // Reset to default for computer mode
                 difficultyOptionsElement.style.display = 'block'; // Show difficulty selection
                 playerOptionsElement.style.display = 'none'; // Hide player options
                 makeComputerMove(true);
@@ -538,16 +538,79 @@
         }
 
         async function getHardMove() {
-            return (
-                findWinningMove(computerPlayer) ||
-                findWinningMove(humanPlayer) ||
-                blockMultipleThreeInARow(humanPlayer) ||
-                createDoubleThreat(computerPlayer) ||
-                blockTwoInARow(humanPlayer) ||
-                createThreat(computerPlayer) ||
-                await runAlphaBeta(computerPlayer, 3) ||
-                getEasyMove()
-            );
+            const moves = getPotentialMoves();
+
+            // Priority 1: Win immediately (Situation 1)
+            const winningMove = findWinningMove(computerPlayer);
+            if (winningMove) return winningMove;
+
+            // Priority 2: Block opponent's win (Situation 1)
+            const blockWin = findWinningMove(humanPlayer);
+            if (blockWin) return blockWin;
+
+            // Priority 3: Create Open Four (Situation 2 - Attack)
+            const openFourAttack = findOpenFour(computerPlayer);
+            if (openFourAttack) return openFourAttack;
+
+            // Priority 4: Block opponent's Open Four (Situation 2 - Defense)
+            const blockOpenFour = findOpenFour(humanPlayer);
+            if (blockOpenFour) return blockOpenFour;
+
+            // Priority 5: Create Half-Open Four (Situation 3 - Attack)
+            const halfOpenFourAttack = findHalfOpenFour(computerPlayer);
+            if (halfOpenFourAttack) return halfOpenFourAttack;
+
+            // Priority 6: Block opponent's Half-Open Four (Situation 3 - Defense)
+            const blockHalfOpenFour = findHalfOpenFour(humanPlayer);
+            if (blockHalfOpenFour) return blockHalfOpenFour;
+
+            // Priority 7: Create Open Three (Situation 4 - Attack)
+            const openThreeAttack = findOpenThree(computerPlayer);
+            if (openThreeAttack) return openThreeAttack;
+
+            // Priority 8: Block opponent's Open Three (Situation 4 - Defense)
+            const blockOpenThree = findOpenThree(humanPlayer);
+            if (blockOpenThree) return blockOpenThree;
+
+            // Priority 9: Create Half-Open Three (Situation 5 - Attack)
+            const halfOpenThreeAttack = findHalfOpenThree(computerPlayer);
+            if (halfOpenThreeAttack) return halfOpenThreeAttack;
+
+            // Priority 10: Block opponent's Half-Open Three (Situation 5 - Defense)
+            const blockHalfOpenThree = findHalfOpenThree(humanPlayer);
+            if (blockHalfOpenThree) return blockHalfOpenThree;
+
+            // Priority 11: Create Open Two (Situation 6 - Development)
+            const openTwoAttack = findOpenTwo(computerPlayer);
+            if (openTwoAttack) return openTwoAttack;
+
+            // Priority 12: Create Double Threats (Situation 7)
+            const doubleThreat = createDoubleThreat(computerPlayer);
+            if (doubleThreat) return doubleThreat;
+
+            // Priority 13: Active Defense (Situation 8)
+            const activeDefense = blockMultipleThreeInARow(humanPlayer);
+            if (activeDefense) return activeDefense;
+
+            // Priority 14: Occupy Center (Situation 9 - Early/Mid Game)
+            const remainingCells = boardState.flat().filter(cell => !cell).length;
+            if (remainingCells > boardSize * boardSize * 0.5) { // More than 50% empty
+                const centerMove = occupyCenter();
+                if (centerMove) return centerMove;
+            }
+
+            // Priority 15: Set Trap (Situation 10)
+            const trapMove = createTrap(computerPlayer);
+            if (trapMove) return trapMove;
+
+            // Priority 16: Endgame Strategy (Situation 11)
+            if (remainingCells < boardSize * boardSize * 0.2) { // Less than 20% empty
+                const endgameMove = await runAlphaBeta(computerPlayer, 5); // Deeper search
+                if (endgameMove) return endgameMove;
+            }
+
+            // Fallback: Alpha-Beta or Random Move
+            return await runAlphaBeta(computerPlayer, 3) || getEasyMove();
         }
 
         function getPotentialMoves() {
@@ -575,6 +638,104 @@
             return null;
         }
 
+        function findOpenFour(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (countLine(row, col, player, 4, true)) {
+                    boardState[row][col] = null;
+                    return { row, col };
+                }
+                boardState[row][col] = null;
+            }
+            return null;
+        }
+
+        function findHalfOpenFour(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (countLine(row, col, player, 4, false)) {
+                    boardState[row][col] = null;
+                    return { row, col };
+                }
+                boardState[row][col] = null;
+            }
+            return null;
+        }
+
+        function findOpenThree(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (countLine(row, col, player, 3, true)) {
+                    boardState[row][col] = null;
+                    return { row, col };
+                }
+                boardState[row][col] = null;
+            }
+            return null;
+        }
+
+        function findHalfOpenThree(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (countLine(row, col, player, 3, false)) {
+                    boardState[row][col] = null;
+                    return { row, col };
+                }
+                boardState[row][col] = null;
+            }
+            return null;
+        }
+
+        function findOpenTwo(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                if (countLine(row, col, player, 2, true)) {
+                    boardState[row][col] = null;
+                    return { row, col };
+                }
+                boardState[row][col] = null;
+            }
+            return null;
+        }
+
+        function countLine(row, col, player, length, requireOpenEnds) {
+            const directions = [
+                { rowDir: 0, colDir: 1 },
+                { rowDir: 1, colDir: 0 },
+                { rowDir: 1, colDir: 1 },
+                { rowDir: 1, colDir: -1 }
+            ];
+            for (const { rowDir, colDir } of directions) {
+                let count = 1;
+                let openEnds = 0;
+
+                // Đếm về phía trước
+                for (let i = 1; i < length; i++) {
+                    const newRow = row + i * rowDir;
+                    const newCol = col + i * colDir;
+                    if (newRow >= boardSize || newCol >= boardSize || boardState[newRow][newCol] !== player) break;
+                    count++;
+                }
+                const forwardRow = row + length * rowDir;
+                const forwardCol = col + length * colDir;
+                if (forwardRow >= 0 && forwardRow < boardSize && forwardCol >= 0 && forwardCol < boardSize && !boardState[forwardRow][forwardCol]) openEnds++;
+
+                // Đếm về phía sau
+                for (let i = 1; i < length; i++) {
+                    const newRow = row - i * rowDir;
+                    const newCol = col - i * colDir;
+                    if (newRow < 0 || newCol < 0 || boardState[newRow][newCol] !== player) break;
+                    count++;
+                }
+                const backwardRow = row - length * rowDir;
+                const backwardCol = col - length * colDir;
+                if (backwardRow >= 0 && backwardRow < boardSize && backwardCol >= 0 && backwardCol < boardSize && !boardState[backwardRow][backwardCol]) openEnds++;
+
+                if (count >= length && (!requireOpenEnds || openEnds === 2)) return true;
+            }
+            return false;
+        }
+
         function blockMultipleThreeInARow(player) {
             const directions = [
                 { rowDir: 0, colDir: 1 },
@@ -597,7 +758,7 @@
                                 startRow = newRow;
                                 startCol = newCol;
                             }
-                            if (count === winConditionLength) {
+                            if (count === winConditionLength - 2) { // Chuỗi 3
                                 const blockForwardRow = startRow + dir.rowDir;
                                 const blockForwardCol = startCol + dir.colDir;
                                 const blockBackwardRow = row - dir.rowDir;
@@ -637,65 +798,6 @@
             return null;
         }
 
-        function blockTwoInARow(player) {
-            const directions = [
-                { rowDir: 0, colDir: 1 },
-                { rowDir: 1, colDir: 0 },
-                { rowDir: 1, colDir: 1 },
-                { rowDir: 1, colDir: -1 }
-            ];
-            for (const { row, col } of currentGameMoves) {
-                if (boardState[row][col] === player) {
-                    for (const dir of directions) {
-                        const nextRow = row + dir.rowDir;
-                        const nextCol = col + dir.colDir;
-                        if (nextRow >= 0 && nextRow < boardSize && nextCol >= 0 && nextCol < boardSize &&
-                            boardState[nextRow][nextCol] === player) {
-                            const blockRow = nextRow + dir.rowDir;
-                            const blockCol = nextCol + dir.colDir;
-                            if (blockRow >= 0 && blockRow < boardSize && blockCol >= 0 && blockCol < boardSize &&
-                                !boardState[blockRow][blockCol]) {
-                                return { row: blockRow, col: blockCol };
-                            }
-                            const prevRow = row - dir.rowDir;
-                            const prevCol = col - dir.colDir;
-                            if (prevRow >= 0 && prevRow < boardSize && prevCol >= 0 && prevCol < boardSize &&
-                                !boardState[prevRow][prevCol]) {
-                                return { row: prevRow, col: prevCol };
-                            }
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        function createThreat(player) {
-            const directions = [
-                { rowDir: 0, colDir: 1 },
-                { rowDir: 1, colDir: 0 },
-                { rowDir: 1, colDir: 1 },
-                { rowDir: 1, colDir: -1 }
-            ];
-            for (const { row, col } of getPotentialMoves()) {
-                for (const dir of directions) {
-                    let count = 0;
-                    let emptyCount = 0;
-                    for (let i = 1; i < winConditionLength; i++) {
-                        const newRow = row + i * dir.rowDir;
-                        const newCol = col + i * dir.colDir;
-                        if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
-                            if (boardState[newRow][newCol] === player) count++;
-                            else if (!boardState[newRow][newCol]) emptyCount++;
-                            else break;
-                        }
-                    }
-                    if (count >= winConditionLength - 1 && emptyCount >= 1) return { row, col };
-                }
-            }
-            return null;
-        }
-
         function createDoubleThreat(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -722,6 +824,28 @@
                 }
                 boardState[row][col] = null;
                 if (threatCount >= 2) return { row, col };
+            }
+            return null;
+        }
+
+        function occupyCenter() {
+            const center = Math.floor(boardSize / 2);
+            if (!boardState[center][center]) return { row: center, col: center };
+            return null;
+        }
+
+        function createTrap(player) {
+            for (const { row, col } of getPotentialMoves()) {
+                boardState[row][col] = player;
+                const fakeThreat = findOpenThree(player);
+                if (fakeThreat) {
+                    const realThreat = findHalfOpenFour(player);
+                    if (realThreat && (fakeThreat.row !== realThreat.row || fakeThreat.col !== realThreat.col)) {
+                        boardState[row][col] = null;
+                        return { row, col };
+                    }
+                }
+                boardState[row][col] = null;
             }
             return null;
         }
