@@ -234,44 +234,29 @@
             color: #ecf0f1; /* Light text on hover */
         }
         @media (max-width: 600px) {
-    h2 {
-        font-size: 1.5rem;
+    .board {
+        grid-template-columns: repeat(10, 30px); /* Giảm kích thước ô */
+        gap: 1px; /* Giảm khoảng cách giữa các ô */
     }
-    .back-container {
-        padding: 6px 10px;
-    }
-    .back-container a {
-        font-size: 0.8rem;
-    }
-    .controls {
-        flex-direction: column;
-        align-items: center;
-    }
-    button {
-        flex: none;
-        width: 100%;
-        margin: 5px 0; /* Thêm margin để tách biệt các nút */
-        padding: 10px; /* Tăng padding để dễ nhấn */
-    }
-    .social-icons a {
-        margin: 0 10px;
-        font-size: 1.2em;
-    }
-    .player-options select,
-    .options select {
-        max-width: 100%; /* Full width on small screens */
-        margin: 5px 0; /* Thêm margin để tách biệt các dropdown */
-    }
-    /* Thêm các quy tắc cho bảng trò chơi */
-    .game-board {
-        width: 100%;
-        max-width: 300px; /* Giới hạn kích thước bảng trò chơi */
-        margin: 0 auto; /* Căn giữa bảng trò chơi */
-    }
-    .game-board td {
-        width: 30px; /* Điều chỉnh kích thước ô */
+    .cell {
+        width: 30px; /* Giảm kích thước ô */
         height: 30px;
-        font-size: 1.2rem; /* Điều chỉnh kích thước chữ trong ô */
+        font-size: 1.2em; /* Giảm kích thước font chữ */
+    }
+    .game-container {
+        width: 100%; /* Chiếm toàn bộ chiều rộng màn hình */
+        padding: 10px; /* Giảm padding */
+    }
+    .controls button {
+        padding: 8px 12px; /* Giảm padding của nút */
+        font-size: 0.9em; /* Giảm kích thước font chữ của nút */
+    }
+    .options select, .player-options select {
+        max-width: 100%; /* Đảm bảo dropdown chiếm toàn bộ chiều rộng */
+        font-size: 0.9em; /* Giảm kích thước font chữ của dropdown */
+    }
+    .message {
+        font-size: 1em; /* Giảm kích thước font chữ của thông báo */
     }
 }
     </style>
