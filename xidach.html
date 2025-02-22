@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xì Dách Game</title>
+    <!-- Thêm Font Awesome để hỗ trợ biểu tượng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            height: 100vh;
+            overflow: auto;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .game-container {
+            margin: 10px auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            max-width: 800px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #ffeb3b;
+            color: black;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #fdd835;
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+        .player-section {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .player-section:hover {
+            transform: scale(1.02);
+        }
+        .combined-players {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .player-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin: 5px;
+            transition: transform 0.3s ease;
+        }
+        .player-box:hover {
+            transform: scale(1.02);
+        }
+        .deck-section {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .deck-section:hover {
+            transform: scale(1.02);
+        }
+        .card {
+            display: inline-block;
+            margin: 3px;
+            padding: 8px;
+            background-color: white;
+            color: black;
+            border-radius: 6px;
+            width: 50px;
+            height: 70px;
+            line-height: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: scale(1.1);
+        }
+        .card.red {
+            color: red;
+        }
+        .card .top-left, .card .bottom-right {
+            position: absolute;
+            font-size: 12px;
+        }
+        .card .top-left {
+            top: 4px;
+            left: 4px;
+        }
+        .card .bottom-right {
+            bottom: 4px;
+            right: 4px;
+            transform: rotate(180deg);
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #ffeb3b;
+            color: black;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 3px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #fdd835;
+        }
+        .result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .hidden-card {
+            background-color: gray;
+            color: gray;
+        }
+        #restart-button {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #restart-button:hover {
+            background-color: #43a047;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .footer-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .social-icons {
+            margin-bottom: 5px;
+        }
+        .social-icons a {
+            color: white;
+            font-size: 20px;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .social-icons a:hover {
+            color: #ffeb3b;
+        }
+        .footer-container p {
+            font-size: 12px;
+            margin: 0;
+        }
+        .footer-container a {
+            color: #ffeb3b;
+            text-decoration: none;
+        }
+        .footer-container a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .card {
+                width: 70px;
+                height: 100px;
+                font-size: 20px;
+            }
+            .controls button, .back-button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            .message {
+                font-size: 16px;
+                padding: 10px;
+            }
+            .social-icons a {
+                font-size: 1.5em;
+                margin: 0 10px;
+                width: 35px;
+                height: 35px;
+            }
+            .footer-container p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <a href="danhbai.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+        <h1>Xì Dách Game</h1>
+        <!-- Combined Dealer and AI Section for Dealer, AI 3, and AI 4 -->
+        <div class="player-section">
+            <h2>Nhà Cái & Các Máy</h2>
+            <div class="combined-players">
+                <div class="player-box">
+                    <h3>Nhà Cái</h3>
+                    <div id="dealer-cards"></div>
+                    <div id="dealer-score"></div>
+                </div>
+                <div class="player-box">
+                    <h3>Máy 3</h3>
+                    <div id="ai3-cards"></div>
+                    <div id="ai3-score"></div>
+                </div>
+                <div class="player-box">
+                    <h3>Máy 4</h3>
+                    <div id="ai4-cards"></div>
+                    <div id="ai4-score"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deck Section -->
+        <div class="deck-section">
+            <h2>Bộ Bài</h2>
+            <p>⧗ Bộ bài còn lại (52 lá)</p>
+        </div>
+
+        <!-- Combined Player Section for Player and AIs 1-2 -->
+        <div class="player-section">
+            <h2>Các Người Chơi</h2>
+            <div class="combined-players">
+                <div class="player-box">
+                    <h3>Người Chơi</h3>
+                    <div id="player-cards"></div>
+                    <div id="player-score"></div>
+                    <button onclick="drawCard('player')">Rút Bài</button>
+                    <button onclick="standPlayer()">Dừng</button>
+                </div>
+                <div class="player-box">
+                    <h3>Máy 1</h3>
+                    <div id="ai1-cards"></div>
+                    <div id="ai1-score"></div>
+                </div>
+                <div class="player-box">
+                    <h3>Máy 2</h3>
+                    <div id="ai2-cards"></div>
+                    <div id="ai2-score"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result" id="result"></div>
+        <button onclick="resetGame()" id="restart-button">Chơi Lại</button>
+    </div>
+    <script>
+        const suits = ['♠', '♥', '♣', '♦'];
+        const suitColors = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        let playerCards = [], playerScore = 0, isPlayerStanding = false;
+        let ai1Cards = [], ai1Score = 0, ai2Cards = [], ai2Score = 0;
+        let dealerCards = [], dealerScore = 0, ai3Cards = [], ai3Score = 0, ai4Cards = [], ai4Score = 0;
+        let deck = [];
+        let isGameOver = false;
+
+        // Khởi tạo bộ bài (52 lá)
+        function initializeDeck() {
+            deck = [];
+            values.forEach(value => {
+                suits.forEach(suit => {
+                    deck.push({ value: value, suit: suit });
+                });
+            });
+            shuffleDeck();
+        }
+
+        // Xáo trộn bộ bài
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function calculateScore(cards) {
+            let score = 0;
+            let aces = 0;
+
+            cards.forEach(card => {
+                if (card.value === 'A') {
+                    aces += 1;
+                    score += 11;
+                } else if (['J', 'Q', 'K'].includes(card.value)) {
+                    score += 10;
+                } else {
+                    score += parseInt(card.value);
+                }
+            });
+
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces -= 1;
+            }
+
+            return score;
+        }
+
+        function drawCard(playerType) {
+            if (isGameOver || deck.length === 0) return;
+
+            const card = deck.pop();
+
+            if (playerType === 'player') {
+                playerCards.push(card);
+                playerScore = calculateScore(playerCards);
+                renderCards('player');
+                checkPlayerStatus();
+            } else if (playerType === 'dealer') {
+                dealerCards.push(card);
+                dealerScore = calculateScore(dealerCards);
+                renderCards('dealer');
+            } else if (playerType === 'ai1') {
+                ai1Cards.push(card);
+                ai1Score = calculateScore(ai1Cards);
+                renderCards('ai1');
+            } else if (playerType === 'ai2') {
+                ai2Cards.push(card);
+                ai2Score = calculateScore(ai2Cards);
+                renderCards('ai2');
+            } else if (playerType === 'ai3') {
+                ai3Cards.push(card);
+                ai3Score = calculateScore(ai3Cards);
+                renderCards('ai3');
+            } else if (playerType === 'ai4') {
+                ai4Cards.push(card);
+                ai4Score = calculateScore(ai4Cards);
+                renderCards('ai4');
+            }
+
+            updateDeckDisplay();
+        }
+
+        function standPlayer() {
+            if (isGameOver) return;
+            isPlayerStanding = true;
+            playAI();
+        }
+
+        function checkPlayerStatus() {
+            if (playerScore > 21) {
+                endGame("Bạn đã quắc! Bạn thua.");
+            } else if (playerScore === 21 && playerCards.length === 2) {
+                endGame("Xì dách! Bạn thắng!");
+            }
+        }
+
+        function playAI() {
+            // Thứ tự chơi: AI2 -> AI1 -> AI4 -> AI3 -> Dealer
+            // Dưới 15 bắt buộc bốc, 18 có thể bốc ngẫu nhiên
+            while (ai2Score < 15) drawCard('ai2'); // Dưới 15 phải bốc
+            if (ai2Score === 18 && Math.random() < 0.5) { // 50% cơ hội bốc khi đạt 18
+                drawCard('ai2');
+            } else if (ai2Score < 18) { // Dưới 18 bốc thêm 1 lần
+                drawCard('ai2');
+            }
+
+            while (ai1Score < 15) drawCard('ai1');
+            if (ai1Score === 18 && Math.random() < 0.5) {
+                drawCard('ai1');
+            } else if (ai1Score < 18) {
+                drawCard('ai1');
+            }
+
+            while (ai4Score < 15) drawCard('ai4');
+            if (ai4Score === 18 && Math.random() < 0.5) {
+                drawCard('ai4');
+            } else if (ai4Score < 18) {
+                drawCard('ai4');
+            }
+
+            while (ai3Score < 15) drawCard('ai3');
+            if (ai3Score === 18 && Math.random() < 0.5) {
+                drawCard('ai3');
+            } else if (ai3Score < 18) {
+                drawCard('ai3');
+            }
+
+            while (dealerScore < 15) drawCard('dealer');
+            if (dealerScore === 18 && Math.random() < 0.5) {
+                drawCard('dealer');
+            } else if (dealerScore < 18) {
+                drawCard('dealer');
+            }
+
+            determineWinner();
+        }
+
+        function determineWinner() {
+            const scores = [
+                { name: "Nhà Cái", score: dealerScore },
+                { name: "Người Chơi", score: playerScore },
+                { name: "Máy 1", score: ai1Score },
+                { name: "Máy 2", score: ai2Score },
+                { name: "Máy 3", score: ai3Score },
+                { name: "Máy 4", score: ai4Score }
+            ];
+
+            const validScores = scores.filter(player => player.score <= 21);
+            validScores.sort((a, b) => b.score - a.score);
+
+            let winnerMessage = "";
+            if (validScores.length > 0) {
+                const winner = validScores[0];
+                winnerMessage = `${winner.name} thắng với ${winner.score} điểm!`;
+            } else {
+                winnerMessage = "Không có người chiến thắng!";
+            }
+
+            endGame(winnerMessage);
+        }
+
+        function renderCards(playerType) {
+            const cardsDiv = document.getElementById(`${playerType}-cards`);
+            const scoreDiv = document.getElementById(`${playerType}-score`);
+
+            if (!cardsDiv || !scoreDiv) return;
+
+            cardsDiv.innerHTML = '';
+            const cards = playerType === 'player' ? playerCards :
+                          playerType === 'dealer' ? dealerCards :
+                          playerType === 'ai1' ? ai1Cards :
+                          playerType === 'ai2' ? ai2Cards :
+                          playerType === 'ai3' ? ai3Cards : ai4Cards;
+
+            const score = playerType === 'player' ? playerScore :
+                          playerType === 'dealer' ? dealerScore :
+                          playerType === 'ai1' ? ai1Score :
+                          playerType === 'ai2' ? ai2Score :
+                          playerType === 'ai3' ? ai3Score : ai4Score;
+
+            cards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                if (suitColors[card.suit] === 'red') {
+                    cardDiv.classList.add('red');
+                }
+
+                const topLeft = document.createElement('div');
+                topLeft.className = 'top-left';
+                topLeft.textContent = `${card.value}${card.suit}`;
+
+                const bottomRight = document.createElement('div');
+                bottomRight.className = 'bottom-right';
+                bottomRight.textContent = `${card.value}${card.suit}`;
+
+                cardDiv.appendChild(topLeft);
+                cardDiv.appendChild(bottomRight);
+                cardsDiv.appendChild(cardDiv);
+            });
+
+            scoreDiv.textContent = `Điểm: ${score}`;
+        }
+
+        function endGame(message) {
+            isGameOver = true;
+            document.getElementById('result').textContent = message;
+            document.getElementById('restart-button').style.display = 'inline-block';
+        }
+
+        function resetGame() {
+            playerCards = []; playerScore = 0; isPlayerStanding = false;
+            ai1Cards = []; ai1Score = 0;
+            ai2Cards = []; ai2Score = 0;
+            dealerCards = []; dealerScore = 0;
+            ai3Cards = []; ai3Score = 0;
+            ai4Cards = []; ai4Score = 0;
+            deck = [];
+            isGameOver = false;
+
+            initializeDeck();
+
+            document.getElementById('player-cards').innerHTML = '';
+            document.getElementById('player-score').textContent = '';
+            document.getElementById('ai1-cards').innerHTML = '';
+            document.getElementById('ai1-score').textContent = '';
+            document.getElementById('ai2-cards').innerHTML = '';
+            document.getElementById('ai2-score').textContent = '';
+            document.getElementById('dealer-cards').innerHTML = '';
+            document.getElementById('dealer-score').textContent = '';
+            document.getElementById('ai3-cards').innerHTML = '';
+            document.getElementById('ai3-score').textContent = '';
+            document.getElementById('ai4-cards').innerHTML = '';
+            document.getElementById('ai4-score').textContent = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('restart-button').style.display = 'none';
+
+            // Chia bài theo thứ tự: Player -> AI2 -> AI1 -> AI4 -> AI3 -> Dealer
+            drawCard('player');
+            drawCard('player');
+            drawCard('ai2');
+            drawCard('ai2');
+            drawCard('ai1');
+            drawCard('ai1');
+            drawCard('ai4');
+            drawCard('ai4');
+            drawCard('ai3');
+            drawCard('ai3');
+            drawCard('dealer');
+            drawCard('dealer');
+
+            updateDeckDisplay();
+        }
+
+        function updateDeckDisplay() {
+            const deckDisplay = document.querySelector('.deck-section p');
+            if (deckDisplay) {
+                deckDisplay.textContent = `⧗ Bộ bài còn lại (${deck.length} lá)`;
+            }
+        }
+
+        // Start the game
+        window.onload = resetGame;
+    </script>
+</body>
+</html>
