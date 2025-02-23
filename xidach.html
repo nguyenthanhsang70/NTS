@@ -276,6 +276,7 @@
                     <h3>Người Chơi</h3>
                     <div id="player-cards"></div>
                     <div id="player-score"></div>
+                    <div id="player-advice" style="font-size: 14px; color: #ffeb3b; margin-top: 5px;"></div>
                     <button onclick="drawCard('player')">Rút Bài</button>
                     <button onclick="standPlayer()">Dừng</button>
                 </div>
@@ -348,6 +349,45 @@
             return score;
         }
 
+        // Kiểm tra bài mềm (Soft Hand)
+        function isSoftHand(cards) {
+            let score = 0;
+            let aces = 0;
+            cards.forEach(card => {
+                if (card.value === 'A') {
+                    aces += 1;
+                    score += 11;
+                } else if (['J', 'Q', 'K'].includes(card.value)) {
+                    score += 10;
+                } else {
+                    score += parseInt(card.value);
+                }
+            });
+            return aces > 0 && score <= 21;
+        }
+
+        // Gợi ý cho người chơi
+        function getPlayerAdvice() {
+            const dealerUpCard = dealerCards[0].value; // Lá bài đầu tiên của Dealer
+            const dealerValue = ['J', 'Q', 'K'].includes(dealerUpCard) ? 10 : 
+                                dealerUpCard === 'A' ? 11 : parseInt(dealerUpCard);
+            const adviceDiv = document.getElementById('player-advice');
+
+            if (!adviceDiv) return;
+
+            if (playerScore < 17) {
+                adviceDiv.textContent = "Tổng điểm dưới 17: Nên rút thêm bài để tăng cơ hội.";
+            } else if (isSoftHand(playerCards)) {
+                adviceDiv.textContent = "Bài mềm: Có thể rút thêm mà không lo quắc.";
+            } else if (dealerValue >= 7 && playerScore >= 12 && playerScore <= 16) {
+                adviceDiv.textContent = "Dealer mạnh (7+): Nên rút thêm theo chiến lược cơ bản.";
+            } else if (playerScore >= 17 && playerScore < 21) {
+                adviceDiv.textContent = "Điểm ổn: Dừng hoặc rút tùy cảm giác may rủi.";
+            } else {
+                adviceDiv.textContent = "Điểm cao: Nên dừng để an toàn.";
+            }
+        }
+
         function drawCard(playerType) {
             if (isGameOver || deck.length === 0) return;
 
@@ -398,12 +438,10 @@
         }
 
         function playAI() {
-            // Thứ tự chơi: AI2 -> AI1 -> AI4 -> AI3 -> Dealer
-            // Dưới 15 bắt buộc bốc, 18 có thể bốc ngẫu nhiên
-            while (ai2Score < 15) drawCard('ai2'); // Dưới 15 phải bốc
-            if (ai2Score === 18 && Math.random() < 0.5) { // 50% cơ hội bốc khi đạt 18
+            while (ai2Score < 15) drawCard('ai2');
+            if (ai2Score === 18 && Math.random() < 0.5) {
                 drawCard('ai2');
-            } else if (ai2Score < 18) { // Dưới 18 bốc thêm 1 lần
+            } else if (ai2Score < 18) {
                 drawCard('ai2');
             }
 
@@ -502,12 +540,17 @@
             });
 
             scoreDiv.textContent = `Điểm: ${score}`;
+
+            if (playerType === 'player' && !isGameOver) {
+                getPlayerAdvice();
+            }
         }
 
         function endGame(message) {
             isGameOver = true;
             document.getElementById('result').textContent = message;
             document.getElementById('restart-button').style.display = 'inline-block';
+            document.getElementById('player-advice').textContent = ''; // Xóa gợi ý khi trò chơi kết thúc
         }
 
         function resetGame() {
@@ -524,6 +567,7 @@
 
             document.getElementById('player-cards').innerHTML = '';
             document.getElementById('player-score').textContent = '';
+            document.getElementById('player-advice').textContent = '';
             document.getElementById('ai1-cards').innerHTML = '';
             document.getElementById('ai1-score').textContent = '';
             document.getElementById('ai2-cards').innerHTML = '';
@@ -537,7 +581,6 @@
             document.getElementById('result').textContent = '';
             document.getElementById('restart-button').style.display = 'none';
 
-            // Chia bài theo thứ tự: Player -> AI2 -> AI1 -> AI4 -> AI3 -> Dealer
             drawCard('player');
             drawCard('player');
             drawCard('ai2');
