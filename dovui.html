@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đố Vui</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif; /* Phông chữ hiện đại */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f5f7fa; /* Màu nền nhạt, thanh lịch */
+        overflow: hidden;
+    }
+
+    .container {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Bóng đổ tinh tế hơn */
+        width: 400px; /* Tăng kích thước để chuyên nghiệp hơn */
+        text-align: center;
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+        transform: translateY(-5px); /* Hiệu ứng nâng nhẹ khi hover */
+    }
+
+    .header-container {
+        margin-bottom: 20px;
+    }
+
+    .back-button {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        color: #007bff;
+        text-decoration: none;
+        font-size: 18px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .back-button:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .back-button i {
+        margin-right: 5px;
+    }
+
+    h1 {
+        color: #2c3e50;
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    #question {
+        color: #34495e;
+        font-size: 20px;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 15px;
+        font-size: 16px;
+        color: #4a5568;
+        padding: 12px 15px;
+        background-color: #f8fafc;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    label:hover {
+        background-color: #e2e8f0;
+        transform: translateX(5px);
+    }
+
+    input[type="radio"] {
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        margin-top: 10px;
+    }
+
+    button#check {
+        background-color: #28a745; /* Màu xanh lá đậm hơn */
+    }
+
+    button#next {
+        background-color: #007bff; /* Màu xanh dương đậm hơn */
+    }
+
+    button:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+    }
+
+    .message {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #e74c3c;
+        font-weight: 500;
+    }
+
+    .message strong {
+        color: #2ecc71; /* Màu xanh lá cho thông báo đúng */
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+
+        #question, .message {
+            font-size: 16px;
+        }
+
+        label {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .back-button {
+            font-size: 16px;
+            padding: 6px 10px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header-container">
+        <a href="game.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    <h1>Đố Vui</h1>
+    <p id="question">Câu hỏi: </p>
+    <label><input type="radio" name="answer" value="a"> <span id="optionA"></span></label>
+    <label><input type="radio" name="answer" value="b"> <span id="optionB"></span></label>
+    <label><input type="radio" name="answer" value="c"> <span id="optionC"></span></label>
+    <label><input type="radio" name="answer" value="d"> <span id="optionD"></span></label>
+    <br>
+    <button id="check" onclick="checkAnswer()">Kiểm tra</button>
+    <button id="next" onclick="nextQuestion()" disabled>Tiếp theo</button>
+    <div class="message" id="message"></div>
+</div>
+<script>
+// Danh sách câu hỏi
+const questions = [
+    {
+        question: "Xã nào đông dân nhất?",
+        options: ["A. Xã Đàn", "B. Xã Giao", "C. Xã hội", "D. Xã Nghĩa"],
+        correctAnswer: "c",
+        correctText: "Xã hội"
+    },
+    {
+        question: "Con đường nào dài nhất?",
+        options: ["A. Đường dẫn truyền thần kinh", "B. Đường tình", "C. Đường vào tim em", "D. Đường đời"],
+        correctAnswer: "d",
+        correctText: "Đường đời"
+    },
+    {
+        question: "Quần gì rộng nhất?",
+        options: ["A. Quần đảo", "B. Quần thể", "C. Quần chúng", "D. Quần vợt"],
+        correctAnswer: "a",
+        correctText: "Quần đảo"
+    },
+    {
+        question: "Cái gì mà tay trái cầm được nhưng tay phải cầm không được?",
+        options: ["A. Dấu chân", "B. Tay phải", "C. Cái hố", "D. Bí mật"],
+        correctAnswer: "b",
+        correctText: "Tay phải"
+    },
+    {
+        question: "Nắng lửa mưa dầu tôi đâu bỏ bạn. Tối lửa tắt đèn sao bạn lại bỏ tôi. Đó là cái gì?",
+        options: ["A. Chiếc gương", "B. Cái ô (dù)", "C. Là cái bóng", "D. Người bạn giả tạo"],
+        correctAnswer: "c",
+        correctText: "Cái bóng"
+    },
+    {
+        question: "Dê sống ở núi gọi là sơn dương, vậy dê sống ở vùng biển gọi là gì? (đố chữ)",
+        options: ["A. Thủy Dương", "B. Hải Dương", "C. Biển Dương", "D. Hải Nam"],
+        correctAnswer: "b",
+        correctText: "Hải Dương"
+    },
+    {
+        question: "Thúy Kiều họ gì?",
+        options: ["A. Họ gì cũng được", "B. Họ Nguyễn", "C. Họ hàng", "D. Họ Đoàn"],
+        correctAnswer: "a",
+        correctText: "Họ gì cũng được"
+    },
+    {
+        question: "Cái gì cầm càng nhiều càng dễ mất? (Đố chữ)",
+        options: ["A. Cầm nhầm", "B. Cầm cố", "C. Cầm đồ", "D. Cầm lòng"],
+        correctAnswer: "c",
+        correctText: "Cầm đồ"
+    },
+    {
+        question: "Hoàn thành câu tục ngữ sau: “Bao giờ cho đến tháng… Hoa gạo rụng xuống,… cất chăn”",
+        options: ["A. Tháng ba - bà già", "B. Tháng bảy – mưa bay", "C. Tháng năm – trăng rằm", "D. Tháng tư – ông sư"],
+        correctAnswer: "a",
+        correctText: "Tháng ba - bà già"
+    },
+    {
+        question: "Kênh gì tàu thuyền không qua được?",
+        options: ["A. Kênh Youtube", "B. Kênh kiệu", "C. Kênh rạch mặt", "D. Kênh truyền hình"],
+        correctAnswer: "d",
+        correctText: "Kênh truyền hình"
+    },
+    {
+        question: "Bà đó bả chết bả bay lên trời. Hỏi bà ấy chết năm bao nhiêu tuổi và tại sao bà ấy chết?",
+        options: ["A. 103 tuổi", "B. 98 tuổi", "C. 73 tuổi", "D. 83 tuổi"],
+        correctAnswer: "c",
+        correctText: "73 tuổi (bà đó là bò đá, bả bay là bảy ba)"
+    },
+    {
+        question: "Có 1 đàn chim đậu trên cành, người thợ săn bắn cái rằm. Hỏi chết mấy con?",
+        options: ["A. Chết hết cả đàn", "B. Chết 15 con", "C. Không con nào chết", "D. Chết 1 con"],
+        correctAnswer: "b",
+        correctText: "Chết 15 con (rằm là 15)"
+    },
+    {
+        question: "Bỏ ngoài nướng trong, ăn ngoài bỏ trong là gì?",
+        options: ["A. Nướng bắp ngô", "B. Khoai lang nướng", "C. Bánh mì nhân", "D. Nướng hạt dẻ"],
+        correctAnswer: "a",
+        correctText: "Nướng bắp ngô"
+    },
+    {
+        question: "Tôi cạo râu mỗi ngày, nhưng râu của tôi vẫn còn nguyên, hỏi tôi làm gì?",
+        options: ["A. Người bán dao cạo", "B. Ảo thuật gia", "C. Diễn viên", "D. Thợ cắt tóc"],
+        correctAnswer: "d",
+        correctText: "Thợ cắt tóc"
+    },
+    {
+        question: "Thứ gì mà màu đen thì sạch, màu trắng thì lại bẩn?",
+        options: ["A. Giấy than", "B. Cái bảng đen", "C. Tấm bảng trắng", "D. Khăn lau bảng"],
+        correctAnswer: "b",
+        correctText: "Cái bảng đen"
+    },
+    {
+        question: "Món gì không ăn được nhưng ai cũng thích 'ăn'?",
+        options: ["A. Ăn ảnh", "B. Ăn gian", "C. Ăn chơi", "D. Ăn khách"],
+        correctAnswer: "a",
+        correctText: "Ăn ảnh"
+    },
+    {
+        question: "Nhà nào không có cửa nhưng lại chứa được cả thế giới?",
+        options: ["A. Nhà đài", "B. Nhà kính", "C. Nhà mạng", "D. Nhà in"],
+        correctAnswer: "c",
+        correctText: "Nhà mạng"
+    },
+    {
+        question: "Tảo gì bị cấm? (Đố chữ)",
+        options: ["A. Tảo biển", "B. Tảo lao", "C. Tảo mộ", "D. Tảo hôn"],
+        correctAnswer: "d",
+        correctText: "Tảo hôn"
+    },
+    {
+        question: "Cá gì biết làm toán? (Đố chữ)",
+        options: ["A. Cá chép", "B. Cá tính", "C. Cá nhân", "D. Cá biệt"],
+        correctAnswer: "b",
+        correctText: "Cá tính"
+    },
+    {
+        question: "Kênh gì không có nước mà không phải kênh truyền hình?",
+        options: ["A. Kênh TikTok", "B. Kênh rạch mặt", "C. Kênh Podcast", "D. Kênh Youtube"],
+        correctAnswer: "d",
+        correctText: "Kênh Youtube"
+    },
+    {
+        question: "Trên nhấp dưới giật là đang làm gì?",
+        options: ["A. Bơm nước", "B. Đánh máy", "C. Đang câu cá", "D. Chơi nhảy dây"],
+        correctAnswer: "c",
+        correctText: "Đang câu cá"
+    },
+    {
+        question: "Cái gì bằng cái vung, vùng xuống ao. Đào chẳng thấy, lấy chẳng được?",
+        options: ["A. Mặt trời", "B. Mặt trăng", "C. Bóng đèn", "D. Đám mây"],
+        correctAnswer: "b",
+        correctText: "Mặt trăng"
+    },
+    {
+        question: "Tay cầm cục thịt nắn nắn, tay vỗ mông là đang làm gì?",
+        options: ["A. Bà mẹ đang cho con bú", "B. Thợ cắt tóc đang cạo râu khách", "C. Người đầu bếp đang nhào bột", "D. Huấn luyện viên đang massage cho võ sĩ"],
+        correctAnswer: "a",
+        correctText: "Bà mẹ đang cho con bú"
+    },
+    {
+        question: "Cắm vào run rẩy toàn thân, Rút ra nước chảy từ chân xuống sàn, Hỡi chàng công tử giàu sang, Cắm vào xin chớ vội vàng rút ra!",
+        options: ["A. Máy giặt", "B. Cây nước nóng lạnh", "C. Cái tủ lạnh", "D. Bình nóng lạnh"],
+        correctAnswer: "c",
+        correctText: "Cái tủ lạnh"
+    },
+    {
+        question: "Con gì mang được miếng gỗ lớn nhưng không mang được hòn sỏi?",
+        options: ["A. Con nước", "B. Con thuyền", "C. Con đường", "D. Con sông"],
+        correctAnswer: "d",
+        correctText: "Con sông"
+    },
+    {
+        question: "Tại sao con chó không cắn được đuôi của mình?",
+        options: ["A. Vì nó chạy vòng vòng nhưng đuôi cũng chạy theo", "B. Đuôi chó không đủ dài", "C. Vì nó chưa đủ thông minh để biết dừng lại mà cắn", "D. Vì nếu cắn được thì nó đã không phải là chó mà là rắn"],
+        correctAnswer: "b",
+        correctText: "Đuôi chó không đủ dài"
+    },
+    {
+        question: "Có 2 người: 1 lớn, 1 bé đi lên đỉnh một quả núi. Người bé là con của người lớn, nhưng người lớn lại không phải cha của người bé, hỏi người lớn là ai?",
+        options: ["A. Mẹ", "B. Ông nội", "C. Thầy giáo", "D. Bố dượng"],
+        correctAnswer: "a",
+        correctText: "Mẹ"
+    },
+    {
+        question: "Từ gì mà 100% người dân Việt Nam đều phát âm sai?",
+        options: ["A. Từ 'căn vặn'", "B. Từ 'chặn đường'", "C. Từ 'thinh lặng'", "D. Từ 'Sai'"],
+        correctAnswer: "d",
+        correctText: "Từ 'Sai'"
+    },
+    {
+        question: "Vịt nào đi bằng hai chân?",
+        options: ["A. Vịt trưởng thành", "B. Vịt quay", "C. Tất cả các con vịt, trừ vịt bị què", "D. Vịt bơi trên cạn"],
+        correctAnswer: "c",
+        correctText: "Tất cả các con vịt, trừ vịt bị què"
+    },
+    {
+        question: "Môn gì càng thắng càng thua?",
+        options: ["A. Môn đua xe", "B. Môn kéo co", "C. Môn đua xe đạp", "D. Môn cờ vua"],
+        correctAnswer: "c",
+        correctText: "Môn đua xe đạp"
+    },
+    {
+        question: "Một kẻ giết người bị kết án tử hình. Hắn ta phải chọn một trong ba căn phòng: Phòng thứ nhất lửa cháy dữ dội, phòng thứ hai đầy những kẻ ám sát đang giương súng, và phòng thứ ba đầy sư tử nhịn đói trong ba năm. Phòng nào an toàn nhất cho hắn?",
+        options: ["A. Phòng thứ hai", "B. Phòng 3 bởi con sư tử bị đói đã bị chết", "C. Phòng thứ nhất", "D. Không phòng nào"],
+        correctAnswer: "b",
+        correctText: "Phòng 3 bởi con sư tử bị đói đã bị chết"
+    },
+    {
+        question: "Loại nước giải khát nào chứa sắt và canxi?",
+        options: ["A. Cacao", "B. Nước cam", "C. Nước ép lựu", "D. Cafe"],
+        correctAnswer: "d",
+        correctText: "Cafe (Canxi = Ca; Sắt = Fe)"
+    },
+    {
+        question: "Ai cũng biết đỉnh núi Everest cao nhất thế giới, vậy trước khi đỉnh Everest được khám phá, đỉnh núi nào cao nhất thế giới?",
+        options: ["A. Vẫn là Everest", "B. Ngọn núi bị lãng quên", "C. Đỉnh Everest nhưng chưa có tên", "D. Everest"],
+        correctAnswer: "a",
+        correctText: "Everest"
+    },
+    {
+        question: "Núi nào bị chặt ra từng khúc?",
+        options: ["A. Chứa Chan", "B. Bà Đen", "C. Thái Sơn", "D. Hành Sơn"],
+        correctAnswer: "c",
+        correctText: "Thái Sơn"
+    },
+    {
+        question: "Con cua đỏ dài 10cm chạy đua với con cua xanh dài 15cm. Con nào về đích trước?",
+        options: ["A. Con cua xanh", "B. Cả 2 con", "C. Không con nào", "D. Con cua đỏ"],
+        correctAnswer: "a",
+        correctText: "Con cua xanh (vì con cua đỏ đã bị luộc)"
+    },
+    {
+        question: "Có 1 đàn chuột điếc đi ngang qua, hỏi có mấy con?",
+        options: ["A. 102 con", "B. 12 con", "C. 24 con", "D. 10 con"],
+        correctAnswer: "c",
+        correctText: "24 con (Điếc là hư tai, hư tai là hai tư)"
+    },
+    {
+        question: "Cái gì của người con gái lúc nào cũng ẩm ướt?",
+        options: ["A. Đôi mắt", "B. Cái lưỡi", "C. Khoang miệng", "D. Làn da"],
+        correctAnswer: "b",
+        correctText: "Cái lưỡi"
+    },
+    {
+        question: "2 con vịt đi trước 2 con vịt, 2 con vịt đi sau 2 con vịt, 2 con vịt đi giữa 2 con vịt. Hỏi có bao nhiêu con vịt?",
+        options: ["A. 2 con vịt", "B. 6 con vịt", "C. 12 con vịt", "D. 4 con vịt"],
+        correctAnswer: "d",
+        correctText: "4 con vịt (vì 2 con đi giữa là cái bóng của 2 con đi trước)"
+    },
+    {
+        question: "Có 1 bà không biết bơi, xuống nước là bả chết. Một hôm bà đi tàu, bỗng nhiên tàu chìm, nhưng bà không chết. Tại sao?",
+        options: ["A. Bà đi tàu ngầm", "B. Bà là… tiên cá", "C. Bà đang chơi game", "D. Bà không xuống nước"],
+        correctAnswer: "a",
+        correctText: "Bà đi tàu ngầm"
+    },
+    {
+        question: "Con gì đầu dê mình ốc?",
+        options: ["A. Con dốt", "B. Con dớp", "C. Con dốc", "D. Con dông"],
+        correctAnswer: "c",
+        correctText: "Con dốc"
+    }
+];
+
+// Biến để theo dõi câu hỏi hiện tại
+let currentQuestionIndex = 0;
+
+// Hàm hiển thị câu hỏi hiện tại
+function loadQuestion() {
+    const currentQuestion = questions[currentQuestionIndex];
+    document.getElementById("question").textContent = `Câu hỏi ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+    document.getElementById("optionA").textContent = currentQuestion.options[0];
+    document.getElementById("optionB").textContent = currentQuestion.options[1];
+    document.getElementById("optionC").textContent = currentQuestion.options[2];
+    document.getElementById("optionD").textContent = currentQuestion.options[3];
+    document.getElementById("message").innerHTML = "";
+    document.getElementById("next").setAttribute("disabled", "true");
+    document.querySelectorAll('input[name="answer"]').forEach(input => input.checked = false);
+}
+
+// Kiểm tra đáp án (cho phép tiếp tục dù sai)
+function checkAnswer() {
+    const currentQuestion = questions[currentQuestionIndex];
+    let selectedAnswer = document.querySelector('input[name="answer"]:checked');
+    if (selectedAnswer && selectedAnswer.value === currentQuestion.correctAnswer) {
+        document.getElementById('message').innerHTML = `<strong>Bạn đã đúng!</strong>`;
+    } else {
+        document.getElementById('message').innerHTML = `<strong>Sai rồi! Đáp án đúng là: ${currentQuestion.correctText}.</strong>`;
+        if (selectedAnswer) {
+            selectedAnswer.checked = false; // Bỏ chọn đáp án sai
+        }
+        document.querySelector(`input[name="answer"][value="${currentQuestion.correctAnswer}"]`).checked = true; // Chọn đáp án đúng
+    }
+    document.getElementById('next').removeAttribute('disabled'); // Luôn kích hoạt nút "Tiếp theo"
+}
+
+// Chuyển sang câu hỏi tiếp theo
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+    } else {
+        document.getElementById('question').textContent = "Chúc mừng! Bạn đã hoàn thành tất cả câu hỏi!";
+        document.getElementById('optionA').parentElement.style.display = "none";
+        document.getElementById('optionB').parentElement.style.display = "none";
+        document.getElementById('optionC').parentElement.style.display = "none";
+        document.getElementById('optionD').parentElement.style.display = "none";
+        document.getElementById('check').style.display = "none";
+        document.getElementById('next').style.display = "none";
+        document.getElementById('message').innerHTML = "";
+    }
+}
+
+// Tải câu hỏi đầu tiên khi trang được mở
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
