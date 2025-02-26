@@ -118,6 +118,48 @@
     .social-icons a:hover {
       color: #a777e3;
     }
+    .important-dates {
+      background: #f4f4f9;
+      color: #333;
+      padding: 30px 20px;
+      margin-top: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .important-dates h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #2a5298;
+    }
+    .important-dates ul {
+      list-style: none;
+      padding: 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .important-dates li {
+      background: white;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .important-dates li:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .important-dates li span {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .important-dates li small {
+      font-size: 14px;
+      color: #666;
+    }
     .features {
       display: flex;
       justify-content: space-around;
@@ -219,9 +261,16 @@
       color: #2a5298;
     }
     .heart-section {
-      background: #ff4d6d;
+      background: #a777e3;
     }
     .heart-section a {
+      background: white;
+      color: #a777e3;
+    }
+    .heart-section-alt {
+      background: #ff4d6d;
+    }
+    .heart-section-alt a {
       background: white;
       color: #ff4d6d;
     }
@@ -290,6 +339,31 @@
   <div class="content">
     <h2>Về Chúng Tôi</h2>
     <p>NTS là một nhóm đam mê công nghệ, luôn nỗ lực để mang lại những giải pháp sáng tạo và hiệu quả cho khách hàng. Với đội ngũ chuyên gia giàu kinh nghiệm, chúng tôi cam kết cung cấp dịch vụ chất lượng cao và trải nghiệm người dùng tốt nhất.</p>
+    <div class="important-dates">
+      <h3>Lịch Sử Của NTS</h3>
+      <ul>
+        <li>
+          <span>Ngày Thành Lập NTS</span>
+          <small>26/10/2024</small>
+        </li>
+        <li>
+          <span>Ra Mắt Sản Phẩm Đầu Tiên</span>
+          <small>30/01/2025</small>
+        </li>
+        <li>
+          <span>Kỷ Niệm 1 Năm Thành Lập</span>
+          <small>26/10/2026</small>
+        </li>
+        <li>
+          <span>Ra Mắt Phiên Bản Cập Nhật</span>
+          <small>Đang cập nhật...</small>
+        </li>
+        <li>
+          <span>Kế Hoạch Tương Lai</span>
+          <small>Đang cập nhật...</small>
+        </li>
+      </ul>
+    </div>
     <div class="social-icons">
       <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
       <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
@@ -319,12 +393,17 @@
     <a href="game.html" target="_blank">Chơi Ngay</a>
   </div>
   <div class="section heart-section">
+    <h2>Danh Sách Ngày Quan Trọng</h2>
+    <p>Hãy đánh dấu ngay những ngày quan trọng này! Hãy Xem ngay!</p>
+    <a href="ngayquantrong.html" class="heart-button">Xem Ngay</a>
+  </div>
+  <div class="section heart-section-alt">
     <h2>Tỏ Tình Với Người Mình Thích</h2>
     <p>Anh không cần cả thế giới, anh chỉ cần em! Hãy gửi lời tỏ tình ngay!</p>
     <a href="totinh.html" class="heart-button">Tỏ Tình Ngay</a>
   </div>
   <footer>
-    &copy; 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+    &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
   </footer>
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
