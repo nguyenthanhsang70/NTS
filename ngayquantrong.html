@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách các ngày quan trọng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        a.button {
+            display: inline-block;
+            background-color: #2575fc;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        a.button:hover {
+            background-color: #1c5abd;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .back-button i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .social-icons a {
+            color: #fff;
+            margin: 0 10px;
+            font-size: 20px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #4CAF50;
+        }
+        @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Danh sách các ngày quan trọng</h1>
+    </header>
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Sự kiện</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1 tháng 1</td>
+                    <td>Tết Dương lịch</td>
+                    <td><a href="chuctetduonglich.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>14 tháng 2</td>
+                    <td>Lễ Tình nhân (Valentine)</td>
+                    <td><a href="chucletinhnhan.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>8 tháng 3</td>
+                    <td>Quốc tế Phụ nữ</td>
+                    <td><a href="chucquoctephunu.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>30 tháng 4</td>
+                    <td>Ngày Giải phóng miền Nam</td>
+                    <td><a href="chucngaygiaiphong.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>1 tháng 5</td>
+                    <td>Ngày Quốc tế Lao động</td>
+                    <td><a href="chucquoctelaodong.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>2 tháng 9</td>
+                    <td>Ngày Quốc khánh Việt Nam</td>
+                    <td><a href="chucquockhanh.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>20 tháng 11</td>
+                    <td>Ngày Nhà giáo Việt Nam</td>
+                    <td><a href="chucngaynhagiao.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+                <tr>
+                    <td>24 tháng 12</td>
+                    <td>Lễ Giáng sinh</td>
+                    <td><a href="chucgiangsinh.html" target="_blank" class="button">Chúc</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <footer>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+        </div>
+        &copy; 2025 NTS. Được thiết kế với bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+    </footer>
+</body>
+</html>
