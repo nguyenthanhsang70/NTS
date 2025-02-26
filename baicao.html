@@ -6,275 +6,157 @@
     <title>Bài Cào</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #f0f7ff 0%, #e0f2ff 100%);
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+        }
+        .game-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            display: inline-block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+        .back-button:hover {
+            text-decoration: underline;
         }
         h1 {
-            color: #1a2536;
-            font-size: 3em;
-            font-weight: 700;
-            margin: 0;
-            animation: fadeInSlideDown 1.5s ease-out;
+            font-size: 24px;
+            color: #333;
         }
-
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-
-        .game-container {
-            background: #ffffff;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 40px;
-            width: 90%;
-            max-width: 900px;
-            margin-top: 0;
-            animation: floatIn 1s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-        .game-container::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: -50px;
-            width: 150px;
-            height: 150px;
-            background: rgba(78, 205, 196, 0.1);
-            border-radius: 50%;
-            z-index: 0;
-            animation: rotateGlow 8s infinite linear;
-        }
-
         .section {
-            margin-bottom: 35px;
             display: none;
-            opacity: 0;
-            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
-            transform: translateY(20px);
+            margin-bottom: 20px;
         }
         .section.active {
             display: block;
-            opacity: 1;
-            transform: translateY(0);
         }
-
+        .section h2 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
         .cards {
             display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
             justify-content: center;
-            perspective: 1000px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         .card {
-            width: 85px;
-            height: 125px;
-            background: linear-gradient(135deg, #ffffff, #f9f9f9);
-            border: 3px solid #ff6b6b;
-            border-radius: 15px;
+            width: 60px;
+            height: 90px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 30px;
+            font-size: 16px;
             font-weight: bold;
-            color: #ff6b6b;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            transition: transform 0.5s ease, box-shadow 0.5s ease, rotateY 0.5s ease;
-            cursor: pointer;
-            position: relative;
-            transform-style: preserve-3d;
-            z-index: 1;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
-            transform: scale(1.1) rotateY(15deg);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 107, 107, 0.2);
-            z-index: -1;
+        .result {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
         }
-
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
         button {
-            padding: 15px 30px;
-            font-size: 20px;
-            color: #ffffff;
-            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background: #007bff;
             border: none;
-            border-radius: 50px;
+            border-radius: 5px;
             cursor: pointer;
-            margin: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: width 0.4s ease;
+            transition: background 0.3s ease, transform 0.3s ease;
         }
         button:hover {
-            background: linear-gradient(135deg, #45b7d1, #4ecdc4);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            background: #0056b3;
+            transform: scale(1.05);
         }
-        button:hover::before {
-            width: 100%;
+        button:active {
+            transform: scale(0.95);
         }
-        button:disabled {
-            background: #d3d3d3;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .result {
-            margin-top: 25px;
-            font-size: 24px;
-            font-weight: 600;
-            color: #1a2536;
-            animation: bounceIn 1.2s ease-out;
-        }
-
-        .back-button {
-            padding: 12px 24px;
-            font-size: 18px;
-            color: #ffffff;
-            background: linear-gradient(135deg, #ff6b6b, #f44336);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            margin-right: 30px;
-        }
-        .back-button:hover {
-            background: linear-gradient(135deg, #f44336, #ff6b6b);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-        }
-        .back-button i {
-            margin-right: 12px;
-        }
-
-        footer {
-            margin-top: 40px;
+        .final-result {
             text-align: center;
-            color: #6b7a8f;
-            font-size: 16px;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
         }
-        .footer-container {
-            background: #ffffff;
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
             padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 2s ease-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
         }
-        .social-icons {
-            margin-bottom: 15px;
+        .popup textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
         }
-        .social-icons a {
-            color: #4ecdc4;
-            font-size: 30px;
-            margin: 0 20px;
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+        footer a {
+            color: #007bff;
             text-decoration: none;
-            transition: color 0.4s ease, transform 0.4s ease;
         }
-        .social-icons a:hover {
-            color: #45b7d1;
-            transform: scale(1.4);
-        }
-
-        /* Hiệu ứng animation */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeInSlideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes floatIn {
-            from { transform: translateY(-20px) scale(0.95); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes rotateGlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes flipIn {
-            0% { transform: rotateY(180deg); opacity: 0; }
-            50% { transform: rotateY(90deg); opacity: 0.5; }
-            100% { transform: rotateY(0deg); opacity: 1; }
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2.2em;
-            }
-            .header-container {
-                flex-direction: column;
-                margin-bottom: 20px;
-            }
-            .back-button {
-                position: static;
-                margin: 15px 0;
-                width: 100%;
-                justify-content: center;
-            }
-            .game-container {
-                padding: 25px;
-                width: 95%;
-            }
-            .card {
-                width: 60px;
-                height: 90px;
-                font-size: 22px;
-            }
-            button {
-                padding: 12px 24px;
-                font-size: 16px;
-            }
-            .result {
-                font-size: 18px;
-            }
-            .social-icons a {
-                font-size: 24px;
-                margin: 0 15px;
-            }
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -293,37 +175,32 @@
                 <div class="cards" id="dealer-cards"></div>
                 <div class="result" id="dealer-result"></div>
             </div>
-
             <!-- Player Sections -->
-            <div class="section" id="player1-section">
-                <h2 id="player1-title">Người Chơi</h2>
-                <div class="cards" id="player1-cards"></div>
-                <div class="result" id="player1-result"></div>
-            </div>
-            <div class="section" id="player2-section">
-                <h2>Máy 1</h2>
-                <div class="cards" id="player2-cards"></div>
-                <div class="result" id="player2-result"></div>
-            </div>
-            <div class="section" id="player3-section">
-                <h2>Máy 2</h2>
-                <div class="cards" id="player3-cards"></div>
-                <div class="result" id="player3-result"></div>
-            </div>
-
+            <div id="player-sections"></div>
             <!-- Buttons -->
-            <div>
+            <div class="buttons">
                 <button onclick="startGame()">Chơi với máy</button>
-                <button onclick="startHumanGame()">Chơi với người</button>
+                <button onclick="showNameInput()">Chơi với người</button>
                 <button onclick="resetGame()">Chơi Lại</button>
             </div>
-            <div class="result" id="final-result"></div>
+            <div class="final-result" id="final-result"></div>
         </div>
+    </div>
+    <footer>
+        <p>© 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.</p>
+    </footer>
+
+    <!-- Popup for Name Input -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="name-input-popup">
+        <h3>Nhập tên người chơi (mỗi tên một dòng)</h3>
+        <textarea id="player-names-input" placeholder="Tên người chơi..."></textarea>
+        <button onclick="startHumanGameWithPlayerNames()">Bắt đầu</button>
     </div>
 
     <script>
         let deck = [];
-        let playerName = "Người Chơi";
+        let playerNames = [];
 
         function initializeDeck() {
             const suits = ['♠', '♣', '♥', '♦'];
@@ -359,6 +236,20 @@
                     total += parseInt(card.value);
                 }
             });
+
+            // Check for "ba cào" conditions: any combination of three J, Q, or K (JJJ, QQQ, KKK, JQK, etc.)
+            const values = cards.map(card => card.value);
+            const jCount = values.filter(v => v === 'J').length;
+            const qCount = values.filter(v => v === 'Q').length;
+            const kCount = values.filter(v => v === 'K').length;
+            const totalJQK = jCount + qCount + kCount;
+
+            // If all three cards are J, Q, or K (in any combination), it's "ba cào"
+            if (totalJQK === 3) {
+                return Infinity; // "Ba cào" tự động thắng, không tính điểm
+            }
+
+            // Otherwise, calculate the score normally using modulo 10
             return total % 10;
         }
 
@@ -369,7 +260,6 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card';
                 cardElement.textContent = `${card.value}${card.suit}`;
-                cardElement.style.animation = `flipIn 0.5s ease-out ${index * 0.2}s forwards`;
                 container.appendChild(cardElement);
             });
         }
@@ -378,20 +268,68 @@
             const sections = document.querySelectorAll('.section');
             sections.forEach(section => {
                 section.classList.add('active');
-                setTimeout(() => section.style.opacity = 1, 100); // Hiệu ứng fade-in
             });
+        }
+
+        function getRandomBaCaoCards() {
+            const suits = ['♠', '♣', '♥', '♦'];
+            const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+            const options = [
+                // JQK (ba lá khác nhau)
+                [{ value: 'J', suit: randomSuit }, { value: 'Q', suit: randomSuit }, { value: 'K', suit: randomSuit }],
+                // JJJ
+                [{ value: 'J', suit: randomSuit }, { value: 'J', suit: randomSuit }, { value: 'J', suit: randomSuit }],
+                // QQQ
+                [{ value: 'Q', suit: randomSuit }, { value: 'Q', suit: randomSuit }, { value: 'Q', suit: randomSuit }],
+                // KKK
+                [{ value: 'K', suit: randomSuit }, { value: 'K', suit: randomSuit }, { value: 'K', suit: randomSuit }]
+            ];
+            return options[Math.floor(Math.random() * options.length)];
         }
 
         function startGame() {
             initializeDeck();
             showSections();
 
-            document.getElementById('player1-title').textContent = 'Người Chơi';
+            // Reset player sections
+            const playerSectionsContainer = document.getElementById('player-sections');
+            playerSectionsContainer.innerHTML = '';
 
+            // Add default players
+            const defaultPlayers = ["Người Chơi", "Máy 1", "Máy 2"];
+            defaultPlayers.forEach((playerName, index) => {
+                const section = document.createElement('div');
+                section.className = 'section active';
+                section.id = `player${index + 1}-section`;
+                section.innerHTML = `
+                    <h2>${playerName}</h2>
+                    <div class="cards" id="player${index + 1}-cards"></div>
+                    <div class="result" id="player${index + 1}-result"></div>
+                `;
+                playerSectionsContainer.appendChild(section);
+            });
+
+            // Draw cards and calculate scores
             const dealerCards = [drawCard(), drawCard(), drawCard()];
             const player1Cards = [drawCard(), drawCard(), drawCard()];
             const player2Cards = [drawCard(), drawCard(), drawCard()];
             const player3Cards = [drawCard(), drawCard(), drawCard()];
+
+            // Check for "Sang" in player names and assign random ba cào if found
+            defaultPlayers.forEach((playerName, index) => {
+                if (playerName.toLowerCase().includes('sang')) {
+                    const baCaoCards = getRandomBaCaoCards();
+                    baCaoCards.forEach(forcedCard => {
+                        const cardIndex = deck.findIndex(card => 
+                            card.value === forcedCard.value && card.suit === forcedCard.suit
+                        );
+                        if (cardIndex !== -1) deck.splice(cardIndex, 1);
+                    });
+                    if (index === 0) player1Cards = baCaoCards; // Người Chơi
+                    else if (index === 1) player2Cards = baCaoCards; // Máy 1
+                    else if (index === 2) player3Cards = baCaoCards; // Máy 2
+                }
+            });
 
             displayCards('dealer-cards', dealerCards);
             displayCards('player1-cards', player1Cards);
@@ -403,90 +341,146 @@
             const player2Score = calculateScore(player2Cards);
             const player3Score = calculateScore(player3Cards);
 
-            document.getElementById('dealer-result').textContent = `Điểm: ${dealerScore}`;
-            document.getElementById('player1-result').textContent = `Điểm: ${player1Score}`;
-            document.getElementById('player2-result').textContent = `Điểm: ${player2Score}`;
-            document.getElementById('player3-result').textContent = `Điểm: ${player3Score}`;
+            // Display scores, showing "Ba Cào" for any combination of three J, Q, or K
+            document.getElementById('dealer-result').textContent = `Điểm: ${dealerScore === Infinity ? 'Ba Cào' : dealerScore === 0 ? 'Bù' : dealerScore}`;
+            document.getElementById('player1-result').textContent = `Điểm: ${player1Score === Infinity ? 'Ba Cào' : player1Score === 0 ? 'Bù' : player1Score}`;
+            document.getElementById('player2-result').textContent = `Điểm: ${player2Score === Infinity ? 'Ba Cào' : player2Score === 0 ? 'Bù' : player2Score}`;
+            document.getElementById('player3-result').textContent = `Điểm: ${player3Score === Infinity ? 'Ba Cào' : player3Score === 0 ? 'Bù' : player3Score}`;
 
             const finalResultContainer = document.getElementById('final-result');
             const scores = { 'Nhà Cái': dealerScore, 'Người Chơi': player1Score, 'Máy 1': player2Score, 'Máy 2': player3Score };
-            const maxScore = Math.max(...Object.values(scores));
-            const winners = Object.keys(scores).filter(player => scores[player] === maxScore);
+            let winners;
+
+            // Nếu có "Ba Cào" (Infinity), chỉ chọn người có "Ba Cào" (tự động thắng)
+            if (Object.values(scores).some(score => score === Infinity)) {
+                winners = Object.keys(scores).filter(player => scores[player] === Infinity);
+            } else {
+                // Loại bỏ người có điểm "Bù" (0) khỏi danh sách người thắng
+                const validScores = Object.fromEntries(
+                    Object.entries(scores).filter(([_, score]) => score !== 0 && score !== Infinity)
+                );
+                if (Object.keys(validScores).length === 0) {
+                    winners = []; // Không có người thắng nếu tất cả đều "Bù"
+                } else {
+                    // Chọn người có điểm cao nhất trong khoảng 1-9
+                    const maxScore = Math.max(...Object.values(validScores));
+                    winners = Object.keys(validScores).filter(player => validScores[player] === maxScore);
+                }
+            }
 
             if (winners.length === 1) {
-                finalResultContainer.textContent = `${winners[0]} thắng với ${maxScore} điểm!`;
-                finalResultContainer.style.color = '#ff6b6b'; // Màu đỏ nổi bật cho kết quả thắng
+                finalResultContainer.textContent = `${winners[0]} thắng với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+            } else if (winners.length > 1) {
+                finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
             } else {
-                finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${maxScore} điểm!`;
-                finalResultContainer.style.color = '#4ecdc4'; // Màu xanh lá cho hòa
+                finalResultContainer.textContent = "Không có người thắng (tất cả đều Bù)!";
             }
         }
 
+        function showNameInput() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('name-input-popup').style.display = 'block';
+        }
+
+        function startHumanGameWithPlayerNames() {
+            const playerNamesInput = document.getElementById('player-names-input').value.trim();
+            playerNames = playerNamesInput.split('\n').map(name => name.trim()).filter(name => name !== "");
+
+            if (playerNames.length < 2) {
+                alert("Vui lòng nhập ít nhất 2 tên người chơi!");
+                return;
+            }
+
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('name-input-popup').style.display = 'none';
+
+            startHumanGame();
+        }
+
         function startHumanGame() {
-            playerName = "Người Chơi"; // Mặc định không cần nhập tên (có thể mở rộng sau)
-            document.getElementById('player1-title').textContent = playerName;
+            document.getElementById('dealer-section').style.display = 'none';
+
+            // Reset player sections
+            const playerSectionsContainer = document.getElementById('player-sections');
+            playerSectionsContainer.innerHTML = '';
+
+            // Create sections for each player
+            playerNames.forEach((playerName, index) => {
+                const section = document.createElement('div');
+                section.className = 'section active';
+                section.id = `player${index + 1}-section`;
+                section.innerHTML = `
+                    <h2>${playerName}</h2>
+                    <div class="cards" id="player${index + 1}-cards"></div>
+                    <div class="result" id="player${index + 1}-result"></div>
+                `;
+                playerSectionsContainer.appendChild(section);
+            });
 
             initializeDeck();
-            document.getElementById('dealer-section').style.display = 'none';
-            document.getElementById('player1-section').style.display = 'block';
-            document.getElementById('player2-section').style.display = 'block';
-            document.getElementById('player3-section').style.display = 'none';
 
-            const player1Cards = [drawCard(), drawCard(), drawCard()];
-            const player2Cards = [drawCard(), drawCard(), drawCard()];
+            // Draw cards and calculate scores
+            const scores = {};
+            playerNames.forEach((playerName, index) => {
+                let cards = [];
+                if (playerName.toLowerCase().includes('sang')) {
+                    // Force random "ba cào" (any combination of J, Q, K)
+                    cards = getRandomBaCaoCards();
+                    cards.forEach(forcedCard => {
+                        const cardIndex = deck.findIndex(card => 
+                            card.value === forcedCard.value && card.suit === forcedCard.suit
+                        );
+                        if (cardIndex !== -1) deck.splice(cardIndex, 1);
+                    });
+                } else {
+                    cards = [drawCard(), drawCard(), drawCard()];
+                }
 
-            displayCards('player1-cards', player1Cards);
-            displayCards('player2-cards', player2Cards);
-
-            const player1Score = calculateScore(player1Cards);
-            const player2Score = calculateScore(player2Cards);
-
-            document.getElementById('dealer-result').textContent = '';
-            document.getElementById('player1-result').textContent = `Điểm: ${player1Score}`;
-            document.getElementById('player2-result').textContent = `Điểm: ${player2Score}`;
-            document.getElementById('player3-result').textContent = '';
+                displayCards(`player${index + 1}-cards`, cards);
+                const score = calculateScore(cards);
+                document.getElementById(`player${index + 1}-result`).textContent = `Điểm: ${score === Infinity ? 'Ba Cào' : score === 0 ? 'Bù' : score}`;
+                scores[playerName] = score;
+            });
 
             const finalResultContainer = document.getElementById('final-result');
-            const scores = { [playerName]: player1Score, 'Máy 1': player2Score };
-            const maxScore = Math.max(...Object.values(scores));
-            const winners = Object.keys(scores).filter(player => scores[player] === maxScore);
+            let winners;
+
+            // Nếu có "Ba Cào" (Infinity), chỉ chọn người có "Ba Cào" (tự động thắng)
+            if (Object.values(scores).some(score => score === Infinity)) {
+                winners = Object.keys(scores).filter(player => scores[player] === Infinity);
+            } else {
+                // Loại bỏ người có điểm "Bù" (0) khỏi danh sách người thắng
+                const validScores = Object.fromEntries(
+                    Object.entries(scores).filter(([_, score]) => score !== 0 && score !== Infinity)
+                );
+                if (Object.keys(validScores).length === 0) {
+                    winners = []; // Không có người thắng nếu tất cả đều "Bù"
+                } else {
+                    // Chọn người có điểm cao nhất trong khoảng 1-9
+                    const maxScore = Math.max(...Object.values(validScores));
+                    winners = Object.keys(validScores).filter(player => validScores[player] === maxScore);
+                }
+            }
 
             if (winners.length === 1) {
-                finalResultContainer.textContent = `${winners[0]} thắng với ${maxScore} điểm!`;
-                finalResultContainer.style.color = '#ff6b6b';
+                finalResultContainer.textContent = `${winners[0]} thắng với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+            } else if (winners.length > 1) {
+                finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
             } else {
-                finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${maxScore} điểm!`;
-                finalResultContainer.style.color = '#4ecdc4';
+                finalResultContainer.textContent = "Không có người thắng (tất cả đều Bù)!";
             }
         }
 
         function resetGame() {
             document.getElementById('dealer-cards').innerHTML = '';
-            document.getElementById('player1-cards').innerHTML = '';
-            document.getElementById('player2-cards').innerHTML = '';
-            document.getElementById('player3-cards').innerHTML = '';
             document.getElementById('dealer-result').textContent = '';
-            document.getElementById('player1-result').textContent = '';
-            document.getElementById('player2-result').textContent = '';
-            document.getElementById('player3-result').textContent = '';
             document.getElementById('final-result').textContent = '';
-            document.getElementById('dealer-section').classList.remove('active');
-            document.getElementById('player1-section').classList.remove('active');
-            document.getElementById('player2-section').classList.remove('active');
-            document.getElementById('player3-section').classList.remove('active');
-            document.getElementById('player1-title').textContent = 'Người Chơi';
-            playerName = "Người Chơi";
+
+            const playerSectionsContainer = document.getElementById('player-sections');
+            playerSectionsContainer.innerHTML = '';
+
+            playerNames = [];
         }
     </script>
-    <footer>
-        <div class="footer-container">
-            <div class="social-icons">
-                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-            </div>
-            <p>© 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70" style="color: #4ecdc4; text-decoration: none;">Nguyễn Thanh Sang</a>.</p>
-        </div>
-    </footer>
 </body>
 </html>
