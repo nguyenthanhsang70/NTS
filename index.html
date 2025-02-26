@@ -104,6 +104,20 @@
       max-width: 800px;
       margin: 0 auto;
     }
+    .social-icons {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .social-icons a {
+      display: inline-block;
+      margin: 0 15px;
+      font-size: 24px;
+      color: #2a5298;
+      transition: color 0.3s ease;
+    }
+    .social-icons a:hover {
+      color: #a777e3;
+    }
     .features {
       display: flex;
       justify-content: space-around;
@@ -139,31 +153,77 @@
       font-size: 16px;
       line-height: 1.6;
     }
-    .game-section {
+    .section {
       text-align: center;
-      padding: 40px 20px;
-      background: #2a5298;
+      padding: 60px 20px;
       color: white;
       margin-top: 50px;
+      position: relative;
+      overflow: hidden;
     }
-    .game-section h2 {
-      font-size: 32px;
+    .section h2 {
+      font-size: 36px;
       margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
     }
-    .game-section a {
+    .section h2::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: white;
+      margin: 10px auto 0;
+      border-radius: 2px;
+    }
+    .section p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    .section a {
       display: inline-block;
       margin-top: 20px;
       padding: 15px 30px;
-      background: #a777e3;
-      color: white;
       text-decoration: none;
-      border-radius: 10px;
+      border-radius: 25px;
       font-size: 18px;
-      transition: background 0.3s ease;
+      font-weight: bold;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .game-section a:hover {
-      background: #ffffff;
+    .section a::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.5s ease;
+    }
+    .section a:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .section a:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .game-section {
+      background: #2a5298;
+    }
+    .game-section a {
+      background: white;
       color: #2a5298;
+    }
+    .heart-section {
+      background: #ff4d6d;
+    }
+    .heart-section a {
+      background: white;
+      color: #ff4d6d;
     }
     footer {
       text-align: center;
@@ -180,19 +240,6 @@
     }
     footer a:hover {
       color: #ffffff;
-    }
-    .social-icons {
-      margin-top: 20px;
-    }
-    .social-icons a {
-      display: inline-block;
-      margin: 0 10px;
-      font-size: 24px;
-      color: white;
-      transition: color 0.3s ease;
-    }
-    .social-icons a:hover {
-      color: #a777e3;
     }
     @media (max-width: 768px) {
       header h1 {
@@ -219,10 +266,10 @@
       .content h2 {
         font-size: 26px;
       }
-      .game-section h2 {
+      .section h2 {
         font-size: 28px;
       }
-      .game-section a {
+      .section a {
         font-size: 16px;
         padding: 12px 25px;
       }
@@ -242,7 +289,12 @@
   </header>
   <div class="content">
     <h2>Về Chúng Tôi</h2>
-    <p>NTS là một nhóm đam mê công nghệ, luôn nỗ lực để mang lại những giải pháp sáng tạo và hiệu quả cho người dùng. Với đội ngũ chuyên gia giàu kinh nghiệm, chúng tôi cam kết cung cấp dịch vụ chất lượng cao và trải nghiệm người dùng tốt nhất.</p>
+    <p>NTS là một nhóm đam mê công nghệ, luôn nỗ lực để mang lại những giải pháp sáng tạo và hiệu quả cho khách hàng. Với đội ngũ chuyên gia giàu kinh nghiệm, chúng tôi cam kết cung cấp dịch vụ chất lượng cao và trải nghiệm người dùng tốt nhất.</p>
+    <div class="social-icons">
+      <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.tiktok.com/" target="_blank"><i class="fab fa-tiktok"></i></a>
+    </div>
     <div class="features">
       <div class="feature">
         <i class="fas fa-lightbulb"></i>
@@ -261,14 +313,19 @@
       </div>
     </div>
   </div>
-  <div class="game-section">
+  <div class="section game-section">
     <h2>Thử Thách Bản Thân Với Trò Chơi</h2>
     <p>Khám phá trò chơi thú vị do NTS phát triển!</p>
     <a href="game.html" target="_blank">Chơi Ngay</a>
   </div>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <div class="section heart-section">
+    <h2>Tỏ Tình Với Người Mình Thích</h2>
+    <p>Anh không cần cả thế giới, anh chỉ cần em! Hãy gửi lời tỏ tình ngay!</p>
+    <a href="totinh.html" class="heart-button">Tỏ Tình Ngay</a>
+  </div>
   <footer>
     &copy; 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
   </footer>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
