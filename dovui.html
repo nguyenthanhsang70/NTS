@@ -117,9 +117,22 @@
         background-color: #007bff; /* Màu xanh dương đậm hơn */
     }
 
+    button#previous {
+        background-color: #6c757d; /* Màu xám cho nút xem lại */
+    }
+
+    button#restart {
+        background-color: #e67e22; /* Màu cam cho nút chơi lại */
+    }
+
     button:hover {
         filter: brightness(1.1);
         transform: translateY(-2px);
+    }
+
+    button[disabled] {
+        background-color: #cccccc;
+        cursor: not-allowed;
     }
 
     .message {
@@ -170,6 +183,7 @@
         <a href="game.html" class="back-button">
             <i class="fas fa-arrow-left"></i> Quay lại
         </a>
+    </div>
     <h1>Đố Vui</h1>
     <p id="question">Câu hỏi: </p>
     <label><input type="radio" name="answer" value="a"> <span id="optionA"></span></label>
@@ -177,12 +191,14 @@
     <label><input type="radio" name="answer" value="c"> <span id="optionC"></span></label>
     <label><input type="radio" name="answer" value="d"> <span id="optionD"></span></label>
     <br>
+    <button id="previous" onclick="previousQuestion()" disabled>Xem lại câu trước</button>
     <button id="check" onclick="checkAnswer()">Kiểm tra</button>
     <button id="next" onclick="nextQuestion()" disabled>Tiếp theo</button>
+    <button id="restart" onclick="restartGame()" style="display: none;">Chơi lại</button>
     <div class="message" id="message"></div>
 </div>
 <script>
-// Danh sách câu hỏi
+// Danh sách câu hỏi (chỉ giữ lại 60 câu đầu tiên)
 const questions = [
     {
         question: "Xã nào đông dân nhất?",
@@ -354,7 +370,7 @@ const questions = [
     },
     {
         question: "Vịt nào đi bằng hai chân?",
-        options: ["A. Vịt trưởng thành", "B. Vịt quay", "C. Tất cả các con vịt", "D. Vịt bơi trên cạn"],
+        options: ["A. Vịt trưởng thành", "B. Vịt quay", "C. Tất cả các con vịt, trừ vịt bị què", "D. Vịt bơi trên cạn"],
         correctAnswer: "c",
         correctText: "Tất cả các con vịt, trừ vịt bị què"
     },
@@ -423,11 +439,143 @@ const questions = [
         options: ["A. Con dốt", "B. Con dớp", "C. Con dốc", "D. Con dông"],
         correctAnswer: "c",
         correctText: "Con dốc"
+    },
+    {
+        question: "Đuôi thì chẳng thấy, mà có hai đầu?",
+        options: ["A. Dây kéo (khóa kéo)", "B. Chiếc kính (gọng kính)", "C. Cây cầu", "D. Cây bút chì"],
+        correctAnswer: "c",
+        correctText: "Cây cầu"
+    },
+    {
+        question: "Ba của Tèo gọi mẹ của Tý là em dâu, vậy ba của Tý gọi ba của Tèo là gì?",
+        options: ["A. Gọi là anh trai", "B. Gọi là sui gia", "C. Gọi là bạn đời", "D. Gọi là chú hàng xóm"],
+        correctAnswer: "a",
+        correctText: "Gọi là anh trai"
+    },
+    {
+        question: "Vào tháng nào con người sẽ ngủ ít nhất trong năm?",
+        options: ["A. Tháng 12", "B. Tháng nào cũng như nhau", "C. Tháng 1", "D. Tháng 2"],
+        correctAnswer: "d",
+        correctText: "Tháng 2. Vì tháng 2 có 28 ngày"
+    },
+    {
+        question: "Hôn mà bị hôn lại gọi là gì?",
+        options: ["A. Hôn mê", "B. Hôn nhân", "C. Đính hôn", "D. Hôn ước"],
+        correctAnswer: "c",
+        correctText: "Đính hôn"
+    },
+    {
+        question: "Nhà nào lạnh lẽo nhưng ai cũng muốn tới?",
+        options: ["A. Nhà băng", "B. Nhà đá", "C. Nhà tuyết", "D. Nhà xác"],
+        correctAnswer: "a",
+        correctText: "Nhà băng"
+    },
+    {
+        question: "Xe nào không bao giờ giảm đi?",
+        options: ["A. Xe số", "B. Xe buýt", "C. Xe tăng", "D. Xe ôm"],
+        correctAnswer: "c",
+        correctText: "Xe tăng"
+    },
+    {
+        question: "Cây nhang càng đốt càng ngắn. Vậy cây gì càng đốt nhiều càng dài?",
+        options: ["A. Cây cầu", "B. Cây nến trong chuyện cổ tích", "C. Cây gậy biến hóa của Tôn Ngộ Không", "D. Cây tre"],
+        correctAnswer: "d",
+        correctText: "Cây tre, cây trúc"
+    },
+    {
+        question: "Từ gì bỏ đầu thành tên quốc gia, mất đuôi ra một loài chim?",
+        options: ["A. Cúc", "B. Công", "C. Ngà", "D. Hạc"],
+        correctAnswer: "a",
+        correctText: "Cúc. Bỏ C thành Úc, bỏ C thành Cú"
+    },
+    {
+        question: "Cái gì càng cất lại càng thấy?",
+        options: ["A. Cất kính", "B. Cất tiếng", "C. Cất giấu bí mật", "D. Cất nhà"],
+        correctAnswer: "d",
+        correctText: "Cất nhà"
+    },
+    {
+        question: "Sữa gì khi uống không được đứng yên 1 chỗ?",
+        options: ["A. Sữa chạy", "B. Sữa chua uống", "C. Sữa lắc", "D. Sữa động"],
+        correctAnswer: "c",
+        correctText: "Sữa lắc"
+    },
+    {
+        question: "Một người năm nay đã 40 tuổi. Hỏi người đó có bao nhiêu ngày sinh nhật?",
+        options: ["A. 1 ngày", "B. 40 ngày", "C. 0 ngày", "D. 10 ngày"],
+        correctAnswer: "a",
+        correctText: "1 ngày"
+    },
+    {
+        question: "Bố mẹ có 6 người con trai, mỗi người con trai có 1 em gái. Hỏi gia đình đó có bao nhiêu người?",
+        options: ["A. 8 người", "B. 7 người", "C. 9 người", "D. 10+ người"],
+        correctAnswer: "c",
+        correctText: "9 người"
+    },
+    {
+        question: "Con gì sinh ra đã BÉO?",
+        options: ["A. Con cá mập voi", "B. Con cá mập", "C. Con cá voi xanh", "D. Con cá heo"],
+        correctAnswer: "b",
+        correctText: "Con cá mập"
+    },
+    {
+        question: "Kiến nào không bao giờ ngủ?",
+        options: ["A. Kiến trúc", "B. Kiến cắn", "C. Kiến nghị", "D. Kiến thức"],
+        correctAnswer: "d",
+        correctText: "Kiến thức"
+    },
+    {
+        question: "Trò gì 5 bé hơn 2, 2 bé hơn 0 và 0 bé hơn 5?",
+        options: ["A. Trò đếm ngược", "B. Oằn tù xì", "C. Trò hack não bạn bè", "D. Trò lật ngược con số"],
+        correctAnswer: "b",
+        correctText: "Oằn tù xì"
+    },
+    {
+        question: "Làm thế nào để không đụng phải ngón tay khi bạn đập búa vào một cái móng tay?",
+        options: ["A. Đừng đóng đinh", "B. Đeo găng tay thật dày", "C. Cầm búa bằng cả 2 tay", "D. Nhờ người khác đóng hộ"],
+        correctAnswer: "c",
+        correctText: "Cầm búa bằng cả 2 tay"
+    },
+    {
+        question: "Suốt ngày lo việc nước.\nHỗ trợ cuộc sống của con người.\nMột cơ thể đơn giản suốt đời.\nVui lúc nào ai biết, buồn khi nào ai hay.\nĐó là cái gì?",
+        options: ["A. Cái vòi nước", "B. Con cá", "C. Đám mây", "D. Cái gầu múc nước"],
+        correctAnswer: "d",
+        correctText: "Cái gầu múc nước"
+    },
+    {
+        question: "Bạn có thể kể ra ba ngày liên tiếp mà không có tên là thứ hai, thứ ba, thứ tư, thứ năm, thứ sáu, thứ bảy, chủ nhật?",
+        options: ["A. Hôm qua, hôm nay, và ngày mai", "B. Hôm nọ, hôm nay, và ngày mai", "C. Hôm kia, hôm qua, hôm nay", "D. Sáng qua, sáng nay, và sáng mai"],
+        correctAnswer: "a",
+        correctText: "Hôm qua, hôm nay, và ngày mai"
+    },
+    {
+        question: "Mồm bò mà không phải mồm bò. Đố là con gì?",
+        options: ["A. Con cóc", "B. Con ốc sên", "C. Con trai", "D. Con sò"],
+        correctAnswer: "b",
+        correctText: "Con ốc sên"
+    },
+    {
+        question: "Thân em nhỏ bé nhưng xinh xắn\nCác bà, các chị, các dì đều yêu thương\nEm đi, em đến khắp bốn phương\nĐi dọc ngang, lách luật nhiều nơi\nTấm thân hiến dâng cho người\nSang hay hèn, không quan trọng, giúp người không đếm công",
+        options: ["A. Cây tăm", "B. Cái kẹp tóc", "C. Cây kim khâu vết thương", "D. Cây kim"],
+        correctAnswer: "d",
+        correctText: "Cây kim"
     }
 ];
 
-// Biến để theo dõi câu hỏi hiện tại
+// Biến để theo dõi câu hỏi hiện tại và đáp án người dùng chọn
 let currentQuestionIndex = 0;
+let userAnswers = new Array(questions.length).fill(null); // Mảng lưu đáp án người dùng chọn
+
+// Hàm tính số câu trả lời đúng
+function calculateCorrectAnswers() {
+    let correctCount = 0;
+    for (let i = 0; i < questions.length; i++) {
+        if (userAnswers[i] === questions[i].correctAnswer) {
+            correctCount++;
+        }
+    }
+    return correctCount;
+}
 
 // Hàm hiển thị câu hỏi hiện tại
 function loadQuestion() {
@@ -438,24 +586,63 @@ function loadQuestion() {
     document.getElementById("optionC").textContent = currentQuestion.options[2];
     document.getElementById("optionD").textContent = currentQuestion.options[3];
     document.getElementById("message").innerHTML = "";
-    document.getElementById("next").setAttribute("disabled", "true");
-    document.querySelectorAll('input[name="answer"]').forEach(input => input.checked = false);
+    document.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.checked = false;
+        input.disabled = false; // Mở lại các radio button khi tải câu hỏi mới
+    });
+    document.getElementById('check').removeAttribute('disabled'); // Mở lại nút "Kiểm tra"
+    document.getElementById('restart').style.display = "none"; // Ẩn nút "Chơi lại"
+
+    // Kiểm tra nếu câu hỏi đã được trả lời trước đó
+    if (userAnswers[currentQuestionIndex] !== null) {
+        const userAnswer = userAnswers[currentQuestionIndex];
+        if (userAnswer === currentQuestion.correctAnswer) {
+            document.getElementById('message').innerHTML = `<strong>Bạn đã đúng!</strong>`;
+        } else {
+            document.getElementById('message').innerHTML = `Bạn đã chọn: ${currentQuestion.options[userAnswer.charCodeAt(0) - 97]}. <strong>Đáp án đúng là: ${currentQuestion.correctText}.</strong>`;
+        }
+        document.querySelector(`input[name="answer"][value="${currentQuestion.correctAnswer}"]`).checked = true; // Đánh dấu đáp án đúng
+        document.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true); // Khóa tất cả radio button
+        document.getElementById('check').setAttribute('disabled', 'true'); // Khóa nút "Kiểm tra"
+        document.getElementById('next').removeAttribute('disabled'); // Kích hoạt nút "Tiếp theo"
+    } else {
+        document.getElementById('next').setAttribute("disabled", "true"); // Vô hiệu hóa nút "Tiếp theo" nếu chưa trả lời
+    }
+
+    // Kiểm tra và cập nhật trạng thái nút "Xem lại câu trước"
+    if (currentQuestionIndex === 0) {
+        document.getElementById("previous").setAttribute("disabled", "true");
+    } else {
+        document.getElementById("previous").removeAttribute("disabled");
+    }
+
+    // Đảm bảo các thành phần giao diện hiển thị đúng khi tải câu hỏi
+    document.getElementById('optionA').parentElement.style.display = "block";
+    document.getElementById('optionB').parentElement.style.display = "block";
+    document.getElementById('optionC').parentElement.style.display = "block";
+    document.getElementById('optionD').parentElement.style.display = "block";
+    document.getElementById('check').style.display = "block";
+    document.getElementById('next').style.display = "block";
+    document.getElementById('previous').style.display = "block";
 }
 
 // Kiểm tra đáp án (cho phép tiếp tục dù sai)
 function checkAnswer() {
     const currentQuestion = questions[currentQuestionIndex];
     let selectedAnswer = document.querySelector('input[name="answer"]:checked');
-    if (selectedAnswer && selectedAnswer.value === currentQuestion.correctAnswer) {
-        document.getElementById('message').innerHTML = `<strong>Bạn đã đúng!</strong>`;
-    } else {
-        document.getElementById('message').innerHTML = `<strong>Sai rồi! Đáp án đúng là: ${currentQuestion.correctText}.</strong>`;
-        if (selectedAnswer) {
+    if (selectedAnswer) {
+        userAnswers[currentQuestionIndex] = selectedAnswer.value; // Lưu đáp án người dùng chọn
+        if (selectedAnswer.value === currentQuestion.correctAnswer) {
+            document.getElementById('message').innerHTML = `<strong>Bạn đã đúng!</strong>`;
+        } else {
+            document.getElementById('message').innerHTML = `<strong>Sai rồi! Đáp án đúng là: ${currentQuestion.correctText}.</strong>`;
             selectedAnswer.checked = false; // Bỏ chọn đáp án sai
+            document.querySelector(`input[name="answer"][value="${currentQuestion.correctAnswer}"]`).checked = true; // Chọn đáp án đúng
         }
-        document.querySelector(`input[name="answer"][value="${currentQuestion.correctAnswer}"]`).checked = true; // Chọn đáp án đúng
+        document.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true); // Khóa tất cả radio button
+        document.getElementById('check').setAttribute('disabled', 'true'); // Khóa nút "Kiểm tra"
+        document.getElementById('next').removeAttribute('disabled'); // Kích hoạt nút "Tiếp theo"
     }
-    document.getElementById('next').removeAttribute('disabled'); // Luôn kích hoạt nút "Tiếp theo"
 }
 
 // Chuyển sang câu hỏi tiếp theo
@@ -464,15 +651,33 @@ function nextQuestion() {
     if (currentQuestionIndex < questions.length) {
         loadQuestion();
     } else {
+        const correctCount = calculateCorrectAnswers();
         document.getElementById('question').textContent = "Chúc mừng! Bạn đã hoàn thành tất cả câu hỏi!";
+        document.getElementById('message').innerHTML = `Bạn đã trả lời đúng ${correctCount}/${questions.length} câu.`;
         document.getElementById('optionA').parentElement.style.display = "none";
         document.getElementById('optionB').parentElement.style.display = "none";
         document.getElementById('optionC').parentElement.style.display = "none";
         document.getElementById('optionD').parentElement.style.display = "none";
         document.getElementById('check').style.display = "none";
         document.getElementById('next').style.display = "none";
-        document.getElementById('message').innerHTML = "";
+        document.getElementById('previous').style.display = "none";
+        document.getElementById('restart').style.display = "block"; // Hiển thị nút "Chơi lại"
     }
+}
+
+// Chuyển về câu hỏi trước
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+    }
+}
+
+// Hàm chơi lại trò chơi
+function restartGame() {
+    currentQuestionIndex = 0; // Đặt lại chỉ số câu hỏi về 0
+    userAnswers = new Array(questions.length).fill(null); // Xóa toàn bộ đáp án đã chọn
+    loadQuestion(); // Tải lại câu hỏi đầu tiên
 }
 
 // Tải câu hỏi đầu tiên khi trang được mở
