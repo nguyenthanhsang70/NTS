@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Tết</title>
+    <!-- Thêm Font Awesome để sử dụng biểu tượng mũi tên -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #envelope {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 450px;
+            background: linear-gradient(135deg, #ff1f1f, #c81010); /* Gradient đỏ sang trọng */
+            border: 2px solid #FFD700; /* Viền vàng */
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            perspective: 1200px; /* Tăng chiều sâu 3D */
+            overflow: hidden;
+        }
+        #flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(135deg, #ff4d4d, #e60000);
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
+            transform-origin: top;
+            transition: transform 1s cubic-bezier(0.68, -0.6, 0.32, 1.6); /* Đường cong tự nhiên hơn */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        #content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff; /* Nền trắng bên trong bao lì xì */
+            border-radius: 10px;
+            transform: translateY(50%);
+            transition: transform 0.8s ease;
+        }
+        #greeting {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: #FFD700;
+            font-size: 24px;
+            text-align: center;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        #envelope-title {
+            position: absolute;
+            top: 50px; /* Đặt chữ ở phần trên của bao lì xì */
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FFD700;
+            font-size: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+            z-index: 12; /* Đảm bảo chữ nằm trên nắp */
+            transition: opacity 0.3s ease;
+        }
+        #logo {
+            position: absolute;
+            top: 100px; /* Đặt logo dưới chữ "Lì Xì" */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px; /* Điều chỉnh kích thước logo */
+            height: auto;
+            z-index: 11; /* Đảm bảo logo nằm dưới nút nhưng trên pháo hoa */
+            transition: opacity 0.3s ease;
+        }
+        #open-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px; /* Kích thước hình tròn */
+            height: 60px; /* Kích thước hình tròn */
+            padding: 0; /* Xóa padding để giữ hình tròn */
+            font-size: 16px; /* Giảm kích thước chữ để fit trong nút tròn */
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: none;
+            border-radius: 50%; /* Tạo hình tròn */
+            cursor: pointer;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, background 0.3s ease;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Căn giữa nội dung trong nút tròn */
+        }
+        #open-btn:hover {
+            transform: translateX(-50%) scale(1.05);
+            background: linear-gradient(45deg, #FFA500, #FFD700);
+        }
+        #envelope.opened #flap {
+            transform: rotateX(-180deg) translateZ(-20px); /* Thêm chiều sâu khi mở */
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.4); /* Bóng đổ phía trên khi mở */
+        }
+        #envelope.opened #content {
+            transform: translateY(0);
+        }
+        #envelope.opened #greeting {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: sparkle 2s infinite;
+        }
+        #envelope.opened #open-btn {
+            display: none;
+        }
+        #envelope.opened #envelope-title {
+            opacity: 0; /* Ẩn chữ khi mở bao lì xì */
+        }
+        #envelope.opened #logo {
+            opacity: 0; /* Ẩn logo khi mở bao lì xì */
+        }
+        @keyframes sparkle {
+            0%, 100% { text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); }
+            50% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; }
+        }
+        /* Định dạng nút Quay lại */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            z-index: 20; /* Đảm bảo nút nằm trên tất cả các phần tử khác */
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        .back-button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #FFA500, #FFD700);
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+        /* Hiệu ứng rơi tiền/giấy đỏ */
+        .money-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff4d4d, #e60000);
+            border-radius: 50%;
+            opacity: 0.8;
+            z-index: 9;
+            animation: fall 2s linear forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 30px; }
+            header p { font-size: 16px; }
+            .content h2 { font-size: 26px; }
+            .game-section h2 { font-size: 28px; }
+            .game-section a { font-size: 16px; padding: 12px 25px; }
+            .social-icons a { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+<canvas id="fireworks"></canvas>
+<div id="envelope">
+    <div id="flap"></div>
+    <div id="content">
+        <div id="greeting">Chúc Bạn Sức Khỏe, Hạnh Phúc và Thành Công!</div>
+    </div>
+    <div id="envelope-title">Lì Xì</div>
+    <img id="logo" src="tải xuống (2).png" alt="Logo"> <!-- Thay 'logo.png' bằng đường dẫn đến file logo của bạn -->
+    <button id="open-btn">Mở</button>
+</div>
+<a href="ngayquantrong.html" class="back-button">
+    <i class="fas fa-arrow-left"></i> Quay lại
+</a>
+<script>
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Firework {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = canvas.height;
+            this.vx = (Math.random() - 0.5) * 4;
+            this.vy = -(Math.random() * 5 + 3);
+            this.particles = [];
+            this.exploded = false;
+            this.colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
+        }
+
+        update() {
+            if (!this.exploded) {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1;
+                if (this.vy >= 0) this.explode();
+            } else {
+                this.particles.forEach(particle => particle.update());
+                this.particles = this.particles.filter(particle => particle.alpha > 0);
+            }
+        }
+
+        explode() {
+            this.exploded = true;
+            for (let i = 0; i < 100; i++) this.particles.push(new Particle(this.x, this.y));
+        }
+
+        draw() {
+            if (!this.exploded) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            } else {
+                this.particles.forEach(particle => particle.draw());
+            }
+        }
+    }
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 6;
+            this.vy = (Math.random() - 0.5) * 6;
+            this.alpha = 1;
+            this.color = fireworks[Math.floor(Math.random() * fireworks.length)].colors[
+                Math.floor(Math.random() * 5)
+            ];
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= 0.01;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    let fireworks = [];
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (Math.random() < 0.05) fireworks.push(new Firework());
+        fireworks.forEach((firework, index) => {
+            firework.update();
+            firework.draw();
+            if (firework.particles.length === 0 && firework.exploded) fireworks.splice(index, 1);
+        });
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+    // Xử lý sự kiện mở bao lì xì
+    const envelope = document.getElementById('envelope');
+    const openBtn = document.getElementById('open-btn');
+    openBtn.addEventListener('click', () => {
+        envelope.classList.add('opened');
+        // Thêm âm thanh khi mở bao
+        const audio = new Audio('ripping-paper-98730.mp3'); // Âm thanh xé giấy (bạn có thể thay đổi URL)
+        audio.play();
+        // Tạo hiệu ứng rơi tiền/giấy đỏ
+        createMoneyParticles();
+    });
+
+    // Hàm tạo hiệu ứng rơi tiền/giấy đỏ
+    function createMoneyParticles() {
+        const envelopeRect = envelope.getBoundingClientRect();
+        const numParticles = 20;
+        for (let i = 0; i < numParticles; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'money-particle';
+            particle.style.left = `${envelopeRect.left + Math.random() * 300}px`;
+            particle.style.top = `${envelopeRect.top + 50}px`; // Từ phần nắp
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000); // Xóa sau 2 giây
+        }
+    }
+</script>
+</body>
+</html>
