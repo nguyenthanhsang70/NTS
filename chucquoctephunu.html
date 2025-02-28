@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng 8/3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fde7fe, #fff3f8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .card {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            position: relative;
+            z-index: 2;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: scale(1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card h1 {
+            color: #e91e63;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .card p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            animation: fadeIn 2.5s ease-in-out;
+        }
+        .flowers {
+            margin-top: 15px;
+            font-size: 2rem;
+            color: #ff6f61;
+            animation: bounce 2s infinite alternate;
+        }
+
+        /* Nút quay lại */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 0.9rem;
+            color: #e91e63;
+            text-decoration: none;
+            transition: color 0.3s ease-in-out;
+            z-index: 3;
+        }
+        .back-button:hover {
+            color: #d81b60;
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+
+        /* Hiệu ứng hoa rơi */
+        .flower-fall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .flower {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #ff6f61;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-10%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Hiệu ứng chữ và hình ảnh */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-5px);
+            }
+        }
+        @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+    </style>
+</head>
+<body>
+    <a href="ngayquantrong.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+
+    <div class="card">
+        <h1>Chúc mừng Ngày Quốc tế Phụ nữ 8/3! 🌹</h1>
+        <p>
+            Gửi đến những người phụ nữ tuyệt vời – một nửa xinh đẹp của thế giới – lời chúc tràn đầy yêu thương và ngưỡng mộ. Cảm ơn các bạn đã luôn là nguồn cảm hứng, sự hy sinh thầm lặng và mang đến những điều tuyệt vời cho cuộc sống này.<br><br>
+            Chúc các bạn luôn xinh đẹp, hạnh phúc và thành công trong mọi hành trình. Hãy luôn rạng rỡ như những đóa hoa, tỏa sáng như những ánh nắng ban mai.<br><br>
+            Hôm nay là ngày của các bạn – hãy thật vui vẻ và tận hưởng trọn vẹn nhé! 💖
+        </p>
+        <div class="flowers">
+            🌸🌹🌷
+        </div>
+    </div>
+
+    <div class="flower-fall"></div>
+
+    <script>
+        // Tạo hiệu ứng hoa rơi ngẫu nhiên
+        const flowerFall = document.querySelector('.flower-fall');
+        const flowers = ['🌸', '🌹', '🌷'];
+        for (let i = 0; i < 50; i++) {
+            const flower = document.createElement('div');
+            flower.classList.add('flower');
+            flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+            flower.style.left = Math.random() * 100 + '%';
+            flower.style.fontSize = Math.random() * 1.5 + 1 + 'rem';
+            flower.style.animationDuration = Math.random() * 5 + 3 + 's';
+            flower.style.opacity = Math.random();
+            flowerFall.appendChild(flower);
+        }
+    </script>
+</body>
+</html>
