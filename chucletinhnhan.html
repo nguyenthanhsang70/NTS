@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine</title>
+    <!-- Thêm Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(180deg, #1a0b2e, #3b1b5e);
+            font-family: 'Georgia', serif;
+        }
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff4d6d;
+            transform: rotate(45deg);
+            animation: fall linear infinite;
+            z-index: 1;
+            opacity: 0.8;
+        }
+        .heart::before, .heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: inherit;
+            border-radius: 50%;
+        }
+        .heart::before { top: -10px; left: 0; }
+        .heart::after { top: 0; left: 10px; }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(45deg); opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(45deg); opacity: 0; }
+        }
+
+        .letter-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            perspective: 1000px;
+        }
+
+        .letter-envelope {
+            width: 360px;
+            height: 240px;
+            background: linear-gradient(135deg, #fff1f1, #ffe4e4);
+            border: 1px solid #ff8c94;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 76, 96, 0.4);
+            position: relative;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        .letter-envelope:hover {
+            transform: scale(1.05) rotateX(5deg);
+            box-shadow: 0 15px 40px rgba(255, 76, 96, 0.6);
+        }
+
+        .letter-title {
+            position: absolute;
+            top: 30px;
+            font-size: 32px;
+            font-weight: normal;
+            color: #ff4d6d;
+            text-shadow: 2px 2px 4px rgba(255, 102, 102, 0.2);
+            letter-spacing: 1px;
+            font-family: 'Great Vibes', cursive; /* Font viết tay cho tiêu đề */
+        }
+
+        .letter-content {
+            display: none;
+            width: 360px;
+            min-height: 280px; /* Giảm chiều cao tối thiểu để phù hợp với font chữ nhỏ hơn */
+            background: linear-gradient(135deg, #fff1f1, #ffe4e4);
+            padding: 25px;
+            box-sizing: border-box;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 76, 96, 0.4);
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #ff8c94;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .open-button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #ff6f91, #ff4d6d);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(255, 76, 96, 0.5);
+            transition: all 0.3s ease;
+        }
+        .open-button:hover {
+            background: linear-gradient(135deg, #ff4d6d, #ff2e50);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 76, 96, 0.7);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 25px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            z-index: 3;
+            background: linear-gradient(135deg, #ff6f91, #ff4d6d);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 76, 96, 0.4);
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 76, 96, 0.6);
+        }
+
+        .letter-text {
+            font-size: 14px; /* Giảm kích thước chữ để hiển thị toàn bộ nội dung */
+            color: #4a2f4a;
+            line-height: 1.4; /* Giảm khoảng cách dòng để tiết kiệm không gian */
+            opacity: 0;
+            animation: textFadeIn 1s ease forwards 0.3s;
+            font-family: 'Playfair Display', serif; /* Giữ font chữ mềm mại, lãng mạn */
+            font-style: italic; /* Giữ kiểu chữ nghiêng để tạo cảm giác lãng mạn */
+        }
+        @keyframes textFadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .recipient {
+            text-align: right;
+            font-style: italic;
+            font-size: 14px;
+            color: #ff6f91;
+            margin-top: 10px;
+            font-family: 'Playfair Display', serif; /* Sử dụng font tương tự cho phần recipient */
+        }
+    </style>
+</head>
+<body>
+    <div id="heartContainer"></div>
+    <a href="ngayquantrong.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+    <div class="letter-container">
+        <div class="letter-envelope" id="envelope">
+            <div class="letter-title">Lá Thư </div>
+            <button class="open-button" onclick="openLetter()">Mở Thư</button>
+        </div>
+        <div class="letter-content" id="letter">
+            <div class="letter-text" id="letterText">
+                <p>Xin chào em!</p>
+                <p>Valentine năm nay anh muốn gửi đến em những lời ngọt ngào nhất từ trái tim anh.</p>
+                <p>Cảm ơn em đã đến bên anh, làm cuộc sống của anh thêm rực rỡ và hạnh phúc.</p>
+                <p>Mỗi khoảnh khắc bên em đều là một món quà quý giá, và anh mong mình sẽ cùng nhau đi qua thật nhiều mùa Valentine nữa.</p>
+                <p>Chúc em luôn xinh đẹp, vui vẻ và hạnh phúc như bây giờ.</p>
+                <p>Yêu em nhiều hơn tất cả những gì anh có thể nói.</p>
+                <p>Mãi là cô gái nhỏ trong tim anh nhé! ❤️💌</p>
+                <p>Happy Valentine’s Day, tình yêu của anh! 🌹</p>
+            </div>
+            <div class="recipient" id="recipientText">
+                <p>Người nhận: [Người anh yêu]</p>
+            </div>
+        </div>
+    </div>
+    <audio id="letterSound" src="duchotanthe.mp3"></audio>
+
+    <script>
+        const container = document.getElementById('heartContainer');
+        const colors = ['#ff4d6d', '#ff8c94', '#ffb3ba', '#ffccd5'];
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            heart.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+
+        function openLetter() {
+            const envelope = document.getElementById('envelope');
+            const letter = document.getElementById('letter');
+            const audio = document.getElementById('letterSound');
+
+            envelope.style.display = 'none';
+            letter.style.display = 'flex'; /* Hiển thị letter-content dưới dạng flex */
+            audio.play();
+        }
+
+        setInterval(createHeart, 150);
+    </script>
+</body>
+</html>
