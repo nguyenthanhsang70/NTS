@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc mừng 20/11</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            position: relative;
+            z-index: 2;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            animation: rainbow-border 5s linear infinite;
+        }
+        @keyframes rainbow-border {
+            0% {
+                border-color: red;
+            }
+            14% {
+                border-color: orange;
+            }
+            28% {
+                border-color: yellow;
+            }
+            42% {
+                border-color: green;
+            }
+            56% {
+                border-color: blue;
+            }
+            70% {
+                border-color: indigo;
+            }
+            84% {
+                border-color: violet;
+            }
+            100% {
+                border-color: red;
+            }
+        }
+        .container h1 {
+            font-size: 2.5em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .container p {
+            font-size: 1em;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            border: 2px solid transparent;
+            animation: rainbow-border 5s linear infinite;
+        }
+        .back-button:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: confetti-fall linear infinite;
+        }
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        .bubble {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            bottom: -10%;
+            animation: bubble-rise linear infinite;
+        }
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chúc mừng ngày Nhà giáo Việt Nam 20/11</h1>
+        <p>
+            Nhân ngày Nhà giáo Việt Nam 20/11, em xin gửi đến thầy cô lời chúc sức khỏe, hạnh phúc và thành công trong sự nghiệp trồng người cao cả. 
+            Cảm ơn thầy cô đã luôn tận tâm, dìu dắt và truyền đạt cho chúng em những kiến thức quý báu. 
+            Dù thời gian có trôi qua, những bài giảng và tấm lòng của thầy cô sẽ mãi là hành trang quý giá trong cuộc đời chúng em.
+            <br><br>
+            Chúc thầy cô luôn mạnh khỏe và mãi giữ ngọn lửa đam mê với nghề! ❤️
+        </p>
+        <a href="ngayquantrong.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Confetti -->
+    <div class="confetti" style="left: 10%; background-color: #e74c3c; animation-duration: 5s;"></div>
+    <div class="confetti" style="left: 25%; background-color: #3498db; animation-duration: 6s;"></div>
+    <div class="confetti" style="left: 40%; background-color: #f1c40f; animation-duration: 7s;"></div>
+    <div class="confetti" style="left: 55%; background-color: #2ecc71; animation-duration: 8s;"></div>
+    <div class="confetti" style="left: 70%; background-color: #9b59b6; animation-duration: 9s;"></div>
+    <div class="confetti" style="left: 85%; background-color: #e67e22; animation-duration: 10s;"></div>
+
+    <!-- Bubbles -->
+    <div class="bubble" style="left: 15%; animation-duration: 7s;"></div>
+    <div class="bubble" style="left: 35%; animation-duration: 9s;"></div>
+    <div class="bubble" style="left: 50%; animation-duration: 8s;"></div>
+    <div class="bubble" style="left: 65%; animation-duration: 10s;"></div>
+    <div class="bubble" style="left: 80%; animation-duration: 6s;"></div>
+</body>
+</html>
