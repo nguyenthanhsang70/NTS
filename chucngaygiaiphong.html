@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc mừng 30/4</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #d32f2f;
+            color: #fff;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.2em;
+            margin: 0;
+        }
+        header p {
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container button {
+            position: relative;
+            padding: 12px 30px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #1e88e5;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+        .container button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: width 0.3s ease;
+            z-index: 1;
+        }
+        .container button:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+        .container button:hover::before {
+            width: 100%;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+        }
+        footer a {
+            color: #1e88e5;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            margin-bottom: 10px;
+        }
+        .social-icons a {
+            font-size: 1.3em;
+            color: #fff;
+            margin: 0 8px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #1e88e5;
+        }
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 1em;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            header p {
+                font-size: 0.9em;
+            }
+            .container button {
+                padding: 10px 25px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Chúc mừng ngày 30/4!</h1>
+        <p>Kỷ niệm ngày Giải phóng miền Nam, thống nhất đất nước.</p>
+    </header>
+
+    <a href="ngayquantrong.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+
+    <div class="container">
+        <!-- Link đến video hoặc file -->
+        <a href="30.mp4" target="_blank" style="text-decoration: none;">
+            <button>Xem Video Kỷ Niệm</button>
+        </a>
+    </div>
+
+    <footer>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+        </div>
+        &copy; 2025 NTS. Được thiết kế bởi <a href="https://www.facebook.com/nthanhsang70">Nguyễn Thanh Sang</a>.
+    </footer>
+</body>
+</html>
