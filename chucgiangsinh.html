@@ -40,8 +40,31 @@
             height: auto;
             border-radius: 10px;
             margin-bottom: 20px;
+            animation: shakeGlow 2s infinite ease-in-out; /* Thêm hiệu ứng rung và tỏa sáng */
         }
-        /* Back button */
+        /* Hiệu ứng rung và tỏa sáng cho cây thông */
+        @keyframes shakeGlow {
+            0% {
+                transform: translateX(0) rotate(0deg);
+                box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); /* Ánh sáng vàng nhạt */
+            }
+            25% {
+                transform: translateX(-2px) rotate(-1deg);
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            }
+            50% {
+                transform: translateX(2px) rotate(1deg);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 1); /* Ánh sáng mạnh hơn */
+            }
+            75% {
+                transform: translateX(-2px) rotate(-1deg);
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            }
+            100% {
+                transform: translateX(0) rotate(0deg);
+                box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+            }
+        }
         .back-button {
             position: absolute;
             bottom: 20px;
@@ -65,7 +88,6 @@
         .back-button i {
             font-size: 1.2rem;
         }
-        /* Snowflakes effect */
         .snowflake {
             position: absolute;
             top: -10%;
@@ -74,24 +96,8 @@
             background: white;
             border-radius: 50%;
             animation: fall linear infinite;
+            pointer-events: none;
         }
-        @keyframes fall {
-            to {
-                transform: translateY(110vh);
-            }
-        }
-        .snowflake:nth-child(1) { left: 5%; width: 15px; height: 15px; animation-duration: 5s; }
-        .snowflake:nth-child(2) { left: 15%; width: 8px; height: 8px; animation-duration: 7s; }
-        .snowflake:nth-child(3) { left: 25%; width: 12px; height: 12px; animation-duration: 6s; }
-        .snowflake:nth-child(4) { left: 35%; width: 10px; height: 10px; animation-duration: 8s; }
-        .snowflake:nth-child(5) { left: 45%; width: 6px; height: 6px; animation-duration: 10s; }
-        .snowflake:nth-child(6) { left: 55%; width: 14px; height: 14px; animation-duration: 9s; }
-        .snowflake:nth-child(7) { left: 65%; width: 7px; height: 7px; animation-duration: 12s; }
-        .snowflake:nth-child(8) { left: 75%; width: 10px; height: 10px; animation-duration: 11s; }
-        .snowflake:nth-child(9) { left: 85%; width: 9px; height: 9px; animation-duration: 13s; }
-        .snowflake:nth-child(10) { left: 95%; width: 13px; height: 13px; animation-duration: 14s; }
-
-        /* Image snowflakes */
         .image-snowflake {
             position: absolute;
             top: -10%;
@@ -99,20 +105,15 @@
             height: 30px;
             background: url('tuyet1.jpg') no-repeat center/contain;
             animation: fall linear infinite;
+            pointer-events: none;
         }
-        .image-snowflake:nth-child(11) { left: 20%; animation-duration: 12s; }
-        .image-snowflake:nth-child(12) { left: 40%; animation-duration: 15s; }
-        .image-snowflake:nth-child(13) { left: 60%; animation-duration: 13s; }
-        .image-snowflake:nth-child(14) { left: 80%; animation-duration: 14s; }
-
-        /* Gift boxes */
         .gift-box {
             position: absolute;
             top: -10%;
             width: 50px;
             height: 50px;
             background: url('qua.png') no-repeat center/contain;
-            animation: fall linear infinite;
+            animation: fallWithWiggle linear infinite; /* Thêm hiệu ứng rơi chân thực */
             cursor: pointer;
             transform: scale(1);
             transition: transform 0.3s ease;
@@ -120,14 +121,31 @@
         .gift-box.opened {
             animation: none;
             transform: scale(1.5);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Ánh sáng khi mở */
         }
-        .gift-box:nth-child(15) { left: 10%; animation-duration: 6s; }
-        .gift-box:nth-child(16) { left: 30%; animation-duration: 8s; }
-        .gift-box:nth-child(17) { left: 50%; animation-duration: 7s; }
-        .gift-box:nth-child(18) { left: 70%; animation-duration: 9s; }
-        .gift-box:nth-child(19) { left: 90%; animation-duration: 10s; }
-
-        /* Popup message */
+        /* Hiệu ứng rơi với lắc và ánh sáng */
+        @keyframes fallWithWiggle {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Ánh sáng đỏ nhạt */
+            }
+            25% {
+                transform: translateY(25vh) rotate(10deg) translateX(-5px); /* Lắc trái */
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.7); /* Ánh sáng vàng */
+            }
+            50% {
+                transform: translateY(50vh) rotate(-10deg) translateX(5px); /* Lắc phải */
+                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); /* Ánh sáng xanh lục */
+            }
+            75% {
+                transform: translateY(75vh) rotate(5deg) translateX(-3px); /* Lắc nhẹ */
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg); /* Hoàn thành vòng xoay */
+                box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            }
+        }
         .popup {
             position: fixed;
             top: 50%;
@@ -162,37 +180,18 @@
         .popup button:hover {
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
         }
-
-        /* Blinking border animation */
         @keyframes blinkBorder {
-            from {
-                border-color: #d90429;
-            }
-            to {
-                border-color: #ffcccb;
-            }
+            from { border-color: #d90429; }
+            to { border-color: #ffcccb; }
         }
         @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
-    }
+            header h1 { font-size: 30px; }
+            header p { font-size: 16px; }
+            .content h2 { font-size: 26px; }
+            .game-section h2 { font-size: 28px; }
+            .game-section a { font-size: 16px; padding: 12px 25px; }
+            .social-icons a { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -202,44 +201,10 @@
         <img src="thong.jpg" alt="Giáng Sinh Vui Vẻ">
     </div>
 
-    <!-- Back button -->
     <a href="ngayquantrong.html" class="back-button">
         <i class="fas fa-arrow-left"></i> Quay lại
     </a>
 
-    <!-- Snowflakes -->
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-    <div class="snowflake"></div>
-
-    <!-- Image snowflakes -->
-    <div class="image-snowflake"></div>
-    <div class="image-snowflake"></div>
-    <div class="image-snowflake"></div>
-    <div class="image-snowflake"></div>
-    <div class="image-snowflake"></div>
-
-    
-
-    <!-- Gift boxes -->
-    <div class="gift-box" onclick="openGift(this, 'Chúc bạn luôn vui vẻ!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Một năm mới tràn đầy may mắn!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Hạnh phúc và bình an đến với bạn!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Thành công trong mọi dự định!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Giáng sinh ấm áp bên gia đình!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Merry Christmas!')"></div>
-    <div class="gift-box" onclick="openGift(this, 'Giáng sinh ấm áp bên người thân yêu!')"></div>
-    
-
-
-    <!-- Popup -->
     <div class="popup" id="popup">
         <p id="popupMessage"></p>
         <button onclick="closePopup()">Đóng</button>
@@ -248,7 +213,53 @@
     <audio id="music" src="giánginh.mp3"></audio>
 
     <script>
-        const music = document.getElementById('music');
+        const messages = [
+            'Chúc bạn luôn vui vẻ!',
+            'Một năm mới tràn đầy may mắn!',
+            'Hạnh phúc và bình an đến với bạn!',
+            'Thành công trong mọi dự định!',
+            'Giáng sinh ấm áp bên gia đình!',
+            'Merry Christmas!',
+            'Giáng sinh ấm áp bên người thân yêu!',
+            'Giáng sinh vui vẻ, an khang, thịnh vượng!',
+            'Hạnh phúc và may mắn luôn bên bạn!',
+            'Tràn ngập yêu thương và tiếng cười!',
+            'Mọi điều ước đều trở thành hiện thực!'
+        ];
+
+        function createFallingElements() {
+            const body = document.body;
+
+            // Tạo 20 bông tuyết trắng
+            for (let i = 0; i < 20; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = `${Math.random() * 100}%`; // Ngẫu nhiên từ 0% đến 100%
+                snowflake.style.width = `${Math.random() * 10 + 5}px`; // Kích thước ngẫu nhiên 5-15px
+                snowflake.style.height = snowflake.style.width;
+                snowflake.style.animationDuration = `${Math.random() * 5 + 5}s`; // Thời gian rơi 5-10s
+                body.appendChild(snowflake);
+            }
+
+            // Tạo 10 bông tuyết hình ảnh
+            for (let i = 0; i < 10; i++) {
+                const imageSnowflake = document.createElement('div');
+                imageSnowflake.className = 'image-snowflake';
+                imageSnowflake.style.left = `${Math.random() * 100}%`;
+                imageSnowflake.style.animationDuration = `${Math.random() * 5 + 10}s`; // Thời gian rơi 10-15s
+                body.appendChild(imageSnowflake);
+            }
+
+            // Tạo 10 hộp quà
+            for (let i = 0; i < 10; i++) {
+                const giftBox = document.createElement('div');
+                giftBox.className = 'gift-box';
+                giftBox.style.left = `${Math.random() * 100}%`;
+                giftBox.style.animationDuration = `${Math.random() * 5 + 5}s`; // Thời gian rơi 5-10s
+                giftBox.onclick = () => openGift(giftBox, messages[Math.floor(Math.random() * messages.length)]);
+                body.appendChild(giftBox);
+            }
+        }
 
         function openGift(box, message) {
             box.classList.add('opened');
@@ -269,9 +280,13 @@
         }
 
         function playMusic() {
+            const music = document.getElementById('music');
             music.currentTime = 0;
             music.play();
         }
+
+        // Gọi hàm tạo các phần tử rơi khi trang tải
+        window.onload = createFallingElements;
     </script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
