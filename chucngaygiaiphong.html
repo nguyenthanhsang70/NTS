@@ -66,6 +66,29 @@
         .container button:hover::before {
             width: 100%;
         }
+        .back-button-container {
+            margin-top: 15px;
+        }
+        .back-button {
+            font-size: 1em;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border-radius: 25px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+        }
         footer {
             background-color: #333;
             color: #fff;
@@ -93,19 +116,6 @@
         .social-icons a:hover {
             color: #1e88e5;
         }
-        .back-button {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            font-size: 1em;
-            color: #fff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-        .back-button i {
-            margin-right: 5px;
-        }
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.8em;
@@ -118,6 +128,27 @@
                 font-size: 0.9em;
             }
         }
+        @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
     </style>
 </head>
 <body>
@@ -126,15 +157,18 @@
         <p>Kỷ niệm ngày Giải phóng miền Nam, thống nhất đất nước.</p>
     </header>
 
-    <a href="ngayquantrong.html" class="back-button">
-        <i class="fas fa-arrow-left"></i> Quay lại
-    </a>
-
     <div class="container">
         <!-- Link đến video hoặc file -->
         <a href="https://www.youtube.com/watch?v=SngQy5w_BCY" target="_blank" style="text-decoration: none;">
             <button>Xem Video Kỷ Niệm</button>
         </a>
+
+        <!-- Nút quay lại -->
+        <div class="back-button-container">
+            <a href="ngayquantrong.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
     </div>
 
     <footer>
