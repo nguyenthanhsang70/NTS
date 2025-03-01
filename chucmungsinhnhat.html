@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
+            position: fixed; /* Giữ cố định ở đầu trang */
+            width: 100%;
+            top: 0;
+            z-index: 3;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #ff8e71;
+            text-shadow: 0 0 15px rgba(255, 142, 113, 0.7);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px rgba(255, 142, 113, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(255, 142, 113, 0.8); }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .container {
+            position: absolute;
+            top: 55%; /* Dịch xuống để tránh chồng lấn với header */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cake {
+            width: 200px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 142, 113, 0.4);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .cake:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(255, 142, 113, 0.6);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 500px;
+            border: 1px solid rgba(255, 142, 113, 0.3);
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .back-button {
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 25px;
+            font-size: 1rem;
+            color: #fff;
+            background: linear-gradient(45deg, #ff8e71, #ff6f61);
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(255, 142, 113, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.6);
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .cake { width: 180px; }
+            .message { font-size: 0.9rem; padding: 15px; max-width: 90%; }
+            .back-button { padding: 8px 20px; font-size: 0.9rem; }
+            .container { top: 60%; } /* Dịch xuống thêm trên màn hình nhỏ */
+        }
+        @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>🎉 Chúc Mừng Sinh Nhật! 🎉</h1>
+    </header>
+    <div class="container">
+        <img src="bánh.gif" alt="Bánh sinh nhật" class="cake" id="cake">
+        <div class="message" id="message">
+            🎉✨ Happy Birthday to You! ✨🎉<br><br>
+            Hôm nay không chỉ là một ngày bình thường, mà là ngày thế giới chào đón một phiên bản đặc biệt nhất – chính là bạn! <br><br>
+            Chúc bạn một tuổi mới bùng nổ năng lượng, thành công ngập tràn và luôn giữ nụ cười tươi nhất trên môi. <br><br>
+            Hãy tận hưởng từng khoảnh khắc, biến mọi ước mơ thành hiện thực và để hạnh phúc luôn đồng hành trên chặng đường phía trước!<br><br>
+            🌟 Tuổi mới rực rỡ – Vạn điều như ý 🌟
+        </div>
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    <canvas id="fireworks"></canvas>
+
+    <audio id="birthdaySong" src="n.mp3"></audio>
+
+    <script>
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const fireworks = [];
+        const particles = [];
+
+        class Firework {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.targetY = Math.random() * (canvas.height / 2);
+                this.speed = 5 + Math.random() * 5;
+                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                this.radius = 2;
+                this.exploded = false;
+            }
+
+            update() {
+                if (!this.exploded) {
+                    this.y -= this.speed;
+                    if (this.y <= this.targetY) {
+                        this.explode();
+                    }
+                }
+            }
+
+            explode() {
+                this.exploded = true;
+                for (let i = 0; i < 100; i++) {
+                    particles.push(new Particle(this.x, this.y, this.color));
+                }
+            }
+
+            draw() {
+                if (!this.exploded) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 10,
+                    y: (Math.random() - 0.5) * 10
+                };
+                this.alpha = 1;
+                this.friction = 0.95;
+                this.gravity = 0.1;
+            }
+
+            update() {
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.01;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+                ctx.restore();
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            fireworks.forEach((firework, index) => {
+                firework.update();
+                firework.draw();
+                if (firework.exploded) {
+                    setTimeout(() => {
+                        fireworks.splice(index, 1);
+                    }, 100);
+                }
+            });
+
+            particles.forEach((particle, index) => {
+                particle.update();
+                particle.draw();
+                if (particle.alpha <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+
+        setInterval(() => {
+            fireworks.push(new Firework());
+        }, 1000);
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const cake = document.getElementById('cake');
+        const message = document.getElementById('message');
+        const birthdaySong = document.getElementById('birthdaySong');
+
+        cake.addEventListener('click', () => {
+            message.style.display = 'block';
+            birthdaySong.play();
+        });
+    </script>
+</body>
+</html>
