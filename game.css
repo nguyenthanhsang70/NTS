@@ -13,9 +13,13 @@
 body {
     background: center / cover no-repeat url("background.jpg");
     font-family: Arial, sans-serif; /* Thêm font mặc định */
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 
-/* Xoay ngang trên mobile */
+/* Xoay ngang trên mobile - Tự động điều chỉnh layout */
 @media (max-width: 480px) and (orientation: portrait) {
     body {
         transform: rotate(90deg);
@@ -27,6 +31,21 @@ body {
         left: 0;
         overflow: auto;
     }
+    
+    /* Thêm thông báo yêu cầu xoay ngang */
+    body::before {
+        content: "Vui lòng xoay thiết bị sang ngang để chơi!";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-90deg);
+        background: rgba(0, 0, 0, 0.8);
+        color: var(--white);
+        padding: 10px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        display: block;
+    }
 }
 
 main {
@@ -34,8 +53,10 @@ main {
     font-size: 16px;
     line-height: 1.5;
     min-height: 100vh;
+    padding: 0 10px;
 }
 
+/* Media query chung cho mobile */
 @media (max-width: 480px) {
     header h1 {
         font-size: 30px;
@@ -118,11 +139,13 @@ main {
     display: flex;
     flex-wrap: wrap;
     padding-top: 70px; /* Để tránh bị header che */
+    justify-content: center;
 }
 
 .figure__item {
     width: calc(100% / 3);
     padding: 8px;
+    max-width: 150px; /* Giới hạn kích thước item */
 }
 
 .figure__item--group {
@@ -131,10 +154,12 @@ main {
     border: 4px solid var(--primary);
     border-radius: 16px;
     cursor: pointer;
+    overflow: hidden; /* Đảm bảo nội dung không tràn */
 }
 
 .figure__item--group img {
     width: 100%;
+    height: auto;
     display: block;
 }
 
@@ -148,6 +173,7 @@ main {
     border-radius: 0 0 12px 12px;
     text-align: center;
     padding: 5px;
+    font-size: 14px;
 }
 
 .figure--small {
@@ -190,7 +216,47 @@ main {
 
 /* Tối ưu cho chế độ ngang */
 @media (max-width: 480px) and (orientation: landscape) {
+    body {
+        transform: none; /* Reset transform khi đã xoay ngang */
+        width: 100vw;
+        height: 100vh;
+    }
+    
+    main {
+        padding: 0 5px;
+    }
+    
+    .figure {
+        max-width: 100%;
+        padding-top: 60px; /* Điều chỉnh padding cho chế độ ngang */
+    }
+    
     .figure__item {
-        width: calc(100% / 2); /* Giảm số cột khi xoay ngang */
+        width: calc(100% / 2); /* Hiển thị 2 cột khi ở chế độ ngang */
+        max-width: 45%; /* Đảm bảo không quá rộng */
+        padding: 5px;
+    }
+    
+    .figure__item--group {
+        border-width: 2px; /* Giảm kích thước border khi ở chế độ ngang */
+    }
+    
+    .header {
+        padding: 5px;
+    }
+    
+    .header__avatar img {
+        height: 40px;
+    }
+    
+    .header__bet,
+    .header__money {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .btn__start {
+        padding: 6px 12px;
+        font-size: 14px;
     }
 }
