@@ -25,7 +25,7 @@
 
         header {
             text-align: center;
-            padding: 10px 0; /* Giảm padding trên header */
+            padding: 15px 0; /* Tăng padding trên header cho máy tính */
             background: rgba(0, 0, 0, 0.3);
             position: fixed;
             width: 100%;
@@ -35,7 +35,7 @@
 
         h1 {
             font-family: 'Dancing Script', cursive;
-            font-size: 2rem; /* Giảm kích thước chữ trên mọi thiết bị */
+            font-size: 2.5rem; /* Tăng kích thước chữ trên máy tính */
             color: #ff8e71;
             text-shadow: 0 0 10px rgba(255, 142, 113, 0.7);
             animation: glow 2s infinite alternate;
@@ -56,10 +56,10 @@
         .container {
             position: relative; /* Đổi từ absolute để dễ cuộn */
             top: 0;
-            padding-top: 60px; /* Giảm khoảng cách để tránh chồng lên header */
+            padding-top: 100px; /* Tăng khoảng cách để tránh chồng lên header trên máy tính */
             text-align: center;
             z-index: 2;
-            padding: 10px; /* Giảm padding */
+            padding: 20px; /* Tăng padding trên máy tính */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -67,28 +67,28 @@
         }
 
         .cake {
-            width: 180px; /* Giảm kích thước bánh trên mọi thiết bị */
-            border-radius: 15px;
+            width: 250px; /* Tăng kích thước bánh trên máy tính */
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.4);
+            box-shadow: 0 10px 25px rgba(255, 142, 113, 0.4);
             transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
 
         .cake:hover {
             transform: scale(1.1) rotate(2deg);
-            box-shadow: 0 12px 25px rgba(255, 142, 113, 0.6);
+            box-shadow: 0 15px 35px rgba(255, 142, 113, 0.6);
         }
 
         .message {
-            margin-top: 15px;
-            font-size: 0.9rem; /* Giảm kích thước chữ mặc định */
-            line-height: 1.5; /* Giảm line-height cho dễ đọc */
+            margin-top: 20px; /* Tăng khoảng cách trên máy tính */
+            font-size: 1rem; /* Tăng kích thước chữ trên máy tính */
+            line-height: 1.6; /* Tăng line-height cho dễ đọc */
             color: #fff;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            padding: 15px;
-            border-radius: 12px;
-            max-width: 90%; /* Giữ chiều rộng nhỏ hơn */
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 500px; /* Tăng max-width trên máy tính */
             border: 1px solid rgba(255, 142, 113, 0.3);
             display: none;
             animation: fadeIn 0.5s ease-in;
@@ -101,27 +101,35 @@
         }
 
         .back-button {
-            margin-top: 15px;
+            margin-top: 20px; /* Tăng khoảng cách trên máy tính */
             display: inline-flex;
             align-items: center;
-            padding: 8px 20px; /* Giảm padding */
-            font-size: 0.9rem; /* Giảm kích thước chữ */
+            padding: 10px 25px; /* Tăng padding */
+            font-size: 1rem; /* Tăng kích thước chữ */
             color: #fff;
             background: linear-gradient(45deg, #ff8e71, #ff6f61);
             border: none;
-            border-radius: 20px; /* Giảm radius */
+            border-radius: 25px; /* Tăng radius */
             text-decoration: none;
-            box-shadow: 0 4px 12px rgba(255, 142, 113, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 142, 113, 0.4);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 142, 113, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.6);
         }
 
         .back-button i {
-            margin-right: 6px; /* Giảm khoảng cách icon */
+            margin-right: 8px; /* Tăng khoảng cách icon */
+        }
+
+        @media (max-width: 1024px) { /* Bắt đầu từ tablet và nhỏ hơn */
+            h1 { font-size: 2rem; }
+            .cake { width: 200px; }
+            .message { font-size: 0.9rem; padding: 15px; max-width: 90%; }
+            .back-button { padding: 8px 20px; font-size: 0.9rem; }
+            .container { padding-top: 80px; padding: 15px; }
         }
 
         @media (max-width: 768px) {
