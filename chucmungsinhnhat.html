@@ -17,8 +17,8 @@
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: #fff;
-            overflow: hidden;
-            height: 100vh;
+            overflow-y: auto; /* Cho phép cuộn trên điện thoại */
+            height: 100%; /* Đổi thành 100% để không giới hạn chiều cao */
             position: relative;
         }
 
@@ -26,7 +26,7 @@
             text-align: center;
             padding: 15px 0;
             background: rgba(0, 0, 0, 0.3);
-            position: fixed; /* Giữ cố định ở đầu trang */
+            position: fixed;
             width: 100%;
             top: 0;
             z-index: 3;
@@ -46,23 +46,23 @@
         }
 
         canvas {
-            position: absolute;
+            position: fixed; /* Đổi thành fixed để pháo hoa không bị scroll */
             top: 0;
             left: 0;
             z-index: 1;
         }
 
         .container {
-            position: absolute;
-            top: 55%; /* Dịch xuống để tránh chồng lấn với header */
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative; /* Đổi từ absolute để dễ cuộn */
+            top: 0;
+            padding-top: 80px; /* Khoảng cách để tránh chồng lên header */
             text-align: center;
             z-index: 2;
             padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh; /* Đảm bảo đủ chiều cao */
         }
 
         .cake {
@@ -87,7 +87,7 @@
             backdrop-filter: blur(10px);
             padding: 20px;
             border-radius: 15px;
-            max-width: 500px;
+            max-width: 90%; /* Thu nhỏ chiều rộng trên điện thoại */
             border: 1px solid rgba(255, 142, 113, 0.3);
             display: none;
             animation: fadeIn 0.5s ease-in;
@@ -125,31 +125,18 @@
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             .cake { width: 180px; }
-            .message { font-size: 0.9rem; padding: 15px; max-width: 90%; }
+            .message { font-size: 0.9rem; padding: 15px; }
             .back-button { padding: 8px 20px; font-size: 0.9rem; }
-            .container { top: 60%; } /* Dịch xuống thêm trên màn hình nhỏ */
+            .container { padding-top: 70px; } /* Giảm khoảng cách trên màn hình nhỏ */
         }
+
         @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
-    }
+            h1 { font-size: 1.8rem; }
+            .cake { width: 150px; }
+            .message { font-size: 0.85rem; padding: 12px; }
+            .back-button { padding: 7px 15px; font-size: 0.85rem; }
+            .container { padding-top: 60px; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
