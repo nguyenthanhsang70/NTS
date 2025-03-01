@@ -1,132 +1,133 @@
-$(document).ready(function() {
-    // process bar
-    setTimeout(function() {
-        firstQuestion();
-        $('.spinner').fadeOut();
-        $('#preloader').delay(350).fadeOut('slow');
-        $('body').delay(350).css({
-            'overflow': 'visible'
-        });
-    }, 600);
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+const btnStart = $(".btn__start");
+const dicesItem = $$(".figure:not(.figure--small) .figure__item");
+const dices = $$(".figure--small .figure__item");
+var figures = [
+    {
+        index: 0,
+        image: 'deer.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+    {
+        index: 1,
+        image: 'calabash.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+    {
+        index: 2,
+        image: 'chicken.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+    {
+        index: 3,
+        image: 'fish.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+    {
+        index: 4,
+        image: 'crab.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+    {
+        index: 5,
+        image: 'shrimp.png',
+        percent: 16.6666,
+        coin: 0,
+    },
+];
+// Khởi tạo trò chơi
+var user = {
+    avatar: 'user.png',
+    coin: 10000000000000,
+    betTable: 2
+}
+function updateData() {
+    var headerAvatar = $('.header__avatar img');
+    var headerBet = $('.header__bet');
+    var headerMoney = $('.header__money');
+    headerAvatar.src = user.avatar;
+    headerBet.innerHTML = 'Bàn cược: ' + user.betTable + ' đ';
+    headerMoney.innerHTML = 'Tiền: ' + user.coin + ' đ';
+    dicesItem.forEach((e, index) => {
+        var img = e.querySelector('.figure__item--group img');
+        var labelCoin = e.querySelector('.figure__item--group label');
+        img.src = figures[index].image;
+        labelCoin.innerHTML = figures[index].coin;
+    });
+}
+updateData();
+// Lấy ngẫu nhiên một phần tử trong danh sách figures theo tỉ lệ
+var randomFigure = () => {
+    var value = Math.random() * 100;
+    var sum = 0;
+    var element;
+    for (var i = 0; i < figures.length; i++) {
+        sum += figures[i].percent;
+        if (sum > value) {
+            element = figures[i];
+            break;
+        }
+    }
+    return element;
+}
+// Xử lý lắc xúc sắc
+btnStart.onclick = () => {
+    // Kiểm tra người chơi đã đặt cược chưa?
+    var flag = false;
+    for (var i = 0; i < figures.length; i++)
+        if (figures[i].coin > 0) {
+            flag = true;
+            break;
+        }
+    if (!flag)
+        return;
+    var wins = [];
+    var t = 0;
+    var timer = setInterval(() => {
+        t += 100;
+        if (t >= 500) {
+            clearInterval(timer);
+            winOfLose(wins);
+        } else {
+            wins = [randomFigure(), randomFigure(), randomFigure()];
+            dices[0].querySelector('img').src = wins[0].image;
+            dices[1].querySelector('img').src = wins[1].image;
+            dices[2].querySelector('img').src = wins[2].image;
+        }
+    }, 100);
+}
+// Đặt tiền
+dicesItem.forEach((e) => {
+    e.onclick = (e) => {
+        if (user.coin >= user.betTable) {
+            var item = e.target.parentElement.parentElement;
+            user.coin -= user.betTable;
+            figures[item.dataset.id].coin += user.betTable;
+            updateData();
+        }
+    }
 })
-
-function init(){
-    $('#title').text(CONFIG.title)
-    $('#desc').text(CONFIG.desc)
-    $('#yes').text(CONFIG.btnYes)
-    $('#no').text(CONFIG.btnNo)
-}
-
-function firstQuestion(){
-    $('.content').hide();
-    Swal.fire({
-        title: CONFIG.introTitle,
-        text: CONFIG.introDesc,
-        imageUrl: 'meme-tinh-yeu-61.jpg',
-        imageWidth: 300,
-        imageHeight: 300,
-        background: '#fff url("iput-bg.jpg")',
-        imageAlt: 'Custom image',
-        confirmButtonText: CONFIG.btnIntro
-      }).then(function(){
-        $('.content').show(200);
-      })
-}
-
- // switch button position
- function switchButton() {
-    var audio = new Audio('duck.mp3');
-    audio.play();
-    var leftNo = $('#no').css("left");
-    var topNO = $('#no').css("top");
-    var leftY = $('#yes').css("left");
-    var topY = $('#yes').css("top");
-    $('#no').css("left", leftY);
-    $('#no').css("top", topY);
-    $('#yes').css("left", leftNo);
-    $('#yes').css("top", topNO);
-}
-// move random button póition
-function moveButton() {
-    var audio = new Audio('Swish1.mp3');
-    audio.play();
-    var x = Math.random() * ($(window).width() - $('#no').width()) * 0.9 ;
-    var y = Math.random() * ($(window).height() - $('#no').height()) * 0.9;
-    var left = x + 'px';
-    var top = y + 'px';
-    $('#no').css("left", left);
-    $('#no').css("top", top);
-}
-
-init()
-
-var n = 0;
-$('#no').mousemove(function() {
-    if (n < 1)
-        switchButton();
-    if (n > 1)
-        moveButton();
-    n++;
-});
-$('#no').click(() => {
-    if (screen.width>=900)
-        switchButton();
-})
-
-// generate text in input
-function textGenerate() {
-    var n = "";
-    var text = " " + CONFIG.reply;
-    var a = Array.from(text);
-    var textVal = $('#txtReason').val() ? $('#txtReason').val() : "";
-    var count = textVal.length;
-    if (count > 0) {
-        for (let i = 1; i <= count; i++) {
-            n = n + a[i];
-            if (i == text.length + 1) {
-                $('#txtReason').val("");
-                n = "";
-                break;
+// Xử lý thắng thua
+function winOfLose(wins) {
+    var winCoin = 0;
+    for (var i = 0; i < wins.length; i++) {
+        for (var j = 0; j < figures.length; j++) {
+            if (wins[i].index == figures[j].index) {
+                winCoin += wins[i].coin * 2;
             }
         }
     }
-    $('#txtReason').val(n);
-    setTimeout("textGenerate()", 1);
+    for (var j = 0; j < figures.length; j++) {
+        figures[j].coin = 0;
+    }
+    user.coin += winCoin;
+    updateData();
+    if (winCoin > 0)
+        alert("Bạn thắng " + winCoin + " đồng");
 }
-
-// show popup
-$('#yes').click(function() {
-    var audio = new Audio('tick.mp3');
-    audio.play();
-    Swal.fire({
-        title: CONFIG.question,
-        html: true,
-        width: 900,
-        padding: '3em',
-        html: "<input type='text' class='form-control' id='txtReason' onmousemove=textGenerate()  placeholder='Whyyy'>",
-        background: '#fff url("iput-bg.jpg")',
-        backdrop: `
-              rgba(0,0,123,0.4)
-              url("tinhyeu.gif")
-              left top
-              no-repeat
-            `,
-        confirmButtonColor: '#3085d6',
-        confirmButtonColor: '#fe8a71',
-        confirmButtonText: CONFIG.btnReply
-    }).then((result) => {
-        if (result.value) {
-            Swal.fire({
-                width: 900,
-                confirmButtonText: CONFIG.btnAccept,
-                background: '#fff url("iput-bg.jpg")',
-                title: CONFIG.mess,
-                text: CONFIG.messDesc,
-                confirmButtonColor: '#83d0c9',
-                onClose: () => {
-                    window.location = CONFIG.messLink;
-                  }
-            })
-        }
-    })
-})
