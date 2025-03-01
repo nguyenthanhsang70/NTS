@@ -25,7 +25,7 @@
 
         header {
             text-align: center;
-            padding: 15px 0; /* Tăng padding trên header cho máy tính */
+            padding: 20px 0; /* Tăng padding trên header cho máy tính */
             background: rgba(0, 0, 0, 0.3);
             position: fixed;
             width: 100%;
@@ -35,15 +35,15 @@
 
         h1 {
             font-family: 'Dancing Script', cursive;
-            font-size: 2.5rem; /* Tăng kích thước chữ trên máy tính */
+            font-size: 3rem; /* Tăng kích thước chữ trên máy tính */
             color: #ff8e71;
-            text-shadow: 0 0 10px rgba(255, 142, 113, 0.7);
+            text-shadow: 0 0 15px rgba(255, 142, 113, 0.7);
             animation: glow 2s infinite alternate;
         }
 
         @keyframes glow {
-            0% { text-shadow: 0 0 8px rgba(255, 142, 113, 0.5); }
-            100% { text-shadow: 0 0 15px rgba(255, 142, 113, 0.8); }
+            0% { text-shadow: 0 0 10px rgba(255, 142, 113, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(255, 142, 113, 0.8); }
         }
 
         canvas {
@@ -56,7 +56,7 @@
         .container {
             position: relative; /* Đổi từ absolute để dễ cuộn */
             top: 0;
-            padding-top: 100px; /* Tăng khoảng cách để tránh chồng lên header trên máy tính */
+            padding-top: 150px; /* Tăng khoảng cách để hình bánh xuống dưới header trên máy tính */
             text-align: center;
             z-index: 2;
             padding: 20px; /* Tăng padding trên máy tính */
@@ -67,28 +67,28 @@
         }
 
         .cake {
-            width: 250px; /* Tăng kích thước bánh trên máy tính */
-            border-radius: 20px;
+            width: 300px; /* Tăng kích thước bánh trên máy tính */
+            border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(255, 142, 113, 0.4);
+            box-shadow: 0 15px 30px rgba(255, 142, 113, 0.4);
             transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
 
         .cake:hover {
             transform: scale(1.1) rotate(2deg);
-            box-shadow: 0 15px 35px rgba(255, 142, 113, 0.6);
+            box-shadow: 0 20px 40px rgba(255, 142, 113, 0.6);
         }
 
         .message {
-            margin-top: 20px; /* Tăng khoảng cách trên máy tính */
-            font-size: 1rem; /* Tăng kích thước chữ trên máy tính */
-            line-height: 1.6; /* Tăng line-height cho dễ đọc */
+            margin-top: 30px; /* Tăng khoảng cách trên máy tính */
+            font-size: 1.2rem; /* Tăng kích thước chữ trên máy tính */
+            line-height: 1.8; /* Tăng line-height cho dễ đọc */
             color: #fff;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 500px; /* Tăng max-width trên máy tính */
+            backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 600px; /* Tăng max-width trên máy tính */
             border: 1px solid rgba(255, 142, 113, 0.3);
             display: none;
             animation: fadeIn 0.5s ease-in;
@@ -101,51 +101,51 @@
         }
 
         .back-button {
-            margin-top: 20px; /* Tăng khoảng cách trên máy tính */
+            margin-top: 30px; /* Tăng khoảng cách trên máy tính */
             display: inline-flex;
             align-items: center;
-            padding: 10px 25px; /* Tăng padding */
-            font-size: 1rem; /* Tăng kích thước chữ */
+            padding: 12px 30px; /* Tăng padding */
+            font-size: 1.1rem; /* Tăng kích thước chữ */
             color: #fff;
             background: linear-gradient(45deg, #ff8e71, #ff6f61);
             border: none;
-            border-radius: 25px; /* Tăng radius */
+            border-radius: 30px; /* Tăng radius */
             text-decoration: none;
-            box-shadow: 0 5px 15px rgba(255, 142, 113, 0.4);
+            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.4);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .back-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(255, 142, 113, 0.6);
         }
 
         .back-button i {
-            margin-right: 8px; /* Tăng khoảng cách icon */
+            margin-right: 10px; /* Tăng khoảng cách icon */
         }
 
         @media (max-width: 1024px) { /* Bắt đầu từ tablet và nhỏ hơn */
-            h1 { font-size: 2rem; }
-            .cake { width: 200px; }
-            .message { font-size: 0.9rem; padding: 15px; max-width: 90%; }
-            .back-button { padding: 8px 20px; font-size: 0.9rem; }
-            .container { padding-top: 80px; padding: 15px; }
+            h1 { font-size: 2.5rem; }
+            .cake { width: 250px; }
+            .message { font-size: 1rem; padding: 20px; max-width: 90%; }
+            .back-button { padding: 10px 25px; font-size: 0.9rem; }
+            .container { padding-top: 120px; padding: 15px; }
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 1.8rem; }
-            .cake { width: 160px; }
-            .message { font-size: 0.85rem; padding: 12px; }
-            .back-button { padding: 7px 18px; font-size: 0.85rem; }
-            .container { padding-top: 55px; }
+            h1 { font-size: 2rem; }
+            .cake { width: 200px; }
+            .message { font-size: 0.9rem; padding: 15px; }
+            .back-button { padding: 8px 20px; font-size: 0.9rem; }
+            .container { padding-top: 80px; }
         }
 
         @media (max-width: 480px) {
             h1 { font-size: 1.5rem; }
-            .cake { width: 140px; }
+            .cake { width: 150px; }
             .message { font-size: 0.8rem; padding: 10px; line-height: 1.4; }
             .back-button { padding: 6px 15px; font-size: 0.8rem; }
-            .container { padding-top: 50px; }
+            .container { padding-top: 60px; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
