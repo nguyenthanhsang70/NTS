@@ -231,12 +231,12 @@
                 body.appendChild(imageSnowflake);
             }
 
-            // Tạo 10 hộp quà
+            // Tạo 11 hộp quà
             for (let i = 0; i < 10; i++) {
                 const giftBox = document.createElement('div');
                 giftBox.className = 'gift-box';
                 giftBox.style.left = `${Math.random() * 100}%`;
-                giftBox.style.animationDuration = `${Math.random() * 5 + 5}s`; // Thời gian rơi 5-10s
+                giftBox.style.animationDuration = `${Math.random() * 6 + 5}s`; // Thời gian rơi 5-10s
                 giftBox.onclick = () => openGift(giftBox, messages[Math.floor(Math.random() * messages.length)]);
                 body.appendChild(giftBox);
             }
