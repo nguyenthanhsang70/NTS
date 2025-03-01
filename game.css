@@ -158,7 +158,7 @@ main {
 /* Media Queries */
 @media (max-width: 768px) {
     .figure__item {
-        width: 50%; /* 2 columns on tablet */
+        width: 100%; /* 2 columns on tablet */
     }
     
     .header {
@@ -173,7 +173,7 @@ main {
 
 @media (max-width: 480px) {
     .figure__item {
-        width: 100%; /* 1 column on mobile */
+        width: 80%; /* 1 column on mobile */
     }
     
     .header__avatar img {
