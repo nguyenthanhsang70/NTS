@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Card Game</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6200ea, #3700b3);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 48px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ff00c7, #ff9f00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 120px);
+    gap: 20px;
+    perspective: 1000px;
+  }
+  .card {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  .card.flipped {
+    transform: rotateY(180deg);
+  }
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #ff00c7, #ff9f00);
+  }
+  .card-back {
+    background: #ffffff;
+    transform: rotateY(180deg);
+  }
+  .card-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card.matched {
+    visibility: hidden;
+  }
+  .controls {
+    margin-top: 20px;
+  }
+  .controls button, .controls a {
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 10px;
+  }
+  .controls button.restart-btn {
+    background: linear-gradient(90deg, #ff00c7, #ff9f00);
+    color: white;
+  }
+  .controls button.restart-btn:hover {
+    background: linear-gradient(90deg, #ff9f00, #ff00c7);
+  }
+  .controls a.back-btn {
+    background: linear-gradient(90deg, #03dac6, #018786);
+    color: white;
+    text-decoration: none;
+  }
+  .controls a.back-btn:hover {
+    background: linear-gradient(90deg, #018786, #03dac6);
+  }
+  @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Memory Card Game</h1>
+</header>
+
+<div class="game-board" id="gameBoard"></div>
+<div class="controls">
+  <button class="restart-btn" id="restartBtn">Chơi Lại</button>
+  <a href="game.html" class="back-btn" id="backBtn">Quay Lại</a>
+</div>
+
+<script>
+  const cards = [
+    { value: 'A', image: 'thẻ1.jpg' },
+    { value: 'B', image: 'the2.jpg' },
+    { value: 'C', image: 'the3.jpg' },
+    { value: 'D', image: 'the4.jpg' },
+    { value: 'E', image: 'Designer1.jpeg' },
+    { value: 'F', image: 'the5.jpg' },
+
+    { value: 'A', image: 'thẻ1.jpg' },
+    { value: 'B', image: 'the2.jpg' },
+    { value: 'C', image: 'the3.jpg' },
+    { value: 'D', image: 'the4.jpg' },
+    { value: 'E', image: 'Designer1.jpeg' },
+    { value: 'F', image: 'the5.jpg' }
+  ];
+  let flippedCards = [];
+  let matchedPairs = 0;
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  function createBoard() {
+    shuffle(cards);
+    const gameBoard = document.getElementById('gameBoard');
+    gameBoard.innerHTML = '';
+    matchedPairs = 0;
+    flippedCards = [];
+    cards.forEach((card, index) => {
+      const cardElement = document.createElement('div');
+      cardElement.classList.add('card');
+
+      const frontElement = document.createElement('div');
+      frontElement.classList.add('card-front');
+
+      const backElement = document.createElement('div');
+      backElement.classList.add('card-back');
+
+      const imgElement = document.createElement('img');
+      imgElement.src = card.image;
+      imgElement.alt = card.value;
+      backElement.appendChild(imgElement);
+
+      cardElement.dataset.value = card.value;
+      cardElement.appendChild(frontElement);
+      cardElement.appendChild(backElement);
+
+      cardElement.addEventListener('click', () => flipCard(cardElement));
+      gameBoard.appendChild(cardElement);
+    });
+  }
+
+  function flipCard(card) {
+    if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+      card.classList.add('flipped');
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        checkForMatch();
+      }
+    }
+  }
+
+  function checkForMatch() {
+    const [firstCard, secondCard] = flippedCards;
+
+    if (firstCard.dataset.value === secondCard.dataset.value) {
+      firstCard.classList.add('matched');
+      secondCard.classList.add('matched');
+      matchedPairs++;
+
+      if (matchedPairs === cards.length / 2) {
+        setTimeout(() => alert('You win!'), 500);
+      }
+    } else {
+      setTimeout(() => {
+        firstCard.classList.remove('flipped');
+        secondCard.classList.remove('flipped');
+      }, 1000);
+    }
+
+    flippedCards = [];
+  }
+
+  document.getElementById('restartBtn').addEventListener('click', createBoard);
+
+  createBoard();
+</script>
+
+</body>
+</html>
