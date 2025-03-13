@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiệu Ứng Cầu Vồng 3D</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a2e;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            perspective: 1000px;
+        }
+        .cube {
+            position: relative;
+            width: 200px;
+            transform-style: preserve-3d;
+            animation: rotate 8s infinite linear;
+        }
+        .cube div {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .front  { transform: translateZ(100px); background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
+        .back   { transform: rotateY(180deg) translateZ(100px); background: linear-gradient(45deg, violet, indigo, blue, green, yellow, orange, red); }
+        .right  { transform: rotateY(90deg) translateZ(100px); background: linear-gradient(45deg, yellow, green, blue, indigo, violet, red, orange); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); background: linear-gradient(45deg, orange, red, violet, indigo, blue, green, yellow); }
+        .top    { transform: rotateX(90deg) translateZ(100px); background: linear-gradient(45deg, green, blue, indigo, violet, red, orange, yellow); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); background: linear-gradient(45deg, blue, indigo, violet, red, orange, yellow, green); }
+
+        @keyframes rotate {
+            from { transform: rotateY(0deg) rotateX(0deg); }
+            to { transform: rotateY(360deg) rotateX(360deg); }
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 768px) {
+      header h1 {
+        font-size: 36px;
+      }
+      header p {
+        font-size: 18px;
+      }
+      .content h2 {
+        font-size: 30px;
+      }
+      .feature {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .section h2 {
+        font-size: 28px;
+      }
+      .section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+    </style>
+</head>
+<body>
+    <a href="nts3dpro.html" class="back-button">Quay Lại</a>
+    <div class="container">
+        <div class="cube">
+            <div class="front"></div>
+            <div class="back"></div>
+            <div class="right"></div>
+            <div class="left"></div>
+            <div class="top"></div>
+            <div class="bottom"></div>
+        </div>
+    </div>
+</body>
+</html>
