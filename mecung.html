@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mê Cung</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2c3e50;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  header {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background: #34495e;
+    box-shadow: 0px 5px 15px rgba(52, 73, 94, 0.5);
+  }
+  canvas {
+    display: block;
+    background: #ecf0f1;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    border-radius: 10px;
+  }
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+  }
+  button {
+    padding: 12px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: bold;
+  }
+  button#startButton {
+    background-color: #3498db;
+    color: white;
+  }
+  button#startButton:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.5);
+  }
+  button#restartButton {
+    background-color: #e74c3c;
+    color: white;
+  }
+  button#restartButton:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(231, 76, 60, 0.5);
+  }
+  button#pauseButton {
+    background-color: #f1c40f;
+    color: white;
+  }
+  button#pauseButton:hover {
+    background-color: #d4ac0d;
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(241, 196, 15, 0.5);
+  }
+  .back-button {
+    background-color: #2ecc71;
+    color: white;
+  }
+  .back-button:hover {
+    background-color: #27ae60;
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(46, 204, 113, 0.5);
+  }
+  .timer {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+  @media (max-width: 480px) {
+      header h1 {
+        font-size: 30px;
+      }
+      header p {
+        font-size: 16px;
+      }
+      .content h2 {
+        font-size: 26px;
+      }
+      .game-section h2 {
+        font-size: 28px;
+      }
+      .game-section a {
+        font-size: 16px;
+        padding: 12px 25px;
+      }
+      .social-icons a {
+        font-size: 20px;
+      }
+    }
+</style>
+</head>
+<body>
+<header>
+  <div class="timer" id="timer">Time: 60s</div>
+</header>
+<canvas id="mazeCanvas"></canvas>
+<div class="controls">
+  <button id="startButton">Bắt Đầu</button>
+  <button id="restartButton">Chơi Lại</button>
+  <button id="pauseButton">Tạm Dừng</button>
+  <a href="game.html" target="_blank"><button class="back-button">Quay Lại</button></a>
+</div>
+<script>
+const canvas = document.getElementById('mazeCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = Math.min(window.innerWidth - 50, 600);
+canvas.height = Math.min(window.innerHeight - 150, 600);
+
+const cellSize = 40;
+const rows = Math.floor(canvas.height / cellSize);
+const cols = Math.floor(canvas.width / cellSize);
+
+let maze = [];
+let currentCell = { x: 0, y: 0 };
+let character = { x: 0, y: 0 };
+let goal = { x: cols - 1, y: rows - 1 };
+let timerInterval;
+let timeElapsed = 0;
+const timeLimit = 60;
+let isPaused = false;
+let pauseTimeElapsed = 0;
+const pauseTimeLimit = 10;
+
+function initializeMaze() {
+  maze = [];
+  for (let i = 0; i < rows; i++) {
+    maze[i] = [];
+    for (let j = 0; j < cols; j++) {
+      maze[i][j] = { top: true, right: true, bottom: true, left: true, visited: false };
+    }
+  }
+}
+
+function drawMaze() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const cell = maze[i][j];
+      const x = j * cellSize;
+      const y = i * cellSize;
+
+      if (cell.top) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + cellSize, y);
+        ctx.stroke();
+      }
+      if (cell.right) {
+        ctx.beginPath();
+        ctx.moveTo(x + cellSize, y);
+        ctx.lineTo(x + cellSize, y + cellSize);
+        ctx.stroke();
+      }
+      if (cell.bottom) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + cellSize);
+        ctx.lineTo(x + cellSize, y + cellSize);
+        ctx.stroke();
+      }
+      if (cell.left) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + cellSize);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function removeWalls(current, next) {
+  if (current.x === next.x && current.y > next.y) {
+    maze[current.y][current.x].top = false;
+    maze[next.y][next.x].bottom = false;
+  } else if (current.x === next.x && current.y < next.y) {
+    maze[current.y][current.x].bottom = false;
+    maze[next.y][next.x].top = false;
+  } else if (current.y === next.y && current.x > next.x) {
+    maze[current.y][current.x].left = false;
+    maze[next.y][next.x].right = false;
+  } else if (current.y === next.y && current.x < next.x) {
+    maze[current.y][current.x].right = false;
+    maze[next.y][next.x].left = false;
+  }
+}
+
+function getUnvisitedNeighbors(cell) {
+  const neighbors = [];
+  const { x, y } = cell;
+
+  if (y > 0 && !maze[y - 1][x].visited) neighbors.push({ x, y: y - 1 });
+  if (y < rows - 1 && !maze[y + 1][x].visited) neighbors.push({ x, y: y + 1 });
+  if (x > 0 && !maze[y][x - 1].visited) neighbors.push({ x: x - 1, y });
+  if (x < cols - 1 && !maze[y][x + 1].visited) neighbors.push({ x: x + 1, y });
+
+  return neighbors;
+}
+
+function generateMaze() {
+  initializeMaze();
+  currentCell = { x: 0, y: 0 };
+  maze[0][0].visited = true;
+
+  const stack = [];
+  stack.push(currentCell);
+
+  while (stack.length > 0) {
+    const neighbors = getUnvisitedNeighbors(currentCell);
+
+    if (neighbors.length > 0) {
+      const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+      removeWalls(currentCell, randomNeighbor);
+      maze[randomNeighbor.y][randomNeighbor.x].visited = true;
+      currentCell = randomNeighbor;
+      stack.push(currentCell);
+    } else {
+      currentCell = stack.pop();
+    }
+  }
+}
+
+function drawCharacter() {
+  ctx.fillStyle = 'red';
+  ctx.fillRect(character.x * cellSize + 5, character.y * cellSize + 5, cellSize - 10, cellSize - 10);
+}
+
+function drawGoal() {
+  ctx.fillStyle = 'green';
+  ctx.fillRect(goal.x * cellSize + 5, goal.y * cellSize + 5, cellSize - 10, cellSize - 10);
+}
+
+function canMoveTo(x, y) {
+  if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
+  return true;
+}
+
+function checkPathClear(startX, startY, endX, endY) {
+  if (startX === endX) { // Di chuyển theo chiều dọc
+    const step = startY < endY ? 1 : -1;
+    for (let y = startY; y !== endY; y += step) {
+      if (step > 0 && maze[y][startX].bottom) return false;
+      if (step < 0 && maze[y][startX].top) return false;
+    }
+    return true;
+  } else if (startY === endY) { // Di chuyển theo chiều ngang
+    const step = startX < endX ? 1 : -1;
+    for (let x = startX; x !== endX; x += step) {
+      if (step > 0 && maze[startY][x].right) return false;
+      if (step < 0 && maze[startY][x].left) return false;
+    }
+    return true;
+  }
+  return false; // Chỉ cho phép di chuyển thẳng, không chéo
+}
+
+function moveCharacter(targetX, targetY) {
+  if (isPaused) return;
+
+  const dx = targetX - character.x;
+  const dy = targetY - character.y;
+
+  // Chỉ cho phép di chuyển thẳng (ngang hoặc dọc), không chéo
+  if (dx !== 0 && dy !== 0) return;
+
+  // Giới hạn di chuyển tối đa 4 ô
+  const distance = Math.abs(dx) + Math.abs(dy);
+  if (distance > 4) {
+    // Điều chỉnh targetX, targetY để chỉ di chuyển 4 ô tối đa
+    if (dx !== 0) {
+      targetX = character.x + Math.sign(dx) * 4;
+      targetY = character.y;
+    } else if (dy !== 0) {
+      targetY = character.y + Math.sign(dy) * 4;
+      targetX = character.x;
+    }
+  }
+
+  if (canMoveTo(targetX, targetY) && checkPathClear(character.x, character.y, targetX, targetY)) {
+    character.x = targetX;
+    character.y = targetY;
+    drawMaze();
+    drawCharacter();
+    drawGoal();
+
+    if (character.x === goal.x && character.y === goal.y) {
+      clearInterval(timerInterval);
+      alert("Bạn Đã Về Đích! Bạn Thắng!");
+      restartGame();
+    }
+  }
+}
+
+function handleClick(event) {
+  if (isPaused) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  const clickedX = Math.floor(mouseX / cellSize);
+  const clickedY = Math.floor(mouseY / cellSize);
+
+  moveCharacter(clickedX, clickedY);
+}
+
+function gameLoop() {
+  drawMaze();
+  drawCharacter();
+  drawGoal();
+}
+
+// Timer setup
+const timerElement = document.getElementById('timer');
+
+function updateTimer() {
+  if (!isPaused) {
+    timeElapsed++;
+    timerElement.textContent = `⏳ Thời Gian: ${timeLimit - timeElapsed}s`;
+
+    if (timeElapsed >= timeLimit) {
+      clearInterval(timerInterval);
+      alert("⏰ Hết giờ rồi! Bạn thua rồi!");
+      restartGame();
+    }
+  } else {
+    pauseTimeElapsed++;
+    timerElement.textContent = `⏸ Tạm Dừng: ${pauseTimeLimit - pauseTimeElapsed}s`;
+
+    if (pauseTimeElapsed >= pauseTimeLimit) {
+      clearInterval(timerInterval);
+      alert("⏰ Hết giờ tạm dừng rồi! Bạn thua rồi!");
+      restartGame();
+    }
+  }
+}
+
+function startGame() {
+  clearInterval(timerInterval);
+  timeElapsed = 0;
+  pauseTimeElapsed = 0;
+  isPaused = false;
+  timerElement.textContent = `⏳ Thời Gian: ${timeLimit}s`;
+  timerInterval = setInterval(updateTimer, 1000);
+
+  generateMaze();
+  character = { x: 0, y: 0 };
+  goal = { x: cols - 1, y: rows - 1 };
+
+  gameLoop();
+}
+
+function restartGame() {
+  clearInterval(timerInterval);
+  timeElapsed = 0;
+  pauseTimeElapsed = 0;
+  isPaused = false;
+  timerElement.textContent = `⏳ Thời Gian: ${timeLimit}s`;
+  timerInterval = setInterval(updateTimer, 1000);
+
+  character = { x: 0, y: 0 };
+  gameLoop();
+}
+
+function togglePause() {
+  isPaused = !isPaused;
+  pauseTimeElapsed = 0;
+  if (!isPaused) {
+    timerElement.textContent = `⏳ Thời Gian: ${timeLimit - timeElapsed}s`;
+  }
+}
+
+document.getElementById('startButton').addEventListener('click', startGame);
+document.getElementById('restartButton').addEventListener('click', restartGame);
+document.getElementById('pauseButton').addEventListener('click', togglePause);
+canvas.addEventListener('click', handleClick);
+
+// Initialize game on page load
+startGame();
+</script>
+</body>
+</html>
