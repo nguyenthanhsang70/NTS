@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thử Thách, Nói Thật Hay Chịu Phạt Ngẫu Nhiên</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: clamp(18px, 5vw, 24px);
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .back-button {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+        .back-button:hover {
+            background-color: #ff4d4d;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 70px;
+        }
+
+        input#nameInput {
+            padding: 10px;
+            font-size: clamp(14px, 4vw, 16px);
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+
+        input#nameInput:focus {
+            background-color: rgba(255, 255, 255, 1);
+            outline: none;
+        }
+
+        button {
+            padding: 10px;
+            font-size: clamp(14px, 4vw, 16px);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        button#spin {
+            background-color: #ff6f61;
+            color: white;
+        }
+
+        button#reset {
+            background-color: #6a11cb;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: clamp(16px, 4vw, 18px);
+            color: white;
+            min-height: 50px;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 8px 0;
+            }
+
+            .container {
+                padding: 15px;
+                margin-top: 60px;
+            }
+
+            .back-button {
+                padding: 5px 10px;
+                left: 5px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="game.html" class="back-button">Quay Lại</a>
+        <h1>Thử Thách, Nói Thật Hay Chịu Phạt</h1>
+    </header>
+    <div class="container">
+        <input type="text" id="nameInput" placeholder="Nhập tên của bạn">
+        <button id="spin">Quay</button>
+        <button id="reset">Làm Mới</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const challenges = [
+            "Hát một bài hát yêu thích của bạn.",
+            "Nhảy múa tự do trong 30 giây.",
+            "Kể một câu chuyện cười.",
+            "Bắt chước tiếng động vật.",
+            "Nhắn tin cho người mà bạn đang yêu thầm.",
+            "Gọi điện chơi khăm một người bạn.",
+            "Chụp một bức ảnh ngớ ngẩn và đăng lên mạng xã hội.",
+            "Nhảy một điệu nhảy trên TikTok.",
+            "Ra ngoài và hát một bài ngẫu nhiên.",
+            "Cho cả nhóm xúm vào làm tóc và trang điểm.",
+            "Đọc một đoạn thơ hoặc một bài hát mà bạn thích.",
+            "Nói ngược tên của bạn.",
+            "Xoay chai và hôn người được chỉ.",
+            "Chống đẩy 10 lần.",
+            "Cho người khác bỏ nước đá vào áo.",
+            "Xoa bóp vai cho người ngồi bên trái bạn.",
+            "Cắn một miếng vào quả chanh.",
+            "Cho ai đó dùng điện thoại của bạn để đọc nhắn tin của bạn trong 1 phút.",
+            "Gửi phản hồi trái tim cho bài đăng trên mạng xã hội của người mà bạn yêu thầm.",
+            "Ra ngoài và hét “Tôi là người xấu!",
+            "Tán tỉnh người mà bạn yêu thầm.",
+            "Mặc áo trái.",
+            "Nói lời thoại của một nhân vật phản diện.",
+            "Bò theo kiểu con cua.",
+            "Cho phép một người hắt ly nước vào mặt.",
+            "Cố gắng nhảy TikTok đầu tiên trên trang “Dành cho bạn” của bạn.",
+            "Gọi cho người bạn thích của bạn.",
+            "Ngồi trên đùi tôi cho đến khi hết trò chơi.",
+            "Chia sẻ lịch sử tìm kiếm của bạn.",
+            "Gọi một số ngẫu nhiên và cố gắng tán tỉnh người nào đó nhấc máy.",
+            "Đổ nước vào miệng và cố gắng không cười khi mọi người kể chuyện cười."
+        ];
+
+        const truths = [
+            "Bạn có tật xấu nào không?",
+            "Điều gì khiến bạn xấu hổ nhất trong quá khứ?",
+            "Bạn đã từng nói dối ai trong nhóm chưa? Nếu có, là gì?",
+            "Mối tình đầu của bạn là ai?",
+            "Bạn đã từng bỏ mặc ai đó chưa?",
+            "Bí mật lớn nhất của bạn là gì?",
+            "Bạn đã từng thích ai mà không ai biết chưa?",
+            "Bạn đã từng hút thuốc lá hoặc thử rượu chưa?",
+            "Lần cuối cùng bạn khóc là khi nào và vì sao?",
+            "Bạn có từng ghét ai  không? đó lai ai?",
+            "Nếu được chọn một người để hôn ngay bây giờ, bạn sẽ chọn ai?",
+            "Điều gì ở bản thân mà bạn muốn thay đổi nhất?",
+            "Bạn đã từng lừa dối ai trong một mối quan hệ chưa?",
+            "Lần cuối bạn nói dối là khi nào?",
+            "Công việc mơ ước của bạn là gì?",
+            "Nếu bạn chỉ còn 24 giờ để sống, bạn sẽ làm gì?",
+            "Ai là người bạn ghét nhất mà bạn từng gặp?",
+            "Bạn đã từng làm điều gì ngớ ngẩn khi say xỉn chưa?",
+            "Bạn có tin vào tình yêu sét đánh không? Tại sao?",
+            "Bạn nghĩ mình có điểm gì tệ nhất?",
+            "Bạn đã từng crush ai  chưa?",
+            "Cái gì làm bạn ghê tởm?",
+            "Bạn đã từng nói xấu ai chưa?",
+            "Nếu được quay lại quá khứ, bạn sẽ thay đổi điều gì?",
+            "Bạn đã từng bị từ chối khi tỏ tình chưa?",
+            "Người cuối cùng bạn nhắn tin là ai và nội dung là gì?",
+            "Bạn từng tặng quà lại cho ai đó chưa?",
+            "Bạn đã từng làm điều gì mà bố mẹ bạn không biết?",
+            "Bạn có hối hận về việc hôn ai đó chưa?",
+            "Bạn đã hẹn hò bao nhiêu người?",
+            "Điều gì bạn thích nhất ở tôi?",
+            "Bạn có từng làm điều gì đó mà bạn cảm thấy xấu hổ không?",
+            "Bạn có từng thích một người bạn thân không?",
+            "Bạn có gần gũi với gia đình không?",
+            "Điều gì bạn hối tiếc nhất cho đến nay?",
+            "Điều gì khiến bạn tự hào nhất?",
+            "Điều gì khiến bạn cảm thấy biết ơn nhất?",
+            "Lời khuyên tốt nhất mà bạn từng nhận được là gì?",
+            "Bí mật mà bạn chưa bao giờ nói với ai?",
+            "Điều gì bạn muốn làm nhưng chưa bao giờ dám làm?",
+            "Kỷ niệm tuổi thơ yêu thích của bạn là gì?",
+            "Kỷ niệm tuổi thơ yêu thích của bạn là gì?",
+            "Bạn nghĩ đau đớn vật lý hay đau đớn tâm lý nghiêm trọng hơn?",
+            "Người đẹp nhất trong chúng ta là ai?",
+            "Nếu bạn có thể xóa một kỷ niệm, đó sẽ là gì?"
+        ];
+
+        const punishments = [
+            "Chạy tại chỗ trong 1 phút.",
+            "Uống một cốc nước muối.",
+            "Làm 10 cái squat.",
+            "Không được nói chuyện trong 5 phút.",
+            "Đứng trên một chân trong 30 giây.",
+            "Gọi đối thủ của họ là người yêu trong phần còn lại của trò chơi.",
+            "Đeo tất trên tay trong 10 phút.",
+            "Nhảy lò cò quanh phòng.",
+            "Để người khác vẽ lên mặt bạn.",
+            "Để người khác làm tóc bạn.",
+            "Nhắn tin cho người đã lâu không nói chuyện, chẳng hạn như bạn học cấp hai và vay tiền người đó.",
+            "Ăn một muỗng nước tương.",
+            "Cố gắng làm mình khóc.",
+            "Để người khác chụp ảnh bạn và đăng lên mạng xã hội.",
+            "Để người khác chọn một bài hát và bạn phải nhảy theo nó.",
+            "Liếm tường.",
+            "Để người khác làm bất cứ điều gì họ muốn với bạn trong 1 phút.",
+            "Bỏ các mạng xã hội trong một tuần.",
+            "Để người khác tô sơn cho bạn.",
+            "Không được phép nói chuyện trong 5 phút.",
+            "Cho tôi chọn ảnh đại diện của bạn trong một tuần.",
+            "Chia sẻ lịch sử tìm kiếm của bạn.",
+            "Đứng im như tượng trong 1 phút."
+        ];
+
+        let intervalId;
+
+        document.getElementById('spin').addEventListener('click', () => {
+            const name = document.getElementById('nameInput').value.trim();
+            if (name === "") {
+                alert("Vui lòng nhập tên của bạn!");
+                return;
+            }
+
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = "Đang quay...";
+            let count = 0;
+
+            intervalId = setInterval(() => {
+                const randomNum = Math.random();
+                let randomOption, optionType;
+                if (randomNum < 0.33) {
+                    randomOption = challenges;
+                    optionType = "Thử thách";
+                } else if (randomNum < 0.66) {
+                    randomOption = truths;
+                    optionType = "Nói thật";
+                } else {
+                    randomOption = punishments;
+                    optionType = "Hình phạt";
+                }
+                const randomItem = randomOption[Math.floor(Math.random() * randomOption.length)];
+                resultElement.textContent = `${name}, ${optionType} của bạn là: ${randomItem}`;
+                count++;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(intervalId);
+                const randomNum = Math.random();
+                let randomOption, optionType;
+                if (randomNum < 0.33) {
+                    randomOption = challenges;
+                    optionType = "Thử thách";
+                } else if (randomNum < 0.66) {
+                    randomOption = truths;
+                    optionType = "Nói thật";
+                } else {
+                    randomOption = punishments;
+                    optionType = "Hình phạt";
+                }
+                const randomItem = randomOption[Math.floor(Math.random() * randomOption.length)];
+                resultElement.textContent = `${name}, ${optionType} của bạn là: ${randomItem}`;
+            }, 2000);
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            clearInterval(intervalId);
+            document.getElementById('nameInput').value = "";
+            document.getElementById('result').textContent = "";
+        });
+    </script>
+</body>
+</html>
