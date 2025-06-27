@@ -14,7 +14,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* Ensure body takes full viewport height */
+            min-height: 100vh;
         }
         header {
             text-align: center;
@@ -30,9 +30,16 @@
             font-size: 1em;
             margin-top: 5px;
         }
-        .back-container {
-            align-self: flex-start;
+        .top-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
             margin-bottom: 20px;
+        }
+        .back-container {
+            flex: 0 0 auto;
         }
         .back-container a {
             text-decoration: none;
@@ -43,6 +50,16 @@
         }
         .back-container a i {
             margin-right: 5px;
+        }
+        .timer {
+            flex: 1;
+            text-align: center;
+            font-size: 1.2em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .timer.warning {
+            color: #dc3545;
         }
         .game-container {
             width: 80%;
@@ -70,11 +87,11 @@
         }
         .controls button:hover {
             background-color: #0056b3;
-            transform: scale(1.05); /* Slight scale-up on hover */
+            transform: scale(1.05);
         }
         .options {
-            display: none; /* Hidden by default */
-            background-color: #f8f9fa; /* Light background for distinction */
+            display: none;
+            background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -88,7 +105,7 @@
         .options label {
             margin-bottom: 8px;
             font-size: 1em;
-            color: #2c3e50; /* Darker color for better contrast */
+            color: #2c3e50;
             font-weight: 500;
         }
         .options select {
@@ -97,7 +114,7 @@
             border-radius: 5px;
             font-size: 1em;
             width: 100%;
-            max-width: 200px; /* Limit width for better alignment */
+            max-width: 200px;
             box-sizing: border-box;
             background-color: #fff;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -142,9 +159,9 @@
             color: #28a745;
         }
         .player-options {
-            display: none; /* Hidden by default */
+            display: none;
             margin-bottom: 15px;
-            background-color: #f8f9fa; /* Light background for distinction */
+            background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -158,7 +175,7 @@
         .player-options label {
             margin-bottom: 8px;
             font-size: 1em;
-            color: #2c3e50; /* Darker color for better contrast */
+            color: #2c3e50;
             font-weight: 500;
         }
         .player-options select {
@@ -167,7 +184,7 @@
             border-radius: 5px;
             font-size: 1em;
             width: 100%;
-            max-width: 200px; /* Limit width for better alignment */
+            max-width: 200px;
             box-sizing: border-box;
             background-color: #fff;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -181,7 +198,7 @@
             padding: 12px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #28a745; /* Green for start button */
+            background-color: #28a745;
             color: white;
             font-size: 1.1em;
             font-weight: bold;
@@ -190,13 +207,13 @@
         }
         .player-options button:hover {
             background-color: #218838;
-            transform: scale(1.05); /* Slight scale-up on hover */
+            transform: scale(1.05);
         }
         footer {
-            margin-top: auto; /* Push footer to the bottom */
+            margin-top: auto;
             width: 100%;
-            background-color: #2c3e50; /* Darker background */
-            color: #ecf0f1; /* Light text */
+            background-color: #2c3e50;
+            color: #ecf0f1;
             padding: 20px 0;
             text-align: center;
             border-radius: 8px;
@@ -217,55 +234,68 @@
             transition: color 0.3s ease, transform 0.3s ease;
         }
         .social-icons a:hover {
-            color: #3498db; /* Bright blue on hover */
-            transform: scale(1.2); /* Slight scale-up effect */
+            color: #3498db;
+            transform: scale(1.2);
         }
         .footer-container p {
             margin: 0;
             font-size: 0.9em;
         }
         .footer-container a {
-            color: #3498db; /* Matching blue for the link */
+            color: #3498db;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s ease;
         }
         .footer-container a:hover {
-            color: #ecf0f1; /* Light text on hover */
+            color: #ecf0f1;
         }
         @media (max-width: 600px) {
             .board {
-                grid-template-columns: repeat(10, 30px); /* Giảm kích thước ô */
-                gap: 1px; /* Giảm khoảng cách giữa các ô */
+                grid-template-columns: repeat(10, 30px);
+                gap: 1px;
             }
             .cell {
-                width: 30px; /* Giảm kích thước ô */
+                width: 30px;
                 height: 30px;
-                font-size: 1.2em; /* Giảm kích thước font chữ */
+                font-size: 1.2em;
             }
             .game-container {
-                width: 100%; /* Chiếm toàn bộ chiều rộng màn hình */
-                padding: 10px; /* Giảm padding */
+                width: 100%;
+                padding: 10px;
             }
             .controls button {
-                padding: 8px 12px; /* Giảm padding của nút */
-                font-size: 0.9em; /* Giảm kích thước font chữ của nút */
+                padding: 8px 12px;
+                font-size: 0.9em;
             }
             .options select, .player-options select {
-                max-width: 100%; /* Đảm bảo dropdown chiếm toàn bộ chiều rộng */
-                font-size: 0.9em; /* Giảm kích thước font chữ của dropdown */
+                max-width: 100%;
+                font-size: 0.9em;
             }
             .message {
-                font-size: 1em; /* Giảm kích thước font chữ của thông báo */
+                font-size: 1em;
+            }
+            .top-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .timer {
+                text-align: center;
+                width: 100%;
+                font-size: 1em;
+                margin-top: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="back-container">
-        <a href="game.html">
-            <i class="fas fa-arrow-left"></i> Quay lại
-        </a>
+    <div class="top-container">
+        <div class="back-container">
+            <a href="game.html">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+        <div class="timer" id="timer">Thời gian còn lại: 20 giây</div>
     </div>
     <header>
         <h1>Caro Game</h1>
@@ -316,16 +346,23 @@
         <div class="message" id="message"></div>
     </div>
     <script>
+        // JavaScript remains unchanged
         const boardSize = 10;
         let boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
-        let currentPlayer = 'X'; // Default for player mode
+        let currentPlayer = 'X';
         let computerPlayer = 'O';
-        let humanPlayer = 'X'; // Player 1
-        let player2Piece = 'O'; // Player 2
+        let humanPlayer = 'X';
+        let player2Piece = 'O';
         let difficultyLevel = 'medium';
-        let winConditionLength = 5; // Default set to 5 for consistency with traps
+        let winConditionLength = 5;
         let currentGameMoves = [];
         let currentMode = null;
+        let timerInterval = null;
+        let timeLeft = 20;
+        let timerIntervalSpeed = 1000;
+        let baseTimeLeft = 20;
+        let timerStartTime = 0;
+        let isGameActive = false;
 
         const boardElement = document.getElementById('board');
         const messageElement = document.getElementById('message');
@@ -334,11 +371,98 @@
         const difficultyOptionsElement = document.getElementById('difficultyOptions');
         const player1PieceSelect = document.getElementById('player1Piece');
         const player2PieceSelect = document.getElementById('player2Piece');
+        const timerElement = document.getElementById('timer');
+
+        function setTimerSpeed() {
+            switch (difficultyLevel) {
+                case 'easy':
+                    timerIntervalSpeed = 2000;
+                    baseTimeLeft = 10;
+                    break;
+                case 'medium':
+                    timerIntervalSpeed = 1000;
+                    baseTimeLeft = 20;
+                    break;
+                case 'hard':
+                    timerIntervalSpeed = 50;
+                    baseTimeLeft = 400;
+                    break;
+                default:
+                    timerIntervalSpeed = 1000;
+                    baseTimeLeft = 20;
+            }
+            console.log(`Set timer speed: difficulty=${difficultyLevel}, interval=${timerIntervalSpeed}ms, ticks=${baseTimeLeft}, total=${baseTimeLeft * timerIntervalSpeed / 1000}s`);
+        }
+
+        function startTimer() {
+            stopTimer('startTimer');
+            timeLeft = baseTimeLeft;
+            timerStartTime = performance.now();
+            console.log(`Starting timer: difficulty=${difficultyLevel}, interval=${timerIntervalSpeed}ms, ticks=${baseTimeLeft}`);
+            updateTimerDisplay();
+            const intervalSpeed = currentMode === 'computer' ? timerIntervalSpeed : 1000;
+            const startDelay = performance.now();
+            function tick() {
+                if (!isGameActive) {
+                    console.log('Timer tick skipped: game not active');
+                    return;
+                }
+                const currentTime = performance.now();
+                if (currentTime - startDelay < 50) {
+                    timerInterval = requestAnimationFrame(tick);
+                    return;
+                }
+                const elapsed = (currentTime - timerStartTime) / intervalSpeed;
+                timeLeft = baseTimeLeft - Math.floor(elapsed);
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    console.log(`Timer expired after: ${(currentTime - timerStartTime) / 1000} seconds`);
+                    handleTimeout();
+                } else {
+                    setTimeout(() => {
+                        timerInterval = requestAnimationFrame(tick);
+                    }, Math.max(1, timerIntervalSpeed / 2));
+                }
+            }
+            timerInterval = requestAnimationFrame(tick);
+        }
+
+        function stopTimer(context = 'unknown') {
+            if (timerInterval) {
+                cancelAnimationFrame(timerInterval);
+                timerInterval = null;
+                console.log(`Timer stopped by: ${context}, duration: ${(performance.now() - timerStartTime) / 1000} seconds`);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const secondsLeft = currentMode === 'computer' ? Math.ceil(timeLeft * (timerIntervalSpeed / 1000)) : timeLeft;
+            console.log(`Updating timer display: ${secondsLeft}s, timeLeft=${timeLeft}, difficulty=${difficultyLevel}`);
+            timerElement.textContent = `Thời gian còn lại: ${secondsLeft} giây`;
+            const warningThreshold = currentMode === 'computer' ? Math.ceil(4 / (timerIntervalSpeed / 1000)) : 5;
+            timerElement.classList.toggle('warning', timeLeft <= warningThreshold);
+        }
+
+        function handleTimeout() {
+            stopTimer('handleTimeout');
+            const duration = (performance.now() - timerStartTime) / 1000;
+            console.log(`Timeout triggered after: ${duration} seconds`);
+            if (currentMode === 'computer') {
+                showMessage('Hết thời gian! Máy thắng!');
+                saveGameResult(computerPlayer);
+            } else if (currentMode === 'player') {
+                showMessage(`Hết thời gian! ${currentPlayer === humanPlayer ? 'Player 1' : 'Player 2'} mất lượt!`);
+                currentPlayer = currentPlayer === humanPlayer ? player2Piece : humanPlayer;
+                startTimer();
+            }
+        }
 
         function showPlayerOptions() {
             playerOptionsElement.style.display = 'block';
             difficultyOptionsElement.style.display = 'none';
             gameModeElement.textContent = `Chế độ chơi: Đang chọn tùy chỉnh cho Player 1 vs Player 2`;
+            stopTimer('showPlayerOptions');
+            isGameActive = false;
         }
 
         function setPlayerPieces() {
@@ -365,6 +489,10 @@
             gameModeElement.textContent = `Chế độ chơi: Player 1 (${humanPlayer}) vs Player 2 (${player2Piece})`;
             playerOptionsElement.style.display = 'none';
             difficultyOptionsElement.style.display = 'none';
+            timerIntervalSpeed = 1000;
+            baseTimeLeft = 20;
+            isGameActive = true;
+            startTimer();
         }
 
         function startGame(mode) {
@@ -375,14 +503,24 @@
                 currentPlayer = computerPlayer;
                 humanPlayer = 'X';
                 computerPlayer = 'O';
-                winConditionLength = 5; // Ensure consistency with traps
+                winConditionLength = 5;
+                setTimerSpeed();
                 difficultyOptionsElement.style.display = 'block';
                 playerOptionsElement.style.display = 'none';
-                makeComputerMove(true);
+                isGameActive = true;
+                console.log('Starting computer game, scheduling first move');
+                startTimer();
+                makeComputerMove();
             }
         }
 
+        function setDifficulty(level) {
+            difficultyLevel = level;
+            setTimerSpeed();
+        }
+
         function resetBoard() {
+            stopTimer('resetBoard');
             if (currentMode === 'computer') {
                 resetBoardWithoutStart();
                 startGame('computer');
@@ -390,11 +528,16 @@
                 resetBoardWithoutStart();
                 currentPlayer = humanPlayer;
                 gameModeElement.textContent = `Chế độ chơi: Player 1 (${humanPlayer}) vs Player 2 (${player2Piece})`;
+                timerIntervalSpeed = 1000;
+                baseTimeLeft = 20;
+                isGameActive = true;
+                startTimer();
             } else {
                 resetBoardWithoutStart();
                 difficultyOptionsElement.style.display = 'none';
                 playerOptionsElement.style.display = 'none';
                 gameModeElement.textContent = `Chế độ chơi: Chưa chọn`;
+                isGameActive = false;
             }
         }
 
@@ -409,19 +552,18 @@
                 cell.addEventListener('click', () => handleCellClick(i));
                 boardElement.appendChild(cell);
             }
-        }
-
-        function setDifficulty(level) {
-            difficultyLevel = level;
+            console.log('Board reset, boardState:', JSON.stringify(boardState));
+            stopTimer('resetBoardWithoutStart');
         }
 
         function handleCellClick(index) {
-            if (boardState[Math.floor(index / boardSize)][index % boardSize] || (currentMode === 'computer' && currentPlayer === computerPlayer)) return;
+            if (!isGameActive || timeLeft <= 0 || boardState[Math.floor(index / boardSize)][index % boardSize] || (currentMode === 'computer' && currentPlayer === computerPlayer)) return;
 
             placePiece(index, currentMode === 'computer' ? humanPlayer : currentPlayer);
+            stopTimer('handleCellClick');
 
             if (checkWin(currentMode === 'computer' ? humanPlayer : currentPlayer)) {
-                showMessage(currentMode === 'computer' ? (humanPlayer === currentPlayer ? 'Người chơi thắng!' : 'Máy thắng!') : (currentPlayer === humanPlayer ? 'Player 1 thắng!' : 'Player 2 thắng!'));
+                showMessage(currentMode === 'computer' ? 'Người chơi thắng!' : (currentPlayer === humanPlayer ? 'Player 1 thắng!' : 'Player 2 thắng!'));
                 return;
             }
 
@@ -435,6 +577,7 @@
                 makeComputerMove();
             } else {
                 currentPlayer = currentPlayer === humanPlayer ? player2Piece : humanPlayer;
+                startTimer();
             }
         }
 
@@ -454,6 +597,7 @@
                 { rowDir: 1, colDir: 1 },
                 { rowDir: 1, colDir: -1 }
             ];
+            let winFound = false;
             for (let row = 0; row < boardSize; row++) {
                 for (let col = 0; col < boardSize; col++) {
                     if (boardState[row][col] === player) {
@@ -466,48 +610,77 @@
                                 count++;
                             }
                             if (count === winConditionLength) {
+                                console.log(`Win detected for ${player} at row=${row}, col=${col}, dir=(${rowDir}, ${colDir})`);
                                 highlightWinningLine(row, col, rowDir, colDir, player);
-                                return true;
+                                winFound = true;
                             }
                         }
                     }
                 }
             }
-            return false;
+            return winFound;
         }
 
         function highlightWinningLine(row, col, rowDir, colDir, player) {
             for (let i = 0; i < winConditionLength; i++) {
                 const index = (row + i * rowDir) * boardSize + (col + i * colDir);
-                boardElement.children[index].style.backgroundColor = '#d1e7dd'; // Light green for winning line
+                boardElement.children[index].style.backgroundColor = '#d1e7dd';
             }
         }
 
         function showMessage(msg) {
-            if (msg.includes('thắng')) {
-                if (currentMode === 'computer') {
-                    msg = currentPlayer === 'X' ? 'Người chơi thắng!' : 'Máy thắng!';
-                } else {
-                    msg = currentPlayer === humanPlayer ? 'Player 1 thắng!' : 'Player 2 thắng!';
-                }
-            }
             messageElement.textContent = msg;
-            if (msg.includes('thắng') || msg === 'Hòa!') {
-                saveGameResult(msg.includes(humanPlayer) ? humanPlayer : msg.includes(player2Piece) ? player2Piece : 'tie');
+            if (isGameActive && (msg.includes('thắng') || msg === 'Hòa!' || msg.includes('Hết thời gian'))) {
+                stopTimer('showMessage');
+                isGameActive = false;
+                saveGameResult(msg.includes(humanPlayer) ? humanPlayer : msg.includes(player2Piece) ? player2Piece : msg.includes('Máy') ? computerPlayer : 'tie');
             }
         }
 
         function makeComputerMove(noDelay = false) {
             const executeMove = async () => {
+                if (!isGameActive) {
+                    console.log('Computer move skipped: game not active');
+                    return;
+                }
+                const emptyCells = boardState.flat().filter(cell => !cell).length;
+                console.log(`Making computer move, empty cells: ${emptyCells}, boardState:`, JSON.stringify(boardState));
+                if (emptyCells > boardSize * boardSize - 2) {
+                    console.log('Board nearly empty, skipping win/draw checks');
+                } else {
+                    if (checkWin(computerPlayer)) {
+                        showMessage('Máy thắng!');
+                        return;
+                    }
+                    if (!boardState.flat().includes(null)) {
+                        showMessage('Hòa!');
+                        return;
+                    }
+                }
                 let move;
                 switch (difficultyLevel) {
-                    case 'easy': move = getEasyMove(); break;
-                    case 'medium': move = getMediumMove(); break;
-                    case 'hard': move = await getHardMove(); break;
-                    default: move = getMediumMove();
+                    case 'easy':
+                        console.log('Calculating easy move...');
+                        move = getEasyMove();
+                        console.log('Easy move calculated:', move);
+                        break;
+                    case 'medium':
+                        console.log('Calculating medium move...');
+                        move = getMediumMove();
+                        console.log('Medium move calculated:', move);
+                        break;
+                    case 'hard':
+                        console.log('Calculating hard move...');
+                        move = await getHardMove();
+                        console.log('Hard move calculated:', move);
+                        break;
+                    default:
+                        move = getMediumMove();
                 }
-                if (move) {
+                if (move && !boardState[move.row][move.col]) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
                     placePiece(move.row * boardSize + move.col, computerPlayer);
+                    console.log(`Computer placed ${computerPlayer} at row=${move.row}, col=${move.col}`);
                     if (checkWin(computerPlayer)) {
                         showMessage('Máy thắng!');
                         return;
@@ -517,13 +690,19 @@
                         return;
                     }
                     currentPlayer = humanPlayer;
+                    startTimer();
+                } else {
+                    console.log('No valid move found or move invalid:', move);
+                    showMessage('Hòa! Không còn nước đi hợp lệ.');
                 }
             };
 
             if (noDelay) {
+                console.log('Executing computer move without delay');
                 executeMove();
             } else {
-                setTimeout(executeMove, 100);
+                console.log('Scheduling computer move with 200ms delay');
+                setTimeout(executeMove, 200);
             }
         }
 
@@ -540,112 +719,97 @@
             const moves = getPotentialMoves();
             const remainingCells = boardState.flat().filter(cell => !cell).length;
 
-            // Priority 1: Win immediately
             const winningMove = findWinningMove(computerPlayer);
             if (winningMove) return winningMove;
 
-            // Priority 2: Block opponent's win
             const blockWin = findWinningMove(humanPlayer);
             if (blockWin) return blockWin;
 
-            // Priority 3: Block opponent's Open Four
             const blockOpenFour = findOpenFour(humanPlayer);
             if (blockOpenFour) return blockOpenFour;
 
-            // Priority 4: Create Open Four
             const openFourAttack = findOpenFour(computerPlayer);
             if (openFourAttack) return openFourAttack;
 
-            // Priority 5: Block opponent's Half-Open Four
             const blockHalfOpenFour = findHalfOpenFour(humanPlayer);
             if (blockHalfOpenFour) return blockHalfOpenFour;
 
-            // Priority 6: New Traps (21-36)
-            const interruptedHorizontalTrap = createInterruptedHorizontalTrap(computerPlayer); // Bẫy "Hàng Ngang Gián Đoạn"
+            const interruptedHorizontalTrap = createInterruptedHorizontalTrap(computerPlayer);
             if (interruptedHorizontalTrap) return interruptedHorizontalTrap;
 
-            const doubleOpenDiagonalTrap = createDoubleOpenDiagonalTrap(computerPlayer); // Bẫy "Hai Đầu Mở Kết Hợp Chéo"
+            const doubleOpenDiagonalTrap = createDoubleOpenDiagonalTrap(computerPlayer);
             if (doubleOpenDiagonalTrap) return doubleOpenDiagonalTrap;
 
-            const misleadDirectionTrap = createMisleadDirectionTrap(computerPlayer); // Bẫy "Dụ Đối Thủ Đi Lệch Hướng"
+            const misleadDirectionTrap = createMisleadDirectionTrap(computerPlayer);
             if (misleadDirectionTrap && remainingCells > boardSize * boardSize * 0.5) return misleadDirectionTrap;
 
-            const tripleParallelTrap = createTripleParallelTrap(computerPlayer); // Bẫy "Tạo 3 Đường Song Song"
+            const tripleParallelTrap = createTripleParallelTrap(computerPlayer);
             if (tripleParallelTrap) return tripleParallelTrap;
 
-            const lShapeTrap = createLShapeTrap(computerPlayer); // Bẫy "Hình Chữ L"
+            const lShapeTrap = createLShapeTrap(computerPlayer);
             if (lShapeTrap) return lShapeTrap;
 
-            const squareTrap = createSquareTrap(computerPlayer); // Bẫy "Hình Vuông"
+            const squareTrap = createSquareTrap(computerPlayer);
             if (squareTrap) return squareTrap;
 
-            const blurBlockTrap = createBlurBlockTrap(computerPlayer); // Bẫy "Làm Mờ Đường Chắn"
+            const blurBlockTrap = createBlurBlockTrap(computerPlayer);
             if (blurBlockTrap) return blurBlockTrap;
 
-            const twoMiddleGapsTrap = createTwoMiddleGapsTrap(computerPlayer); // Bẫy "Tạo 2 Ô Trống Ở Giữa"
+            const twoMiddleGapsTrap = createTwoMiddleGapsTrap(computerPlayer);
             if (twoMiddleGapsTrap) return twoMiddleGapsTrap;
 
-            const baitThreeTrap = createBaitThreeTrap(computerPlayer); // Bẫy "Đánh Nhử 3 Quân"
+            const baitThreeTrap = createBaitThreeTrap(computerPlayer);
             if (baitThreeTrap && remainingCells > boardSize * boardSize * 0.5) return baitThreeTrap;
 
-            const hShapeTrap = createHShapeTrap(computerPlayer); // Bẫy "Chữ H"
+            const hShapeTrap = createHShapeTrap(computerPlayer);
             if (hShapeTrap) return hShapeTrap;
 
-            const wrongDirectionTrap = createWrongDirectionTrap(computerPlayer); // Bẫy "Chặn Sai Hướng"
+            const wrongDirectionTrap = createWrongDirectionTrap(computerPlayer);
             if (wrongDirectionTrap && remainingCells > boardSize * boardSize * 0.5) return wrongDirectionTrap;
 
-            const wallTrap = createWallTrap(computerPlayer); // Bẫy "Xây Dựng Tường"
+            const wallTrap = createWallTrap(computerPlayer);
             if (wallTrap) return wallTrap;
 
-            const useOpponentPieceTrap = createUseOpponentPieceTrap(computerPlayer); // Bẫy "Lợi Dụng Quân Của Đối Thủ"
+            const useOpponentPieceTrap = createUseOpponentPieceTrap(computerPlayer);
             if (useOpponentPieceTrap) return useOpponentPieceTrap;
 
-            const hiddenFourTrap = createHiddenFourTrap(computerPlayer); // Bẫy "Tạo 4 Quân Ẩn"
+            const hiddenFourTrap = createHiddenFourTrap(computerPlayer);
             if (hiddenFourTrap) return hiddenFourTrap;
 
-            const fenceTrap = createFenceTrap(computerPlayer); // Bẫy "Lập Hàng Rào"
+            const fenceTrap = createFenceTrap(computerPlayer);
             if (fenceTrap) return fenceTrap;
 
-            const tripleDiagonalComboTrap = createTripleDiagonalComboTrap(computerPlayer); // Bẫy "Tạo 3 Đường Chéo Kết Hợp"
+            const tripleDiagonalComboTrap = createTripleDiagonalComboTrap(computerPlayer);
             if (tripleDiagonalComboTrap) return tripleDiagonalComboTrap;
 
-            // Priority 7: Create Half-Open Four
             const halfOpenFourAttack = findHalfOpenFour(computerPlayer);
             if (halfOpenFourAttack) return halfOpenFourAttack;
 
-            // Priority 8: Block opponent's Open Three
             const blockOpenThree = findOpenThree(humanPlayer);
             if (blockOpenThree) return blockOpenThree;
 
-            // Priority 9: Create Open Three
             const openThreeAttack = findOpenThree(computerPlayer);
             if (openThreeAttack) return openThreeAttack;
 
-            // Priority 10: Block opponent's Half-Open Three
             const blockHalfOpenThree = findHalfOpenThree(humanPlayer);
             if (blockHalfOpenThree) return blockHalfOpenThree;
 
-            // Priority 11: Active Defense
             const activeDefense = blockMultipleThreeInARow(humanPlayer);
             if (activeDefense) return activeDefense;
 
-            // Priority 12: Occupy Center (early game)
             if (remainingCells > boardSize * boardSize * 0.8) {
                 const centerMove = occupyCenter();
                 if (centerMove) return centerMove;
             }
 
-            // Priority 13: Create Open Two
             const openTwoAttack = findOpenTwo(computerPlayer);
             if (openTwoAttack) return openTwoAttack;
 
-            // Priority 14: Endgame Strategy
             if (remainingCells < boardSize * boardSize * 0.2) {
                 const endgameMove = await runAlphaBeta(computerPlayer, 6);
                 if (endgameMove) return endgameMove;
             }
 
-            // Fallback: Alpha-Beta or Random
             return await runAlphaBeta(computerPlayer, 4) || getEasyMove();
         }
 
@@ -770,7 +934,6 @@
             return false;
         }
 
-        // Trap 21: Bẫy "Hàng Ngang Gián Đoạn"
         function createInterruptedHorizontalTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -800,7 +963,6 @@
             return null;
         }
 
-        // Trap 22: Bẫy "Hai Đầu Mở Kết Hợp Chéo"
         function createDoubleOpenDiagonalTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -823,7 +985,6 @@
             return null;
         }
 
-        // Trap 23: Bẫy "Dụ Đối Thủ Đi Lệch Hướng"
         function createMisleadDirectionTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -846,7 +1007,6 @@
             return null;
         }
 
-        // Trap 24: Bẫy "Tạo 3 Đường Song Song"
         function createTripleParallelTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -871,7 +1031,6 @@
             return null;
         }
 
-        // Trap 25: Bẫy "Hình Chữ L"
         function createLShapeTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -891,7 +1050,6 @@
             return null;
         }
 
-        // Trap 26: Bẫy "Hình Vuông"
         function createSquareTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -911,7 +1069,6 @@
             return null;
         }
 
-        // Trap 27: Bẫy "Làm Mờ Đường Chắn"
         function createBlurBlockTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -934,7 +1091,6 @@
             return null;
         }
 
-        // Trap 28: Bẫy "Tạo 2 Ô Trống Ở Giữa"
         function createTwoMiddleGapsTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -964,7 +1120,6 @@
             return null;
         }
 
-        // Trap 29: Bẫy "Đánh Nhử 3 Quân"
         function createBaitThreeTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -987,7 +1142,6 @@
             return null;
         }
 
-        // Trap 30: Bẫy "Chữ H"
         function createHShapeTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1007,7 +1161,6 @@
             return null;
         }
 
-        // Trap 31: Bẫy "Chặn Sai Hướng"
         function createWrongDirectionTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1030,7 +1183,6 @@
             return null;
         }
 
-        // Trap 32: Bẫy "Xây Dựng Tường"
         function createWallTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1055,7 +1207,6 @@
             return null;
         }
 
-        // Trap 33: Bẫy "Lợi Dụng Quân Của Đối Thủ"
         function createUseOpponentPieceTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1083,7 +1234,6 @@
             return null;
         }
 
-        // Trap 34: Bẫy "Tạo 4 Quân Ẩn"
         function createHiddenFourTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1113,7 +1263,6 @@
             return null;
         }
 
-        // Trap 35: Bẫy "Lập Hàng Rào"
         function createFenceTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1138,7 +1287,6 @@
             return null;
         }
 
-        // Trap 36: Bẫy "Tạo 3 Đường Chéo Kết Hợp"
         function createTripleDiagonalComboTrap(player) {
             for (const { row, col } of getPotentialMoves()) {
                 boardState[row][col] = player;
@@ -1229,7 +1377,7 @@
             return null;
         }
 
-        async function runAlphaBeta(player, depth) {
+        function runAlphaBeta(player, depth) {
             let XX, YY;
             alphabeta(player, -Infinity, Infinity, depth, (row, col) => {
                 XX = row;
