@@ -107,7 +107,44 @@
       </div>
     </div>
   </section>
+<!-- Back to Top Button -->
+    <button id="backToTopBtn" onclick="scrollToTop()" class="back-to-top fixed bottom-5 right-5 bg-green-700 text-white p-3 rounded-full shadow-lg hover:bg-green-800 transition duration-300 hidden">
+        ↑
+    </button>
 
+
+    <!-- JavaScript for Slideshow -->
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlides() {
+            slides.forEach(slide => slide.style.display = 'none');
+            slideIndex++;
+            if (slideIndex > slides.length) slideIndex = 1;
+            slides[slideIndex - 1].style.display = 'block';
+            setTimeout(showSlides, 5000);
+        }
+
+        showSlides();
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide Back to Top button based on scroll position
+        window.onscroll = function() {
+            const backToTopBtn = document.getElementById("backToTopBtn");
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTopBtn.classList.remove("hidden");
+            } else {
+                backToTopBtn.classList.add("hidden");
+            }
+        };
+    </script>
   <footer class="bg-indigo-900 text-white py-12 text-center">
     <p class="text-lg">© 2025 NTS. Được thiết kế với bởi <a href="https://www.tiktok.com/@thanh.sang70" class="text-purple-400 hover:text-white transition">Nguyễn Thanh Sang</a>.</p>
   </footer>
