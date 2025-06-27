@@ -5,274 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Trang Chủ NTS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff;
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
-    header {
+    .parallax {
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
       position: relative;
-      text-align: center;
-      padding: 150px 20px;
-      overflow: hidden;
-      background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80') no-repeat center/cover;
-      box-shadow: inset 0 0 0 1000px rgba(30, 60, 114, 0.7);
     }
-    header h1 {
-      font-size: 60px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      animation: glow 3s infinite alternate, fadeIn 1.5s ease-out;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    header p {
-      font-size: 24px;
-      max-width: 700px;
-      margin: 20px auto;
-      animation: slideUp 2s ease-out;
-      font-style: italic;
+    .card-hover:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    .gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7));
     }
     .particle {
       position: absolute;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      animation: drift 10s infinite ease-in-out;
+      background: rgba(255, 255, 255, 0.3);
+      animation: drift 12s infinite ease-in-out;
     }
-    .particle:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 10%; animation-duration: 8s; }
-    .particle:nth-child(2) { width: 150px; height: 150px; bottom: 20%; right: 15%; animation-duration: 12s; }
-    .particle:nth-child(3) { width: 200px; height: 200px; top: 60%; left: 40%; animation-duration: 15s; }
-    
-    @keyframes glow {
-      0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
-      100% { text-shadow: 0 0 30px rgba(255, 255, 255, 1); }
+    .particle:nth-child(1) { width: 60px; height: 60px; top: 15%; left: 10%; animation-duration: 9s; }
+    .particle:nth-child(2) { width: 120px; height: 120px; bottom: 25%; right: 10%; animation-duration: 14s; }
+    .particle:nth-child(3) { width: 180px; height: 180px; top: 50%; left: 35%; animation-duration: 16s; }
+    @keyframes drift {
+      0% { transform: translate(0, 0); opacity: 0.3; }
+      50% { transform: translate(30px, -20px); opacity: 0.6; }
+      100% { transform: translate(0, 0); opacity: 0.3; }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+    .animate-slide-up {
+      animation: slideUp 1s ease-out;
     }
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes drift {
-      0% { transform: translate(0, 0); opacity: 0.2; }
-      50% { transform: translate(20px, -30px); opacity: 0.5; }
-      100% { transform: translate(0, 0); opacity: 0.2; }
-    }
-
-    .content {
-      background: #fff;
-      color: #333;
-      padding: 80px 20px;
-      text-align: center;
-      border-radius: 40px 40px 0 0;
-      box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.1);
-      position: relative;
-      z-index: 2;
-    }
-    .content h2 {
-      font-size: 40px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      color: #2a5298;
-      position: relative;
-    }
-    .content h2::after {
-      content: '';
-      width: 100px;
-      height: 5px;
-      background: linear-gradient(to right, #2a5298, #a777e3);
-      display: block;
-      margin: 15px auto;
-      border-radius: 5px;
-    }
-    .content p {
-      font-size: 18px;
-      max-width: 900px;
-      margin: 0 auto 40px;
-    }
-
-    .section {
-      padding: 80px 20px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .section h2 {
-      font-size: 36px;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-    .section p {
-      font-size: 18px;
-      margin-bottom: 30px;
-    }
-    .section a {
-      display: inline-block;
-      padding: 15px 40px;
-      font-size: 18px;
-      font-weight: 600;
-      text-decoration: none;
-      border-radius: 50px;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    .section a::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: all 0.6s ease;
-      z-index: -1;
-    }
-    .section a:hover::before {
-      width: 300px;
-      height: 300px;
-    }
-    .section a:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .game-section { background: linear-gradient(135deg, #2a5298, #1e3c72); }
-    .game-section a { background: #fff; color: #2a5298; }
-    .heart-section { background: linear-gradient(135deg, #a777e3, #8e44ad); }
-    .heart-section a { background: #fff; color: #a777e3; }
-    .heart-section-alt { background: linear-gradient(135deg, #ff4d6d, #e84393); }
-    .heart-section-alt a { background: #fff; color: #ff4d6d; }
-
-    .card {
-      background: #fff;
-      color: #333;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      margin: 20px auto;
-      max-width: 600px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-    }
-    .card a {
-      background: #2a5298;
-      color: #fff;
-      padding: 12px 30px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: background 0.3s ease;
-    }
-    .card a:hover {
-      background: #1e3c72;
-    }
-
-    footer {
-      background: #1e3c72;
-      padding: 40px 20px;
-      text-align: center;
-      font-size: 16px;
-      color: #fff;
-    }
-    footer a {
-      color: #a777e3;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-    footer a:hover {
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      header h1 { font-size: 40px; }
-      header p { font-size: 20px; }
-      .content h2 { font-size: 32px; }
-      .section h2 { font-size: 30px; }
-      .section a { font-size: 16px; padding: 12px 30px; }
-    }
-    @media (max-width: 480px) {
-      header h1 { font-size: 32px; }
-      header p { font-size: 16px; }
-      .content h2 { font-size: 28px; }
-      .section h2 { font-size: 24px; }
-      .section a { font-size: 14px; padding: 10px 25px; }
-    }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <header>
+<body class="font-inter bg-gray-100 text-gray-900">
+  <header class="parallax h-screen flex items-center justify-center text-center text-white relative" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80')">
+    <div class="gradient-overlay"></div>
     <div class="particle"></div>
     <div class="particle"></div>
     <div class="particle"></div>
-    <h1>Trang Chủ Của NTS</h1>
-    <p>Welcome to NTS</p>
+    <div class="relative z-10 animate-slide-up">
+      <h1 class="text-5xl md:text-7xl font-bold tracking-tight uppercase">Trang Chủ NTS</h1>
+      <p class="mt-4 text-xl md:text-2xl max-w-2xl mx-auto italic">Chào mừng bạn đến với NTS - Nơi kết nối và chinh phục mọi thử thách!</p>
+    </div>
   </header>
-  <div class="content">
-    <h2>Về Chúng Tôi</h2>
-    <p>Nơi gắn kết những người bạn, cùng nhau khám phá, trải nghiệm và tạo nên những khoảnh khắc đáng nhớ. Không chỉ là trò chơi, mà còn là cầu nối để chia sẻ niềm vui, tiếng cười và những kỷ niệm khó quên. Cùng nhau tham gia, cùng nhau chinh phục thử thách, để tình bạn thêm bền chặt và ý nghĩa hơn bao giờ hết!</p>
 
-    <div class="card">
-      <h2>Trang Chủ NTS3DPRO</h2>
-      <p>Khám phá NTS3DPRO - trải nghiệm công nghệ 3D đỉnh cao!</p>
-      <a href="nts3dpro.html">Xem Ngay</a>
+  <section class="bg-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-4xl font-semibold text-indigo-900 mb-4 animate-slide-up">Về Chúng Tôi</h2>
+      <div class="w-24 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto mb-8 rounded"></div>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12 animate-slide-up">
+        Nơi gắn kết những người bạn, cùng nhau khám phá, trải nghiệm và tạo nên những khoảnh khắc đáng nhớ. Không chỉ là trò chơi, mà còn là cầu nối để chia sẻ niềm vui, tiếng cười và những kỷ niệm khó quên. Cùng nhau tham gia, cùng nhau chinh phục thử thách, để tình bạn thêm bền chặt và ý nghĩa hơn bao giờ hết!
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Trang Chủ NTS3DPRO</h3>
+          <p class="text-gray-600 mb-4">Khám phá NTS3DPRO - trải nghiệm công nghệ 3D đỉnh cao!</p>
+          <a href="nts3dpro.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Xem Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Kiểm Tra Thiết Bị</h3>
+          <p class="text-gray-600 mb-4">Kiểm tra hôm nay – An toàn ngày mai!</p>
+          <a href="hoso.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Kiểm Tra Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Bể Cá 3D</h3>
+          <p class="text-gray-600 mb-4">Một đại dương thu nhỏ, cả thế giới trong tầm mắt!</p>
+          <a href="beca.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Xem Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Lịch Sử NTS</h3>
+          <p class="text-gray-600 mb-4">Dấu ấn thời đại, bứt phá tương lai.</p>
+          <a href="lichsu.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Xem Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Thử Thách Bản Thân</h3>
+          <p class="text-gray-600 mb-4">Khám phá trò chơi thú vị do NTS phát triển!</p>
+          <a href="game.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Chơi Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Ngày Quan Trọng</h3>
+          <p class="text-gray-600 mb-4">Hãy đánh dấu ngay những ngày quan trọng này!</p>
+          <a href="ngayquantrong.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Xem Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Tỏ Tình</h3>
+          <p class="text-gray-600 mb-4">Anh không cần cả thế giới, anh chỉ cần em!</p>
+          <a href="totinh.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Tỏ Tình Ngay</a>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 shadow-lg">
+          <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Happy Birthday</h3>
+          <p class="text-gray-600 mb-4">Born to shine, Happy Birthday!</p>
+          <a href="chucmungsinhnhat.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Gửi Lời Chúc Ngay</a>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h2>Kiểm Tra Thiết Bị Của Bạn</h2>
-      <p>Kiểm tra hôm nay – An toàn ngày mai!</p>
-      <a href="hoso.html">Kiểm Tra Ngay</a>
-    </div>
-    <div class="card">
-      <h2>Bể Cá 3D</h2>
-      <p>Một đại dương thu nhỏ, cả thế giới trong tầm mắt!</p>
-      <a href="beca.html">Xem Ngay</a>
-    </div>
-     <div class="card">
-      <h2>Lịch Sử NTS</h2>
-      <p>Dấu ấn thời đại, bứt phá tương lai.</p>
-      <a href="lichsu.html">Xem Ngay</a>
-    </div>
-  <div class="card">
-      <h2>Thử Thách Bản Thân Với Trò Chơi</h2>
-      <p>Khám phá trò chơi thú vị do NTS phát triển!</p>
-      <a href="game.html">Chơi Ngay</a>
-    </div>
-    <div class="card">
-      <h2>Danh Sách Ngày Quan Trọng</h2>
-      <p>Hãy đánh dấu ngay những ngày quan trọng này! Hãy xem ngay!</p>
-      <a href="ngayquantrong.html">Xem Ngay</a>
-    </div>
-    <div class="card">
-      <h2>Tỏ Tình Với Người Mình Thích</h2>
-      <p>Anh không cần cả thế giới, anh chỉ cần em! Hãy gửi lời tỏ tình ngay!</p>
-      <a href="totinh.html">Tỏ Tình Ngay</a>
-    </div>
-    <div class="card">
-      <h2>Happy Birthday</h2>
-      <p>Born to shine, Happy Birthday! Hãy gửi lời chúc ngay!</p>
-      <a href="chucmungsinhnhat.html">Gửi Lời Chúc Ngay</a>
-    </div>
-  </div>
-  <footer>
-    © 2025 NTS. Được thiết kế với bởi <a href="https://www.tiktok.com/@thanh.sang70">Nguyễn Thanh Sang</a>.
+  </section>
+
+  <footer class="bg-indigo-900 text-white py-12 text-center">
+    <p class="text-lg">© 2025 NTS. Được thiết kế với bởi <a href="https://www.tiktok.com/@thanh.sang70" class="text-purple-400 hover:text-white transition">Ng Oversight Thanh Sang</a>.</p>
   </footer>
 </body>
 </html>
