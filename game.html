@@ -4,245 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh Sách Game - NTS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="icon" type="png" href="logos3.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="icon" type="image/png" href="logos3.png">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #a5b4fc);
             margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        header {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        .back-home {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 12px;
-            background-color: #e74c3c;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .back-home:hover {
-            background-color: #c0392b;
-        }
-        .back-home i {
-            margin-right: 6px;
-            font-size: 16px;
-        }
-        h1 {
-            font-size: 36px;
-            letter-spacing: 1px;
-            margin: 0;
-        }
-        .game-list {
+            min-height: 100vh;
             display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            justify-content: center;
-            padding: 40px 20px;
+            flex-direction: column;
         }
         .game-card {
-            background-color: #fff;
-            border-radius: 15px;
-            width: 300px;
-            overflow: hidden;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .game-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
         .game-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-bottom: 1px solid #ddd;
+            transition: transform 0.3s ease;
         }
-        .game-card-content {
-            padding: 15px;
-        }
-        .game-card h2 {
-            font-size: 22px;
-            margin: 0 0 10px;
-            color: #34495e;
-        }
-        .game-card p {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin: 0 0 15px;
-            line-height: 1.5;
-        }
-        .game-card a {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .game-card a:hover {
-            background-color: #2980b9;
-        }
-        footer {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            text-align: center;
-            padding: 20px 0;
-            font-size: 14px;
-        }
-        footer .footer-container {
-            background-color: #1a252f;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        footer a {
-            color: #1abc9c;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .social-icons {
-            margin-bottom: 15px;
-        }
-        .social-icons a {
-            color: #ecf0f1;
-            font-size: 20px;
-            margin: 0 10px;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        .social-icons a:hover {
-            color: #1abc9c;
+        .game-card:hover img {
+            transform: scale(1.05);
         }
         @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
-    }
+            header h1 {
+                font-size: 30px;
+            }
+            header p {
+                font-size: 16px;
+            }
+            .content h2 {
+                font-size: 26px;
+            }
+            .game-section h2 {
+                font-size: 28px;
+            }
+            .game-section a {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+            .social-icons a {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> </a>
-        <h1>Danh Sách Game</h1>
+    <header class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-6 relative">
+        <a href="index.html" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> 
+        </a>
+        <h1 class="text-3xl md:text-4xl font-bold text-center tracking-tight">Danh Sách Game</h1>
     </header>
-    <div class="game-list">
-        <div class="game-card">
-            <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Game 1">
-            <div class="game-card-content">
-                <h2>Xúc Xắc</h2>
-                <p>Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
-                <a href="xucxac.html">Chơi Ngay</a>
+
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Game 1" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Xúc Xắc</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
+                    <div class="text-center">
+                        <a href="xucxac.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="screenshot_1739700778.png" alt="Game 2" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Quay Tên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
+                    <div class="text-center">
+                        <a href="quayten.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="screenshot_1739700866.png" alt="Game 3" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Đua Số Ngẫu Nhiên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
+                    <div class="text-center">
+                        <a href="dua.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="thi-dau-co-caro.jpg" alt="Game 4" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Cờ CaRo</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi trí tuệ hấp dẫn, tư duy nhạy bén, tạo nên những trận đấu gay cấn và đầy kịch tính!</p>
+                    <div class="text-center">
+                        <a href="caro.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="solitaire-classic.jpg" alt="Game 5" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Đánh Bài</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game đánh bài là thể loại trò chơi sử dụng bộ bài (thường là bài Tây 52 lá).</p>
+                    <div class="text-center">
+                        <a href="danhbai.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="dovui.jpg" alt="Game 6" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Đố Vui</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game Đố Vui là trò chơi trí tuệ giúp bạn rèn luyện tư duy logic, khả năng suy luận và sự sáng tạo qua hàng loạt câu hỏi thú vị.</p>
+                    <div class="text-center">
+                        <a href="dovui.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="mecung.jpg" alt="Game 8" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Mê Cung</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game mê cung là thể loại trò chơi trong đó người chơi phải tìm đường thoát khỏi một mê cung phức tạp.</p>
+                    <div class="text-center">
+                        <a href="mecung.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="MemoryCardGame1.jpg" alt="Game 9" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Memory Card Game</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Memory Card Game là trò chơi rèn luyện trí nhớ, nơi người chơi phải tìm ra các cặp thẻ giống nhau trong một bộ thẻ úp xuống.</p>
+                    <div class="text-center">
+                        <a href="cardgame.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
+                <div class="overflow-hidden">
+                    <img src="ttnthcp.jpg" alt="Game 10" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Thử Thách, Nói Thật Hay Chịu Phạt Ngẫu Nhiên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi vui nhộn, nơi người chơi phải lựa chọn giữa thực hiện thử thách, trả lời câu hỏi thật lòng, hoặc chấp nhận hình phạt ngẫu nhiên.</p>
+                    <div class="text-center">
+                        <a href="tthcp.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="game-card">
-            <img src="screenshot_1739700778.png" alt="Game 2">
-            <div class="game-card-content">
-                <h2>Quay Tên</h2>
-                <p>Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
-                <a href="quayten.html">Chơi Ngay</a>
+    </main>
+
+    <footer class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-facebook-f text-xl"></i>
+                </a>
+                <a href="#" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-instagram text-xl"></i>
+                </a>
+                <a b="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-tiktok text-xl"></i>
+                </a>
             </div>
-        </div>
-        <div class="game-card">
-            <img src="screenshot_1739700866.png" alt="Game 3">
-            <div class="game-card-content">
-                <h2>Đua Số Ngẫu Nhiên</h2>
-                <p>Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
-                <a href="dua.html">Chơi Ngay</a>
-            </div>
-        </div>
-        <div class="game-card">
-            <img src="thi-dau-co-caro.jpg" alt="Game 4">
-            <div class="game-card-content">
-                <h2>Cờ CaRo</h2>
-                <p>Trò chơi trí tuệ hấp dẫn, tư duy nhạy bén, tạo nên những trận đấu gay cấn và đầy kịch tính! </p>
-                <a href="caro.html">Chơi Ngay</a>
-            </div>
-        </div>
-        <div class="game-card">
-            <img src="solitaire-classic.jpg" alt="Game 5">
-            <div class="game-card-content">
-                <h2>Đánh Bài</h2>
-                <p>Game đánh bài là thể loại trò chơi sử dụng bộ bài (thường là bài Tây 52 lá)</p>
-                <a href="danhbai.html">Chơi Ngay</a>
-            </div>
-        </div>
-        <div class="game-card">
-            <img src="dovui.jpg" alt="Game 6">
-            <div class="game-card-content">
-                <h2>Đố Vui</h2>
-                <p>Game Đố Vui là trò chơi trí tuệ giúp bạn rèn luyện tư duy logic, khả năng suy luận và sự sáng tạo qua hàng loạt câu hỏi thú vị, từ mẹo chữ, câu đố hại não đến thử thách đánh lừa tư duy!</p>
-                <a href="dovui.html">Chơi Ngay</a>
-            </div>
-        </div>
-        <div class="game-card">
-            <img src="mecung.jpg" alt="Game 8">
-            <div class="game-card-content">
-                <h2>Mê Cung</h2>
-                <p>Game mê cung là thể loại trò chơi trong đó người chơi phải tìm đường thoát khỏi một mê cung phức tạp.</p>
-                <a href="mecung.html">Chơi Ngay</a>
-            </div>
-        </div>
-         <div class="game-card">
-            <img src=" MemoryCardGame1.jpg" alt="Game 9">
-            <div class="game-card-content">
-                <h2>Memory Card Game</h2>
-                <p>Memory Card Game là trò chơi rèn luyện trí nhớ, nơi người chơi phải tìm ra các cặp thẻ giống nhau trong một bộ thẻ úp xuống.</p>
-                <a href="cardgame.html">Chơi Ngay</a>
-            </div>
-        </div>
-        <div class="game-card">
-            <img src=" ttnthcp.jpg" alt="Game 10">
-            <div class="game-card-content">
-                <h2>Thử Thách, Nói Thật Hay Chịu Phạt Ngẫu Nhiên</h2>
-                <p>Thử Thách, Nói Thật Hay Chịu Phạt Ngẫu Nhiên là một trò chơi vui nhộn, nơi người chơi phải lựa chọn giữa việc thực hiện một thử thách, trả lời một câu hỏi thật lòng, hoặc chấp nhận một hình phạt được chọn ngẫu nhiên.</p>
-                <a href="tthcp.html">Chơi Ngay</a>
-            </div>
-        </div>
-    </div>
-    <footer>
-        <div class="footer-container">
-            <div class="social-icons">
-                <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-            </div>
-            &copy; 2025 NTS. Được thiết kế với bởi <a href="#">Nguyễn Thanh Sang</a>.
+            <p class="text-center text-sm">© 2025 NTS. Được thiết kế bởi <a href="#" class="text-indigo-200 hover:underline">Nguyễn Thanh Sang</a>.</p>
         </div>
     </footer>
 </body>
