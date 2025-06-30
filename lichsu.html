@@ -1,193 +1,212 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lịch Sử - NTS</title>
-  <link rel="icon" type="png" href="logos3.png">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      color: #333;
-    }
-    header {
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: white;
-      padding: 20px 30px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-      position: relative;
-    }
-    .back-button {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #4CAF50; /* Màu xanh lá cây */
-      color: white;
-      padding: 10px 15px;
-      text-decoration: none;
-      border-radius: 25px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .back-button:hover {
-      background: #45a049; /* Màu xanh lá cây đậm hơn khi hover */
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-      transform: translateY(-50%) scale(1.05);
-    }
-    .back-button::before {
-      content: "←";
-      font-size: 18px;
-      margin-right: 8px;
-    }
-    .important-dates {
-      max-width: 600px;
-      margin: 50px auto 30px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      text-align: left;
-    }
-    h3 {
-      color: #444;
-      font-size: 28px;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    h3::after {
-      content: '';
-      display: block;
-      width: 50px;
-      height: 3px;
-      background: #6a11cb;
-      margin: 10px 0;
-      border-radius: 5px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      display: flex;
-      justify-content: space-between;
-      padding: 15px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-    li:last-child {
-      border-bottom: none;
-    }
-    li:hover {
-      transform: translateX(10px);
-      background: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    span {
-      font-weight: bold;
-      color: #555;
-      font-size: 16px;
-    }
-    small {
-      color: #888;
-      font-size: 14px;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: white;
-      font-size: 14px;
-      margin-top: 30px;
-    }
-    footer a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-    footer a:hover {
-      text-decoration: underline;
-      color: #ffeb3b;
-    }
-    @media (max-width: 768px) {
-      header h1 { font-size: 40px; }
-      header p { font-size: 20px; }
-      .content h2 { font-size: 32px; }
-      .section h2 { font-size: 30px; }
-      .section a { font-size: 16px; padding: 12px 30px; }
-    }
-    @media (max-width: 480px) {
-      header h1 { font-size: 32px; }
-      header p { font-size: 16px; }
-      .content h2 { font-size: 28px; }
-      .section h2 { font-size: 24px; }
-      .section a { font-size: 14px; padding: 10px 25px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử - NTS</title>
+    <link rel="icon" type="image/png" href="logos3.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .back-button:active {
+            background: #45a049;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .back-button::before {
+            content: "←";
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        .important-dates {
+            max-width: 600px;
+            margin: 50px auto 30px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+        h3 {
+            color: #444;
+            font-size: 28px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        h3::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: #6a11cb;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        li:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        span {
+            font-weight: bold;
+            color: #555;
+            font-size: 16px;
+        }
+        small {
+            color: #888;
+            font-size: 14px;
+        }
+        footer {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+        footer a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        footer a:hover, footer a:active {
+            text-decoration: underline;
+            color: #ffeb3b;
+        }
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            .back-button { font-size: 14px; padding: 8px 12px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 1.25rem; }
+            .back-button { font-size: 14px; padding: 8px 12px; }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <a href="index.html" class="back-button"></a>
-    Lịch Sử Của NTS
-  </header>
-  <div class="important-dates">
-    <h3>Lịch Sử Của NTS</h3>
-    <ul>
-      <li>
-        <span>Ngày Thành Lập NTS</span>
-        <small>26/10/2024</small>
-      </li>
-      <li>
-        <span>Kỷ Niệm 2 Năm Thành Lập</span>
-        <small>26/10/2026</small>
-      </li>
-      <li>
-        <span>Ra Mắt Sản Phẩm Đầu Tiên</span>
-        <small>30/01/2025</small>
-      </li>
-      <li>
-        <span>Ra Mắt Tính Năng Mới</span>
-        <small>26/02/2025</small>
-      </li>
-      <li>
-        <span>Cập Nhật Game Mới</span>
-        <small>01/03/2025</small>
-      </li>
-      <li>
-        <span>Kiểm Tra Thiết Bị Của Bạn</span>
-        <small>12/03/2025</small>
-      </li>
-      <li>
-        <span>Bể Cá 3D</span>
-        <small>13/03/2025</small>
-      </li>
-      <li>
-        <span>Hộp Không Gian 3D</span>
-        <small>27/06/2025</small>
-      </li>
-      <li>
-        <span>Ngưng update</span>
-        <small>Đang cập nhật...</small>
-      </li>
-      <li>
-        <span>Kế Hoạch Tương Lai</span>
-        <small>Đang cập nhật...</small>
-      </li>
-    </ul>
-  </div>
-  <footer>
-    © 2025 NTS. Được thiết kế với bởi <a href="https://www.tiktok.com/@thanh.sang70">Nguyễn Thanh Sang</a>.
-  </footer>
+    <header class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-6 relative">
+        <a href="index.html" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> 
+        </a>
+        <h1 class="text-2xl md:text-2xl font-bold text-center tracking-tight">Lịch Sử</h1>
+    </header>
+    <div class="important-dates">
+        <h3>Lịch Sử Của NTS</h3>
+        <ul>
+            <li>
+                <span>Ngày Thành Lập NTS</span>
+                <small>26/10/2024</small>
+            </li>
+            <li>
+                <span>Kỷ Niệm 2 Năm Thành Lập</span>
+                <small>26/10/2026</small>
+            </li>
+            <li>
+                <span>Ra Mắt Sản Phẩm Đầu Tiên</span>
+                <small>30/01/2025</small>
+            </li>
+            <li>
+                <span>Ra Mắt Tính Năng Mới</span>
+                <small>26/02/2025</small>
+            </li>
+            <li>
+                <span>Cập Nhật Game Mới</span>
+                <small>01/03/2025</small>
+            </li>
+            <li>
+                <span>Kiểm Tra Thiết Bị Của Bạn</span>
+                <small>12/03/2025</small>
+            </li>
+            <li>
+                <span>Bể Cá 3D</span>
+                <small>13/03/2025</small>
+            </li>
+            <li>
+                <span>Hộp Không Gian 3D</span>
+                <small>27/06/2025</small>
+            </li>
+            <li>
+                <span>Ngưng update</span>
+                <small>Đang cập nhật...</small>
+            </li>
+            <li>
+                <span>Kế Hoạch Tương Lai</span>
+                <small>Đang cập nhật...</small>
+            </li>
+        </ul>
+    </div>
+    <footer>
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-facebook-f text-xl"></i>
+                </a>
+                <a href="#" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-instagram text-xl"></i>
+                </a>
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
+                    <i class="fab fa-tiktok text-xl"></i>
+                </a>
+            </div>
+            <p>© 2025 NTS. Được thiết kế bởi <a href="https://www.tiktok.com/@thanh.sang70" class="text-indigo-200 hover:underline">Nguyễn Thanh Sang</a>.</p>
+        </div>
+    </footer>
 </body>
 </html>
