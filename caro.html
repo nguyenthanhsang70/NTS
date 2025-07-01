@@ -52,15 +52,52 @@
         .back-container a i {
             margin-right: 5px;
         }
-        .timer {
+        .timer-container {
             flex: 1;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.2em;
             color: #2c3e50;
             font-weight: bold;
+            background: linear-gradient(135deg, #ffffff, #e8ecef);
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 150px;
+            height: 50px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .timer i {
+            margin-right: 8px;
+            font-size: 1.3em;
+            color: #007bff;
         }
         .timer.warning {
             color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #f8d7da);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+        .timer.warning i {
+            color: #dc3545;
+        }
+        .timer-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(0, 123, 255, 0.1);
+            transition: width 0.5s linear;
+        }
+        .timer-progress.warning {
+            background: rgba(220, 53, 69, 0.2);
         }
         .game-container {
             width: 80%;
@@ -280,11 +317,14 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            .timer {
-                text-align: center;
+            .timer-container {
                 width: 100%;
-                font-size: 1em;
                 margin-top: 10px;
+            }
+            .timer {
+                width: 120px;
+                height: 40px;
+                font-size: 1em;
             }
         }
     </style>
@@ -300,7 +340,13 @@
     <header>
         <h1>Caro Game</h1>
         <p id="game-mode">Chế độ chơi: Chưa chọn</p>
-        <div class="timer" id="timer">Thời gian còn lại: 20 giây</div>
+        <div class="timer-container">
+            <div class="timer" id="timer">
+                <div class="timer-progress" id="timer-progress"></div>
+                <i class="fas fa-clock"></i>
+                <span>Thời Gian:</span>
+            </div>
+        </div>
     </header>
     <div class="game-container">
         <div class="controls">
@@ -347,7 +393,6 @@
         <div class="message" id="message"></div>
     </div>
     <script>
-        // JavaScript remains unchanged
         const boardSize = 10;
         let boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
         let currentPlayer = 'X';
@@ -369,28 +414,29 @@
         const messageElement = document.getElementById('message');
         const gameModeElement = document.getElementById('game-mode');
         const playerOptionsElement = document.getElementById('playerOptions');
-        const difficultyOptionsElement = document.getElementById('difficultyOptions');
         const player1PieceSelect = document.getElementById('player1Piece');
         const player2PieceSelect = document.getElementById('player2Piece');
         const timerElement = document.getElementById('timer');
+        const timerProgressElement = document.getElementById('timer-progress');
+        const difficultyOptionsElement = document.getElementById('difficultyOptions');
 
         function setTimerSpeed() {
             switch (difficultyLevel) {
                 case 'easy':
-                    timerIntervalSpeed = 2000;
-                    baseTimeLeft = 10;
+                    timerIntervalSpeed = 1000;
+                    baseTimeLeft = 18;
                     break;
                 case 'medium':
                     timerIntervalSpeed = 1000;
-                    baseTimeLeft = 20;
+                    baseTimeLeft = 14;
                     break;
                 case 'hard':
-                    timerIntervalSpeed = 50;
-                    baseTimeLeft = 400;
+                    timerIntervalSpeed = 1000;
+                    baseTimeLeft = 10;
                     break;
                 default:
                     timerIntervalSpeed = 1000;
-                    baseTimeLeft = 20;
+                    baseTimeLeft = 14;
             }
             console.log(`Set timer speed: difficulty=${difficultyLevel}, interval=${timerIntervalSpeed}ms, ticks=${baseTimeLeft}, total=${baseTimeLeft * timerIntervalSpeed / 1000}s`);
         }
@@ -439,9 +485,12 @@
         function updateTimerDisplay() {
             const secondsLeft = currentMode === 'computer' ? Math.ceil(timeLeft * (timerIntervalSpeed / 1000)) : timeLeft;
             console.log(`Updating timer display: ${secondsLeft}s, timeLeft=${timeLeft}, difficulty=${difficultyLevel}`);
-            timerElement.textContent = `Thời gian còn lại: ${secondsLeft} giây`;
+            timerElement.querySelector('span').textContent = `: ${secondsLeft} giây`;
             const warningThreshold = currentMode === 'computer' ? Math.ceil(4 / (timerIntervalSpeed / 1000)) : 5;
             timerElement.classList.toggle('warning', timeLeft <= warningThreshold);
+            timerProgressElement.classList.toggle('warning', timeLeft <= warningThreshold);
+            const progressWidth = (timeLeft / baseTimeLeft) * 100;
+            timerProgressElement.style.width = `${progressWidth}%`;
         }
 
         function handleTimeout() {
@@ -452,8 +501,11 @@
                 showMessage('Hết thời gian! Máy thắng!');
                 saveGameResult(computerPlayer);
             } else if (currentMode === 'player') {
-                showMessage(`Hết thời gian! ${currentPlayer === humanPlayer ? 'Player 1' : 'Player 2'} mất lượt!`);
+                const lostTurnPlayer = currentPlayer === humanPlayer ? 'Player 1' : 'Player 2';
                 currentPlayer = currentPlayer === humanPlayer ? player2Piece : humanPlayer;
+                const nextPlayer = currentPlayer === humanPlayer ? 'Player 1' : 'Player 2';
+                showMessage(`Hết thời gian! ${lostTurnPlayer} mất lượt! Lượt tiếp theo: ${nextPlayer} được đánh`);
+                isGameActive = true;
                 startTimer();
             }
         }
