@@ -22,9 +22,28 @@
             margin-bottom: 20px;
         }
         header h1 {
-            color: #333;
+            color: transparent;
             font-size: 2.5em;
             margin: 0;
+            background: linear-gradient(45deg, #007bff, #28a745, #dc3545);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradientShift 5s ease infinite, fadeIn 1s ease-out;
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+        }
+        header h1:hover {
+            transform: scale(1.05);
+            text-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         header p {
             color: #666;
@@ -344,7 +363,7 @@
             <div class="timer" id="timer">
                 <div class="timer-progress" id="timer-progress"></div>
                 <i class="fas fa-clock"></i>
-                <span>Thời Gian:</span>
+                <span>: 20 giây</span>
             </div>
         </div>
     </header>
@@ -392,6 +411,10 @@
         <div class="board" id="board"></div>
         <div class="message" id="message"></div>
     </div>
+    <!-- Audio elements for game events -->
+    <audio id="winSound" src="win.mp3"></audio>
+    <audio id="loseSound" src="lose.mp3"></audio>
+    <audio id="drawSound" src="hòa.mp3"></audio>
     <script>
         const boardSize = 10;
         let boardState = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
@@ -419,6 +442,9 @@
         const timerElement = document.getElementById('timer');
         const timerProgressElement = document.getElementById('timer-progress');
         const difficultyOptionsElement = document.getElementById('difficultyOptions');
+        const winSound = document.getElementById('winSound');
+        const loseSound = document.getElementById('loseSound');
+        const drawSound = document.getElementById('drawSound');
 
         function setTimerSpeed() {
             switch (difficultyLevel) {
@@ -499,6 +525,7 @@
             console.log(`Timeout triggered after: ${duration} seconds`);
             if (currentMode === 'computer') {
                 showMessage('Hết thời gian! Máy thắng!');
+                loseSound.play().catch(error => console.error('Error playing lose sound:', error));
                 saveGameResult(computerPlayer);
             } else if (currentMode === 'player') {
                 const lostTurnPlayer = currentPlayer === humanPlayer ? 'Player 1' : 'Player 2';
@@ -616,12 +643,19 @@
             stopTimer('handleCellClick');
 
             if (checkWin(currentMode === 'computer' ? humanPlayer : currentPlayer)) {
-                showMessage(currentMode === 'computer' ? 'Người chơi thắng!' : (currentPlayer === humanPlayer ? 'Player 1 thắng!' : 'Player 2 thắng!'));
+                if (currentMode === 'computer') {
+                    showMessage('Người chơi thắng!');
+                    winSound.play().catch(error => console.error('Error playing win sound:', error));
+                } else {
+                    showMessage(currentPlayer === humanPlayer ? 'Player 1 thắng!' : 'Player 2 thắng!');
+                    winSound.play().catch(error => console.error('Error playing win sound:', error));
+                }
                 return;
             }
 
             if (!boardState.flat().includes(null)) {
                 showMessage('Hòa!');
+                drawSound.play().catch(error => console.error('Error playing draw sound:', error));
                 return;
             }
 
@@ -686,6 +720,13 @@
             if (isGameActive && (msg.includes('thắng') || msg === 'Hòa!' || msg.includes('Hết thời gian'))) {
                 stopTimer('showMessage');
                 isGameActive = false;
+                if (msg.includes('Máy thắng')) {
+                    loseSound.play().catch(error => console.error('Error playing lose sound:', error));
+                } else if (msg.includes('Người chơi thắng') || msg.includes('Player 1 thắng') || msg.includes('Player 2 thắng')) {
+                    winSound.play().catch(error => console.error('Error playing win sound:', error));
+                } else if (msg === 'Hòa!') {
+                    drawSound.play().catch(error => console.error('Error playing draw sound:', error));
+                }
                 saveGameResult(msg.includes(humanPlayer) ? humanPlayer : msg.includes(player2Piece) ? player2Piece : msg.includes('Máy') ? computerPlayer : 'tie');
             }
         }
@@ -703,10 +744,12 @@
                 } else {
                     if (checkWin(computerPlayer)) {
                         showMessage('Máy thắng!');
+                        loseSound.play().catch(error => console.error('Error playing lose sound:', error));
                         return;
                     }
                     if (!boardState.flat().includes(null)) {
                         showMessage('Hòa!');
+                        drawSound.play().catch(error => console.error('Error playing draw sound:', error));
                         return;
                     }
                 }
@@ -736,10 +779,12 @@
                     console.log(`Computer placed ${computerPlayer} at row=${move.row}, col=${move.col}`);
                     if (checkWin(computerPlayer)) {
                         showMessage('Máy thắng!');
+                        loseSound.play().catch(error => console.error('Error playing lose sound:', error));
                         return;
                     }
                     if (!boardState.flat().includes(null)) {
                         showMessage('Hòa!');
+                        drawSound.play().catch(error => console.error('Error playing draw sound:', error));
                         return;
                     }
                     currentPlayer = humanPlayer;
@@ -747,6 +792,7 @@
                 } else {
                     console.log('No valid move found or move invalid:', move);
                     showMessage('Hòa! Không còn nước đi hợp lệ.');
+                    drawSound.play().catch(error => console.error('Error playing draw sound:', error));
                 }
             };
 
@@ -1445,7 +1491,7 @@
             if (depth === 0 || !boardState.flat().includes(null)) return evaluateBoard();
 
             const moves = getPotentialMoves();
-            moves.sort((a, b) => evaluateBoardMove(b.row, b.col, XO) - evaluateBoardMove(a.row, a.col, XO));
+            moves.sort((a, b) => evaluateBoardMove(b.row, b.col, XO) - evaluateBoardMove(a.row, b.col, XO));
             let bestMove = null;
 
             if (XO === computerPlayer) {
