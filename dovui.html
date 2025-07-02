@@ -13,28 +13,29 @@
     }
 
     body {
-        font-family: 'Poppins', sans-serif; /* Phông chữ hiện đại */
+        font-family: 'Poppins', sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        background-color: #f5f7fa; /* Màu nền nhạt, thanh lịch */
-        overflow: hidden;
+        min-height: 100vh;
+        background-color: #f5f7fa;
+        padding: 20px;
     }
 
     .container {
         background: #ffffff;
         padding: 30px;
         border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Bóng đổ tinh tế hơn */
-        width: 400px; /* Tăng kích thước để chuyên nghiệp hơn */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
         text-align: center;
         position: relative;
         transition: transform 0.3s ease;
     }
 
     .container:hover {
-        transform: translateY(-5px); /* Hiệu ứng nâng nhẹ khi hover */
+        transform: translateY(-5px);
     }
 
     .header-container {
@@ -63,22 +64,42 @@
     }
 
     h1 {
-        color: #2c3e50;
+        color: transparent;
         font-size: 28px;
         margin-bottom: 25px;
         font-weight: 600;
+        background: linear-gradient(45deg, #007bff, #28a745); /* Gradient from blue to green */
+        -webkit-background-clip: text;
+        background-clip: text;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        transition: transform 0.3s ease, background 0.5s ease;
+    }
+
+    h1:hover {
+        transform: scale(1.05); /* Slight scale effect on hover */
+        background: linear-gradient(45deg, #28a745, #007bff); /* Reverse gradient on hover */
+        -webkit-background-clip: text;
+        background-clip: text;
     }
 
     #question {
         color: #34495e;
         font-size: 20px;
         margin-bottom: 20px;
-        line-height: 1.5;
+        line-height: 1.6;
+        text-align: left;
+    }
+
+    .options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
     }
 
     label {
-        display: block;
-        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
         font-size: 16px;
         color: #4a5568;
         padding: 12px 15px;
@@ -86,6 +107,8 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s ease, transform 0.2s ease;
+        text-align: left;
+        word-wrap: break-word;
     }
 
     label:hover {
@@ -96,6 +119,7 @@
     input[type="radio"] {
         margin-right: 10px;
         cursor: pointer;
+        flex-shrink: 0;
     }
 
     button {
@@ -111,19 +135,19 @@
     }
 
     button#check {
-        background-color: #28a745; /* Màu xanh lá đậm hơn */
+        background-color: #00FF99;
     }
 
     button#next {
-        background-color: #007bff; /* Màu xanh dương đậm hơn */
+        background-color: #0099CC;
     }
 
     button#previous {
-        background-color: #6c757d; /* Màu xám cho nút xem lại */
+        background-color: #33CCCC;
     }
 
     button#restart {
-        background-color: #e67e22; /* Màu cam cho nút chơi lại */
+        background-color: #FFCCCC;
     }
 
     button:hover {
@@ -141,20 +165,21 @@
         font-size: 18px;
         color: #e74c3c;
         font-weight: 500;
+        text-align: left;
+        line-height: 1.5;
     }
 
     .message strong {
-        color: #2ecc71; /* Màu xanh lá cho thông báo đúng */
+        color: #2ecc71;
     }
 
     @media (max-width: 600px) {
         .container {
-            width: 90%;
             padding: 20px;
         }
 
         h1 {
-            font-size: 22px;
+            font-size: 24px;
         }
 
         #question, .message {
@@ -187,11 +212,12 @@
     </div>
     <h1>Đố Vui</h1>
     <p id="question">Câu hỏi: </p>
-    <label><input type="radio" name="answer" value="a"> <span id="optionA"></span></label>
-    <label><input type="radio" name="answer" value="b"> <span id="optionB"></span></label>
-    <label><input type="radio" name="answer" value="c"> <span id="optionC"></span></label>
-    <label><input type="radio" name="answer" value="d"> <span id="optionD"></span></label>
-    <br>
+    <div class="options-container">
+        <label><input type="radio" name="answer" value="a"> <span id="optionA"></span></label>
+        <label><input type="radio" name="answer" value="b"> <span id="optionB"></span></label>
+        <label><input type="radio" name="answer" value="c"> <span id="optionC"></span></label>
+        <label><input type="radio" name="answer" value="d"> <span id="optionD"></span></label>
+    </div>
     <button id="previous" onclick="previousQuestion()" disabled>Xem lại câu trước</button>
     <button id="check" onclick="checkAnswer()">Kiểm tra</button>
     <button id="next" onclick="nextQuestion()" disabled>Tiếp theo</button>
@@ -618,10 +644,10 @@ function loadQuestion() {
     }
 
     // Đảm bảo các thành phần giao diện hiển thị đúng khi tải câu hỏi
-    document.getElementById('optionA').parentElement.style.display = "block";
-    document.getElementById('optionB').parentElement.style.display = "block";
-    document.getElementById('optionC').parentElement.style.display = "block";
-    document.getElementById('optionD').parentElement.style.display = "block";
+    document.getElementById('optionA').parentElement.style.display = "flex";
+    document.getElementById('optionB').parentElement.style.display = "flex";
+    document.getElementById('optionC').parentElement.style.display = "flex";
+    document.getElementById('optionD').parentElement.style.display = "flex";
     document.getElementById('check').style.display = "block";
     document.getElementById('next').style.display = "block";
     document.getElementById('previous').style.display = "block";
