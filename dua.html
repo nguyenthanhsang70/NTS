@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuộc Đua Số - Nhiều Người Chơi</title>
-     <link rel="icon" type="png" href="logos3.png">
+    <link rel="icon" type="image/png" href="logos3.png">
+    <!-- Add Font Awesome CDN for social media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Add Google Fonts for Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +18,20 @@
             padding: 20px;
         }
         h1 {
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            padding: 10px;
+            display: inline-block;
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+        }
+        h1:hover {
+            transform: scale(1.05);
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
         }
         .race-track {
             position: relative;
@@ -146,8 +163,8 @@
             margin: 0;
             line-height: 1.5;
         }
-          /* Media Queries for Mobile Devices */
-          @media (max-width: 600px) {
+        /* Media Queries for Mobile Devices */
+        @media (max-width: 600px) {
             .name-input-container input {
                 width: 100%;
             }
@@ -156,6 +173,10 @@
             }
             .dice {
                 font-size: 80px;
+            }
+            h1 {
+                font-size: 1.8em;
+                padding: 8px;
             }
         }
     </style>
@@ -230,7 +251,13 @@
 
                 // Xử lý sự kiện khi người dùng chọn số
                 numberButton.addEventListener('click', () => {
-                    if (currentPlayerIndex < 20) { // Giới hạn tối đa 20 người chơi
+                    if (currentPlayerIndex < 20) {
+                        // Kiểm tra xem đã có người chơi tại currentPlayerIndex chưa
+                        if (!players[currentPlayerIndex]) {
+                            alert('Vui lòng thêm người chơi trước khi chọn số!');
+                            return;
+                        }
+
                         const playerName = players[currentPlayerIndex].name;
                         const selectedNumber = i;
 
@@ -302,18 +329,27 @@
             const raceWidth = raceTrack.offsetWidth - 20; // Chiều rộng đường đua trừ đi vạch đích
             let raceFinished = false; // Biến để kiểm tra xem cuộc đua đã kết thúc chưa
 
+            // Tìm người chơi được ưu tiên (nếu có)
+            const favoredPlayer = players.find((p) => 
+                ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(p.name.toLowerCase())
+            );
+
             numbers.forEach((number) => {
                 const numberValue = parseInt(number.getAttribute('data-number'));
                 const player = players.find((p) => p.number === numberValue);
 
-                let currentSpeed = Math.random() * 2 + 1; // Tốc độ ban đầu từ 1 đến 3
-
-                // Nếu là người chơi có tên "Sang", tăng tốc độ (tỉ lệ thắng 80%)
-                if (player && player.name.toLowerCase() === 'sang') {
-                    currentSpeed = Math.random() * 5 + 3; // Tốc độ từ 5 đến 7
-                }
-
+                let currentSpeed = Math.random() * 2 + 1; // Tốc độ ban đầu giống nhau cho tất cả (1 đến 3)
                 let distance = 0;
+
+                // Nếu có người chơi được ưu tiên và số này thuộc về họ, tăng tốc sau 2 giây
+                if (favoredPlayer && player && 
+                    ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase())) {
+                    setTimeout(() => {
+                        if (!raceFinished) {
+                            currentSpeed = 20; // Tăng tốc để đảm bảo thắng
+                        }
+                    }, 2000); // Tăng tốc sau 2 giây
+                }
 
                 const interval = setInterval(() => {
                     if (raceFinished) {
@@ -324,9 +360,11 @@
                     distance += currentSpeed; // Tăng khoảng cách di chuyển
                     number.style.left = `${distance}px`;
 
-                    // Tăng tốc ngẫu nhiên sau một khoảng thời gian
-                    if (Math.random() < 0.05) { // 5% cơ hội tăng tốc
-                        currentSpeed += Math.random() * 2; // Tăng tốc thêm từ 0 đến 2
+                    // Tăng tốc ngẫu nhiên cho các số không được ưu tiên
+                    if (!favoredPlayer || (player && !['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase()))) {
+                        if (Math.random() < 0.05) { // 5% cơ hội tăng tốc
+                            currentSpeed += Math.random() * 2; // Tăng tốc thêm từ 0 đến 2
+                        }
                     }
 
                     // Dừng khi chạm vạch đích
@@ -378,8 +416,8 @@
     <footer>
         <div class="footer-container">
             <div class="social-icons">
-                <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.facebook.com/your-profile" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/your-profile" target="_blank"><i class="fab fa-instagram"></i></a>
                 <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
             </div>
             <p>© 2025 NTS. Được thiết kế bởi <a href="#">Nguyễn Thanh Sang</a>.</p>
