@@ -67,7 +67,7 @@
         .back-button i {
             margin-right: 10px;
         }
-        .back-button:hover {
+        .back-button:hover Trident{
             background: #c0392b;
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
@@ -105,13 +105,21 @@
             align-items: center;
             font-size: 20px;
             font-weight: bold;
-            color: #333;
+            color: #333; /* Default color */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .card[data-suit="♥"],
+        .card[data-suit="♦"] {
+            color: red;
+        }
+        .card[data-suit="♠"],
+        .card[data-suit="♣"] {
+            color: black;
         }
         .result {
             font-size: 1.2em;
@@ -457,6 +465,7 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card';
                 cardElement.textContent = `${card.value}${card.suit}`;
+                cardElement.setAttribute('data-suit', card.suit); // Add data-suit attribute
                 container.appendChild(cardElement);
             });
         }
@@ -471,14 +480,59 @@
 
         function getRandomBaCaoCards() {
             const suits = ['♠', '♣', '♥', '♦'];
-            const randomSuit = suits[Math.floor(Math.random() * suits.length)];
             const options = [
-                [{ value: 'J', suit: randomSuit }, { value: 'Q', suit: randomSuit }, { value: 'K', suit: randomSuit }],
-                [{ value: 'J', suit: randomSuit }, { value: 'J', suit: randomSuit }, { value: 'J', suit: randomSuit }],
-                [{ value: 'Q', suit: randomSuit }, { value: 'Q', suit: randomSuit }, { value: 'Q', suit: randomSuit }],
-                [{ value: 'K', suit: randomSuit }, { value: 'K', suit: randomSuit }, { value: 'K', suit: randomSuit }]
+                // Three Jacks
+                [
+                    { value: 'J', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'J', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'J', suit: suits[Math.floor(Math.random() * suits.length)] }
+                ],
+                // Three Queens
+                [
+                    { value: 'Q', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'Q', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'Q', suit: suits[Math.floor(Math.random() * suits.length)] }
+                ],
+                // Three Kings
+                [
+                    { value: 'K', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'K', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'K', suit: suits[Math.floor(Math.random() * suits.length)] }
+                ],
+                // One Jack, one Queen, one King
+                [
+                    { value: 'J', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'Q', suit: suits[Math.floor(Math.random() * suits.length)] },
+                    { value: 'K', suit: suits[Math.floor(Math.random() * suits.length)] }
+                ]
             ];
-            return options[Math.floor(Math.random() * options.length)];
+            const selectedOption = options[Math.floor(Math.random() * options.length)];
+            // Ensure unique cards by checking deck availability
+            const uniqueCards = [];
+            for (const card of selectedOption) {
+                let cardSuit = card.suit;
+                let attempts = 0;
+                const maxAttempts = 10; // Prevent infinite loops
+                // Keep trying to find a unique card
+                while (uniqueCards.some(c => c.value === card.value && c.suit === cardSuit) || 
+                       !deck.some(c => c.value === card.value && c.suit === cardSuit)) {
+                    cardSuit = suits[Math.floor(Math.random() * suits.length)];
+                    attempts++;
+                    if (attempts > maxAttempts) {
+                        // Fallback to a random card from deck if no unique suit is found
+                        const availableCards = deck.filter(c => c.value === card.value);
+                        if (availableCards.length > 0) {
+                            cardSuit = availableCards[0].suit;
+                        } else {
+                            // If no cards of this value are available, use a default suit
+                            cardSuit = suits[0];
+                        }
+                        break;
+                    }
+                }
+                uniqueCards.push({ value: card.value, suit: cardSuit });
+            }
+            return uniqueCards;
         }
 
         function startGameWithLoading(event) {
@@ -530,9 +584,9 @@
                         );
                         if (cardIndex !== -1) deck.splice(cardIndex, 1);
                     });
-                    if (index === 0) player1Cards = baCaoCards;
-                    else if (index === 1) player2Cards = baCaoCards;
-                    else if (index === 2) player3Cards = baCaoCards;
+                    if (index === 0) player1Cards.splice(0, 3, ...baCaoCards);
+                    else if (index === 1) player2Cards.splice(0, 3, ...baCaoCards);
+                    else if (index === 2) player3Cards.splice(0, 3, ...baCaoCards);
                 }
             });
 
