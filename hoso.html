@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kiểm tra thiết bị - NTS</title>
-  <link rel="icon" type="png" href="logos3.png">
+<link rel="icon" type="image/png" href="logos3.png">
 <style>
   body {
     font-family: 'Courier New', Courier, monospace;
@@ -15,54 +15,90 @@
     overflow: hidden;
     margin: 0;
     cursor: none;
+    position: relative;
+    background: linear-gradient(0deg, rgba(0, 15, 0, 0.9), rgba(0, 30, 0, 0.95));
   }
   .warning {
-    font-size: 28px;
+    font-size: 32px;
     color: #f00;
-    animation: flicker 0.1s infinite alternate;
+    animation: flicker 0.15s infinite alternate, glitch-text 0.5s infinite;
     text-transform: uppercase;
+    text-shadow: 0 0 10px #f00, 0 0 20px #0f0;
+    letter-spacing: 2px;
   }
   @keyframes flicker {
     from { opacity: 1; }
-    to { opacity: 0.3; }
+    to { opacity: 0.4; }
+  }
+  @keyframes glitch-text {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-1px, 1px); }
+    100% { transform: translate(0, 0); }
   }
   .button {
-    margin-top: 10px;
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: #f00;
-    border: 1px solid #fff;
-    color: #fff;
+    margin: 15px 5px;
+    padding: 8px 15px;
+    font-size: 18px;
+    background-color: transparent;
+    border: 2px solid #0f0;
+    color: #0f0;
     cursor: pointer;
     text-transform: uppercase;
     text-decoration: none;
     display: inline-block;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
+    text-shadow: 0 0 5px #0f0;
+    position: relative;
+    overflow: hidden;
   }
   .button:hover {
-    background-color: #800;
+    background-color: rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 15px #0f0;
+    transform: scale(1.05);
+  }
+  .button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.3), transparent);
+    transition: 0.5s;
+  }
+  .button:hover::after {
+    left: 100%;
   }
   .code {
-    margin-top: 10px;
+    margin-top: 15px;
     color: #0f0;
     white-space: pre-wrap;
-    max-height: 80vh;
+    max-height: 70vh;
     overflow-y: auto;
-    line-height: 1.2;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border: 1px solid #0f0;
+    border-radius: 5px;
+    animation: code-scroll 0.2s infinite;
+    text-shadow: 0 0 5px #0f0;
   }
-  .code .error { color: #f00; }
-  .code .warning { color: #ff0; }
-  .code .info { color: #0f0; }
+  .code .error { color: #f00; text-shadow: 0 0 8px #f00; }
+  .code .warning { color: #ff0; text-shadow: 0 0 8px #ff0; }
+  .code .info { color: #0f0; text-shadow: 0 0 8px #0f0; }
   .scary-message {
-    font-size: 20px;
+    font-size: 24px;
     color: #ff0;
-    animation: shake 0.05s infinite;
+    animation: shake 0.05s infinite, glitch-text 0.3s infinite;
     text-transform: uppercase;
+    text-shadow: 0 0 10px #ff0;
   }
   @keyframes shake {
-    0% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-    100% { transform: translateX(-3px); }
+    0% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    100% { transform: translateX(-4px); }
   }
   .hacked-screen {
     position: fixed;
@@ -77,14 +113,17 @@
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    animation: glitch 0.3s infinite;
+    animation: glitch 0.4s infinite;
+    text-shadow: 0 0 15px #f00;
+    font-size: 20px;
   }
   @keyframes glitch {
     0% { transform: skewX(0deg); }
-    20% { transform: skewX(10deg) scale(1.01); }
-    40% { transform: skewX(-10deg) scale(0.99); }
-    60% { transform: skewX(5deg); }
-    100% { transform: skewX(-5deg); }
+    15% { transform: skewX(15deg) scale(1.02); }
+    30% { transform: skewX(-15deg) scale(0.98); }
+    45% { transform: skewX(10deg); }
+    60% { transform: skewX(-10deg); }
+    100% { transform: skewX(0deg); }
   }
   .noise {
     position: fixed;
@@ -93,27 +132,131 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(255,0,0,0.05) 1px);
-    opacity: 0.2;
-    animation: scanline 2s infinite linear;
+    background: repeating-linear-gradient(45deg, rgba(0,0,0,0.2), rgba(255,0,0,0.1) 2px);
+    opacity: 0.3;
+    animation: scanline 1.5s infinite linear;
   }
   @keyframes scanline {
     0% { transform: translateY(-100%); }
     100% { transform: translateY(100%); }
   }
+  .matrix-rain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.6;
+  }
+  .code-line {
+    opacity: 0;
+    animation: type 0.5s forwards;
+  }
+  @keyframes type {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
 
-<div class="warning">*** CRITICAL SYSTEM ALERT ***</div>
+<div class="warning">*** CRITICAL SYSTEM BREACH DETECTED ***</div>
 <p id="systemAlert">[System] Unauthorized access detected at 192.168.1.1 - <span id="realTime">03/14/2025 14:32:07</span></p>
-<div class="scary-message">!!! TERMINATE ALL PROCESSES NOW !!!</div>
+<div class="scary-message">!!! TERMINATE ALL PROCESSES IMMEDIATELY !!!</div>
 <button class="button" id="shutdownButton">[SYS_SHUTDOWN]</button>
-<a href="index.html" class="button" id="backButton">[BACK TO SAFETY]</a>
+<a href="index.html" class="button" id="backButton">[ESCAPE TO SAFETY]</a>
 <div class="code" id="codeOutput"></div>
 <div class="noise"></div>
+<canvas id="matrixCanvas" class="matrix-rain"></canvas>
+<audio id="alertSound" loop>
+  <source src="win.mp3" type="audio/mpeg">
+</audio>
+<audio id="dangerSound" preload="auto">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg">
+</audio>
 
 <script>
+  // Initialize audio elements
+  const alertSound = document.getElementById('alertSound');
+  const dangerSound = document.getElementById('dangerSound');
+  
+  // Play background alert sound
+  alertSound.volume = 0.3;
+  alertSound.play().catch(e => console.log("Audio autoplay blocked:", e));
+
+  // Web Audio API for scary shutdown sound
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playScarySound() {
+    // Play the danger sound first
+    dangerSound.volume = 0.7;
+    dangerSound.play().catch(e => console.log("Danger sound play blocked:", e));
+    
+    // Then create a low-frequency, eerie sound with distortion
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    const distortion = audioCtx.createWaveShaper();
+
+    // Create distortion curve for gritty effect
+    function makeDistortionCurve(amount = 50) {
+      const samples = 44100;
+      const curve = new Float32Array(samples);
+      const deg = Math.PI / 180;
+      for (let i = 0; i < samples; i++) {
+        const x = (i * 2) / samples - 1;
+        curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+      }
+      return curve;
+    }
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 2);
+    gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
+    distortion.curve = makeDistortionCurve(50);
+
+    oscillator.connect(distortion);
+    distortion.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 2.5);
+  }
+
+  // Matrix rain effect
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  const chars = '01';
+  const fontSize = 14;
+  const columns = canvas.width / fontSize;
+  const drops = Array(Math.floor(columns)).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f0';
+    ctx.font = fontSize + 'px Courier New';
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars.charAt(Math.floor(Math.random() * chars.length));
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+  setInterval(drawMatrix, 50);
+
   // Danh sách thiết bị giả lập
   const devices = {
     cpu: { name: "CPU: Intel i7-9700K @ 3.60GHz", status: "OK", usage: 10, temp: 45 },
@@ -166,18 +309,25 @@
   }
 
   // Hàm cập nhật thời gian thực cho systemAlert
+  let realTimeInterval = null;
   function updateRealTime() {
-    const now = new Date();
-    const dateString = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
-    const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    document.getElementById('realTime').innerText = `${dateString} ${timeString}`;
+    const realTimeElement = document.getElementById('realTime');
+    if (realTimeElement) {
+      const now = new Date();
+      const dateString = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+      const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      realTimeElement.innerText = `${dateString} ${timeString}`;
+    }
   }
 
   // Cập nhật thời gian ban đầu và sau đó mỗi giây
   updateRealTime();
-  setInterval(updateRealTime, 1000);
+  realTimeInterval = setInterval(updateRealTime, 1000);
 
-  document.getElementById('shutdownButton').addEventListener('click', function () {
+  document.getElementById('shutdownButton').addEventListener('click', function() {
+    // Play scary sound immediately when button is clicked
+    playScarySound();
+    
     const button = this;
     button.classList.add('loading');
     button.disabled = true;
@@ -188,7 +338,7 @@
     }, 1500);
   });
 
-  document.getElementById('backButton').addEventListener('click', function (e) {
+  document.getElementById('backButton').addEventListener('click', function(e) {
     // Không ngăn chặn hành động nhấp vào nút khi đã crash
   });
 
@@ -221,7 +371,7 @@
 
           if (currentIndex < deviceAttacks[device].length) {
             const message = `${getCurrentTimestamp()} ${deviceAttacks[device][currentIndex]}`;
-            codeOutput.innerHTML += `<span class="${getMessageType(message)}">${message}</span>\n`;
+            codeOutput.innerHTML += `<div class="code-line ${getMessageType(message)}">${message}</div>`;
 
             // Cập nhật trạng thái thiết bị
             if (device === "cpu") {
@@ -229,11 +379,11 @@
                 cpuUsage = 85;
                 cpuTemp += 10;
                 devices.cpu.status = "UNSTABLE";
-                codeOutput.innerHTML += `<span class="warning">${getCurrentTimestamp()} [WARNING] ${devices.cpu.name} - Usage: ${cpuUsage}%, Temp: ${cpuTemp}°C - Core 0-3 overloaded</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line warning">${getCurrentTimestamp()} [WARNING] ${devices.cpu.name} - Usage: ${cpuUsage}%, Temp: ${cpuTemp}°C - Core 0-3 overloaded</div>`;
               }
               if (message.includes("Thermal sensor alert")) {
                 cpuTemp = 92;
-                codeOutput.innerHTML += `<span class="error">${getCurrentTimestamp()} [ERROR] ${devices.cpu.name} - Temp: ${cpuTemp}°C - Hardware damage imminent</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line error">${getCurrentTimestamp()} [ERROR] ${devices.cpu.name} - Temp: ${cpuTemp}°C - Hardware damage imminent</div>`;
               }
               if (message.includes("Rogue process detected")) {
                 devices.cpu.status = "INFECTED";
@@ -242,7 +392,7 @@
             if (device === "ram") {
               if (message.includes("Memory allocation failure")) {
                 devices.ram.usage = 92;
-                codeOutput.innerHTML += `<span class="warning">${getCurrentTimestamp()} [WARNING] ${devices.ram.name} - Usage: ${devices.ram.usage}% (${(devices.ram.usage * devices.ram.capacity / 100).toFixed(1)}GB/${devices.ram.capacity}GB) - Swap file saturated</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line warning">${getCurrentTimestamp()} [WARNING] ${devices.ram.name} - Usage: ${devices.ram.usage}% (${(devices.ram.usage * devices.ram.capacity / 100).toFixed(1)}GB/${devices.ram.capacity}GB) - Swap file saturated</div>`;
               }
               if (message.includes("RAM compromised")) {
                 devices.ram.status = "INFECTED";
@@ -253,7 +403,7 @@
                 gpuUsage = 78;
                 devices.gpu.temp += 15;
                 devices.gpu.status = "UNSTABLE";
-                codeOutput.innerHTML += `<span class="warning">${getCurrentTimestamp()} [WARNING] ${devices.gpu.name} - Usage: ${gpuUsage}%, Temp: ${devices.gpu.temp}°C - Fan speed: 95%</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line warning">${getCurrentTimestamp()} [WARNING] ${devices.gpu.name} - Usage: ${gpuUsage}%, Temp: ${devices.gpu.temp}°C - Fan speed: 95%</div>`;
               }
               if (message.includes("GPU hijacked")) {
                 devices.gpu.status = "INFECTED";
@@ -263,19 +413,19 @@
               if (message.includes("Encryption active")) {
                 freeSpace -= 150;
                 devices.storage.status = "UNSTABLE";
-                codeOutput.innerHTML += `<span class="warning">${getCurrentTimestamp()} [WARNING] ${devices.storage.name} - Encryption: ${encryptionProgress + 25}% - Free space: ${freeSpace}GB</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line warning">${getCurrentTimestamp()} [WARNING] ${devices.storage.name} - Encryption: ${encryptionProgress + 25}% - Free space: ${freeSpace}GB</div>`;
               }
               if (message.includes("MBR overwritten")) {
                 freeSpace = 0;
                 devices.storage.status = "INFECTED";
-                codeOutput.innerHTML += `<span class="error">${getCurrentTimestamp()} [CRITICAL] ${devices.storage.name} - Disk locked, Free space: ${freeSpace}GB</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line error">${getCurrentTimestamp()} [CRITICAL] ${devices.storage.name} - Disk locked, Free space: ${freeSpace}GB</div>`;
               }
             }
             if (device === "network") {
               if (message.includes("Anomalous outbound traffic")) {
                 networkTraffic = "148 MB/s";
                 devices.network.status = "UNSTABLE";
-                codeOutput.innerHTML += `<span class="error">${getCurrentTimestamp()} [ERROR] ${devices.network.name} - Traffic: ${networkTraffic} - DNS spoofing detected</span>\n`;
+                codeOutput.innerHTML += `<div class="code-line error">${getCurrentTimestamp()} [ERROR] ${devices.network.name} - Traffic: ${networkTraffic} - DNS spoofing detected</div>`;
               }
               if (message.includes("NIC disabled")) {
                 devices.network.status = "INFECTED";
@@ -287,7 +437,7 @@
 
             // Thêm hiệu ứng lag hệ thống
             if (Math.random() > 0.8) {
-              codeOutput.innerHTML += `<span class="error">${getCurrentTimestamp()} [SYSTEM] Kernel panic - Response delayed: ${Math.floor(Math.random() * 500)}ms</span>\n`;
+              codeOutput.innerHTML += `<div class="code-line error">${getCurrentTimestamp()} [SYSTEM] Kernel panic - Response delayed: ${Math.floor(Math.random() * 500)}ms</div>`;
               document.body.style.pointerEvents = 'none';
               setTimeout(() => {
                 document.body.style.pointerEvents = 'auto';
@@ -296,7 +446,7 @@
 
             attackComplete = deviceKeys.every(key => indices[key] >= deviceAttacks[key].length);
             if (attackComplete) {
-              codeOutput.innerHTML += `<span class="error">${getCurrentTimestamp()} [CRITICAL] System integrity lost - All partitions encrypted (Key: AES-256-XTS)</span>\n`;
+              codeOutput.innerHTML += `<div class="code-line error">${getCurrentTimestamp()} [CRITICAL] System integrity lost - All partitions encrypted (Key: AES-256-XTS)</div>`;
               codeOutput.scrollTop = codeOutput.scrollHeight;
               setTimeout(() => {
                 clearInterval(interval);
@@ -316,10 +466,20 @@
   }
 
   function simulateCrash() {
-    document.querySelector('.scary-message').innerText = "!!! SYSTEM BREACH DETECTED - FULL COMPROMISE !!!";
+    // Check if scary-message exists before updating
+    const scaryMessage = document.querySelector('.scary-message');
+    if (scaryMessage) {
+      scaryMessage.innerText = "!!! SYSTEM FULLY COMPROMISED - DATA ENCRYPTED !!!";
+    }
+
+    // Clear the realTime interval to prevent updates after DOM replacement
+    if (realTimeInterval) {
+      clearInterval(realTimeInterval);
+      realTimeInterval = null;
+    }
 
     let lagInterval = setInterval(() => {
-      document.body.style.opacity = Math.random() * 0.6 + 0.4;
+      document.body.style.opacity = Math.random() * 0.5 + 0.5;
     }, 75);
 
     setTimeout(() => {
@@ -327,18 +487,18 @@
       document.body.innerHTML = `
         <div class="hacked-screen">
           <h1>*** SYSTEM LOCKDOWN INITIATED ***</h1>
-          <p style="color:#0f0;">All files encrypted with AES-256-XTS. Decryption key held by remote server.</p>
-          <p style="color:#ff0;">Attacking host: 45.32.12.78 (TOR) - Session ID: X9Z3R7K9</p>
-          <p style="font-size:14px;">
+          <p style="color:#0f0; text-shadow: 0 0 10px #0f0;">All files encrypted with AES-256-XTS. Decryption key held by remote server.</p>
+          <p style="color:#ff0; text-shadow: 0 0 10px #ff0;">Attacking host: 45.32.12.78 (TOR) - Session ID: X9Z3R7K9</p>
+          <p style="font-size:16px;">
             To regain access, transfer 0.05 BTC to:<br>
-            <span style="color:#0f0;">1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</span><br>
-            Email key request to: x9z3r7@darknet.onion (TOR required)<br>
+            <span style="color:#0f0; text-shadow: 0 0 8px #0f0;">1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</span><br>
+            Email key request to: x9z3r@darknet.onion (TOR required)<br>
             Include Session ID in payment memo.
           </p>
-          <div id="countdown" style="color:#f00; animation: flicker 0.2s infinite;">
+          <div id="countdown" style="color:#f00; animation: flicker 0.2s infinite; text-shadow: 0 0 10px #f00;">
             TIME REMAINING: 00:09:59
           </div>
-          <p style="color:#f00; font-size:12px;">Failure to comply will result in permanent data wipe.</p>
+          <p style="color:#f00; font-size:14px; text-shadow: 0 0 8px #f00;">Failure to comply will result in permanent data wipe.</p>
           <a href="index.html" class="button" style="margin-top: 20px;">[EXIT SIMULATION]</a>
         </div>
       `;
@@ -347,8 +507,9 @@
   }
 
   function startCountdown() {
-    let timeLeft = 10 * 60 - 1; // 10 phút trừ đi 1 giây để bắt đầu từ 00:09:59
+    let timeLeft = 10 * 60 - 1;
     const countdownElement = document.getElementById('countdown');
+    if (!countdownElement) return; // Prevent error if countdown element is missing
 
     const countdownInterval = setInterval(() => {
       if (timeLeft >= 0) {
@@ -366,6 +527,5 @@
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', e => e.preventDefault());
 </script>
-
 </body>
 </html>
