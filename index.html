@@ -49,9 +49,57 @@
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .music-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .music-control:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 1);
+    }
+    .tooltip {
+      position: absolute;
+      right: 60px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .music-control:hover .tooltip {
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="font-inter bg-gray-100 text-gray-900">
+  <!-- Audio element for background music -->
+  <audio id="backgroundMusic" loop>
+    <source src="nhacnen.mp3" type="audio/mpeg">
+    Trình duyệt của bạn không hỗ trợ phần tử âm thanh.
+  </audio>
+
+  <!-- Music control button -->
+  <div class="music-control" id="musicControl" title="Bật/Tắt nhạc nền">
+    <i class="fas fa-music text-indigo-600"></i>
+    <span class="tooltip">Bật/Tắt nhạc nền</span>
+  </div>
+
   <header class="parallax h-screen flex items-center justify-center text-center text-white relative" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80')">
     <div class="gradient-overlay"></div>
     <div class="particle"></div>
@@ -88,7 +136,7 @@
         </div>
         <div class="card-hover bg-white rounded-2xl p-6 shadow-lg text-center">
           <h3 class="text-2xl font-semibold text-indigo-900 mb-3">Kiểm Tra Thiết Bị</h3>
-          <p class="text-gray-600 mb-6">Kiểm tra hôm nay – An toàn ngày mai!</p>
+          <p class="text-gray-600 mb-6">Kiểm tra hôm nay - An toàn ngày mai!</p>
           <a href="hoso.html" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Kiểm Tra Ngay</a>
         </div>
         <div class="card-hover bg-white rounded-2xl p-6 shadow-lg text-center">
@@ -109,8 +157,45 @@
       </div>
     </div>
   </section>
-
-  <footer class="bg-indigo-900 text-white py-12 text-center">
+  <script>
+    // Background music control
+    document.addEventListener('DOMContentLoaded', function() {
+      const music = document.getElementById('backgroundMusic');
+      const musicControl = document.getElementById('musicControl');
+      let isPlaying = false;
+      
+      // Try to play music automatically (may be blocked by browser)
+      const playPromise = music.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          isPlaying = true;
+          musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+        })
+        .catch(error => {
+          isPlaying = false;
+          musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+        });
+      }
+      
+      // Toggle play/pause when button is clicked
+      musicControl.addEventListener('click', function() {
+        if (isPlaying) {
+          music.pause();
+          musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+        } else {
+          music.play();
+          musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+        }
+        isPlaying = !isPlaying;
+      });
+      
+      // Lower volume to make it background music
+      music.volume = 0.3;
+    });
+  </script>
+</body>
+ <footer class="bg-indigo-900 text-white py-12 text-center">
     <div class="container mx-auto px-4">
       <div class="flex justify-center space-x-6 mb-4">
         <a href="https://www.facebook.com" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
@@ -126,5 +211,4 @@
       <p class="text-lg">© 2025 NTS. Được thiết kế với bởi <a href="https://www.tiktok.com/@thanh.sang70" class="text-purple-400 hover:text-white transition">Nguyễn Thanh Sang</a>.</p>
     </div>
   </footer>
-</body>
 </html>
