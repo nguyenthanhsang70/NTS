@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memory Card Game - NTS</title>
-   <link rel="icon" type="png" href="logos3.png">
+<link rel="icon" type="image/png" href="logos3.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   body {
     font-family: 'Poppins', sans-serif;
@@ -14,29 +15,45 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
-    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
   }
   header {
     text-align: center;
     margin-bottom: 20px;
+    width: 100%;
   }
   header h1 {
-    font-size: 4vw;
+    font-size: 2.5rem;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 2px;
     background: linear-gradient(90deg, #ff00c7, #ff9f00);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+  .game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  .game-info span {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
   }
   .game-board {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 15px;
-    width: 90%;
-    max-width: 600px;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 800px;
     perspective: 1000px;
   }
   .card {
@@ -44,10 +61,10 @@
     aspect-ratio: 1 / 1;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.6s;
+    transition: transform 0.5s;
     cursor: pointer;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
   .card.flipped {
     transform: rotateY(180deg);
@@ -57,7 +74,7 @@
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    border-radius: 12px;
+    border-radius: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,25 +94,30 @@
   }
   .card.matched {
     visibility: hidden;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
   }
   .controls {
     margin-top: 20px;
     display: flex;
-    flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   .controls button, .controls a {
     padding: 12px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
   }
   .controls button.restart-btn {
     background: linear-gradient(90deg, #ff00c7, #ff9f00);
@@ -112,39 +134,87 @@
   .controls a.back-btn:hover {
     background: linear-gradient(90deg, #018786, #03dac6);
   }
-  @media (min-width: 768px) {
-    header h1 {
-      font-size: 3vw;
-    }
-    .controls {
-      flex-direction: row;
-    }
-    .controls button, .controls a {
-      width: auto;
-      flex: 1;
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  .win-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  .win-message.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .win-message h2 {
+    font-size: 3rem;
+    background: linear-gradient(90deg, #ff00c7, #ff9f00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .win-message p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+  .win-message button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #03dac6, #018786);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .game-board {
+      grid-template-columns: repeat(6, 1fr);
+      max-width: 600px;
     }
   }
-   @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
+
+  @media (max-width: 700px) {
+    .game-board {
+      grid-template-columns: repeat(5, 1fr);
+      max-width: 500px;
     }
+  }
+
+  @media (max-width: 500px) {
+    header h1 {
+      font-size: 1.8rem;
+    }
+    .game-board {
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 400px;
+      gap: 6px;
+    }
+    .controls button, .controls a {
+      padding: 10px;
+      font-size: 14px;
+      min-width: 100px;
+    }
+    .win-message h2 {
+      font-size: 2rem;
+    }
+    .win-message p {
+      font-size: 1.2rem;
+    }
+  }
 </style>
 </head>
 <body>
@@ -153,47 +223,120 @@
   <h1>Memory Card Game</h1>
 </header>
 
+<div class="game-info">
+  <span id="pairs">Cặp: 0/20</span>
+  <span class="timer" id="timer">00:00</span>
+</div>
+
 <div class="game-board" id="gameBoard"></div>
+
 <div class="controls">
   <button class="restart-btn" id="restartBtn">Chơi Lại</button>
   <a href="game.html" class="back-btn" id="backBtn">Quay Lại</a>
 </div>
 
+<div class="win-message" id="winMessage">
+  <h2>Chúc mừng!</h2>
+  <p id="winStats">Bạn hoàn thành trong 00:00</p>
+  <button id="playAgainBtn">Chơi lại</button>
+</div>
+
+<audio id="completionSound" src="hoanthanh.mp3"></audio>
+
 <script>
- const cards = [
-    { value: 'A', image: 'thẻ1.jpg' },
-    { value: 'B', image: 'the2.jpg' },
-    { value: 'C', image: 'the3.jpg' },
-    { value: 'D', image: 'the4.jpg' },
-    { value: 'E', image: 'Designer1.jpeg' },
-    { value: 'F', image: 'the5.jpg' },
-
-    { value: 'A', image: 'thẻ1.jpg' },
-    { value: 'B', image: 'the2.jpg' },
-    { value: 'C', image: 'the3.jpg' },
-    { value: 'D', image: 'the4.jpg' },
-    { value: 'E', image: 'Designer1.jpeg' },
-    { value: 'F', image: 'the5.jpg' }
+  // Card images - assuming images are in the same directory as the HTML file
+  const cardImages = [
+    'thẻ1.jpg', 'the2.jpg', 'the3.jpg', 'the4.jpg', 
+    'the5.jpg', 'thẻ6.png', 'thẻ7.jpg', 'thẻ8.png',
+    'thẻ9.jpg', 'thẻ10.jpg', 'thẻ11.jpg', 'thẻ12.jpg',
+    'thẻ13.png', 'thẻ14.png', 'thẻ15.jpg', 'thẻ16.jpg',
+    'thẻ17.jpg', 'thẻ18.jpg', 'thẻ19.png', 'thẻ20.jpg'
   ];
-  let flippedCards = [];
-  let matchedPairs = 0;
 
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+  // Game state
+  let gameState = {
+    cards: [],
+    flippedCards: [],
+    matchedPairs: 0,
+    timer: 0,
+    timerInterval: null,
+    canFlip: true,
+    totalPairs: 20
+  };
+
+  // DOM elements
+  const elements = {
+    gameBoard: document.getElementById('gameBoard'),
+    restartBtn: document.getElementById('restartBtn'),
+    backBtn: document.getElementById('backBtn'),
+    pairsDisplay: document.getElementById('pairs'),
+    timerDisplay: document.getElementById('timer'),
+    winMessage: document.getElementById('winMessage'),
+    winStats: document.getElementById('winStats'),
+    playAgainBtn: document.getElementById('playAgainBtn'),
+    completionSound: document.getElementById('completionSound')
+  };
+
+  // Initialize the game
+  function initGame() {
+    setupEventListeners();
+    createBoard();
+  }
+
+  // Set up event listeners
+  function setupEventListeners() {
+    elements.restartBtn.addEventListener('click', createBoard);
+    elements.playAgainBtn.addEventListener('click', createBoard);
+  }
+
+  // Create game board with 20 pairs
+  function createBoard() {
+    resetGameState();
+    clearInterval(gameState.timerInterval);
+    
+    // Create 20 pairs of cards
+    gameState.cards = [];
+    for (let i = 0; i < gameState.totalPairs; i++) {
+      const cardValue = String.fromCharCode(65 + (i % 26)); // A-Z
+      const imgIndex = i % cardImages.length;
+      gameState.cards.push(
+        { value: cardValue, image: cardImages[imgIndex] },
+        { value: cardValue, image: cardImages[imgIndex] }
+      );
+    }
+    
+    shuffleCards();
+    renderBoard();
+    startTimer();
+  }
+
+  // Reset game state
+  function resetGameState() {
+    gameState.flippedCards = [];
+    gameState.matchedPairs = 0;
+    gameState.timer = 0;
+    gameState.canFlip = true;
+    
+    updateUI();
+    hideWinMessage();
+  }
+
+  // Shuffle cards
+  function shuffleCards() {
+    for (let i = gameState.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [gameState.cards[i], gameState.cards[j]] = [gameState.cards[j], gameState.cards[i]];
     }
   }
 
-  function createBoard() {
-    shuffle(cards);
-    const gameBoard = document.getElementById('gameBoard');
-    gameBoard.innerHTML = '';
-    matchedPairs = 0;
-    flippedCards = [];
-    cards.forEach((card, index) => {
+  // Render game board
+  function renderBoard() {
+    elements.gameBoard.innerHTML = '';
+    
+    gameState.cards.forEach((card, index) => {
       const cardElement = document.createElement('div');
       cardElement.classList.add('card');
+      cardElement.dataset.index = index;
 
       const frontElement = document.createElement('div');
       frontElement.classList.add('card-front');
@@ -206,50 +349,112 @@
       imgElement.alt = card.value;
       backElement.appendChild(imgElement);
 
-      cardElement.dataset.value = card.value;
       cardElement.appendChild(frontElement);
       cardElement.appendChild(backElement);
 
-      cardElement.addEventListener('click', () => flipCard(cardElement));
-      gameBoard.appendChild(cardElement);
+      cardElement.addEventListener('click', () => handleCardClick(cardElement));
+      elements.gameBoard.appendChild(cardElement);
     });
   }
 
-  function flipCard(card) {
-    if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
-      card.classList.add('flipped');
-      flippedCards.push(card);
+  // Handle card click
+  function handleCardClick(cardElement) {
+    if (!gameState.canFlip || cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
+      return;
+    }
 
-      if (flippedCards.length === 2) {
-        checkForMatch();
-      }
+    const cardIndex = parseInt(cardElement.dataset.index);
+    flipCard(cardElement);
+    gameState.flippedCards.push({ element: cardElement, index: cardIndex });
+
+    if (gameState.flippedCards.length === 2) {
+      updateUI();
+      checkForMatch();
     }
   }
 
+  // Flip card
+  function flipCard(cardElement) {
+    cardElement.classList.add('flipped');
+  }
+
+  // Check for match
   function checkForMatch() {
-    const [firstCard, secondCard] = flippedCards;
+    gameState.canFlip = false;
+    const [firstCard, secondCard] = gameState.flippedCards;
 
-    if (firstCard.dataset.value === secondCard.dataset.value) {
-      firstCard.classList.add('matched');
-      secondCard.classList.add('matched');
-      matchedPairs++;
-
-      if (matchedPairs === cards.length / 2) {
-        setTimeout(() => alert('You win!'), 500);
-      }
-    } else {
+    if (gameState.cards[firstCard.index].value === gameState.cards[secondCard.index].value) {
+      // Match found
       setTimeout(() => {
-        firstCard.classList.remove('flipped');
-        secondCard.classList.remove('flipped');
-      }, 1000);
+        firstCard.element.classList.add('matched');
+        secondCard.element.classList.add('matched');
+        gameState.matchedPairs++;
+        gameState.flippedCards = [];
+        gameState.canFlip = true;
+        updateUI();
+        
+        // Check for win
+        if (gameState.matchedPairs === gameState.totalPairs) {
+          endGame();
+        }
+      }, 300);
+    } else {
+      // No match
+      setTimeout(() => {
+        firstCard.element.classList.remove('flipped');
+        secondCard.element.classList.remove('flipped');
+        gameState.flippedCards = [];
+        gameState.canFlip = true;
+      }, 800);
     }
-
-    flippedCards = [];
   }
 
-  document.getElementById('restartBtn').addEventListener('click', createBoard);
+  // Start timer
+  function startTimer() {
+    clearInterval(gameState.timerInterval);
+    gameState.timer = 0;
+    updateTimerDisplay();
+    
+    gameState.timerInterval = setInterval(() => {
+      gameState.timer++;
+      updateTimerDisplay();
+    }, 1000);
+  }
 
-  createBoard();
+  // Update timer display
+  function updateTimerDisplay() {
+    const minutes = Math.floor(gameState.timer / 60).toString().padStart(2, '0');
+    const seconds = (gameState.timer % 60).toString().padStart(2, '0');
+    elements.timerDisplay.textContent = `${minutes}:${seconds}`;
+  }
+
+  // Update UI
+  function updateUI() {
+    elements.pairsDisplay.textContent = `Cặp: ${gameState.matchedPairs}/${gameState.totalPairs}`;
+  }
+
+  // End game
+  function endGame() {
+    clearInterval(gameState.timerInterval);
+    elements.completionSound.play().catch(error => console.log('Audio play error:', error));
+    showWinMessage();
+  }
+
+  // Show win message
+  function showWinMessage() {
+    const minutes = Math.floor(gameState.timer / 60).toString().padStart(2, '0');
+    const seconds = (gameState.timer % 60).toString().padStart(2, '0');
+    elements.winStats.textContent = `Bạn hoàn thành trong ${minutes}:${seconds}`;
+    elements.winMessage.classList.add('show');
+  }
+
+  // Hide win message
+  function hideWinMessage() {
+    elements.winMessage.classList.remove('show');
+  }
+
+  // Initialize the game when the page loads
+  window.addEventListener('DOMContentLoaded', initGame);
 </script>
 
 </body>
