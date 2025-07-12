@@ -277,12 +277,13 @@ function drawDecorations() {
   for (let i = 0; i < 10; i++) {
     const x = Math.random() * canvas.width;
     const height = Math.random() * 150 + 50;
+    const baseWidth = Math.random() * 20 + 10;
     const color = seaweedColors[Math.floor(Math.random() * seaweedColors.length)];
-    drawSeaweed(x, canvas.height - 100, height, color);
+    drawSeaweed(x, canvas.height - 100, height, baseWidth, color);
   }
 }
 
-function drawSeaweed(x, y, height, color) {
+function drawSeaweed(x, y, height, baseWidth, color) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 5;
   ctx.beginPath();
@@ -291,14 +292,21 @@ function drawSeaweed(x, y, height, color) {
   ctx.bezierCurveTo(x + sway, y - height / 3, x - sway, y - (height * 2 / 3), x, y - height);
   ctx.stroke();
 
-  // Additional leaves
+  // Additional leaves with more density
   ctx.lineWidth = 2;
-  for (let i = 0; i < 3; i++) {
-    const leafY = y - height * (i + 1) / 4;
+  for (let i = 0; i < 5; i++) { // Increased to 5 for more leaves
+    const leafY = y - height * (i + 1) / 6; // Adjusted spacing for bushier look
     const leafSway = Math.sin(Date.now() / 600 + x + i) * 10;
+    const leafWidth = baseWidth * (1 - i / 6); // Taper leaves towards top
     ctx.beginPath();
     ctx.moveTo(x, leafY);
-    ctx.quadraticCurveTo(x + leafSway, leafY - 10, x + leafSway * 2, leafY - 20);
+    ctx.quadraticCurveTo(x + leafSway, leafY - 10, x + leafSway * leafWidth / 10, leafY - 20);
+    ctx.stroke();
+
+    // Add smaller side leaves for bushiness
+    ctx.beginPath();
+    ctx.moveTo(x, leafY);
+    ctx.quadraticCurveTo(x - leafSway / 2, leafY - 5, x - leafSway * leafWidth / 20, leafY - 15);
     ctx.stroke();
   }
 }
