@@ -1,293 +1,646 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật - NTS</title>
-    <link rel="icon" type="png" href="logos3.png">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chúc Mừng Sinh Nhật</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #FF6B6B;
+      --secondary: #FF8E8E;
+      --accent: #FFD166;
+      --light: #FFF5F5;
+      --dark: #2D3436;
+      --gradient: linear-gradient(90deg, #ff00c7, #ff9f00);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #fff;
-            overflow-y: auto; /* Cho phép cuộn trên điện thoại */
-            height: 100%; /* Đổi thành 100% để không giới hạn chiều cao */
-            position: relative;
-            margin: 0;
-        }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f6e6e6 0%, #ffecec 100%);
+      min-height: 100vh;
+      color: var(--dark);
+      overflow-x: hidden;
+      position: relative;
+    }
 
-        header {
-            text-align: center;
-            padding: 10px 0; /* Giảm padding trên header */
-            background: rgba(0, 0, 0, 0.3);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 3;
-        }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.gifer.com/7VE.gif') center/cover no-repeat;
+      opacity: 0.05;
+      z-index: -1;
+      pointer-events: none;
+    }
 
-        h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2rem; /* Giảm kích thước chữ trên mọi thiết bị */
-            color: #ff8e71;
-            text-shadow: 0 0 10px rgba(255, 142, 113, 0.7);
-            animation: glow 2s infinite alternate;
-        }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
 
-        @keyframes glow {
-            0% { text-shadow: 0 0 8px rgba(255, 142, 113, 0.5); }
-            100% { text-shadow: 0 0 15px rgba(255, 142, 113, 0.8); }
-        }
+    body.loading::after {
+      opacity: 1;
+    }
 
-        canvas {
-            position: fixed; /* Đổi thành fixed để pháo hoa không bị scroll */
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
 
-        .container {
-            position: relative; /* Đổi từ absolute để dễ cuộn */
-            top: 0;
-            padding-top: 60px; /* Giảm khoảng cách để tránh chồng lên header */
-            text-align: center;
-            z-index: 2;
-            padding: 10px; /* Giảm padding */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh; /* Đảm bảo đủ chiều cao */
-        }
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      animation: pulse 2s infinite;
+    }
 
-        .cake {
-            width: 180px; /* Giảm kích thước bánh trên mọi thiết bị */
-            border-radius: 15px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(255, 142, 113, 0.4);
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
+    .subtitle {
+      color: var(--secondary);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 600;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
 
-        .cake:hover {
-            transform: scale(1.1) rotate(2deg);
-            box-shadow: 0 12px 25px rgba(255, 142, 113, 0.6);
-        }
+    .input-group {
+      background: rgba(255, 255, 255, 0.95);
+      padding: clamp(20px, 5vw, 40px);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
+      backdrop-filter: blur(10px);
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+    }
 
-        .message {
-            margin-top: 15px;
-            font-size: 0.9rem; /* Giảm kích thước chữ mặc định */
-            line-height: 1.5; /* Giảm line-height cho dễ đọc */
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            padding: 15px;
-            border-radius: 12px;
-            max-width: 90%; /* Giữ chiều rộng nhỏ hơn */
-            border: 1px solid rgba(255, 142, 113, 0.3);
-            display: none;
-            animation: fadeIn 0.5s ease-in;
-            word-wrap: break-word; /* Đảm bảo nội dung không tràn ra ngoài */
-        }
+    .input-group:hover {
+      transform: translateY(-5px);
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    input {
+      padding: 15px;
+      margin: 12px 0;
+      width: 85%;
+      max-width: 350px;
+      border: 2px solid #f0f0f0;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #fff;
+    }
 
-        .back-button {
-            margin-top: 15px;
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 20px; /* Giảm padding */
-            font-size: 0.9rem; /* Giảm kích thước chữ */
-            color: #fff;
-            background: linear-gradient(45deg, #ff8e71, #ff6f61);
-            border: none;
-            border-radius: 20px; /* Giảm radius */
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(255, 142, 113, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    input:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+    }
 
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 142, 113, 0.6);
-        }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.3);
+      outline: none;
+    }
 
-        .back-button i {
-            margin-right: 6px; /* Giảm khoảng cách icon */
-        }
+    input::placeholder {
+      color: #bbb;
+      font-style: italic;
+    }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 1.8rem; }
-            .cake { width: 160px; }
-            .message { font-size: 0.85rem; padding: 12px; }
-            .back-button { padding: 7px 18px; font-size: 0.85rem; }
-            .container { padding-top: 55px; }
-        }
+    .controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
 
-        @media (max-width: 480px) {
-            h1 { font-size: 1.5rem; }
-            .cake { width: 140px; }
-            .message { font-size: 0.8rem; padding: 10px; line-height: 1.4; }
-            .back-button { padding: 6px 15px; font-size: 0.8rem; }
-            .container { padding-top: 50px; }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    button, .submit-btn {
+      padding: 12px 35px;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after, .submit-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255,255,255,0.3) 0%,
+        rgba(255,255,255,0) 60%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite;
+    }
+
+    button.submit-btn:hover, .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    button.submit-btn:active, .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    .submit-btn i {
+      margin-right: 8px;
+    }
+
+    .birthday-message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .birthday-message.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .birthday-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      animation: cardFloat 6s ease-in-out infinite;
+    }
+
+    .birthday-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,107,107,0.2) 0%, rgba(255,107,107,0) 70%);
+      animation: rotate 20s linear infinite;
+      z-index: -1;
+    }
+
+    .birthday-message h2 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+      animation: bounceIn 0.8s ease;
+    }
+
+    .birthday-message p {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      color: white;
+      margin: 10px 0;
+      font-weight: 500;
+      line-height: 1.5;
+      animation: fadeInUp 0.8s ease 0.2s both;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      transition: text-shadow 0.3s ease;
+    }
+
+    .birthday-message p:hover {
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+
+    .birthday-message .highlight {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .birthday-message .cake {
+      font-size: clamp(3rem, 8vw, 4rem);
+      margin: 20px 0;
+      display: inline-block;
+      animation: bounce 2s infinite;
+    }
+
+    .close-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      width: 100%;
+    }
+
+    .close-btn {
+      padding: 12px 30px;
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(5px);
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .close-btn:active {
+      transform: translateY(1px);
+    }
+
+    .close-btn i {
+      font-size: 0.9em;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      opacity: 0;
+      z-index: 999;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+
+    .firework {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px 5px;
+      animation: explode 1s ease-out forwards;
+      opacity: 0;
+      z-index: 998;
+    }
+
+    .balloon {
+      position: fixed;
+      bottom: -100px;
+      width: 50px;
+      height: 60px;
+      border-radius: 50%;
+      animation: float 8s ease-in infinite;
+      z-index: 1;
+      transform-origin: bottom center;
+    }
+
+    .balloon::before {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 12px;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 60px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    /* Màu sắc cho các bóng bay */
+    .balloon:nth-child(6n+1) {
+      background: #FF6B6B;
+    }
+    .balloon:nth-child(6n+1)::before {
+      background: #e05555;
+    }
+    .balloon:nth-child(6n+2) {
+      background: #FFD166;
+    }
+    .balloon:nth-child(6n+2)::before {
+      background: #e6b955;
+    }
+    .balloon:nth-child(6n+3) {
+      background: #06D6A0;
+    }
+    .balloon:nth-child(6n+3)::before {
+      background: #05b888;
+    }
+    .balloon:nth-child(6n+4) {
+      background: #118AB2;
+    }
+    .balloon:nth-child(6n+4)::before {
+      background: #0f7a9d;
+    }
+    .balloon:nth-child(6n+5) {
+      background: #FFFFFF;
+    }
+    .balloon:nth-child(6n+5)::before {
+      background: #e6e6e6;
+    }
+    .balloon:nth-child(6n+6) {
+      background: #C77DFF;
+    }
+    .balloon:nth-child(6n+6)::before {
+      background: #b066e0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(0.1);
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    @keyframes shine {
+      0% { transform: rotate(30deg) translate(-30%, -30%); }
+      100% { transform: rotate(30deg) translate(30%, 30%); }
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-50vh) rotate(5deg);
+      }
+      100% {
+        transform: translateY(-100vh) rotate(0deg);
+      }
+    }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0) rotateY(0deg); }
+      50% { transform: translateY(-20px) rotateY(5deg); }
+    }
+
+    @media (max-width: 600px) {
+      .input-group {
+        padding: 20px 15px;
+      }
+      input {
+        width: 90%;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>🎉 Chúc Mừng Sinh Nhật! 🎉</h1>
-    </header>
-    <div class="container">
-        <img src="bánh.gif" alt="Bánh sinh nhật" class="cake" id="cake">
-        <div class="message" id="message">
-            🎉✨ Happy Birthday to You! ✨🎉<br><br>
-            Hôm nay không chỉ là một ngày bình thường, mà là ngày thế giới chào đón một phiên bản đặc biệt nhất – chính là bạn! <br><br>
-            Chúc bạn một tuổi mới bùng nổ năng lượng, thành công ngập tràn và luôn giữ nụ cười tươi nhất trên môi. <br><br>
-            Hãy tận hưởng từng khoảnh khắc, biến mọi ước mơ thành hiện thực và để hạnh phúc luôn đồng hành trên chặng đường phía trước!<br><br>
-            🌟 Tuổi mới rực rỡ – Vạn điều như ý 🌟
-        </div>
-        <a href="index.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Quay lại
-        </a>
+  <div class="balloon-container"></div>
+
+  <div class="container">
+    <h1>Chúc Mừng Sinh Nhật</h1>
+    <p class="subtitle">Nhập thông tin của bạn để nhận lời chúc đặc biệt</p>
+    
+    <div class="input-group">
+      <input type="text" id="ten" placeholder="Tên của bạn"><br>
+      <input type="number" id="ngay" placeholder="Ngày sinh (1-31)" min="1" max="31"><br>
+      <input type="number" id="thang" placeholder="Tháng sinh (1-12)" min="1" max="12"><br>
+      <input type="number" id="nam" placeholder="Năm sinh (VD: 2000)"><br>
+      <div class="controls">
+        <button class="submit-btn" onclick="chucMung()"><i class="fas fa-gift"></i> Gửi Lời Chúc</button>
+        <a href="index.html" class="submit-btn"><i class="fas fa-arrow-left"></i> Quay Lại</a>
+      </div>
     </div>
-    <canvas id="fireworks"></canvas>
+  </div>
 
-    <audio id="birthdaySong" src="n.mp3"></audio>
+  <div class="birthday-message" id="birthdayMessage">
+    <div class="birthday-card">
+      <h2>Chúc Mừng Sinh Nhật!</h2>
+      <p id="messageName"></p>
+      <p id="messageBirthdate"></p>
+      <p>Chúc bạn một ngày sinh nhật tràn ngập <span class="highlight">niềm vui</span>, <span class="highlight">hạnh phúc</span> và <span class="highlight">thành công</span> trong cuộc sống!</p>
+      <div class="cake">🎂</div>
+      <p>Mong rằng năm mới sẽ mang đến cho bạn nhiều <span class="highlight">cơ hội</span> và <span class="highlight">may mắn</span>!</p>
+      <div class="close-btn-container">
+        <button class="close-btn" onclick="hideMessage()">
+          <i class="fas fa-times"></i> Đóng
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        const canvas = document.getElementById('fireworks');
-        const ctx = canvas.getContext('2d');
+  <audio id="birthdayAudio" src="n.mp3"></audio>
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+  <script>
+    // Tạo bóng bay với dây buộc
+    function createBalloons() {
+      const container = document.querySelector('.balloon-container');
+      
+      for (let i = 0; i < 15; i++) {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        
+        // Vị trí ngẫu nhiên
+        balloon.style.left = Math.random() * 100 + 'vw';
+        
+        // Thời gian và tốc độ bay ngẫu nhiên
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 5 + 5;
+        balloon.style.animationDelay = delay + 's';
+        balloon.style.animationDuration = duration + 's';
+        
+        // Kích thước ngẫu nhiên
+        const size = Math.random() * 0.7 + 0.5;
+        balloon.style.transform = `scale(${size})`;
+        
+        // Độ trong suốt ngẫu nhiên
+        balloon.style.opacity = Math.random() * 0.5 + 0.5;
+        
+        // Thêm bóng bay vào container
+        container.appendChild(balloon);
+      }
+    }
 
-        const fireworks = [];
-        const particles = [];
+    // Hiệu ứng loading
+    window.addEventListener('load', function() {
+      document.body.classList.add('loading');
+      setTimeout(() => {
+        document.body.classList.remove('loading');
+      }, 1000);
+      createBalloons();
+    });
 
-        class Firework {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = canvas.height;
-                this.targetY = Math.random() * (canvas.height / 2);
-                this.speed = 5 + Math.random() * 5;
-                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                this.radius = 2;
-                this.exploded = false;
-            }
+    function chucMung() {
+      const ten = document.getElementById("ten").value.trim();
+      const ngay = document.getElementById("ngay").value;
+      const thang = document.getElementById("thang").value;
+      const nam = document.getElementById("nam").value;
 
-            update() {
-                if (!this.exploded) {
-                    this.y -= this.speed;
-                    if (this.y <= this.targetY) {
-                        this.explode();
-                    }
-                }
-            }
+      if (!ten || !ngay || !thang || !nam) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
 
-            explode() {
-                this.exploded = true;
-                for (let i = 0; i < 100; i++) {
-                    particles.push(new Particle(this.x, this.y, this.color));
-                }
-            }
+      const tuoi = new Date().getFullYear() - parseInt(nam);
+      document.getElementById("messageName").textContent = `Chúc mừng sinh nhật lần thứ ${tuoi} của ${ten}!`;
+      document.getElementById("messageBirthdate").textContent = `Sinh ngày: ${ngay}/${thang}/${nam}`;
+      
+      document.getElementById("birthdayMessage").classList.add("show");
+      
+      const audio = document.getElementById("birthdayAudio");
+      audio.volume = 0.3;
+      audio.play().catch(error => {
+        console.log("Không thể phát nhạc: ", error);
+      });
+      
+      createConfetti();
+      createFireworks();
+    }
 
-            draw() {
-                if (!this.exploded) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                    ctx.closePath();
-                }
-            }
-        }
+    function hideMessage() {
+      document.getElementById("birthdayMessage").classList.remove("show");
+      const audio = document.getElementById("birthdayAudio");
+      audio.pause();
+      audio.currentTime = 0;
+    }
 
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.velocity = {
-                    x: (Math.random() - 0.5) * 10,
-                    y: (Math.random() - 0.5) * 10
-                };
-                this.alpha = 1;
-                this.friction = 0.95;
-                this.gravity = 0.1;
-            }
+    function createConfetti() {
+      const colors = ['#FF6B6B', '#FF8E8E', '#FFD166', '#06D6A0', '#118AB2', '#FFFFFF'];
+      for (let i = 0; i < 200; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = -10 + 'px';
+        confetti.style.width = Math.random() * 12 + 5 + 'px';
+        confetti.style.height = Math.random() * 12 + 5 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(confetti);
 
-            update() {
-                this.velocity.y += this.gravity;
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= 0.01;
-            }
+        const animationDuration = Math.random() * 3 + 2;
+        confetti.style.animation = `fall ${animationDuration}s linear forwards`;
 
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.closePath();
-                ctx.restore();
-            }
-        }
+        setTimeout(() => {
+          confetti.remove();
+        }, animationDuration * 1000);
+      }
+    }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            fireworks.forEach((firework, index) => {
-                firework.update();
-                firework.draw();
-                if (firework.exploded) {
-                    setTimeout(() => {
-                        fireworks.splice(index, 1);
-                    }, 100);
-                }
-            });
-
-            particles.forEach((particle, index) => {
-                particle.update();
-                particle.draw();
-                if (particle.alpha <= 0) {
-                    particles.splice(index, 1);
-                }
-            });
-        }
-
-        setInterval(() => {
-            fireworks.push(new Firework());
-        }, 1000);
-
-        animate();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        const cake = document.getElementById('cake');
-        const message = document.getElementById('message');
-        const birthdaySong = document.getElementById('birthdaySong');
-
-        cake.addEventListener('click', () => {
-            message.style.display = 'block';
-            birthdaySong.play();
-        });
-    </script>
+    function createFireworks() {
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const firework = document.createElement('div');
+          firework.className = 'firework';
+          firework.style.left = Math.random() * 100 + 'vw';
+          firework.style.top = Math.random() * 40 + 'vh';
+          firework.style.color = ['#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#FFFFFF'][Math.floor(Math.random() * 5)];
+          document.body.appendChild(firework);
+          
+          setTimeout(() => {
+            firework.remove();
+          }, 1000);
+        }, i * 200);
+      }
+    }
+  </script>
 </body>
 </html>
