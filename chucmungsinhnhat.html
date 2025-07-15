@@ -411,6 +411,46 @@
       background: #b066e0;
     }
 
+    /* CSS cho thông báo tùy chỉnh */
+    .custom-alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      z-index: 10000;
+      display: none;
+      text-align: center;
+      font-size: clamp(0.9rem, 1.5vw, 1rem); /* Kích thước chữ nhỏ hơn */
+      color: var(--dark);
+      font-family: 'Poppins', sans-serif;
+      backdrop-filter: blur(5px);
+    }
+
+    .custom-alert.show {
+      display: block;
+    }
+
+    .custom-alert button {
+      margin-top: 15px;
+      padding: 8px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .custom-alert button:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
@@ -529,6 +569,11 @@
     </div>
   </div>
 
+  <div class="custom-alert" id="customAlert">
+    <p id="alertMessage"></p>
+    <button onclick="closeCustomAlert()">OK</button>
+  </div>
+
   <audio id="birthdayAudio" src="n.mp3"></audio>
 
   <script>
@@ -577,7 +622,7 @@
       const nam = document.getElementById("nam").value;
 
       if (!ten || !ngay || !thang || !nam) {
-        alert("Vui lòng nhập đầy đủ thông tin!");
+        showCustomAlert("Vui lòng nhập đầy đủ thông tin!");
         return;
       }
 
@@ -602,6 +647,18 @@
       const audio = document.getElementById("birthdayAudio");
       audio.pause();
       audio.currentTime = 0;
+    }
+
+    function showCustomAlert(message) {
+      const alertBox = document.getElementById("customAlert");
+      const alertMessage = document.getElementById("alertMessage");
+      alertMessage.textContent = message;
+      alertBox.classList.add("show");
+    }
+
+    function closeCustomAlert() {
+      const alertBox = document.getElementById("customAlert");
+      alertBox.classList.remove("show");
     }
 
     function createConfetti() {
