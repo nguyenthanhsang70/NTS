@@ -4,134 +4,273 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chúc mừng Quốc Khánh 2/9 - NTS</title>
-    <link rel="icon" type="png" href="logos3.png">
+    <link rel="icon" type="image/png" href="logos3.png">
     <style>
+        :root {
+            --red: #DA251D;
+            --gold: #FFD700;
+            --dark-red: #B22222;
+            --blue: #005C97;
+            --light-blue: #E6F2FF;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f8ff;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, var(--light-blue), #FFFFFF);
+            color: #333;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
-        .container {
-            margin-top: 10%;
-            flex-grow: 1;
+        
+        .header {
+            background: linear-gradient(to right, var(--red), var(--dark-red));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            color: #d40000;
-            font-size: 3em;
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
         }
-        p {
-            font-size: 1.5em;
-            color: #0047ab;
+        
+        .header p {
+            margin: 0.5rem 0 0;
+            font-size: 1.3rem;
+            opacity: 0.9;
         }
-        img {
-            margin-top: 20px;
-            max-width: 100%;
-            height: auto;
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .video-button {
-            margin-top: 20px;
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #0047ab;
+        
+        .flag-container {
+            position: relative;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 3/2;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .flag-container:hover {
+            transform: scale(1.02);
+        }
+        
+        .flag {
+            width: 100%;
+            height: 100%;
+            background: var(--red);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .star {
+            color: var(--gold);
+            font-size: 10rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
         }
-        .video-button:hover {
-            background-color: #002e7a;
+        
+        .btn-primary {
+            background-color: var(--red);
+            color: white;
+            border: 2px solid var(--red);
         }
-        .back-button {
-            margin-top: 20px;
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #333;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        
+        .btn-primary:hover {
+            background-color: var(--dark-red);
+            border-color: var(--dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(218, 37, 29, 0.3);
         }
-        .back-button:hover {
-            background-color: #000;
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--blue);
+            border: 2px solid var(--blue);
         }
-        .back-button i {
-            margin-right: 5px;
+        
+        .btn-secondary:hover {
+            background-color: var(--blue);
+            color: white;
+            transform: translateY(-2px);
         }
-        footer {
-            padding: 20px 0;
-            background-color: #333;
-            color: #fff;
-            font-size: 0.9em;
+        
+        .quote-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            max-width: 800px;
             text-align: center;
         }
-        footer a {
-            color: #fff;
+        
+        .quote {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--dark-red);
+            margin-bottom: 0.5rem;
+        }
+        
+        .author {
+            font-weight: bold;
+            color: var(--blue);
+        }
+        
+        .footer {
+            background: linear-gradient(to right, var(--blue), #003366);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .social-link {
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .social-link:hover {
+            color: var(--gold);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .copyright a {
+            color: var(--gold);
             text-decoration: none;
+            font-weight: 600;
         }
-        footer a:hover {
-            text-decoration: underline;
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .star {
+                font-size: 7rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                min-width: 160px;
+            }
         }
-        .social-icons {
-            margin-bottom: 10px;
-        }
-        .social-icons a {
-            margin: 0 10px;
-            font-size: 1.5em;
-            color: #fff;
-            text-decoration: none;
-        }
-        .social-icons a:hover {
-            color: #00f;
-        }
+        
         @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
-    }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
+    <header class="header">
         <h1>CHÚC MỪNG QUỐC KHÁNH 2/9</h1>
-        <p>Kỷ niệm ngày Quốc Khánh nước Cộng hòa Xã hội Chủ nghĩa Việt Nam!</p>
-        <img src="Vietnam.png" alt="Quốc kỳ Việt Nam">
-        <br>
-        <a href="https://www.youtube.com/watch?v=xRKUB3fUTJM" target="_blank" class="video-button">Xem Video</a>
-    </div>
-    <a href="ngayquantrong.html" class="back-button">
-        <i class="fas fa-arrow-left"></i> Quay lại
-    </a>
-    <footer>
-        <div class="social-icons">
-            <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
+        <p>Kỷ niệm 80 năm Ngày Quốc Khánh nước Cộng hòa Xã hội Chủ nghĩa Việt Nam</p>
+    </header>
+    
+    <main class="main-content">
+        <div class="flag-container">
+            <div class="flag">
+                <div class="star">★</div>
+            </div>
         </div>
-        &copy; 2025 NTS. Được thiết kế với bởi <a href="#">Nguyễn Thanh Sang</a>.
+        
+        <div class="action-buttons">
+            <a href="https://www.youtube.com/watch?v=xRKUB3fUTJM" target="_blank" class="btn btn-primary">
+                <i class="fas fa-play-circle" style="margin-right: 8px;"></i> Xem Video
+            </a>
+            <a href="ngayquantrong.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Quay lại
+            </a>
+        </div>
+        
+        <div class="quote-section">
+            <p class="quote">"Đất nước ta, dân tộc ta đã sinh ra Hồ Chủ tịch, và chính Người đã làm rạng rỡ dân tộc ta, non sông đất nước ta."</p>
+            <p class="author">— Đại tướng Võ Nguyên Giáp</p>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="social-links">
+            <a href="#" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <div class="copyright">
+            &copy; 2025 NTS. Thiết kế bởi <a href="#">Nguyễn Thanh Sang</a>
+        </div>
     </footer>
 </body>
 </html>
