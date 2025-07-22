@@ -1,275 +1,741 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng 24/12 - NTS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Merry Christmas - NTS</title>
     <link rel="icon" type="png" href="logos3.png">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #fdeff2, #e0f7fa);
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0a0a1a, #1a0033, #2d1b69);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            font-family: 'Mountains of Christmas', cursive;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
-        .container {
-            text-align: center;
-            max-width: 400px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #snowfall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
             z-index: 1;
         }
-        .container h1 {
-            color: #d90429;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-        .container p {
-            color: #333;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-        .container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            animation: shakeGlow 2s infinite ease-in-out; /* Thêm hiệu ứng rung và tỏa sáng */
-        }
-        /* Hiệu ứng rung và tỏa sáng */
-        @keyframes shakeGlow {
-            0% {
-                transform: translateX(0) rotate(0deg);
-                box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); /* Ánh sáng vàng nhạt */
-            }
-            25% {
-                transform: translateX(-2px) rotate(-1deg);
-                box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            }
-            50% {
-                transform: translateX(2px) rotate(1deg);
-                box-shadow: 0 0 15px rgba(255, 215, 0, 1); /* Ánh sáng mạnh hơn */
-            }
-            75% {
-                transform: translateX(-2px) rotate(-1deg);
-                box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            }
-            100% {
-                transform: translateX(0) rotate(0deg);
-                box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
-            }
-        }
-        .back-button {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #d90429;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
-        .back-button:hover {
-            background-color: #b3001b;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
-        }
-        .back-button i {
-            font-size: 1.2rem;
-        }
+
         .snowflake {
             position: absolute;
-            top: -10%;
-            width: 10px;
-            height: 10px;
-            background: white;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, white, #e6f7ff);
             border-radius: 50%;
-            animation: fall linear infinite;
+            filter: blur(0.5px);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
             pointer-events: none;
+            animation: snowfallAnimation linear infinite;
         }
-        .image-snowflake {
-            position: absolute;
-            top: -10%;
-            width: 30px;
-            height: 30px;
-            background: url('tuyet1.jpg') no-repeat center/contain;
-            animation: fall linear infinite;
-            pointer-events: none;
-        }
-        .gift-box {
-            position: absolute;
-            top: -10%;
-            width: 50px;
-            height: 50px;
-            background: url('qua.png') no-repeat center/contain;
-            animation: fall linear infinite;
-            cursor: pointer;
-            transform: scale(1);
-            transition: transform 0.3s ease;
-        }
-        .gift-box.opened {
-            animation: none;
-            transform: scale(1.5);
-        }
-        @keyframes fall {
-            to {
-                transform: translateY(110vh) rotate(360deg); /* Thêm xoay nhẹ */
+
+        @keyframes snowfallAnimation {
+            0% {
+                transform: translateY(-10px) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(30px) rotate(360deg);
+                opacity: 0.3;
             }
         }
-        .popup {
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        #gift-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            perspective: 1000px;
+        }
+
+        #gift-box {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gift-box:hover, #gift-box.active {
+            transform: scale(1.15) rotate(10deg);
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1));
+        }
+
+        .gift {
+            animation: floatGift 4s ease-in-out infinite;
+            width: 100%;
+            height: 100%;
+            font-size: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes floatGift {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+            75% {
+                transform: translateY(-5px) rotate(-3deg);
+            }
+        }
+
+        #message {
+            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none;
-            z-index: 2;
+            font-size: 1.8rem;
+            color: #fff;
+            text-align: center;
+            z-index: 3;
+            max-width: 80%;
+            padding: 30px;
+            background: linear-gradient(135deg, 
+                rgba(139, 0, 0, 0.95), 
+                rgba(220, 20, 60, 0.95),
+                rgba(255, 69, 0, 0.9)
+            );
+            border-radius: 20px;
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.9),
+                0 0 60px rgba(255, 69, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(8px);
         }
-        .popup p {
-            font-size: 1.2rem;
-            color: #333;
-            border: 2px solid #d90429;
-            padding: 10px;
-            border-radius: 5px;
-            animation: blinkBorder 1s infinite alternate;
-        }
-        .popup button {
+
+        .message-text {
+            font-family: 'Dancing Script', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #d90429;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 2rem;
+            animation: textGlow 3s ease-in-out infinite alternate;
+            line-height: 1.3;
+        }
+
+        #back-button {
+            margin-top: 15px;
+            padding: 8px 16px;
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 1.2rem;
+            color: #fff;
+            background: linear-gradient(135deg, #ffd700, #ff4500);
+            border: 2px solid #fff;
+            border-radius: 12px;
             cursor: pointer;
-            transition: box-shadow 0.3s ease;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+            touch-action: manipulation;
         }
-        .popup button:hover {
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+
+        #back-button:hover, #back-button:active {
+            background: linear-gradient(135deg, #ff4500, #ffd700);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 1);
         }
-        @keyframes blinkBorder {
-            from { border-color: #d90429; }
-            to { border-color: #ffcccb; }
+
+        #welcome-back-button {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 1.2rem;
+            color: #fff;
+            background: linear-gradient(135deg, #ffd700, #ff4500);
+            border: 2px solid #fff;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+            z-index: 2;
+            touch-action: manipulation;
         }
+
+        #welcome-back-button:hover, #welcome-back-button:active {
+            background: linear-gradient(135deg, #ff4500, #ffd700);
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+        }
+
+        @keyframes textGlow {
+            0% {
+                text-shadow: 
+                    0 0 4px #ffff00,
+                    0 0 8px #ff6600,
+                    2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            100% {
+                text-shadow: 
+                    0 0 8px #ffff00, 
+                    0 0 15px #ff6600, 
+                    0 0 20px #ffcc00,
+                    2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        .welcome-text {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffd700;
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 1.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.7; 
+                transform: translateX(-50%) scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #gift-box {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .gift {
+                font-size: 100px;
+            }
+            
+            .message-text {
+                font-size: 1.6rem;
+            }
+            
+            #message {
+                padding: 20px;
+                max-width: 75%;
+            }
+
+            #back-button {
+                font-size: 1rem;
+                padding: 6px 12px;
+            }
+
+            #welcome-back-button {
+                font-size: 1rem;
+                padding: 6px 12px;
+                bottom: 8%;
+            }
+
+            .welcome-text {
+                font-size: 1.4rem;
+                bottom: 15%;
+            }
+
+            .snowflake {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
         @media (max-width: 480px) {
-            header h1 { font-size: 30px; }
-            header p { font-size: 16px; }
-            .content h2 { font-size: 26px; }
-            .game-section h2 { font-size: 28px; }
-            .game-section a { font-size: 16px; padding: 12px 25px; }
-            .social-icons a { font-size: 20px; }
+            #gift-box {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .gift {
+                font-size: 80px;
+            }
+            
+            .message-text {
+                font-size: 1.4rem;
+            }
+            
+            #message {
+                padding: 15px;
+                max-width: 70%;
+            }
+
+            #back-button {
+                font-size: 0.9rem;
+                padding: 5px 10px;
+            }
+
+            #welcome-back-button {
+                font-size: 0.9rem;
+                padding: 5px 10px;
+                bottom: 6%;
+            }
+
+            .welcome-text {
+                font-size: 1.2rem;
+                bottom: 12%;
+            }
+
+            .snowflake {
+                width: 4px;
+                height: 4px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .message-text {
+                font-size: 1.2rem;
+            }
+            
+            #message {
+                padding: 12px;
+                max-width: 65%;
+            }
+            
+            #back-button {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+
+            #welcome-back-button {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+                bottom: 5%;
+            }
+
+            .welcome-text {
+                font-size: 1rem;
+                bottom: 10%;
+            }
+        }
+
+        /* Additional animations */
+        @keyframes shake {
+            0%, 100% { transform: scale(1.2) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-15deg); }
+            50% { transform: scale(1.2) rotate(15deg); }
+            75% { transform: scale(1.2) rotate(-10deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.8) rotateY(180deg); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1) rotateY(0deg); 
+            }
+        }
+        
+        @keyframes fadeOut {
+            from { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1) rotateY(0deg); 
+            }
+            to { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.8) rotateY(-180deg); 
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+            70% { transform: scale(0.9) rotate(360deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Chúc Mừng 24/12</h1>
-        <p>Chúc bạn một mùa Giáng Sinh an lành và hạnh phúc!</p>
-        <img src="thong.jpg" alt="Giáng Sinh Vui Vẻ">
+    <div class="stars" id="stars"></div>
+    <div id="snowfall"></div>
+    
+    <div class="welcome-text">Chạm vào 🎁 để mở !</div>
+    <button id="welcome-back-button">Quay Lại</button>
+    
+    <div id="gift-container">
+        <div id="gift-box">
+            <div class="gift">🎁</div>
+        </div>
+    </div>
+    
+    <div id="message">
+        <p class="message-text">
+            Chúc bạn và gia đình một mùa Giáng Sinh an lành, ngập tràn yêu thương, hạnh phúc và những điều kỳ diệu.<br>
+            Mong rằng mọi ước nguyện của bạn sẽ thành hiện thực trong mùa lễ này
+        </p>
+        <button id="back-button">Đóng</button>
     </div>
 
-    <a href="ngayquantrong.html" class="back-button">
-        <i class="fas fa-arrow-left"></i> Quay lại
-    </a>
-
-    <div class="popup" id="popup">
-        <p id="popupMessage"></p>
-        <button onclick="closePopup()">Đóng</button>
-    </div>
-
-    <audio id="music" src="giánginh.mp3"></audio>
+    <audio id="gift-sound" preload="auto">
+        <source src="https://example.com/jingle-bell.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
     <script>
-        const messages = [
-            'Chúc bạn luôn vui vẻ!',
-            'Một năm mới tràn đầy may mắn!',
-            'Hạnh phúc và bình an đến với bạn!',
-            'Thành công trong mọi dự định!',
-            'Giáng sinh ấm áp bên gia đình!',
-            'Merry Christmas!',
-            'Giáng sinh ấm áp bên người thân yêu!',
-            'Giáng sinh vui vẻ, an khang, thịnh vượng!',
-            'Hạnh phúc và may mắn luôn bên bạn!',
-            'Tràn ngập yêu thương và tiếng cười!',
-            'Mọi điều ước đều trở thành hiện thực!'
-        ];
-
-        function createFallingElements() {
-            const body = document.body;
-
-            // Tạo 20 bông tuyết trắng
-            for (let i = 0; i < 20; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.style.left = `${Math.random() * 100}%`; // Ngẫu nhiên từ 0% đến 100%
-                snowflake.style.width = `${Math.random() * 10 + 5}px`; // Kích thước ngẫu nhiên 5-15px
-                snowflake.style.height = snowflake.style.width;
-                snowflake.style.animationDuration = `${Math.random() * 5 + 5}s`; // Thời gian rơi 5-10s
-                body.appendChild(snowflake);
-            }
-
-            // Tạo 10 bông tuyết hình ảnh
-            for (let i = 0; i < 10; i++) {
-                const imageSnowflake = document.createElement('div');
-                imageSnowflake.className = 'image-snowflake';
-                imageSnowflake.style.left = `${Math.random() * 100}%`;
-                imageSnowflake.style.animationDuration = `${Math.random() * 5 + 10}s`; // Thời gian rơi 10-15s
-                body.appendChild(imageSnowflake);
-            }
-
-            // Tạo 11 hộp quà
-            for (let i = 0; i < 11; i++) {
-                const giftBox = document.createElement('div');
-                giftBox.className = 'gift-box';
-                giftBox.style.left = `${Math.random() * 100}%`;
-                giftBox.style.animationDuration = `${Math.random() * 3 + 2}s`; // Thời gian rơi 5-10s
-                giftBox.onclick = () => openGift(giftBox, messages[Math.floor(Math.random() * messages.length)]);
-                body.appendChild(giftBox);
+        // Create beautiful twinkling stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const isMobile = window.innerWidth <= 768;
+            const starCount = isMobile ? 100 : 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                star.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                
+                starsContainer.appendChild(star);
             }
         }
+        
+        // Enhanced snowfall effect
+        function createSnowflake() {
+            const snowflake = document.createElement("div");
+            snowflake.className = "snowflake";
+            
+            const isMobile = window.innerWidth <= 768;
+            const size = isMobile ? Math.random() * 4 + 3 : Math.random() * 8 + 4;
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            
+            snowflake.style.left = Math.random() * window.innerWidth + "px";
+            snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+            const duration = Math.random() * 6 + 4;
+            snowflake.style.animationDuration = `${duration}s`;
+            
+            document.getElementById("snowfall").appendChild(snowflake);
 
-        function openGift(box, message) {
-            box.classList.add('opened');
-            showPopup(message);
-            playMusic();
+            setTimeout(() => {
+                if (snowflake.parentNode) {
+                    snowflake.parentNode.removeChild(snowflake);
+                }
+            }, duration * 1000);
         }
 
-        function showPopup(message) {
-            const popup = document.getElementById('popup');
-            const popupMessage = document.getElementById('popupMessage');
-            popupMessage.textContent = message;
-            popup.style.display = 'block';
+        // Show message function with enhanced animations
+        function showMessage() {
+            const giftBox = document.getElementById("gift-box");
+            const message = document.getElementById("message");
+            let timeoutId;
+
+            // Play sound
+            const giftSound = document.getElementById("gift-sound");
+            giftSound.currentTime = 0;
+            giftSound.play().catch((error) => {
+                console.warn("Audio playback failed:", error);
+            });
+
+            // Add shake animation to gift box
+            giftBox.style.animation = "shake 0.6s ease-in-out";
+            giftBox.style.transform = "scale(1.3)";
+            
+            createSparkles(giftBox);
+            
+            setTimeout(() => {
+                giftBox.style.transition = "all 0.5s ease-out";
+                giftBox.style.transform = "scale(0) rotate(360deg)";
+                giftBox.style.opacity = "0";
+                
+                setTimeout(() => {
+                    giftBox.style.display = "none";
+                    message.style.display = "block";
+                    message.style.animation = "fadeIn 1.5s ease-out";
+                }, 500);
+            }, 600);
+
+            // Function to hide message and show gift
+            function returnToGift() {
+                clearTimeout(timeoutId);
+                message.style.animation = "fadeOut 1.5s ease-in";
+                
+                setTimeout(() => {
+                    message.style.display = "none";
+                    giftBox.style.display = "block";
+                    giftBox.style.opacity = "1";
+                    giftBox.style.animation = "bounceIn 1.5s ease-out";
+                    giftBox.style.transform = "scale(1)";
+                    giftBox.style.transition = "none";
+                }, 1500);
+            }
+
+            // Automatic timeout
+            timeoutId = setTimeout(returnToGift, 12000);
+
+            // Back button event (in message)
+            document.getElementById("back-button").addEventListener('click', (e) => {
+                e.preventDefault();
+                returnToGift();
+            }, { once: true });
+
+            // Welcome back button event
+            document.getElementById("welcome-back-button").addEventListener('click', (e) => {
+                e.preventDefault();
+                returnToGift();
+            }, { once: true });
         }
 
-        function closePopup() {
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
+        // Create sparkle effect around gift box
+        function createSparkles(element) {
+            const rect = element.getBoundingClientRect();
+            const isMobile = window.innerWidth <= 768;
+            const sparkleCount = isMobile ? 10 : 20;
+            
+            for (let i = 0; i < sparkleCount; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                sparkle.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '5';
+                sparkle.style.animation = `sparkleAnimation ${Math.random() * 2 + 1}s ease-out forwards`;
+                
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 3000);
+            }
         }
+        
+        // Initialize effects when page loads
+        window.onload = function() {
+            createStars();
+            
+            const isMobile = window.innerWidth <= 768;
+            const initialSnowflakeCount = isMobile ? 30 : 60;
+            for (let i = 0; i < initialSnowflakeCount; i++) {
+                setTimeout(() => createSnowflake(), i * 100);
+            }
+            
+            setInterval(createSnowflake, isMobile ? 500 : 300);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes sparkleAnimation {
+                    0% { 
+                        opacity: 1; 
+                        transform: translateY(0) scale(0.5) rotate(0deg); 
+                    }
+                    50% { 
+                        opacity: 1; 
+                        transform:QZ
+                        translateY(-30px) scale(1) rotate(180deg); 
+                    }
+                    100% { 
+                        opacity: 0; 
+                        transform: translateY(-60px) scale(0.3) rotate(360deg); 
+                    }
+                }
+            `;
+            document.head.appendChild(style);
 
-        function playMusic() {
-            const music = document.getElementById('music');
-            music.currentTime = 0;
-            music.play();
-        }
+            // Add interactions for gift box
+            const giftBox = document.getElementById('gift-box');
+            let isTouching = false;
 
-        // Gọi hàm tạo các phần tử rơi khi trang tải
-        window.onload = createFallingElements;
+            // Mouse events for desktop
+            giftBox.addEventListener('mousemove', (e) => {
+                if (isTouching) return;
+                const rect = giftBox.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                giftBox.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+
+            giftBox.addEventListener('mouseenter', () => {
+                if (isTouching) return;
+                giftBox.classList.add('active');
+            });
+
+            giftBox.addEventListener('mouseleave', () => {
+                if (isTouching) return;
+                giftBox.classList.remove('active');
+                giftBox.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+
+            // Touch events for mobile
+            giftBox.addEventListener('touchstart', (e) => {
+                isTouching = true;
+                giftBox.classList.add('active');
+                e.preventDefault();
+            });
+
+            giftBox.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const rect = giftBox.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                giftBox.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+
+            giftBox.addEventListener('touchend', () => {
+                isTouching = false;
+                giftBox.classList.remove('active');
+                giftBox.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+
+            // Click/tap event for both
+            giftBox.addEventListener('click', (e) => {
+                e.preventDefault();
+                giftBox.style.animation = 'bounce 0.6s ease';
+                setTimeout(() => {
+                    giftBox.style.animation = '';
+                }, 600);
+                showMessage();
+            });
+
+            giftBox.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                giftBox.style.animation = 'bounce 0.6s ease';
+                setTimeout(() => {
+                    giftBox.style.animation = '';
+                }, 600);
+                showMessage();
+            });
+
+            // Hover/touch effects
+            giftBox.addEventListener('mouseenter', () => {
+                if (isTouching) return;
+                giftBox.style.filter = 'drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 69, 0, 0.8))';
+            });
+            
+            giftBox.addEventListener('mouseleave', () => {
+                if (isTouching) return;
+                giftBox.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))';
+            });
+
+            giftBox.addEventListener('touchstart', () => {
+                giftBox.style.filter = 'drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 69, 0, 0.8))';
+            });
+
+            giftBox.addEventListener('touchend', () => {
+                giftBox.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))';
+            });
+
+            // Initial welcome back button event listener
+            document.getElementById("welcome-back-button").addEventListener('click', (e) => {
+                e.preventDefault();
+                returnToGift();
+            }, { once: true });
+        };
+
+        // Adjust snowflake count on window resize
+        window.addEventListener('resize', () => {
+            const snowfall = document.getElementById('snowfall');
+            while (snowfall.firstChild) {
+                snowfall.removeChild(snowfall.firstChild);
+            }
+            const isMobile = window.innerWidth <= 768;
+            const initialSnowflakeCount = isMobile ? 30 : 60;
+            for (let i = 0; i < initialSnowflakeCount; i++) {
+                setTimeout(() => createSnowflake(), i * 100);
+            }
+        });
     </script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
