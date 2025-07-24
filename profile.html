@@ -70,6 +70,30 @@
             100% { transform: rotate(360deg); }
         }
         
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateX(-3px);
+        }
+        
         .avatar-container {
             position: relative;
             width: 150px;
@@ -249,6 +273,14 @@
                 height: 40px;
                 font-size: 18px;
             }
+            
+            .back-button {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+                top: 15px;
+                left: 15px;
+            }
         }
 
         @media (max-width: 350px) {
@@ -265,6 +297,11 @@
 </head>
 <body>
     <div class="profile-card">
+        <!-- Nút quay lại -->
+        <a href="index.html" class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
         <!-- Avatar -->
         <div class="avatar-container">
             <img src="avatarnts.jpg" alt="Avatar" class="avatar">
