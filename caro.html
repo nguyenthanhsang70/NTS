@@ -427,9 +427,9 @@
         let currentGameMoves = [];
         let currentMode = null;
         let timerInterval = null;
-        let timeLeft = 20;
+        let timeLeft = 14;
         let timerIntervalSpeed = 1000;
-        let baseTimeLeft = 20;
+        let baseTimeLeft = 14;
         let timerStartTime = 0;
         let isGameActive = false;
 
@@ -450,7 +450,7 @@
             switch (difficultyLevel) {
                 case 'easy':
                     timerIntervalSpeed = 1000;
-                    baseTimeLeft = 18;
+                    baseTimeLeft = 14;
                     break;
                 case 'medium':
                     timerIntervalSpeed = 1000;
@@ -1491,7 +1491,7 @@
             if (depth === 0 || !boardState.flat().includes(null)) return evaluateBoard();
 
             const moves = getPotentialMoves();
-            moves.sort((a, b) => evaluateBoardMove(b.row, b.col, XO) - evaluateBoardMove(a.row, b.col, XO));
+            moves.sort((a, b) => evaluateBoardMove(b.row, b.col, XO) - evaluateBoardMove(a.row, a.col, XO));
             let bestMove = null;
 
             if (XO === computerPlayer) {
