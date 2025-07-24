@@ -26,16 +26,15 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            width: 100%;
             max-width: 600px;
-            margin: 20px auto;
+            width: 100%;
             backdrop-filter: blur(10px);
         }
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-size: 2.2rem;
             background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -49,14 +48,14 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #555;
-            font-size: clamp(1rem, 3vw, 1.1rem);
+            font-size: 1.1rem;
         }
         input[type="text"], input[type="url"] {
             width: 100%;
-            padding: 12px 15px;
+            padding: 15px;
             border: 2px solid #e1e5e9;
             border-radius: 12px;
-            font-size: clamp(14px, 3vw, 16px);
+            font-size: 16px;
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.8);
         }
@@ -68,13 +67,12 @@
         }
         input[type="file"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 2px dashed #667eea;
             border-radius: 12px;
             background: rgba(102, 126, 234, 0.05);
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: clamp(12px, 3vw, 14px);
         }
         input[type="file"]:hover {
             background: rgba(102, 126, 234, 0.1);
@@ -85,13 +83,11 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 25px;
-            flex-wrap: wrap;
         }
         .toggle {
             position: relative;
             width: 60px;
             height: 30px;
-            flex-shrink: 0;
         }
         .toggle input {
             opacity: 0;
@@ -128,16 +124,16 @@
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
             border-radius: 12px;
-            font-size: clamp(16px, 3vw, 18px);
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         button:hover {
             transform: translateY(-2px);
@@ -148,22 +144,16 @@
         }
         .qr-container {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: white;
             border-radius: 15px;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
-            margin-top: 20px;
         }
         #qrcode {
             display: inline-block;
-            padding: 15px;
+            padding: 20px;
             background: white;
             border-radius: 10px;
-            max-width: 100%;
-        }
-        #qrCanvas {
-            max-width: 100%;
-            height: auto;
         }
         .preview-container {
             margin-top: 15px;
@@ -180,7 +170,6 @@
             padding: 10px;
             border-radius: 8px;
             font-weight: 500;
-            font-size: clamp(14px, 3vw, 16px);
         }
         .status-enabled {
             background: rgba(76, 175, 80, 0.1);
@@ -205,64 +194,9 @@
         }
         .back-button {
             background: linear-gradient(45deg, #2196F3, #42A5F5);
-            display: inline-block;
-            text-decoration: none;
-            text-align: center;
-            width: 100%;
-            padding: 12px;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: clamp(16px, 3vw, 18px);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 0;
         }
         .back-button:hover {
             background: linear-gradient(45deg, #1E88E5, #3d8bfd);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-                border-radius: 15px;
-            }
-            h1 {
-                margin-bottom: 20px;
-            }
-            .form-group {
-                margin-bottom: 20px;
-            }
-            input[type="text"], input[type="url"], input[type="file"] {
-                padding: 10px 12px;
-            }
-            button {
-                padding: 12px;
-            }
-            .qr-container {
-                padding: 10px;
-            }
-            #qrcode {
-                padding: 10px;
-            }
-            #qrCanvas {
-                width: 250px;
-                height: 250px;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            .container {
-                padding: 15px;
-            }
-            #qrCanvas {
-                width: 200px;
-                height: 200px;
-            }
         }
     </style>
 </head>
@@ -292,7 +226,7 @@
         </div>
         <button onclick="generateQR()">✨ Tạo mã QR</button>
         <button class="download-button" onclick="downloadQR()" style="display: none;" id="downloadButton">⬇ Tải mã QR</button>
-        <a href="index.html" class="back-button">↩ Quay lại</a>
+        <a href="index.html" class="back-button" style="display: inline-block; text-decoration: none; text-align: center;">↩ Quay lại</a>
         <div class="qr-container">
             <div id="qrcode"></div>
         </div>
@@ -428,18 +362,12 @@
         // Tạo QR code thông thường
         function createNormalQR(link, container) {
             const canvas = document.createElement('canvas');
-            canvas.id = 'qrCanvas';
-            
-            // Điều chỉnh kích thước dựa trên màn hình
-            const size = Math.min(300, window.innerWidth - 60);
-            canvas.width = size;
-            canvas.height = size;
-            
+            canvas.id = 'qrCanvas'; // Thêm ID để dễ truy cập
             container.appendChild(canvas);
             const qr = new QRious({
                 element: canvas,
                 value: link,
-                size: size,
+                size: 300,
                 level: 'H',
                 foreground: '#000000',
                 background: '#FFFFFF'
@@ -449,24 +377,18 @@
         // Tạo QR code với hình ảnh overlay
         function createQRWithImage(link, container) {
             const canvas = document.createElement('canvas');
-            canvas.id = 'qrCanvas';
-            
-            // Điều chỉnh kích thước dựa trên màn hình
-            const size = Math.min(300, window.innerWidth - 60);
-            canvas.width = size;
-            canvas.height = size;
-            
+            canvas.id = 'qrCanvas'; // Thêm ID để dễ truy cập
             const ctx = canvas.getContext('2d');
+            canvas.width = 300;
+            canvas.height = 300;
             container.appendChild(canvas);
 
             // Tạo QR code tạm thời để lấy pattern
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = size;
-            tempCanvas.height = size;
             const qr = new QRious({
                 element: tempCanvas,
                 value: link,
-                size: size,
+                size: 300,
                 level: 'H',
                 foreground: '#000000',
                 background: '#FFFFFF'
@@ -479,11 +401,11 @@
                 img.crossOrigin = 'anonymous';
                 img.onload = function() {
                     // Vẽ hình ảnh làm nền, scale để fit canvas
-                    ctx.drawImage(img, 0, 0, size, size);
+                    ctx.drawImage(img, 0, 0, 300, 300);
 
                     // Lấy QR pattern
-                    const qrImageData = tempCanvas.getContext('2d').getImageData(0, 0, size, size);
-                    const backgroundImageData = ctx.getImageData(0, 0, size, size);
+                    const qrImageData = tempCanvas.getContext('2d').getImageData(0, 0, 300, 300);
+                    const backgroundImageData = ctx.getImageData(0, 0, 300, 300);
 
                     // Blend QR pattern với hình ảnh
                     const qrData = qrImageData.data;
@@ -520,7 +442,7 @@
                     // Thêm viền ngoài để dễ quét hơn
                     ctx.strokeStyle = '#333333';
                     ctx.lineWidth = 4;
-                    ctx.strokeRect(2, 2, size - 4, size - 4);
+                    ctx.strokeRect(2, 2, 296, 296);
                 };
                 img.src = imagePreview.src;
             } else {
@@ -562,14 +484,6 @@
         window.addEventListener('load', function() {
             document.getElementById('linkInput').value = '';
             generateQR();
-        });
-        
-        // Xử lý responsive khi thay đổi kích thước màn hình
-        window.addEventListener('resize', function() {
-            const link = document.getElementById('linkInput').value.trim();
-            if (link) {
-                generateQR();
-            }
         });
     </script>
 </body>
