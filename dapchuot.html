@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đập Chuột - NTS</title>
+    <link rel="icon" type="image/png" href="logos3.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-size: clamp(1.8em, 5vw, 2.5em);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: clamp(0.9em, 3vw, 1.2em);
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .difficulty-selector {
+            margin: 15px 0;
+        }
+
+        .difficulty-selector > div {
+            margin-bottom: 10px;
+            font-size: clamp(0.9em, 3vw, 1.1em);
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            color: white;
+            padding: 8px 15px;
+            margin: 0 3px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(0.8em, 2.5vw, 1em);
+            touch-action: manipulation;
+        }
+
+        .difficulty-btn.active {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 2vw, 15px);
+            margin: 20px auto 30px auto;
+            max-width: 450px;
+            padding-bottom: 20px;
+        }
+
+        .hole {
+            width: clamp(80px, 12vw, 120px);
+            height: clamp(80px, 12vw, 120px);
+            background: radial-gradient(circle, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid #34495e;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s ease;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .hole:hover {
+            transform: scale(1.05);
+        }
+
+        .hole:active {
+            transform: scale(0.95);
+        }
+
+        .mole {
+            width: clamp(55px, 8vw, 80px);
+            height: clamp(55px, 8vw, 80px);
+            background: #8B4513;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(150px);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            touch-action: manipulation;
+            opacity: 0;
+        }
+
+        .mole::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: clamp(10px, 2vw, 15px);
+            height: clamp(10px, 2vw, 15px);
+            background: black;
+            border-radius: 50%;
+            box-shadow: clamp(18px, 3vw, 25px) 0 0 black;
+        }
+
+        .mole::after {
+            content: '';
+            position: absolute;
+            top: 40%;
+            left: 35%;
+            width: clamp(7px, 1.5vw, 10px);
+            height: clamp(6px, 1.2vw, 8px);
+            background: #FF69B4;
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .mole.show {
+            transform: translate(-50%, -50%) translateY(0);
+            opacity: 1;
+        }
+
+        .mole.hit {
+            transform: translate(-50%, -50%) translateY(150px) scale(0.8);
+            transition: transform 0.2s ease-out;
+            opacity: 0;
+        }
+
+        .score-popup {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: clamp(1em, 3vw, 1.5em);
+            pointer-events: none;
+            opacity: 0;
+            animation: scorePopup 0.8s ease-out;
+            z-index: 10;
+        }
+
+        .score-popup.miss {
+            color: #ff4757;
+            font-size: clamp(0.9em, 2.5vw, 1.2em);
+        }
+
+        @keyframes scorePopup {
+            0% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding-top: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: clamp(0.9em, 3vw, 1.1em);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(238, 90, 36, 0.3);
+            touch-action: manipulation;
+            min-width: 100px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .back-btn:hover {
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .game-over.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .game-over.show .game-over-content {
+            transform: scale(1);
+        }
+
+        .game-over-content h2 {
+            font-size: clamp(1.5em, 4vw, 2em);
+            margin-bottom: 15px;
+        }
+
+        .game-over-content p {
+            font-size: clamp(1em, 3vw, 1.2em);
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+        }
+
+        /* Touch feedback */
+        @media (hover: none) {
+            .hole:hover {
+                transform: none;
+            }
+            
+            .hole:active {
+                transform: scale(0.9);
+            }
+            
+            .btn:hover {
+                transform: none;
+                box-shadow: 0 5px 15px rgba(238, 90, 36, 0.3);
+            }
+        }
+
+        /* Mobile specific adjustments */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            .game-grid {
+                margin-bottom: 35px;
+                padding-bottom: 25px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .info-item {
+                padding: 6px 12px;
+            }
+            
+            .difficulty-btn {
+                padding: 6px 12px;
+                margin: 2px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 35px;
+                padding-top: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+                padding: 15px 20px;
+            }
+        }
+
+        /* Tablet adjustments */
+        @media screen and (min-width: 481px) and (max-width: 768px) {
+            .game-container {
+                max-width: 500px;
+            }
+        }
+
+        /* Desktop adjustments */
+        @media screen and (min-width: 769px) {
+            .game-container {
+                max-width: 600px;
+            }
+            
+            .game-info {
+                flex-direction: row;
+            }
+        }
+
+        /* Prevent text selection on mobile */
+        .game-container {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Prevent zoom on double tap */
+        * {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1> Đập Chuột </h1>
+
+        <div class="difficulty-selector">
+            <div>Độ khó:</div>
+            <button class="difficulty-btn active" data-difficulty="easy">Dễ</button>
+            <button class="difficulty-btn" data-difficulty="medium">Trung bình</button>
+            <button class="difficulty-btn" data-difficulty="hard">Khó</button>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                Điểm: <span id="score">0</span>
+            </div>
+            <div class="info-item">
+                Thời gian: <span id="time">30</span>s
+            </div>
+            <div class="info-item">
+                Đập hụt: <span id="missed">0</span>
+            </div>
+        </div>
+
+        <div class="game-grid">
+            <div class="hole" data-index="0">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="1">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="2">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="3">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="4">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="5">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="6">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="7">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="8">
+                <div class="mole"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">Bắt đầu</button>
+            <button class="btn" id="pauseBtn" disabled>Tạm dừng</button>
+            <button class="btn" id="resetBtn">Làm lại</button>
+            <button class="btn back-btn" id="backBtn">🏠 Quay lại</button>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>🎉 Kết thúc game! 🎉</h2>
+            <p>Điểm cuối cùng: <span id="finalScore">0</span></p>
+            <p>Độ chính xác: <span id="accuracy">0</span>%</p>
+            <button class="btn" onclick="closeGameOver()">Chơi lại</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            score: 0,
+            timeLeft: 30,
+            missed: 0,
+            hits: 0,
+            isPlaying: false,
+            isPaused: false,
+            difficulty: 'easy',
+            moleInterval: null,
+            gameTimer: null,
+            activeMoles: new Set()
+        };
+
+        const difficulties = {
+            easy: { moleTime: 1200, spawnRate: 800 },
+            medium: { moleTime: 900, spawnRate: 600 },
+            hard: { moleTime: 600, spawnRate: 400 }
+        };
+
+        const holes = document.querySelectorAll('.hole');
+        const moles = document.querySelectorAll('.mole');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        const missedEl = document.getElementById('missed');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const backBtn = document.getElementById('backBtn');
+        const gameOverEl = document.getElementById('gameOver');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
+        // Detect if device supports touch
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // Difficulty selection
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (gameState.isPlaying) return;
+                
+                difficultyBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                gameState.difficulty = btn.dataset.difficulty;
+            });
+        });
+
+        // Hole click/touch handlers
+        holes.forEach((hole, index) => {
+            const handleHoleInteraction = (e) => {
+                if (!gameState.isPlaying || gameState.isPaused) return;
+                
+                e.preventDefault(); // Prevent default touch behavior
+                
+                const mole = hole.querySelector('.mole');
+                if (mole.classList.contains('show')) {
+                    hitMole(mole, index);
+                } else {
+                    gameState.missed++;
+                    showScorePopup(hole, 'Hụt!');
+                    updateDisplay();
+                }
+            };
+
+            // Add both click and touch events
+            hole.addEventListener('click', handleHoleInteraction);
+            if (isTouchDevice) {
+                hole.addEventListener('touchstart', handleHoleInteraction, { passive: false });
+            }
+        });
+
+        function hitMole(mole, index) {
+            if (!gameState.activeMoles.has(index)) return;
+            
+            gameState.score += 10;
+            gameState.hits++;
+            gameState.activeMoles.delete(index);
+            
+            mole.classList.remove('show');
+            mole.classList.add('hit');
+            
+            // Show score popup
+            showScorePopup(holes[index], '+10');
+            
+            // Add haptic feedback on mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            setTimeout(() => {
+                mole.classList.remove('hit');
+            }, 200);
+            
+            updateDisplay();
+        }
+
+        function showScorePopup(hole, text) {
+            const popup = document.createElement('div');
+            popup.className = 'score-popup';
+            if (text === 'Hụt!') {
+                popup.classList.add('miss');
+            }
+            popup.textContent = text;
+            hole.appendChild(popup);
+            
+            setTimeout(() => {
+                if (hole.contains(popup)) {
+                    hole.removeChild(popup);
+                }
+            }, 800);
+        }
+
+        function spawnMole() {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            const availableHoles = [];
+            for (let i = 0; i < 9; i++) {
+                if (!gameState.activeMoles.has(i)) {
+                    availableHoles.push(i);
+                }
+            }
+            
+            if (availableHoles.length === 0) return;
+            
+            const randomIndex = availableHoles[Math.floor(Math.random() * availableHoles.length)];
+            const mole = moles[randomIndex];
+            
+            gameState.activeMoles.add(randomIndex);
+            mole.classList.add('show');
+            
+            const moleTime = difficulties[gameState.difficulty].moleTime;
+            setTimeout(() => {
+                if (gameState.activeMoles.has(randomIndex)) {
+                    mole.classList.remove('show');
+                    gameState.activeMoles.delete(randomIndex);
+                }
+            }, moleTime);
+        }
+
+        function startGame() {
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.timeLeft = 30;
+            gameState.missed = 0;
+            gameState.hits = 0;
+            gameState.activeMoles.clear();
+            
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            
+            updateDisplay();
+            
+            const spawnRate = difficulties[gameState.difficulty].spawnRate;
+            gameState.moleInterval = setInterval(spawnMole, spawnRate);
+            
+            gameState.gameTimer = setInterval(() => {
+                if (!gameState.isPaused) {
+                    gameState.timeLeft--;
+                    updateDisplay();
+                    
+                    if (gameState.timeLeft <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            pauseBtn.textContent = gameState.isPaused ? 'Tiếp tục' : 'Tạm dừng';
+        }
+
+        function resetGame() {
+            clearInterval(gameState.moleInterval);
+            clearInterval(gameState.gameTimer);
+            
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.timeLeft = 30;
+            gameState.missed = 0;
+            gameState.hits = 0;
+            gameState.activeMoles.clear();
+            
+            moles.forEach(mole => {
+                mole.classList.remove('show', 'hit');
+            });
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = 'Tạm dừng';
+            
+            updateDisplay();
+        }
+
+        function endGame() {
+            clearInterval(gameState.moleInterval);
+            clearInterval(gameState.gameTimer);
+            
+            gameState.isPlaying = false;
+            
+            moles.forEach(mole => {
+                mole.classList.remove('show', 'hit');
+            });
+            
+            const accuracy = gameState.hits + gameState.missed > 0 ? 
+                Math.round((gameState.hits / (gameState.hits + gameState.missed)) * 100) : 100;
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('accuracy').textContent = accuracy;
+            
+            gameOverEl.classList.add('show');
+        }
+
+        function closeGameOver() {
+            gameOverEl.classList.remove('show');
+            resetGame();
+        }
+
+        function updateDisplay() {
+            scoreEl.textContent = gameState.score;
+            timeEl.textContent = gameState.timeLeft;
+            missedEl.textContent = gameState.missed;
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', pauseGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        // Back button - redirects to game.html
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'game.html';
+        });
+
+        // Keyboard controls (for desktop)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameState.isPlaying) {
+                    startGame();
+                } else {
+                    pauseGame();
+                }
+            }
+        });
+
+        // Prevent page zoom on double tap (iOS Safari)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>

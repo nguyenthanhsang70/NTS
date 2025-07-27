@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kéo Búa Bao - Rock Paper Scissors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .score h3 {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .choice-btn {
+            background: linear-gradient(145deg, #fff 0%, #f8f9fa 50%, #e9ecef 100%);
+            border: 3px solid transparent;
+            border-radius: 25px;
+            width: 120px;
+            height: 120px;
+            font-size: 4em;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.2) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .choice-btn:hover::before {
+            opacity: 1;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .choice-btn:active {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice-btn.rock {
+            background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+
+        .choice-btn.rock:hover {
+            border-color: rgba(255, 154, 158, 0.5);
+            box-shadow: 
+                0 20px 40px rgba(255, 154, 158, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .choice-btn.paper {
+            background: linear-gradient(145deg, #a8edea 0%, #fed6e3 50%, #fed6e3 100%);
+        }
+
+        .choice-btn.paper:hover {
+            border-color: rgba(168, 237, 234, 0.5);
+            box-shadow: 
+                0 20px 40px rgba(168, 237, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .choice-btn.scissors {
+            background: linear-gradient(145deg, #ffecd2 0%, #fcb69f 50%, #fcb69f 100%);
+        }
+
+        .choice-btn.scissors:hover {
+            border-color: rgba(255, 236, 210, 0.5);
+            box-shadow: 
+                0 20px 40px rgba(252, 182, 159, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .choice-emoji {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .choice-btn:hover .choice-emoji {
+            transform: scale(1.2);
+        }
+
+        .game-area {
+            margin: 40px 0;
+            min-height: 200px;
+        }
+
+        .choices-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .choices-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .player-choice, .computer-choice {
+            text-align: center;
+            flex: 1;
+        }
+
+        .choice-display {
+            font-size: 4em;
+            margin-bottom: 10px;
+            animation: bounceIn 0.6s ease;
+        }
+
+        .vs {
+            font-size: 2em;
+            color: #666;
+            font-weight: bold;
+            margin: 0 20px;
+        }
+
+        .result {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .result.win {
+            color: #28a745;
+            text-shadow: 2px 2px 4px rgba(40, 167, 69, 0.3);
+        }
+
+        .result.lose {
+            color: #dc3545;
+            text-shadow: 2px 2px 4px rgba(220, 53, 69, 0.3);
+        }
+
+        .result.tie {
+            color: #ffc107;
+            text-shadow: 2px 2px 4px rgba(255, 193, 7, 0.3);
+        }
+
+        .reset-btn {
+            background: linear-gradient(145deg, #ff6b6b, #ff5252);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @media (max-width: 480px) {
+            .choice-btn {
+                width: 90px;
+                height: 90px;
+                font-size: 3em;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .choice-display {
+                font-size: 3em;
+            }
+
+            .choices {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Kéo Búa Bao 🎮</h1>
+        
+        <div class="scoreboard">
+            <div class="score">
+                <h3>Bạn</h3>
+                <div class="score-value" id="playerScore">0</div>
+            </div>
+            <div class="score">
+                <h3>Máy</h3>
+                <div class="score-value" id="computerScore">0</div>
+            </div>
+        </div>
+
+        <div class="choices">
+            <button class="choice-btn rock" onclick="playGame('rock')">
+                <span class="choice-emoji">✊</span>
+            </button>
+            <button class="choice-btn paper" onclick="playGame('paper')">
+                <span class="choice-emoji">✋</span>
+            </button>
+            <button class="choice-btn scissors" onclick="playGame('scissors')">
+                <span class="choice-emoji">✌️</span>
+            </button>
+        </div>
+
+        <div class="game-area">
+            <div class="choices-display" id="choicesDisplay">
+                <div class="player-choice">
+                    <div class="choice-display" id="playerChoice">❓</div>
+                    <div>Bạn chọn</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="computer-choice">
+                    <div class="choice-display" id="computerChoice">❓</div>
+                    <div>Máy chọn</div>
+                </div>
+            </div>
+            
+            <div class="result" id="result"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">🔄 Chơi lại</button>
+    </div>
+
+    <script>
+        let playerScore = 0;
+        let computerScore = 0;
+        
+        const choices = {
+            rock: { emoji: '✊', name: 'Búa' },
+            paper: { emoji: '✋', name: 'Bao' },
+            scissors: { emoji: '✌️', name: 'Kéo' }
+        };
+
+        const rules = {
+            rock: 'scissors',
+            paper: 'rock',
+            scissors: 'paper'
+        };
+
+        function getComputerChoice() {
+            const choiceKeys = Object.keys(choices);
+            return choiceKeys[Math.floor(Math.random() * choiceKeys.length)];
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'tie';
+            }
+            if (rules[playerChoice] === computerChoice) {
+                return 'win';
+            }
+            return 'lose';
+        }
+
+        function updateScore(result) {
+            if (result === 'win') {
+                playerScore++;
+                document.getElementById('playerScore').classList.add('pulse');
+            } else if (result === 'lose') {
+                computerScore++;
+                document.getElementById('computerScore').classList.add('pulse');
+            }
+            
+            document.getElementById('playerScore').textContent = playerScore;
+            document.getElementById('computerScore').textContent = computerScore;
+            
+            setTimeout(() => {
+                document.getElementById('playerScore').classList.remove('pulse');
+                document.getElementById('computerScore').classList.remove('pulse');
+            }, 600);
+        }
+
+        function displayResult(result, playerChoice, computerChoice) {
+            const resultElement = document.getElementById('result');
+            let message = '';
+            
+            switch(result) {
+                case 'win':
+                    message = `🎉 Bạn thắng! ${choices[playerChoice].name} thắng ${choices[computerChoice].name}`;
+                    resultElement.className = 'result show win';
+                    break;
+                case 'lose':
+                    message = `😢 Bạn thua! ${choices[computerChoice].name} thắng ${choices[playerChoice].name}`;
+                    resultElement.className = 'result show lose';
+                    break;
+                case 'tie':
+                    message = '🤝 Hòa! Cả hai cùng chọn ' + choices[playerChoice].name;
+                    resultElement.className = 'result show tie';
+                    break;
+            }
+            
+            resultElement.textContent = message;
+        }
+
+        function playGame(playerChoice) {
+            const computerChoice = getComputerChoice();
+            const result = determineWinner(playerChoice, computerChoice);
+            
+            // Update display
+            document.getElementById('playerChoice').textContent = choices[playerChoice].emoji;
+            document.getElementById('computerChoice').textContent = choices[computerChoice].emoji;
+            
+            // Show choices with animation
+            const choicesDisplay = document.getElementById('choicesDisplay');
+            choicesDisplay.classList.add('show');
+            
+            // Update score and show result
+            setTimeout(() => {
+                updateScore(result);
+                displayResult(result, playerChoice, computerChoice);
+            }, 300);
+        }
+
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            document.getElementById('playerScore').textContent = '0';
+            document.getElementById('computerScore').textContent = '0';
+            document.getElementById('playerChoice').textContent = '❓';
+            document.getElementById('computerChoice').textContent = '❓';
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = 'result';
+            document.getElementById('choicesDisplay').classList.remove('show');
+        }
+
+        // Add some initial animations
+        window.addEventListener('load', () => {
+            const buttons = document.querySelectorAll('.choice-btn');
+            buttons.forEach((btn, index) => {
+                setTimeout(() => {
+                    btn.style.animation = 'bounceIn 0.6s ease';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
