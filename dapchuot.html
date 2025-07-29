@@ -468,6 +468,8 @@
         </div>
     </div>
 
+    <audio id="gameOverSound" src="hoanthanh.mp3"></audio>
+
     <script>
         let gameState = {
             score: 0,
@@ -499,6 +501,7 @@
         const backBtn = document.getElementById('backBtn');
         const gameOverEl = document.getElementById('gameOver');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const gameOverSound = document.getElementById('gameOverSound');
 
         // Detect if device supports touch
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -680,6 +683,12 @@
             document.getElementById('accuracy').textContent = accuracy;
             
             gameOverEl.classList.add('show');
+            
+            // Play game over sound
+            gameOverSound.currentTime = 0; // Reset audio to start
+            gameOverSound.play().catch(error => {
+                console.log('Audio playback failed:', error);
+            });
         }
 
         function closeGameOver() {
