@@ -37,7 +37,7 @@
             color: #333;
             margin-bottom: 30px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text_shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .scoreboard {
@@ -464,6 +464,11 @@
             scissors: 'paper'
         };
 
+        // Initialize audio objects
+        const winSound = new Audio('win.mp3');
+        const loseSound = new Audio('lose.mp3');
+        const tieSound = new Audio('tie.mp3');
+
         function getComputerChoice() {
             const choiceKeys = Object.keys(choices);
             return choiceKeys[Math.floor(Math.random() * choiceKeys.length)];
@@ -505,14 +510,17 @@
                 case 'win':
                     message = `🎉 Bạn thắng! ${choices[playerChoice].name} thắng ${choices[computerChoice].name}`;
                     resultElement.className = 'result show win';
+                    winSound.play().catch(error => console.error('Error playing win sound:', error));
                     break;
                 case 'lose':
                     message = `😢 Bạn thua! ${choices[computerChoice].name} thắng ${choices[playerChoice].name}`;
                     resultElement.className = 'result show lose';
+                    loseSound.play().catch(error => console.error('Error playing lose sound:', error));
                     break;
                 case 'tie':
                     message = '🤝 Hòa! Cả hai cùng chọn ' + choices[playerChoice].name;
                     resultElement.className = 'result show tie';
+                    tieSound.play().catch(error => console.error('Error playing tie sound:', error));
                     break;
             }
             
