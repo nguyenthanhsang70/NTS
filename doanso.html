@@ -419,6 +419,8 @@
         </div>
     </div>
 
+    <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
+
     <script>
         let targetNumber;
         let attempts;
@@ -522,6 +524,12 @@
                 <p>Bạn đã giải được trong ${attempts} lần thử!</p>
             `;
             container.appendChild(gameOverDiv);
+
+            // Play completion sound
+            const completionSound = document.getElementById('completionSound');
+            completionSound.play().catch(error => {
+                console.log('Error playing sound:', error);
+            });
         }
 
         function newGame() {
