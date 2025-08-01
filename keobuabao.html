@@ -37,7 +37,7 @@
             color: #333;
             margin-bottom: 30px;
             font-size: 2.5em;
-            text_shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .scoreboard {
@@ -448,6 +448,10 @@
         </div>
     </div>
 
+    <audio id="winSound" src="win.mp3"></audio>
+    <audio id="loseSound" src="lose.mp3"></audio>
+    <audio id="tieSound" src="tie.mp3"></audio>
+
     <script>
         let playerScore = 0;
         let computerScore = 0;
@@ -464,10 +468,10 @@
             scissors: 'paper'
         };
 
-        // Initialize audio objects
-        const winSound = new Audio('win.mp3');
-        const loseSound = new Audio('lose.mp3');
-        const tieSound = new Audio('tie.mp3');
+        // Audio elements
+        const winSound = document.getElementById('winSound');
+        const loseSound = document.getElementById('loseSound');
+        const tieSound = document.getElementById('tieSound');
 
         function getComputerChoice() {
             const choiceKeys = Object.keys(choices);
@@ -506,21 +510,29 @@
             const resultElement = document.getElementById('result');
             let message = '';
             
+            // Reset audio to start from beginning
+            winSound.pause();
+            winSound.currentTime = 0;
+            loseSound.pause();
+            loseSound.currentTime = 0;
+            tieSound.pause();
+            tieSound.currentTime = 0;
+
             switch(result) {
                 case 'win':
                     message = `🎉 Bạn thắng! ${choices[playerChoice].name} thắng ${choices[computerChoice].name}`;
                     resultElement.className = 'result show win';
-                    winSound.play().catch(error => console.error('Error playing win sound:', error));
+                    winSound.play().catch(error => console.log('Error playing win sound:', error));
                     break;
                 case 'lose':
                     message = `😢 Bạn thua! ${choices[computerChoice].name} thắng ${choices[playerChoice].name}`;
                     resultElement.className = 'result show lose';
-                    loseSound.play().catch(error => console.error('Error playing lose sound:', error));
+                    loseSound.play().catch(error => console.log('Error playing lose sound:', error));
                     break;
                 case 'tie':
                     message = '🤝 Hòa! Cả hai cùng chọn ' + choices[playerChoice].name;
                     resultElement.className = 'result show tie';
-                    tieSound.play().catch(error => console.error('Error playing tie sound:', error));
+                    tieSound.play().catch(error => console.log('Error playing tie sound:', error));
                     break;
             }
             
@@ -556,6 +568,14 @@
             document.getElementById('result').textContent = '';
             document.getElementById('result').className = 'result';
             document.getElementById('choicesDisplay').classList.remove('show');
+            
+            // Stop all sounds
+            winSound.pause();
+            winSound.currentTime = 0;
+            loseSound.pause();
+            loseSound.currentTime = 0;
+            tieSound.pause();
+            tieSound.currentTime = 0;
         }
 
         // Add some initial animations
