@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bể Cá 3D - NTS</title>
 <link rel="icon" type="png" href="logos3.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
   body, html {
     margin: 0;
@@ -59,20 +60,17 @@
 </style>
 </head>
 <body>
-<button class="back-button" onclick="window.location.href='index.html'">Quay Lại</button>
+<button class="back-button" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> </button>
 <canvas id="aquarium"></canvas>
 <script>
 const canvas = document.getElementById('aquarium');
 const ctx = canvas.getContext('2d');
-
 // Set canvas size
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
 // Day/Night toggle
 let clickCount = 0;
 let isDay = true;
-
 function toggleDayNight() {
   isDay = !isDay;
   if (isDay) {
@@ -81,7 +79,6 @@ function toggleDayNight() {
     document.body.style.background = 'linear-gradient(180deg, #000033, #000066, #191970)';
   }
 }
-
 // Fish object
 function Fish(x, y, size, color, speed) {
   this.x = x;
@@ -94,18 +91,15 @@ function Fish(x, y, size, color, speed) {
   this.targetY = null;
   this.wiggle = Math.random() * 0.1;
 }
-
 Fish.prototype.draw = function() {
   ctx.save();
   ctx.translate(this.x, this.y);
   ctx.rotate(this.angle);
-
   // Shadow
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowBlur = 10;
   ctx.shadowOffsetX = 5;
   ctx.shadowOffsetY = 5;
-
   // Body
   const gradient = ctx.createRadialGradient(0, 0, this.size / 4, 0, 0, this.size);
   gradient.addColorStop(0, this.color);
@@ -116,25 +110,19 @@ Fish.prototype.draw = function() {
   ctx.quadraticCurveTo(this.size / 2, -this.size / 4, this.size, 0);
   ctx.quadraticCurveTo(this.size / 2, this.size / 4, 0, 0);
   ctx.fill();
-
   // Reset shadow
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-
   // Tail with wiggle
   const tailWiggle = Math.sin(Date.now() / 100 + this.x) * 0.2;
-  const tailGradient = ctx.createLinearGradient(-this.size, 0, -this.size / 2, 0);
-  tailGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-  tailGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
-  ctx.fillStyle = tailGradient;
+  ctx.fillStyle = '#FFFFFF'; // Solid white tail
   ctx.beginPath();
   ctx.moveTo(-this.size / 2, 0);
   ctx.lineTo(-this.size, -this.size / 3 + tailWiggle * this.size);
   ctx.lineTo(-this.size, this.size / 3 - tailWiggle * this.size);
   ctx.closePath();
   ctx.fill();
-
   // Eye
   ctx.fillStyle = 'white';
   ctx.beginPath();
@@ -144,16 +132,13 @@ Fish.prototype.draw = function() {
   ctx.beginPath();
   ctx.arc(this.size / 4, -this.size / 10, this.size / 15, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.restore();
 };
-
 Fish.prototype.update = function() {
   if (this.targetX !== null && this.targetY !== null) {
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-
     if (distance > this.speed) {
       this.angle = Math.atan2(dy, dx) + Math.sin(Date.now() / 500) * this.wiggle;
       this.x += Math.cos(this.angle) * this.speed;
@@ -167,12 +152,10 @@ Fish.prototype.update = function() {
     this.angle += (Math.random() - 0.5) * 0.1;
     this.x += Math.cos(this.angle) * this.speed;
     this.y += Math.sin(this.angle) * this.speed;
-
     if (this.x < 0 || this.x > canvas.width) this.angle = Math.PI - this.angle + (Math.random() - 0.5) * 0.2;
     if (this.y < 0 || this.y > canvas.height) this.angle = -this.angle + (Math.random() - 0.5) * 0.2;
   }
 };
-
 // Create fish
 const fishes = [];
 for (let i = 0; i < 50; i++) {
@@ -184,10 +167,8 @@ for (let i = 0; i < 50; i++) {
   const speed = Math.random() * 2 + 0.5;
   fishes.push(new Fish(x, y, size, color, speed));
 }
-
 // Feed particles
 let feedParticles = [];
-
 function FeedParticle(x, y) {
   this.x = x;
   this.y = y;
@@ -195,19 +176,16 @@ function FeedParticle(x, y) {
   this.speedY = Math.random() * 2 + 1;
   this.alpha = 1;
 }
-
 FeedParticle.prototype.update = function() {
   this.y += this.speedY;
   this.alpha -= 0.02;
 };
-
 FeedParticle.prototype.draw = function() {
   ctx.fillStyle = `rgba(255, 215, 0, ${this.alpha})`;
   ctx.beginPath();
   ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
   ctx.fill();
 };
-
 function drawFeed() {
   feedParticles = feedParticles.filter(p => p.alpha > 0);
   feedParticles.forEach(particle => {
@@ -215,7 +193,6 @@ function drawFeed() {
     particle.draw();
   });
 }
-
 // Bubble object
 function Bubble(x, y, size, speed) {
   this.x = x;
@@ -224,26 +201,22 @@ function Bubble(x, y, size, speed) {
   this.speed = speed;
   this.wiggle = Math.random() * 2 - 1;
 }
-
 Bubble.prototype.update = function() {
   this.y -= this.speed;
   this.x += Math.sin(Date.now() / 200 + this.y) * this.wiggle;
   if (this.y < 0) this.y = canvas.height;
 };
-
 Bubble.prototype.draw = function() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
   ctx.beginPath();
   ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
   ctx.fill();
 };
-
 // Create bubbles
 const bubbles = [];
 for (let i = 0; i < 20; i++) {
   bubbles.push(new Bubble(Math.random() * canvas.width, canvas.height, Math.random() * 4 + 1, Math.random() * 2 + 1));
 }
-
 // Decorations
 function drawDecorations() {
   // Sand
@@ -252,26 +225,21 @@ function drawDecorations() {
   sandGradient.addColorStop(1, '#d2b48c');
   ctx.fillStyle = sandGradient;
   ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-
   // Rocks
   ctx.fillStyle = '#8b4513';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
   ctx.shadowBlur = 10;
   ctx.shadowOffsetX = 5;
   ctx.shadowOffsetY = 5;
-
   ctx.beginPath();
   ctx.moveTo(100, canvas.height - 100);
   ctx.quadraticCurveTo(150, canvas.height - 200, 250, canvas.height - 100);
   ctx.fill();
-
   ctx.beginPath();
   ctx.moveTo(400, canvas.height - 100);
   ctx.quadraticCurveTo(450, canvas.height - 180, 550, canvas.height - 100);
   ctx.fill();
-
   ctx.shadowBlur = 0;
-
   // Seaweed
   const seaweedColors = ['#228B22', '#32CD32', '#00FA9A'];
   for (let i = 0; i < 10; i++) {
@@ -282,7 +250,6 @@ function drawDecorations() {
     drawSeaweed(x, canvas.height - 100, height, baseWidth, color);
   }
 }
-
 function drawSeaweed(x, y, height, baseWidth, color) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 5;
@@ -291,18 +258,16 @@ function drawSeaweed(x, y, height, baseWidth, color) {
   ctx.moveTo(x, y);
   ctx.bezierCurveTo(x + sway, y - height / 3, x - sway, y - (height * 2 / 3), x, y - height);
   ctx.stroke();
-
   // Additional leaves with more density
   ctx.lineWidth = 2;
-  for (let i = 0; i < 5; i++) { // Increased to 5 for more leaves
-    const leafY = y - height * (i + 1) / 6; // Adjusted spacing for bushier look
+  for (let i = 0; i < 5; i++) {
+    const leafY = y - height * (i + 1) / 6;
     const leafSway = Math.sin(Date.now() / 600 + x + i) * 10;
-    const leafWidth = baseWidth * (1 - i / 6); // Taper leaves towards top
+    const leafWidth = baseWidth * (1 - i / 6);
     ctx.beginPath();
     ctx.moveTo(x, leafY);
     ctx.quadraticCurveTo(x + leafSway, leafY - 10, x + leafSway * leafWidth / 10, leafY - 20);
     ctx.stroke();
-
     // Add smaller side leaves for bushiness
     ctx.beginPath();
     ctx.moveTo(x, leafY);
@@ -310,7 +275,6 @@ function drawSeaweed(x, y, height, baseWidth, color) {
     ctx.stroke();
   }
 }
-
 // Water effect
 function drawWaterEffect() {
   const lightX = canvas.width / 2 + Math.sin(Date.now() / 1000) * 100;
@@ -322,74 +286,71 @@ function drawWaterEffect() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-
 // Animation loop
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawWaterEffect();
   drawDecorations();
-
   bubbles.forEach(bubble => {
     bubble.update();
     bubble.draw();
   });
-
   fishes.forEach(fish => {
     fish.update();
     fish.draw();
   });
-
   drawFeed();
-
   requestAnimationFrame(animate);
 }
-
 animate();
-
+// Audio setup
+const caanSound = new Audio('caan.mp3');
+const bienSound = new Audio('bien.mp3');
 // Event listeners
 canvas.addEventListener('mousedown', (e) => {
   clickCount++;
-  if (clickCount === 3) {
+  if (clickCount === 1) {
+    caanSound.play().catch(err => console.log('Audio play failed:', err));
+  } else if (clickCount === 2) {
+    bienSound.play().catch(err => console.log('Audio play failed:', err));
+  } else if (clickCount === 3) {
     toggleDayNight();
     clickCount = 0;
   }
-
   const feedX = e.clientX;
   const feedY = e.clientY;
   for (let i = 0; i < 10; i++) {
     feedParticles.push(new FeedParticle(feedX + (Math.random() - 0.5) * 20, feedY));
   }
-
   fishes.forEach(fish => {
     fish.targetX = feedX;
     fish.targetY = feedY;
     fish.speed = Math.random() * 3 + 2;
   });
 });
-
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   clickCount++;
-  if (clickCount === 3) {
+  if (clickCount === 1) {
+    caanSound.play().catch(err => console.log('Audio play failed:', err));
+  } else if (clickCount === 2) {
+    bienSound.play().catch(err => console.log('Audio play failed:', err));
+  } else if (clickCount === 3) {
     toggleDayNight();
     clickCount = 0;
   }
-
   const touch = e.touches[0];
   const feedX = touch.clientX;
   const feedY = touch.clientY;
   for (let i = 0; i < 10; i++) {
     feedParticles.push(new FeedParticle(feedX + (Math.random() - 0.5) * 20, feedY));
   }
-
   fishes.forEach(fish => {
     fish.targetX = feedX;
     fish.targetY = feedY;
     fish.speed = Math.random() * 3 + 2;
   });
 });
-
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
