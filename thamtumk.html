@@ -50,21 +50,38 @@
             text-align: center;
             margin-bottom: 30px;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .back-btn {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #00ff00;
-            font-size: 1.5em;
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ffff;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            text-decoration: none;
         }
-        .back-btn:hover {
-            color: #ff6b6b;
+        .icon:hover {
+            background: rgba(0, 255, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .back-icon {
+            position: absolute;
+            left: 0;
+        }
+        .info-icon {
+            position: absolute;
+            right: 0;
         }
         .title {
             font-size: 2em;
@@ -75,6 +92,7 @@
         .subtitle {
             color: #ffa500;
             font-size: 0.9em;
+            text-align: center;
         }
         .level {
             margin-bottom: 30px;
@@ -258,6 +276,83 @@
             color: #888;
             margin-bottom: 5px;
         }
+        .guide-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .guide-content {
+            background: rgba(0, 20, 0, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        .guide-title {
+            color: #ff6b6b;
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ff6b6b;
+        }
+        .guide-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            border-left: 3px solid #00ffff;
+        }
+        .guide-section h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .guide-section p, .guide-section li {
+            color: #00ff00;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .guide-section ul {
+            margin-left: 20px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .close-btn:hover {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        .difficulty-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .difficulty-item {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -265,10 +360,11 @@
    
     <div class="terminal">
         <div class="header">
-            <button class="back-btn" onclick="window.location.href='game.html'">⬅️</button>
+            <a href="game.html" class="icon back-icon" title="Quay lại">&#x21A9;</a>
             <div class="title">🔓 THÁM TỬ MẬT KHẨU</div>
-            <div class="subtitle">20 Cấp Độ Thử Thách | Từ Cơ Bản Đến Siêu Khó</div>
+            <span class="icon info-icon" onclick="showGuide()" title="Hướng dẫn">i</span>
         </div>
+        <div class="subtitle">20 Cấp Độ Thử Thách | Từ Cơ Bản Đến Siêu Khó</div>
         <div class="progress">
             <div>🏆 Tiến độ: <span id="progressText">0/20</span> cấp độ hoàn thành</div>
             <div class="progress-bar">
@@ -656,6 +752,80 @@
             <div class="result" id="result20"></div>
         </div>
     </div>
+    <!-- Guide Modal -->
+    <div class="guide-modal" id="guideModal">
+        <div class="guide-content">
+            <button class="close-btn" onclick="hideGuide()">&times;</button>
+            <div class="guide-title">📖 HƯỚNG DẪN CHƠI</div>
+            <div class="guide-section">
+                <h3>🎯 MỤC TIÊU GAME</h3>
+                <p>Trở thành <strong>THÁM TỬ MẬT KHẨU</strong> bậc thầy bằng cách giải mã 20 cấp độ từ dễ đến siêu khó!</p>
+            </div>
+            <div class="guide-section">
+                <h3>🎮 CÁCH CHƠI</h3>
+                <ul>
+                    <li>Đọc kỹ <strong>clue</strong> màu vàng để hiểu logic giải mã</li>
+                    <li>Nhập đáp án vào ô input</li>
+                    <li>Nhấn <strong>"GIẢI MÃ"</strong> để kiểm tra</li>
+                    <li>Dùng <strong>"Gợi Ý"</strong> nếu gặp khó khăn</li>
+                    <li>Hoàn thành level để mở khóa level tiếp theo</li>
+                </ul>
+            </div>
+            <div class="guide-section">
+                <h3>📊 CÁC CẤP ĐỘ KHÓ</h3>
+                <div class="difficulty-legend">
+                    <div class="difficulty-item easy">DỄ (1-4)</div>
+                    <div class="difficulty-item medium">VỪA (5-8)</div>
+                    <div class="difficulty-item hard">KHÓ (9-12)</div>
+                    <div class="difficulty-item expert">CHUYÊN GIA (13-17)</div>
+                    <div class="difficulty-item master">MASTER (18-20)</div>
+                </div>
+            </div>
+            <div class="guide-section">
+                <h3>🧩 CÁC LOẠI MẬT MÃ</h3>
+                <ul>
+                    <li><strong>Alphabet Cipher:</strong> A=1, B=2, C=3...</li>
+                    <li><strong>Caesar Cipher:</strong> Dịch chuyển chữ cái theo số cố định</li>
+                    <li><strong>Reverse Text:</strong> Đảo ngược chuỗi ký tự</li>
+                    <li><strong>Binary:</strong> Hệ nhị phân (0,1)</li>
+                    <li><strong>Morse Code:</strong> Dấu chấm và gạch ngang</li>
+                    <li><strong>Hex to ASCII:</strong> Mã thập lục phân</li>
+                    <li><strong>Coordinate Grid:</strong> Tọa độ ma trận</li>
+                    <li><strong>DNA Code:</strong> A=00, T=01, G=10, C=11</li>
+                </ul>
+            </div>
+            <div class="guide-section">
+                <h3>💡 MẸO GIẢI MÃ</h3>
+                <ul>
+                    <li>Đọc kỹ <strong>Logic</strong> trong mỗi clue</li>
+                    <li>Chú ý đến <strong>pattern</strong> và quy luật</li>
+                    <li>Sử dụng gợi ý khi cần thiết</li>
+                    <li>Thử nghiệm và kiên nhẫn</li>
+                    <li>Học từ các level trước để áp dụng cho level sau</li>
+                </ul>
+            </div>
+            <div class="guide-section">
+                <h3>🏆 TIẾN ĐỘ & THÀNH TÍCH</h3>
+                <p>Theo dõi tiến độ qua thanh progress bar và các giai đoạn:</p>
+                <ul>
+                    <li><strong>Khởi đầu:</strong> 0 level</li>
+                    <li><strong>Cơ bản:</strong> 5+ levels</li>
+                    <li><strong>Nâng cao:</strong> 9+ levels</li>
+                    <li><strong>Chuyên gia:</strong> 13+ levels</li>
+                    <li><strong>Bậc thầy:</strong> 17+ levels</li>
+                    <li><strong>Huyền thoại:</strong> 20 levels (hoàn thành!)</li>
+                </ul>
+            </div>
+            <div class="guide-section">
+                <h3>⚡ PHÍM TẮT</h3>
+                <p><strong>Enter:</strong> Gửi đáp án (khi đang focus vào ô input)</p>
+            </div>
+            <div class="guide-section" style="text-align: center; border-left: 3px solid #ff6b6b;">
+                <h3 style="color: #ff6b6b;">🔥 CHÚC BẠN MAY MẮN!</h3>
+                <p style="color: #ffa500;">Hãy trở thành <strong>MASTER CRYPTOGRAPHER</strong> đích thực!</p>
+            </div>
+        </div>
+    </div>
     <script>
         // Matrix background effect
         const canvas = document.getElementById('matrix');
@@ -828,6 +998,25 @@
         });
         // Initialize
         updatePhase();
+        // Guide modal functions
+        function showGuide() {
+            document.getElementById('guideModal').style.display = 'flex';
+        }
+        function hideGuide() {
+            document.getElementById('guideModal').style.display = 'none';
+        }
+        // Click outside modal to close
+        document.getElementById('guideModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideGuide();
+            }
+        });
+        // ESC key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideGuide();
+            }
+        });
     </script>
 </body>
 </html>
