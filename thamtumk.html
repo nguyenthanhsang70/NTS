@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thám Tử Mật Khẩu - NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,9 +13,9 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
-            color: #00ff00;
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #1a1a3d, #2a2a5e);
+            color: #e0e0e0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,16 +24,16 @@
             overflow-x: hidden;
         }
         .terminal {
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 15px;
-            max-width: 90vw;
+            background: rgba(10, 10, 20, 0.95);
+            border: 1px solid #00ff88;
+            border-radius: 12px;
+            padding: clamp(12px, 3vw, 16px);
+            max-width: min(1000px, 95vw);
             width: 100%;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            box-shadow: 0 6px 24px rgba(0, 255, 136, 0.2);
+            margin: clamp(10px, 2vw, 15px) auto;
             position: relative;
             overflow: hidden;
-            margin: 10px auto;
         }
         .terminal::before {
             content: '';
@@ -40,234 +41,238 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #ff0000, #00ff00, #0000ff);
-            animation: pulse 2s infinite;
+            height: 4px;
+            background: linear-gradient(90deg, #ff4d4d, #00ff88, #4d4dff);
+            animation: pulse 2s infinite ease-in-out;
         }
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.3; }
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: clamp(15px, 4vw, 20px);
+            position: relative;
+            gap: clamp(5px, 2vw, 8px);
         }
         .icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: rgba(0, 255, 255, 0.2);
-            border: 2px solid #00ffff;
+            width: clamp(28px, 8vw, 32px);
+            height: clamp(28px, 8vw, 32px);
+            background: rgba(0, 255, 136, 0.15);
+            border: 2px solid #00ff88;
             border-radius: 50%;
-            font-size: 16px;
-            font-weight: bold;
-            color: #00ffff;
+            font-size: clamp(14px, 4vw, 16px);
+            color: #00ff88;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-decoration: none;
-            margin: 0 5px;
         }
         .icon:hover {
-            background: rgba(0, 255, 255, 0.4);
+            background: rgba(0, 255, 136, 0.3);
             transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
         }
-        .back-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+        .back-icon, .info-icon {
+            position: static;
+            margin: 0 clamp(5px, 2vw, 8px);
         }
-        .info-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+        @media (min-width: 768px) {
+            .back-icon {
+                position: absolute;
+                left: clamp(10px, 2vw, 12px);
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .info-icon {
+                position: absolute;
+                right: clamp(10px, 2vw, 12px);
+                top: 50%;
+                transform: translateY(-50%);
+            }
         }
         .title {
-            font-size: clamp(1.5em, 5vw, 1.8em);
-            color: #ff6b6b;
-            text-shadow: 0 0 8px #ff6b6b;
-            margin: 10px 0;
+            font-size: clamp(1.6em, 5vw, 2em);
+            color: #ff4d4d;
+            text-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+            margin: clamp(8px, 2vw, 12px) 0;
             flex: 1;
             text-align: center;
+            font-weight: 700;
         }
         .subtitle {
-            color: #ffa500;
+            color: #ffd700;
             font-size: clamp(0.8em, 3vw, 0.9em);
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: clamp(12px, 3vw, 15px);
+            font-weight: 500;
         }
         .level {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            background: rgba(0, 20, 0, 0.3);
+            margin-bottom: clamp(15px, 4vw, 20px);
+            padding: clamp(12px, 3vw, 16px);
+            border: 1px solid #333366;
+            border-radius: 8px;
+            background: rgba(20, 20, 40, 0.7);
             position: relative;
+            transition: all 0.3s ease;
         }
         .level.locked {
             display: none;
         }
         .level.unlocked {
-            animation: levelUnlock 0.8s ease-in-out;
+            animation: levelUnlock 0.6s ease-in-out;
         }
         .level.completed {
-            opacity: 0.6;
-            border-color: #00ff00;
-            background: rgba(0, 50, 0, 0.2);
+            opacity: 0.9;
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
         }
         @keyframes levelUnlock {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         .level-title {
-            color: #00ffff;
-            font-size: clamp(1em, 4vw, 1.1em);
-            margin-bottom: 10px;
+            color: #00ccff;
+            font-size: clamp(1.1em, 4vw, 1.2em);
+            margin-bottom: clamp(8px, 2vw, 10px);
             text-align: center;
+            font-weight: 600;
         }
         .difficulty {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: clamp(0.6em, 2.5vw, 0.7em);
-            font-weight: bold;
+            top: clamp(8px, 2vw, 10px);
+            right: clamp(8px, 2vw, 10px);
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2vw, 10px);
+            border-radius: 4px;
+            font-size: clamp(0.65em, 2.5vw, 0.75em);
+            font-weight: 600;
         }
-        .easy { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
-        .medium { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
-        .hard { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
-        .expert { background: rgba(128, 0, 128, 0.2); color: #ff00ff; }
-        .master { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+        .easy { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .medium { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+        .hard { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; }
+        .expert { background: rgba(138, 43, 226, 0.2); color: #8a2be2; }
+        .master { background: rgba(255, 105, 180, 0.2); color: #ff69b4; }
         .clue {
-            background: rgba(255, 255, 0, 0.1);
-            border-left: 3px solid #ffff00;
-            padding: 8px;
-            margin: 10px 0;
-            color: #ffff00;
-            font-size: clamp(0.8em, 3vw, 0.9em);
-            line-height: 1.4;
+            background: rgba(255, 215, 0, 0.15);
+            border-left: 4px solid #ffd700;
+            padding: clamp(8px, 2vw, 10px);
+            margin: clamp(10px, 2.5vw, 12px) 0;
+            color: #ffd700;
+            font-size: clamp(0.8em, 3vw, 0.85em);
+            line-height: 1.5;
+            border-radius: 4px;
         }
         .input-group {
-            margin: 10px 0;
+            margin: clamp(10px, 2.5vw, 12px) 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 10px);
         }
         .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #00ff00;
-            font-size: clamp(0.8em, 3vw, 0.9em);
+            margin-bottom: clamp(5px, 1.5vw, 6px);
+            color: #e0e0e0;
+            font-size: clamp(0.8em, 3vw, 0.85em);
+            font-weight: 500;
         }
         .password-input {
             width: 100%;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #00ff00;
-            border-radius: 3px;
-            color: #00ff00;
+            padding: clamp(8px, 2vw, 10px);
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid #00ff88;
+            border-radius: 6px;
+            color: #e0e0e0;
             font-family: inherit;
-            font-size: clamp(0.9em, 3.5vw, 1em);
+            font-size: clamp(0.85em, 3.5vw, 0.9em);
+            transition: all 0.3s ease;
         }
         .password-input:focus {
             outline: none;
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+            border-color: #00ccff;
+            box-shadow: 0 0 8px rgba(0, 204, 255, 0.5);
+        }
+        .crack-btn, .hint-btn {
+            padding: clamp(8px, 2vw, 10px) clamp(16px, 4vw, 20px);
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(0.75em, 3vw, 0.85em);
         }
         .crack-btn {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            background: linear-gradient(45deg, #ff4d4d, #ff8080);
             border: none;
-            padding: 10px 20px;
-            color: white;
-            font-family: inherit;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 5px;
-            font-size: clamp(0.8em, 3vw, 0.9em);
+            color: #fff;
         }
         .crack-btn:hover {
-            background: linear-gradient(45deg, #ff5252, #ff7979);
+            background: linear-gradient(45deg, #ff3333, #ff6666);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            box-shadow: 0 4px 16px rgba(255, 77, 77, 0.4);
         }
         .hint-btn {
-            background: rgba(255, 165, 0, 0.2);
-            border: 1px solid #ffa500;
-            color: #ffa500;
-            padding: 6px 12px;
-            font-family: inherit;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: clamp(0.7em, 2.5vw, 0.8em);
-            transition: all 0.3s;
-            margin: 5px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid #ffd700;
+            color: #ffd700;
         }
         .hint-btn:hover {
-            background: rgba(255, 165, 0, 0.3);
+            background: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
         }
         .hint {
-            background: rgba(255, 165, 0, 0.1);
-            border-left: 3px solid #ffa500;
-            padding: 8px;
-            margin: 10px 0;
-            color: #ffa500;
-            font-size: clamp(0.75em, 2.5vw, 0.85em);
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: clamp(8px, 2vw, 10px);
+            margin: clamp(10px, 2.5vw, 12px) 0;
+            color: #ffd700;
+            font-size: clamp(0.75em, 3vw, 0.8em);
             display: none;
+            border-radius: 4px;
         }
         .result {
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 3px;
+            margin-top: clamp(10px, 2.5vw, 12px);
+            padding: clamp(8px, 2vw, 10px);
+            border-radius: 6px;
             text-align: center;
-            font-weight: bold;
-            font-size: clamp(0.8em, 3vw, 0.9em);
+            font-weight: 600;
+            font-size: clamp(0.8em, 3vw, 0.85em);
         }
         .success {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid #00ff00;
-            color: #00ff00;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
         }
         .error {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
-            color: #ff0000;
+            background: rgba(255, 77, 77, 0.2);
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
         }
         .progress {
-            margin: 15px 0;
+            margin: clamp(12px, 3vw, 15px) 0;
             text-align: center;
             position: sticky;
-            top: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #333;
+            top: clamp(10px, 2vw, 12px);
+            background: rgba(10, 10, 20, 0.95);
+            padding: clamp(10px, 2.5vw, 12px);
+            border-radius: 8px;
+            border: 1px solid #333366;
             z-index: 100;
         }
         .progress-bar {
             width: 100%;
-            height: 15px;
-            background: rgba(0, 0, 0, 0.5);
+            height: clamp(14px, 3.5vw, 16px);
+            background: rgba(20, 20, 40, 0.5);
             border-radius: 8px;
             overflow: hidden;
-            margin: 8px 0;
+            margin: clamp(8px, 2vw, 10px) 0;
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00ff00, #00ffff, #ff00ff);
+            background: linear-gradient(90deg, #00ff88, #00ccff, #ff69b4);
             transition: width 0.5s ease;
             width: 0%;
         }
@@ -284,12 +289,12 @@
             height: 100%;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.05;
+            opacity: 0.07;
         }
         .category {
             font-size: clamp(0.7em, 2.5vw, 0.8em);
-            color: #888;
-            margin-bottom: 5px;
+            color: #9999cc;
+            margin-bottom: clamp(6px, 1.5vw, 8px);
         }
         .guide-modal {
             display: none;
@@ -298,157 +303,175 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             overflow-y: auto;
-            padding: 10px;
+            padding: clamp(10px, 2vw, 15px);
         }
         .guide-content {
-            background: rgba(0, 20, 0, 0.95);
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 15px;
-            max-width: 90vw;
-            max-height: 85vh;
+            background: rgba(10, 10, 20, 0.95);
+            border: 1px solid #00ff88;
+            border-radius: 12px;
+            padding: clamp(12px, 3vw, 16px);
+            max-width: min(800px, 90vw);
+            max-height: 90vh;
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            box-shadow: 0 6px 24px rgba(0, 255, 136, 0.2);
         }
         .guide-title {
-            color: #ff6b6b;
-            font-size: clamp(1.2em, 4vw, 1.4em);
+            color: #ff4d4d;
+            font-size: clamp(1.3em, 4.5vw, 1.5em);
             text-align: center;
-            margin-bottom: 15px;
-            text-shadow: 0 0 8px #ff6b6b;
+            margin-bottom: clamp(12px, 3vw, 15px);
+            text-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+            font-weight: 700;
         }
         .guide-section {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            border-left: 3px solid #00ffff;
+            margin-bottom: clamp(12px, 3vw, 15px);
+            padding: clamp(10px, 2.5vw, 12px);
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid #00ccff;
         }
         .guide-section h3 {
-            color: #00ffff;
-            margin-bottom: 8px;
+            color: #00ccff;
+            margin-bottom: clamp(8px, 2vw, 10px);
             font-size: clamp(1em, 3.5vw, 1.1em);
+            font-weight: 600;
         }
         .guide-section p, .guide-section li {
-            color: #00ff00;
-            line-height: 1.5;
-            margin-bottom: 8px;
-            font-size: clamp(0.8em, 3vw, 0.9em);
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: clamp(8px, 2vw, 10px);
+            font-size: clamp(0.8em, 3vw, 0.85em);
         }
         .guide-section ul {
-            margin-left: 15px;
+            margin-left: clamp(15px, 4vw, 20px);
         }
         .close-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: clamp(10px, 2vw, 12px);
+            right: clamp(10px, 2vw, 12px);
             background: none;
             border: none;
-            color: #ff6b6b;
-            font-size: 20px;
+            color: #ff4d4d;
+            font-size: clamp(18px, 5vw, 20px);
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            transition: all 0.3s ease;
         }
         .close-btn:hover {
-            color: #ff0000;
-            text-shadow: 0 0 8px #ff0000;
+            color: #ff3333;
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
         }
         .difficulty-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
+            gap: clamp(6px, 2vw, 8px);
+            margin-top: clamp(8px, 2vw, 10px);
         }
         .difficulty-item {
-            padding: 4px 8px;
-            border-radius: 3px;
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2vw, 10px);
+            border-radius: 4px;
             font-size: clamp(0.7em, 2.5vw, 0.8em);
-            font-weight: bold;
+            font-weight: 600;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             body {
-                padding: 5px;
+                padding: clamp(5px, 2vw, 8px);
             }
             .terminal {
-                padding: 10px;
-                margin: 5px auto;
-                max-width: 95vw;
-            }
-            .header {
-                flex-direction: row;
-                gap: 5px;
-            }
-            .back-icon, .info-icon {
-                position: static;
-                transform: none;
-                margin: 0 5px;
+                padding: clamp(8px, 2.5vw, 10px);
+                max-width: 98vw;
             }
             .title {
-                font-size: clamp(1.2em, 6vw, 1.5em);
-                margin: 5px 0;
+                font-size: clamp(1.4em, 5.5vw, 1.6em);
             }
             .subtitle {
                 font-size: clamp(0.7em, 3.5vw, 0.8em);
             }
             .level {
-                padding: 10px;
+                padding: clamp(8px, 2.5vw, 10px);
             }
             .level-title {
-                font-size: clamp(0.9em, 4.5vw, 1em);
+                font-size: clamp(0.95em, 4.5vw, 1em);
             }
-            .clue {
-                font-size: clamp(0.7em, 3.5vw, 0.8em);
-                padding: 6px;
-            }
-            .input-group label {
-                font-size: clamp(0.7em, 3.5vw, 0.8em);
+            .clue, .hint, .input-group label, .result {
+                font-size: clamp(0.7em, 3.5vw, 0.75em);
             }
             .password-input {
-                padding: 6px;
-                font-size: clamp(0.8em, 4vw, 0.9em);
+                padding: clamp(6px, 2vw, 8px);
+                font-size: clamp(0.75em, 3.5vw, 0.8em);
             }
             .crack-btn, .hint-btn {
-                padding: 8px 15px;
-                font-size: clamp(0.7em, 3.5vw, 0.8em);
-            }
-            .result {
-                font-size: clamp(0.7em, 3.5vw, 0.8em);
-                padding: 6px;
+                padding: clamp(6px, 2vw, 8px) clamp(12px, 3.5vw, 16px);
+                font-size: clamp(0.7em, 3.5vw, 0.75em);
             }
             .progress {
-                padding: 8px;
+                padding: clamp(8px, 2vw, 10px);
             }
             .progress-bar {
-                height: 12px;
+                height: clamp(12px, 3vw, 14px);
             }
             .guide-content {
-                padding: 10px;
+                padding: clamp(8px, 2.5vw, 10px);
                 max-width: 95vw;
             }
             .guide-title {
-                font-size: clamp(1em, 5vw, 1.2em);
+                font-size: clamp(1.1em, 5vw, 1.2em);
             }
             .guide-section {
-                padding: 8px;
+                padding: clamp(8px, 2vw, 10px);
             }
             .guide-section h3 {
                 font-size: clamp(0.9em, 4vw, 1em);
             }
             .guide-section p, .guide-section li {
-                font-size: clamp(0.7em, 3.5vw, 0.8em);
+                font-size: clamp(0.7em, 3.5vw, 0.75em);
+            }
+        }
+        @media (min-width: 481px) and (max-width: 768px) {
+            .terminal {
+                padding: clamp(10px, 2.5vw, 12px);
+                max-width: 95vw;
+            }
+            .title {
+                font-size: clamp(1.5em, 5vw, 1.8em);
+            }
+            .subtitle {
+                font-size: clamp(0.75em, 3vw, 0.85em);
+            }
+            .level {
+                padding: clamp(10px, 2.5vw, 12px);
+            }
+            .level-title {
+                font-size: clamp(1em, 4vw, 1.1em);
+            }
+            .clue, .hint, .input-group label, .result {
+                font-size: clamp(0.75em, 3vw, 0.8em);
+            }
+            .password-input {
+                padding: clamp(7px, 2vw, 9px);
+                font-size: clamp(0.8em, 3.5vw, 0.85em);
+            }
+            .crack-btn, .hint-btn {
+                padding: clamp(7px, 2vw, 9px) clamp(14px, 3.5vw, 18px);
+                font-size: clamp(0.75em, 3vw, 0.8em);
+            }
+            .progress {
+                padding: clamp(9px, 2vw, 11px);
+            }
+            .progress-bar {
+                height: clamp(13px, 3.5vw, 15px);
             }
         }
     </style>
 </head>
 <body>
     <canvas class="matrix-bg" id="matrix"></canvas>
-   
     <div class="terminal">
         <div class="header">
             <a href="game.html" class="icon back-icon" title="Quay lại">&#x21A9;</a>
@@ -461,11 +484,10 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div style="font-size: clamp(0.7em, 2.5vw, 0.8em); color: #888; margin-top: 5px;">
+            <div style="font-size: clamp(0.7em, 2.5vw, 0.8em); color: #9999cc; margin-top: clamp(6px, 1.5vw, 8px);">
                 <span id="currentPhase">Giai đoạn: Khởi đầu</span>
             </div>
         </div>
-        <!-- 20 CẤP ĐỘ -->
         <div class="level" id="level1">
             <div class="difficulty easy">DỄ</div>
             <div class="level-title">CẤP ĐỘ 1: ALPHABET CIPHER</div>
@@ -823,7 +845,7 @@
         </div>
         <div class="level locked" id="level20">
             <div class="difficulty master">MASTER</div>
-            <div class="level-title"> CẤP ĐỘ 20: GRAND FINALE</div>
+            <div class="level-title">CẤP ĐỘ 20: GRAND FINALE</div>
             <div class="category">Danh mục: Thử thách tối thượng</div>
             <div class="clue">
                 <strong>Siêu thử thách:</strong><br>
@@ -842,147 +864,137 @@
             <div class="hint" id="hint20">Hex→HELLO, F(8)=21, Caesar+21→YVCCF, Y=89 decimal=1011001 binary</div>
             <div class="result" id="result20"></div>
         </div>
-    </div>
-    <!-- Guide Modal -->
-    <div class="guide-modal" id="guideModal">
-        <div class="guide-content">
-            <button class="close-btn" onclick="hideGuide()">&times;</button>
-            <div class="guide-title">📖 HƯỚNG DẪN CHƠI</div>
-            <div class="guide-section">
-                <h3>🎯 MỤC TIÊU GAME</h3>
-                <p>Trở thành <strong>THÁM TỬ MẬT KHẨU</strong> bậc thầy bằng cách giải mã 20 cấp độ từ dễ đến siêu khó!</p>
-            </div>
-            <div class="guide-section">
-                <h3>🎮 CÁCH CHƠI</h3>
-                <ul>
-                    <li>Đọc kỹ <strong>clue</strong> màu vàng để hiểu logic giải mã</li>
-                    <li>Nhập đáp án vào ô input</li>
-                    <li>Nhấn <strong>"GIẢI MÃ"</strong> để kiểm tra</li>
-                    <li>Dùng <strong>"Gợi Ý"</strong> nếu gặp khó khăn</li>
-                    <li>Hoàn thành level để mở khóa level tiếp theo</li>
-                </ul>
-            </div>
-            <div class="guide-section">
-                <h3>📊 CÁC CẤP ĐỘ KHÓ</h3>
-                <div class="difficulty-legend">
-                    <div class="difficulty-item easy">DỄ (1-4)</div>
-                    <div class="difficulty-item medium">VỪA (5-8)</div>
-                    <div class="difficulty-item hard">KHÓ (9-12)</div>
-                    <div class="difficulty-item expert">CHUYÊN GIA (13-17)</div>
-                    <div class="difficulty-item master">MASTER (18-20)</div>
+        <div class="guide-modal" id="guideModal">
+            <div class="guide-content">
+                <button class="close-btn" onclick="hideGuide()">&times;</button>
+                <div class="guide-title">📖 HƯỚNG DẪN CHƠI</div>
+                <div class="guide-section">
+                    <h3>🎯 MỤC TIÊU GAME</h3>
+                    <p>Trở thành <strong>THÁM TỬ MẬT KHẨU</strong> bậc thầy bằng cách giải mã 20 cấp độ từ dễ đến siêu khó!</p>
                 </div>
-            </div>
-            <div class="guide-section">
-                <h3>🧩 CÁC LOẠI MẬT MÃ</h3>
-                <ul>
-                    <li><strong>Alphabet Cipher:</strong> A=1, B=2, C=3...</li>
-                    <li><strong>Caesar Cipher:</strong> Dịch chuyển chữ cái theo số cố định</li>
-                    <li><strong>Reverse Text:</strong> Đảo ngược chuỗi ký tự</li>
-                    <li><strong>Binary:</strong> Hệ nhị phân (0,1)</li>
-                    <li><strong>Morse Code:</strong> Dấu chấm và gạch ngang</li>
-                    <li><strong>Hex to ASCII:</strong> Mã thập lục phân</li>
-                    <li><strong>Coordinate Grid:</strong> Tọa độ ma trận</li>
-                    <li><strong>DNA Code:</strong> A=00, T=01, G=10, C=11</li>
-                </ul>
-            </div>
-            <div class="guide-section">
-                <h3>💡 MẸO GIẢI MÃ</h3>
-                <ul>
-                    <li>Đọc kỹ <strong>Logic</strong> trong mỗi clue</li>
-                    <li>Chú ý đến <strong>pattern</strong> và quy luật</li>
-                    <li>Sử dụng gợi ý khi cần thiết</li>
-                    <li>Thử nghiệm và kiên nhẫn</li>
-                    <li>Học từ các level trước để áp dụng cho level sau</li>
-                </ul>
-            </div>
-            <div class="guide-section">
-                <h3>🏆 TIẾN ĐỘ & THÀNH TÍCH</h3>
-                <p>Theo dõi tiến độ qua thanh progress bar và các giai đoạn:</p>
-                <ul>
-                    <li><strong>Khởi đầu:</strong> 0 level</li>
-                    <li><strong>Cơ bản:</strong> 5+ levels</li>
-                    <li><strong>Nâng cao:</strong> 9+ levels</li>
-                    <li><strong>Chuyên gia:</strong> 13+ levels</li>
-                    <li><strong>Bậc thầy:</strong> 17+ levels</li>
-                    <li><strong>Huyền thoại:</strong> 20 levels (hoàn thành!)</li>
-                </ul>
-            </div>
-            <div class="guide-section">
-                <h3>⚡ PHÍM TẮT</h3>
-                <p><strong>Enter:</strong> Gửi đáp án (khi đang focus vào ô input)</p>
-            </div>
-            <div class="guide-section" style="text-align: center; border-left: 3px solid #ff6b6b;">
-                <h3 style="color: #ff6b6b;">🔥 CHÚC BẠN MAY MẮN!</h3>
-                <p style="color: #ffa500;">Hãy trở thành <strong>MASTER CRYPTOGRAPHER</strong> đích thực!</p>
+                <div class="guide-section">
+                    <h3>🎮 CÁCH CHƠI</h3>
+                    <ul>
+                        <li>Đọc kỹ <strong>clue</strong> màu vàng để hiểu logic giải mã</li>
+                        <li>Nhập đáp án vào ô input</li>
+                        <li>Nhấn <strong>"GIẢI MÃ"</strong> để kiểm tra</li>
+                        <li>Dùng <strong>"Gợi Ý"</strong> nếu gặp khó khăn</li>
+                        <li>Hoàn thành level để mở khóa level tiếp theo</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h3>📊 CÁC CẤP ĐỘ KHÓ</h3>
+                    <div class="difficulty-legend">
+                        <div class="difficulty-item easy">DỄ (1-4)</div>
+                        <div class="difficulty-item medium">VỪA (5-8)</div>
+                        <div class="difficulty-item hard">KHÓ (9-12)</div>
+                        <div class="difficulty-item expert">CHUYÊN GIA (13-17)</div>
+                        <div class="difficulty-item master">MASTER (18-20)</div>
+                    </div>
+                </div>
+                <div class="guide-section">
+                    <h3>🧩 CÁC LOẠI MẬT MÃ</h3>
+                    <ul>
+                        <li><strong>Alphabet Cipher:</strong> A=1, B=2, C=3...</li>
+                        <li><strong>Caesar Cipher:</strong> Dịch chuyển chữ cái theo số cố định</li>
+                        <li><strong>Reverse Text:</strong> Đảo ngược chuỗi ký tự</li>
+                        <li><strong>Binary:</strong> Hệ nhị phân (0,1)</li>
+                        <li><strong>Morse Code:</strong> Dấu chấm và gạch ngang</li>
+                        <li><strong>Hex to ASCII:</strong> Mã thập lục phân</li>
+                        <li><strong>Coordinate Grid:</strong> Tọa độ ma trận</li>
+                        <li><strong>DNA Code:</strong> A=00, T=01, G=10, C=11</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h3>💡 MẸO GIẢI MÃ</h3>
+                    <ul>
+                        <li>Đọc kỹ <strong>Logic</strong> trong mỗi clue</li>
+                        <li>Chú ý đến <strong>pattern</strong> và quy luật</li>
+                        <li>Sử dụng gợi ý khi cần thiết</li>
+                        <li>Thử nghiệm và kiên nhẫn</li>
+                        <li>Học từ các level trước để áp dụng cho level sau</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h3>🏆 TIẾN ĐỘ & THÀNH TÍCH</h3>
+                    <p>Theo dõi tiến độ qua thanh progress bar và các giai đoạn:</p>
+                    <ul>
+                        <li><strong>Khởi đầu:</strong> 0 level</li>
+                        <li><strong>Cơ bản:</strong> 5+ levels</li>
+                        <li><strong>Nâng cao:</strong> 9+ levels</li>
+                        <li><strong>Chuyên gia:</strong> 13+ levels</li>
+                        <li><strong>Bậc thầy:</strong> 17+ levels</li>
+                        <li><strong>Huyền thoại:</strong> 20 levels (hoàn thành!)</li>
+                    </ul>
+                </div>
+                <div class="guide-section">
+                    <h3>⚡ PHÍM TẮT</h3>
+                    <p><strong>Enter:</strong> Gửi đáp án (khi đang focus vào ô input)</p>
+                </div>
+                <div class="guide-section" style="text-align: center; border-left: 4px solid #ff4d4d;">
+                    <h3 style="color: #ff4d4d;">🔥 CHÚC BẠN MAY MẮN!</h3>
+                    <p style="color: #ffd700;">Hãy trở thành <strong>MASTER CRYPTOGRAPHER</strong> đích thực!</p>
+                </div>
             </div>
         </div>
     </div>
     <script>
-        // Matrix background effect
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
-       
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
         resizeCanvas();
-       
+
         const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
         const matrixArray = matrix.split("");
-       
-        const fontSize = 10;
+        const fontSize = Math.min(Math.max(Math.floor(window.innerWidth * 0.03), 10), 12);
         const columns = Math.floor(canvas.width / fontSize);
-       
-        const drops = [];
-        for(let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
-       
+        const drops = Array(columns).fill(1);
+
         function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-           
-            ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
-           
-            for(let i = 0; i < drops.length; i++) {
+            ctx.fillStyle = '#00ff88';
+            ctx.font = `${fontSize}px Roboto Mono`;
+
+            for (let i = 0; i < drops.length; i++) {
                 const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-               
-                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
                     drops[i] = 0;
                 }
                 drops[i]++;
             }
         }
-       
+
         setInterval(drawMatrix, 35);
-        // Game logic - 20 levels with answers
+
         const passwords = {
-            1: "HELLO", // 8=H, 5=E, 12=L, 12=L, 15=O
-            2: "NGUYEN THANH SANG", // GNAS HNAT NEYUGN reversed
-            3: "18", // (5×3)+(8÷2)-1 = 15+4-1 = 18
-            4: "32", // 2,4,8,16,32,64
-            5: "CODURITY", // Caesar -3: FRGXULWB → CODURITY
-            6: "5", // Tuesday + 2 days = Thursday (5)
-            7: "65", // 1000001 binary = 65 decimal
-            8: "SOS", // ... --- ... in Morse
-            9: "55", // Fibonacci F(10) = 55
-            10: "HACKER", // Hex to ASCII
-            11: "17", // Prime number between 13 and 19
-            12: "BEGGF", // Coordinates in 3x3 matrix
-            13: "PAMSW", // Atbash cipher: KZNHD → PAMSW
-            14: "IHFD", // 4x4 Grid: 13=I, 24=H, 32=F, 14=D
-            15: "ETNG", // Reverse Polybius: 51=E, 42=T, 33=N, 24=G
-            16: "THOE", // Polybius square
-            17: "TAGTAC", // DNA code: 01001001001100
-            18: "18 5 12 12 5 12", // Multi-cipher combo
-            19: "ACFBC", // Musical cipher
-            20: "1011001" // Grand finale binary
+            1: "HELLO",
+            2: "NGUYEN THANH SANG",
+            3: "18",
+            4: "32",
+            5: "CODURITY",
+            6: "5",
+            7: "65",
+            8: "SOS",
+            9: "55",
+            10: "HACKER",
+            11: "17",
+            12: "BEGGF",
+            13: "PAMSW",
+            14: "IHFD",
+            15: "ETNG",
+            16: "THOE",
+            17: "TAGTAC",
+            18: "18 5 12 12 5 12",
+            19: "ACFBC",
+            20: "1011001"
         };
         let completedLevels = 0;
-        // Phase names based on progress
         const phases = {
             0: "Khởi đầu",
             5: "Cơ bản",
@@ -991,50 +1003,41 @@
             17: "Bậc thầy",
             20: "Huyền thoại"
         };
+
         function updatePhase() {
             const phaseElement = document.getElementById('currentPhase');
             let currentPhase = "Khởi đầu";
-           
             for (let threshold in phases) {
                 if (completedLevels >= parseInt(threshold)) {
                     currentPhase = phases[threshold];
                 }
             }
-           
             phaseElement.textContent = `Giai đoạn: ${currentPhase}`;
         }
+
         function checkPassword(level) {
             const input = document.getElementById(`password${level}`).value.toUpperCase().trim();
             const result = document.getElementById(`result${level}`);
-           
+
             if (input === passwords[level]) {
                 result.className = 'result success';
                 result.textContent = 'MẬT KHẨU ĐÃ ĐƯỢC PHÂN TÍCH! Truy cập được cấp phép.';
-               
                 if (!document.getElementById(`level${level}`).classList.contains('completed')) {
                     completedLevels++;
                     document.getElementById(`level${level}`).classList.add('completed');
                     updateProgress();
                     updatePhase();
-                   
-                    // Unlock next level
                     if (completedLevels < 20) {
                         const nextLevel = document.getElementById(`level${completedLevels + 1}`);
                         nextLevel.classList.remove('locked');
                         nextLevel.classList.add('unlocked');
-                       
-                        // Scroll to new level
                         setTimeout(() => {
                             nextLevel.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }, 500);
-                       
-                        // Success message with unlock notification
                         setTimeout(() => {
                             result.textContent += ` Cấp độ ${completedLevels + 1} đã được mở khóa!`;
                         }, 500);
                     }
-                   
-                    // Final victory
                     if (completedLevels === 20) {
                         setTimeout(() => {
                             alert('🎉🏆 CHÚC MỪNG! BẠN ĐÃ TRỞ THÀNH SIÊU HACKER HUYỀN THOẠI! 🏆🎉\n\n' +
@@ -1058,8 +1061,6 @@
             } else {
                 result.className = 'result error';
                 result.textContent = '❌ TRUY CẬP BỊ TỪ CHỐI. Hãy thử lại.';
-               
-                // Shake effect on wrong answer
                 const inputField = document.getElementById(`password${level}`);
                 inputField.style.animation = 'shake 0.5s';
                 setTimeout(() => {
@@ -1067,15 +1068,17 @@
                 }, 500);
             }
         }
+
         function toggleHint(level) {
             const hint = document.getElementById(`hint${level}`);
             hint.style.display = hint.style.display === 'none' || hint.style.display === '' ? 'block' : 'none';
         }
+
         function updateProgress() {
             document.getElementById('progressText').textContent = `${completedLevels}/20`;
             document.getElementById('progressFill').style.width = `${(completedLevels / 20) * 100}%`;
         }
-        // Allow Enter key to submit
+
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const target = e.target;
@@ -1085,36 +1088,37 @@
                 }
             }
         });
-        // Resize canvas on window resize
+
         window.addEventListener('resize', function() {
             resizeCanvas();
-            const columns = Math.floor(canvas.width / fontSize);
-            drops.length = 0;
-            for(let x = 0; x < columns; x++) {
-                drops[x] = 1;
+            const newColumns = Math.floor(canvas.width / fontSize);
+            drops.length = newColumns;
+            for (let x = 0; x < newColumns; x++) {
+                drops[x] = drops[x] || 1;
             }
         });
-        // Initialize
-        updatePhase();
-        // Guide modal functions
+
         function showGuide() {
             document.getElementById('guideModal').style.display = 'flex';
         }
+
         function hideGuide() {
             document.getElementById('guideModal').style.display = 'none';
         }
-        // Click outside modal to close
+
         document.getElementById('guideModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideGuide();
             }
         });
-        // ESC key to close modal
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 hideGuide();
             }
         });
+
+        updatePhase();
     </script>
 </body>
 </html>
