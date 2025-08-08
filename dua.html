@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuộc Đua Số - Nhiều Người Chơi</title>
+    <title>Cuộc Đua Số - NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
     <!-- Add Font Awesome CDN for social media icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -202,12 +202,11 @@
     <div class="player-info" id="playerInfo">Thêm người chơi và chọn số!</div>
     <div class="player-list" id="playerList"></div>
     <div class="result" id="result"></div>
-
+    <audio id="winnerSound" src="gayvangtroi.mp3"></audio>
     <script>
         const totalNumbers = 20; // Số lượng số trong cuộc đua
         let players = []; // Danh sách người chơi
         let currentPlayerIndex = 0;
-
         const numberContainer = document.getElementById('numberContainer');
         const raceTrack = document.getElementById('raceTrack');
         const startRaceButton = document.getElementById('startRace');
@@ -217,6 +216,7 @@
         const playerListDiv = document.getElementById('playerList');
         const playerNameInput = document.getElementById('playerNameInput');
         const addPlayerButton = document.getElementById('addPlayer');
+        const winnerSound = document.getElementById('winnerSound');
 
         function initializeGame() {
             // Xóa các số hiện tại
@@ -224,23 +224,19 @@
             raceTrack.innerHTML = '';
             players = [];
             currentPlayerIndex = 0;
-
             // Thêm lại vạch xuất phát và đích
             const startLine = document.createElement('div');
             startLine.classList.add('start-line');
             raceTrack.appendChild(startLine);
-
             const finishLine = document.createElement('div');
             finishLine.classList.add('finish-line');
             raceTrack.appendChild(finishLine);
-
             // Tạo các số
             for (let i = 1; i <= totalNumbers; i++) {
                 const numberButton = document.createElement('button');
                 numberButton.textContent = `Số ${i}`;
                 numberButton.setAttribute('data-number', i);
                 numberContainer.appendChild(numberButton);
-
                 const number = document.createElement('div');
                 number.classList.add('number');
                 number.textContent = i; // Hiển thị số trên mỗi hình tròn
@@ -248,7 +244,6 @@
                 number.style.top = `${(i * 25)}px`; // Khoảng cách giữa các số
                 number.setAttribute('data-number', i);
                 raceTrack.appendChild(number);
-
                 // Xử lý sự kiện khi người dùng chọn số
                 numberButton.addEventListener('click', () => {
                     if (currentPlayerIndex < 20) {
@@ -257,34 +252,26 @@
                             alert('Vui lòng thêm người chơi trước khi chọn số!');
                             return;
                         }
-
                         const playerName = players[currentPlayerIndex].name;
                         const selectedNumber = i;
-
                         // Kiểm tra xem số đã được chọn chưa
                         if (players.some(player => player.number === selectedNumber)) {
                             alert(`Số ${selectedNumber} đã được chọn. Vui lòng chọn số khác!`);
                             return;
                         }
-
                         // Thêm người chơi vào danh sách
                         players[currentPlayerIndex].number = selectedNumber;
-
                         // Cập nhật thông tin người chơi
                         updatePlayerInfo();
-
                         // Tô màu nút đã chọn
                         numberButton.classList.add('selected');
                         numberButton.disabled = true;
-
                         // Di chuyển đến người chơi tiếp theo
                         currentPlayerIndex++;
-
                         // Cho phép bắt đầu cuộc đua nếu có ít nhất 2 người chơi
                         if (players.length >= 2) {
                             startRaceButton.disabled = false;
                         }
-
                         // Nếu đủ 20 người chơi, tự động vô hiệu hóa việc chọn thêm
                         if (currentPlayerIndex === 20) {
                             disableNumberButtons();
@@ -292,26 +279,22 @@
                     }
                 });
             }
-
             // Reset trạng thái
             startRaceButton.disabled = true;
             resultDiv.textContent = '';
             playerInfoDiv.textContent = 'Thêm người chơi và chọn số!';
             playerListDiv.innerHTML = '';
         }
-
         // Cập nhật thông tin người chơi
         function updatePlayerInfo() {
             playerInfoDiv.textContent = `Đang thêm người chơi (${players.length}/20)...`;
             playerListDiv.innerHTML = ''; // Xóa danh sách cũ
-
             players.forEach((player) => {
                 const playerDiv = document.createElement('div');
                 playerDiv.textContent = `${player.name} đã chọn số ${player.number}.`;
                 playerListDiv.appendChild(playerDiv);
             });
         }
-
         // Vô hiệu hóa tất cả các nút chọn số
         function disableNumberButtons() {
             const buttons = document.querySelectorAll('.number-container button');
@@ -319,30 +302,24 @@
                 button.disabled = true;
             });
         }
-
         // Bắt đầu cuộc đua
         startRaceButton.addEventListener('click', () => {
             startRaceButton.disabled = true;
             resultDiv.textContent = '';
-
             const numbers = document.querySelectorAll('.number');
             const raceWidth = raceTrack.offsetWidth - 20; // Chiều rộng đường đua trừ đi vạch đích
             let raceFinished = false; // Biến để kiểm tra xem cuộc đua đã kết thúc chưa
-
             // Tìm người chơi được ưu tiên (nếu có)
-            const favoredPlayer = players.find((p) => 
+            const favoredPlayer = players.find((p) =>
                 ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(p.name.toLowerCase())
             );
-
             numbers.forEach((number) => {
                 const numberValue = parseInt(number.getAttribute('data-number'));
                 const player = players.find((p) => p.number === numberValue);
-
                 let currentSpeed = Math.random() * 2 + 1; // Tốc độ ban đầu giống nhau cho tất cả (1 đến 3)
                 let distance = 0;
-
                 // Nếu có người chơi được ưu tiên và số này thuộc về họ, tăng tốc sau 2 giây
-                if (favoredPlayer && player && 
+                if (favoredPlayer && player &&
                     ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase())) {
                     setTimeout(() => {
                         if (!raceFinished) {
@@ -350,39 +327,35 @@
                         }
                     }, 2000); // Tăng tốc sau 2 giây
                 }
-
                 const interval = setInterval(() => {
                     if (raceFinished) {
                         clearInterval(interval); // Dừng nếu cuộc đua đã kết thúc
                         return;
                     }
-
                     distance += currentSpeed; // Tăng khoảng cách di chuyển
                     number.style.left = `${distance}px`;
-
                     // Tăng tốc ngẫu nhiên cho các số không được ưu tiên
                     if (!favoredPlayer || (player && !['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase()))) {
                         if (Math.random() < 0.05) { // 5% cơ hội tăng tốc
                             currentSpeed += Math.random() * 2; // Tăng tốc thêm từ 0 đến 2
                         }
                     }
-
                     // Dừng khi chạm vạch đích
                     if (parseFloat(number.style.left) >= raceWidth) {
                         clearInterval(interval);
                         raceFinished = true; // Đánh dấu cuộc đua đã kết thúc
-
                         // Kiểm tra xem ai là người chiến thắng
                         const winner = numberValue;
-
                         // Tìm người chơi chiến thắng
                         const winningPlayer = players.find((player) => player.number === winner);
-
-                        // Công bố kết quả
+                        // Công bố kết quả và phát âm thanh
                         if (winningPlayer) {
                             resultDiv.innerHTML = `
                                 <p style="color: green;">Chúc mừng! ${winningPlayer.name} đã thắng với số ${winner}!</p>
                             `;
+                            winnerSound.play().catch((error) => {
+                                console.error('Lỗi khi phát âm thanh:', error);
+                            });
                         } else {
                             resultDiv.innerHTML = `
                                 <p style="color: red;">Số chiến thắng là ${winner}, nhưng không ai chọn số này.</p>
@@ -392,12 +365,10 @@
                 }, 50); // Cập nhật vị trí mỗi 50ms
             });
         });
-
         // Làm mới trò chơi
         resetGameButton.addEventListener('click', () => {
             initializeGame();
         });
-
         // Thêm người chơi
         addPlayerButton.addEventListener('click', () => {
             const playerName = playerNameInput.value.trim();
@@ -409,7 +380,6 @@
                 alert('Vui lòng nhập tên người chơi hoặc đã đủ số lượng người chơi.');
             }
         });
-
         // Khởi tạo trò chơi lần đầu
         initializeGame();
     </script>
