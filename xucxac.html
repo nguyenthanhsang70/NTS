@@ -258,7 +258,10 @@
             </tbody>
         </table>
     </div>
+    <audio id="diceRollSound" src="xucxaclan.mp3"></audio>
     <script>
+        const rollSound = document.getElementById('diceRollSound');
+
         function rollDice() {
             const dice1 = document.getElementById('dice1');
             const dice2 = document.getElementById('dice2');
@@ -269,7 +272,8 @@
                 alert("Bạn phải nhập tên mới được phép lắc!");
                 return;
             }
-            // Thêm hiệu ứng quay
+            // Play sound and add rolling animation
+            rollSound.play();
             dice1.classList.add("rolling");
             dice2.classList.add("rolling");
             setTimeout(() => {
