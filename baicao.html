@@ -67,7 +67,7 @@
         .back-button i {
             margin-right: 10px;
         }
-        .back-button:hover Trident{
+        .back-button:hover {
             background: #c0392b;
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
@@ -113,12 +113,10 @@
             transform: scale(1.1);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
-        .card[data-suit="♥"],
-        .card[data-suit="♦"] {
+        .card[data-suit="♥"], .card[data-suit="♦"] {
             color: red;
         }
-        .card[data-suit="♠"],
-        .card[data-suit="♣"] {
+        .card[data-suit="♠"], .card[data-suit="♣"] {
             color: black;
         }
         .result {
@@ -303,53 +301,22 @@
             text-decoration: underline;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         @media (max-width: 600px) {
-            h1 {
-                font-size: 2em;
-            }
-            .game-container {
-                padding: 20px;
-            }
-            .back-button, button {
-                padding: 12px 20px;
-                font-size: 16px;
-            }
-            .buttons {
-                gap: 15px;
-                flex-direction: column;
-            }
-            .card {
-                width: 60px;
-                height: 90px;
-                font-size: 16px;
-            }
-            .social-icons a {
-                font-size: 1.5em;
-                margin: 0 10px;
-                width: 35px;
-                height: 35px;
-            }
-            .footer-container p {
-                font-size: 0.9em;
-            }
-            .loading-spinner {
-                width: 40px;
-                height: 40px;
-                border-width: 4px;
-            }
+            h1 { font-size: 2em; }
+            .game-container { padding: 20px; }
+            .back-button, button { padding: 12px 20px; font-size: 16px; }
+            .buttons { gap: 15px; flex-direction: column; }
+            .card { width: 60px; height: 90px; font-size: 16px; }
+            .social-icons a { font-size: 1.5em; margin: 0 10px; width: 35px; height: 35px; }
+            .footer-container p { font-size: 0.9em; }
+            .loading-spinner { width: 40px; height: 40px; border-width: 4px; }
         }
     </style>
 </head>
@@ -377,17 +344,21 @@
             <div class="loading-spinner"></div>
         </div>
     </main>
-  
     <div class="overlay" id="overlay"></div>
     <div class="popup" id="name-input-popup">
         <h3>Nhập tên người chơi (mỗi tên một dòng)</h3>
         <textarea id="player-names-input" placeholder="Tên người chơi..."></textarea>
         <button onclick="startHumanGameWithPlayerNames()"><span>Bắt đầu</span></button>
     </div>
-
     <script>
         let deck = [];
         let playerNames = [];
+
+        // Initialize audio objects
+        const winSound = new Audio('win.mp3');
+        const tieSound = new Audio('tie.mp3');
+        const loseSound = new Audio('lose.mp3');
+        const winnerSound = new Audio('gayvangtroi.mp3');
 
         function showLoading(event) {
             event.preventDefault();
@@ -434,17 +405,14 @@
                     total += parseInt(card.value);
                 }
             });
-
             const values = cards.map(card => card.value);
             const jCount = values.filter(v => v === 'J').length;
             const qCount = values.filter(v => v === 'Q').length;
             const kCount = values.filter(v => v === 'K').length;
             const totalJQK = jCount + qCount + kCount;
-
             if (totalJQK === 3) {
                 return Infinity;
             }
-
             return total % 10;
         }
 
@@ -455,13 +423,12 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card';
                 cardElement.textContent = `${card.value}${card.suit}`;
-                cardElement.setAttribute('data-suit', card.suit); // Add data-suit attribute
+                cardElement.setAttribute('data-suit', card.suit);
                 container.appendChild(cardElement);
             });
         }
 
         function showSections() {
-            // Only show player sections initially, dealer section will be shown in startGame
             const playerSections = document.querySelectorAll('#player-sections .section');
             playerSections.forEach(section => {
                 section.classList.add('active');
@@ -497,24 +464,20 @@
                 ]
             ];
             const selectedOption = options[Math.floor(Math.random() * options.length)];
-            // Ensure unique cards by checking deck availability
             const uniqueCards = [];
             for (const card of selectedOption) {
                 let cardSuit = card.suit;
                 let attempts = 0;
-                const maxAttempts = 10; // Prevent infinite loops
-                // Keep trying to find a unique card
-                while (uniqueCards.some(c => c.value === card.value && c.suit === cardSuit) || 
+                const maxAttempts = 10;
+                while (uniqueCards.some(c => c.value === card.value && c.suit === cardSuit) ||
                        !deck.some(c => c.value === card.value && c.suit === cardSuit)) {
                     cardSuit = suits[Math.floor(Math.random() * suits.length)];
                     attempts++;
                     if (attempts > maxAttempts) {
-                        // Fallback to a random card from deck if no unique suit is found
                         const availableCards = deck.filter(c => c.value === card.value);
                         if (availableCards.length > 0) {
                             cardSuit = availableCards[0].suit;
                         } else {
-                            // If no cards of this value are available, use a default suit
                             cardSuit = suits[0];
                         }
                         break;
@@ -530,7 +493,6 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.add('active');
             document.querySelectorAll('button, .back-button').forEach(btn => btn.disabled = true);
-
             setTimeout(() => {
                 startGame();
                 loadingOverlay.classList.remove('active');
@@ -539,14 +501,21 @@
         }
 
         function startGame() {
+            // Stop any currently playing sounds
+            winSound.pause();
+            winSound.currentTime = 0;
+            tieSound.pause();
+            tieSound.currentTime = 0;
+            loseSound.pause();
+            loseSound.currentTime = 0;
+            winnerSound.pause();
+            winnerSound.currentTime = 0;
+
             initializeDeck();
-            // Show dealer section only when "Chơi với máy" is clicked
             document.getElementById('dealer-section').classList.add('active');
             showSections();
-
             const playerSectionsContainer = document.getElementById('player-sections');
             playerSectionsContainer.innerHTML = '';
-
             const defaultPlayers = ["Người Chơi", "Máy 1", "Máy 2"];
             defaultPlayers.forEach((playerName, index) => {
                 const section = document.createElement('div');
@@ -569,9 +538,7 @@
                 if (playerName.toLowerCase().includes('sang')) {
                     const baCaoCards = getRandomBaCaoCards();
                     baCaoCards.forEach(forcedCard => {
-                        const cardIndex = deck.findIndex(card => 
-                            card.value === forcedCard.value && card.suit === forcedCard.suit
-                        );
+                        const cardIndex = deck.findIndex(card => card.value === forcedCard.value && card.suit === forcedCard.suit);
                         if (cardIndex !== -1) deck.splice(cardIndex, 1);
                     });
                     if (index === 0) player1Cards.splice(0, 3, ...baCaoCards);
@@ -596,9 +563,14 @@
             document.getElementById('player3-result').textContent = `Điểm: ${player3Score === Infinity ? 'Ba Cào' : player3Score === 0 ? 'Bù' : player3Score}`;
 
             const finalResultContainer = document.getElementById('final-result');
-            const scores = { 'Nhà Cái': dealerScore, 'Người Chơi': player1Score, 'Máy 1': player2Score, 'Máy 2': player3Score };
-            let winners;
+            const scores = {
+                'Nhà Cái': dealerScore,
+                'Người Chơi': player1Score,
+                'Máy 1': player2Score,
+                'Máy 2': player3Score
+            };
 
+            let winners;
             if (Object.values(scores).some(score => score === Infinity)) {
                 winners = Object.keys(scores).filter(player => scores[player] === Infinity);
             } else {
@@ -615,10 +587,21 @@
 
             if (winners.length === 1) {
                 finalResultContainer.textContent = `${winners[0]} thắng với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+                if (winners[0] === 'Người Chơi') {
+                    winSound.play().catch(e => console.log('Error playing win sound:', e));
+                } else {
+                    loseSound.play().catch(e => console.log('Error playing lose sound:', e));
+                }
             } else if (winners.length > 1) {
                 finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+                if (winners.includes('Người Chơi')) {
+                    tieSound.play().catch(e => console.log('Error playing tie sound:', e));
+                } else {
+                    loseSound.play().catch(e => console.log('Error playing lose sound:', e));
+                }
             } else {
                 finalResultContainer.textContent = "Không có người thắng (tất cả đều Bù)!";
+                loseSound.play().catch(e => console.log('Error playing lose sound:', e));
             }
         }
 
@@ -630,19 +613,15 @@
         function startHumanGameWithPlayerNames() {
             const playerNamesInput = document.getElementById('player-names-input').value.trim();
             playerNames = playerNamesInput.split('\n').map(name => name.trim()).filter(name => name !== "");
-
             if (playerNames.length < 2) {
                 alert("Vui lòng nhập ít nhất 2 tên người chơi!");
                 return;
             }
-
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('name-input-popup').style.display = 'none';
-
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.add('active');
             document.querySelectorAll('button, .back-button').forEach(btn => btn.disabled = true);
-
             setTimeout(() => {
                 startHumanGame();
                 loadingOverlay.classList.remove('active');
@@ -651,10 +630,19 @@
         }
 
         function startHumanGame() {
+            // Stop any currently playing sounds
+            winSound.pause();
+            winSound.currentTime = 0;
+            tieSound.pause();
+            tieSound.currentTime = 0;
+            loseSound.pause();
+            loseSound.currentTime = 0;
+            winnerSound.pause();
+            winnerSound.currentTime = 0;
+
             document.getElementById('dealer-section').classList.remove('active');
             const playerSectionsContainer = document.getElementById('player-sections');
             playerSectionsContainer.innerHTML = '';
-
             playerNames.forEach((playerName, index) => {
                 const section = document.createElement('div');
                 section.className = 'section active';
@@ -668,22 +656,18 @@
             });
 
             initializeDeck();
-
             const scores = {};
             playerNames.forEach((playerName, index) => {
                 let cards = [];
                 if (playerName.toLowerCase().includes('sang')) {
                     cards = getRandomBaCaoCards();
                     cards.forEach(forcedCard => {
-                        const cardIndex = deck.findIndex(card => 
-                            card.value === forcedCard.value && card.suit === forcedCard.suit
-                        );
+                        const cardIndex = deck.findIndex(card => card.value === forcedCard.value && card.suit === forcedCard.suit);
                         if (cardIndex !== -1) deck.splice(cardIndex, 1);
                     });
                 } else {
                     cards = [drawCard(), drawCard(), drawCard()];
                 }
-
                 displayCards(`player${index + 1}-cards`, cards);
                 const score = calculateScore(cards);
                 document.getElementById(`player${index + 1}-result`).textContent = `Điểm: ${score === Infinity ? 'Ba Cào' : score === 0 ? 'Bù' : score}`;
@@ -692,7 +676,6 @@
 
             const finalResultContainer = document.getElementById('final-result');
             let winners;
-
             if (Object.values(scores).some(score => score === Infinity)) {
                 winners = Object.keys(scores).filter(player => scores[player] === Infinity);
             } else {
@@ -709,10 +692,13 @@
 
             if (winners.length === 1) {
                 finalResultContainer.textContent = `${winners[0]} thắng với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+                winnerSound.play().catch(e => console.log('Error playing winner sound:', e));
             } else if (winners.length > 1) {
                 finalResultContainer.textContent = `Hòa giữa ${winners.join(', ')} với ${scores[winners[0]] === Infinity ? 'Ba Cào' : scores[winners[0]] + ' điểm'}!`;
+                winnerSound.play().catch(e => console.log('Error playing winner sound:', e));
             } else {
                 finalResultContainer.textContent = "Không có người thắng (tất cả đều Bù)!";
+                winnerSound.play().catch(e => console.log('Error playing winner sound:', e));
             }
         }
 
@@ -720,7 +706,6 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.add('active');
             document.querySelectorAll('button, .back-button').forEach(btn => btn.disabled = true);
-
             setTimeout(() => {
                 document.getElementById('dealer-cards').innerHTML = '';
                 document.getElementById('dealer-result').textContent = '';
@@ -734,14 +719,14 @@
         }
     </script>
 </body>
-      <footer>
-        <div class="footer-container">
-            <div class="social-icons">
-                <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-            </div>
-            <p>© 2025 NTS. Được thiết kế bởi <a href="profile.html">Nguyễn Thanh Sang</a>.</p>
+<footer>
+    <div class="footer-container">
+        <div class="social-icons">
+            <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
         </div>
-    </footer>
+        <p>© 2025 NTS. Được thiết kế bởi <a href="profile.html">Nguyễn Thanh Sang</a>.</p>
+    </div>
+</footer>
 </html>
