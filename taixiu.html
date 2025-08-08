@@ -189,6 +189,10 @@
             font-size: 1em;
             padding: 12px 25px;
         }
+        .all-in-btn {
+            background: linear-gradient(135deg, #d946ef, #a21caf);
+            color: white;
+        }
         .result {
             text-align: center;
             margin: 15px 0;
@@ -351,215 +355,216 @@
                 <div class="die" id="die1">?</div>
                 <div class="die" id="die2">?</div>
                 <div class="die" id="die3">?</div>
+        </div>
+        <div class="betting-area">
+            <div class="bet-option tai" id="tai-bet">
+                <h3>TÀI</h3>
+                <p>Tổng: 11-17</p>
+                <div class="bet-amount" id="tai-amount" style="display: none;">0</div>
             </div>
-            <div class="betting-area">
-                <div class="bet-option tai" id="tai-bet">
-                    <h3>TÀI</h3>
-                    <p>Tổng: 11-17</p>
-                    <div class="bet-amount" id="tai-amount" style="display: none;">0</div>
-                </div>
-                <div class="bet-option xiu" id="xiu-bet">
-                    <h3>XỈU</h3>
-                    <p>Tổng: 4-10</p>
-                    <div class="bet-amount" id="xiu-amount" style="display: none;">0</div>
-                </div>
-            </div>
-            <div class="controls">
-                <input type="number" id="betAmount" min="50" max="1000" value="50" placeholder="Số tiền cược">
-                <div class="quick-bet">
-                    <button onclick="setBetAmount(50)">50</button>
-                    <button onclick="setBetAmount(100)">100</button>
-                    <button onclick="setBetAmount(200)">200</button>
-                    <button onclick="setBetAmount(500)">500</button>
-                </div>
-            </div>
-            <div style="text-align: center;">
-                <button class="roll-btn" id="rollBtn" onclick="rollDice()">🎲 LẮC XÚC XẮC</button>
-            </div>
-            <div class="result" id="result">
-                Chọn Tài hoặc Xỉu và đặt cược để bắt đầu!
-            </div>
-            <div class="history">
-                <h3>Lịch sử (10 lần gần nhất):</h3>
-                <div id="historyList"></div>
+            <div class="bet-option xiu" id="xiu-bet">
+                <h3>XỈU</h3>
+                <p>Tổng: 4-10</p>
+                <div class="bet-amount" id="xiu-amount" style="display: none;">0</div>
             </div>
         </div>
+        <div class="controls">
+            <input type="number" id="betAmount" min="50" max="1000" value="50" placeholder="Số tiền cược">
+            <div class="quick-bet">
+                <button onclick="setBetAmount(50)">50</button>
+                <button onclick="setBetAmount(100)">100</button>
+                <button onclick="setBetAmount(200)">200</button>
+                <button onclick="setBetAmount(500)">500</button>
+                <button class="all-in-btn" onclick="setBetAmount(balance)">All In</button>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button class="roll-btn" id="rollBtn" onclick="rollDice()">🎲 LẮC XÚC XẮC</button>
+        </div>
+        <div class="result" id="result">
+            Chọn Tài hoặc Xỉu và đặt cược để bắt đầu!
+        </div>
+        <div class="history">
+            <h3>Lịch sử (10 lần gần nhất):</h3>
+            <div id="historyList"></div>
+        </div>
     </div>
-    <audio id="gameOverSound" src="chuataidau.mp3" preload="auto"></audio>
-    <script>
-        let balance = 1000;
-        let currentBet = { type: null, amount: 0 };
-        let gameHistory = [];
-        let isRolling = false;
+</div>
+<audio id="gameOverSound" src="chuataidau.mp3" preload="auto"></audio>
+<script>
+    let balance = 1000;
+    let currentBet = { type: null, amount: 0 };
+    let gameHistory = [];
+    let isRolling = false;
 
-        // Initialize game
+    // Initialize game
+    updateBalance();
+
+    // Bet selection
+    document.getElementById('tai-bet').addEventListener('click', () => selectBet('tai'));
+    document.getElementById('xiu-bet').addEventListener('click', () => selectBet('xiu'));
+
+    function selectBet(type) {
+        if (isRolling) return;
+
+        const betAmount = parseInt(document.getElementById('betAmount').value) || 50;
+
+        if (betAmount > balance) {
+            alert('Không đủ tiền! Số dư hiện tại: ' + balance + ' xu');
+            return;
+        }
+        if (betAmount < 50) {
+            alert('Số tiền cược tối thiểu là 50 xu!');
+            return;
+        }
+
+        // Clear previous selection
+        document.getElementById('tai-bet').classList.remove('selected');
+        document.getElementById('xiu-bet').classList.remove('selected');
+        document.getElementById('tai-amount').style.display = 'none';
+        document.getElementById('xiu-amount').style.display = 'none';
+
+        // Set new bet
+        currentBet = { type: type, amount: betAmount };
+
+        // Update UI
+        document.getElementById(type + '-bet').classList.add('selected');
+        document.getElementById(type + '-amount').textContent = betAmount;
+        document.getElementById(type + '-amount').style.display = 'block';
+
+        document.getElementById('result').textContent = `Đã đặt cược ${betAmount} xu vào ${type.toUpperCase()}. Nhấn "Lắc xúc xắc" để bắt đầu!`;
+        document.getElementById('result').className = 'result';
+    }
+
+    function setBetAmount(amount) {
+        document.getElementById('betAmount').value = amount;
+    }
+
+    function rollDice() {
+        if (!currentBet.type) {
+            alert('Vui lòng chọn Tài hoặc Xỉu trước!');
+            return;
+        }
+        if (isRolling) return;
+        isRolling = true;
+
+        // Disable roll button
+        document.getElementById('rollBtn').disabled = true;
+        document.getElementById('rollBtn').textContent = '🎲 ĐANG LẮC...';
+
+        // Deduct bet amount
+        balance -= currentBet.amount;
         updateBalance();
 
-        // Bet selection
-        document.getElementById('tai-bet').addEventListener('click', () => selectBet('tai'));
-        document.getElementById('xiu-bet').addEventListener('click', () => selectBet('xiu'));
+        // Start rolling animation
+        const dice = ['die1', 'die2', 'die3'];
+        dice.forEach(die => {
+            document.getElementById(die).classList.add('rolling');
+            document.getElementById(die).textContent = '?';
+        });
 
-        function selectBet(type) {
-            if (isRolling) return;
+        // Generate random results after animation
+        setTimeout(() => {
+            const results = [
+                Math.floor(Math.random() * 6) + 1,
+                Math.floor(Math.random() * 6) + 1,
+                Math.floor(Math.random() * 6) + 1
+            ];
 
-            const betAmount = parseInt(document.getElementById('betAmount').value) || 50;
+            // Update dice display
+            document.getElementById('die1').textContent = results[0];
+            document.getElementById('die2').textContent = results[1];
+            document.getElementById('die3').textContent = results[2];
 
-            if (betAmount > balance) {
-                alert('Không đủ tiền! Số dư hiện tại: ' + balance + ' xu');
-                return;
+            // Remove rolling animation
+            dice.forEach(die => {
+                document.getElementById(die).classList.remove('rolling');
+            });
+
+            // Calculate result
+            const total = results.reduce((sum, val) => sum + val, 0);
+            const outcome = (total >= 11 && total <= 17) ? 'tai' : 'xiu';
+            const won = outcome === currentBet.type;
+
+            // Update result
+            const resultElement = document.getElementById('result');
+            if (won) {
+                balance += currentBet.amount * 2;
+                resultElement.textContent = `🎉 THẮNG! Tổng: ${total} (${outcome.toUpperCase()}) - Thưởng: ${currentBet.amount * 2} xu`;
+                resultElement.className = 'result win';
+            } else {
+                resultElement.textContent = `💸 THUA! Tổng: ${total} (${outcome.toUpperCase()}) - Mất: ${currentBet.amount} xu`;
+                resultElement.className = 'result lose';
             }
-            if (betAmount < 50) {
-                alert('Số tiền cược tối thiểu là 50 xu!');
-                return;
-            }
 
-            // Clear previous selection
+            // Add to history
+            gameHistory.unshift({
+                dice: results,
+                total: total,
+                outcome: outcome,
+                bet: currentBet,
+                won: won,
+                winnings: won ? currentBet.amount : -currentBet.amount
+            });
+
+            // Keep only last 10 games
+            if (gameHistory.length > 10) {
+                gameHistory = gameHistory.slice(0, 10);
+            }
+            updateHistory();
+            updateBalance();
+
+            // Reset bet
+            currentBet = { type: null, amount: 0 };
             document.getElementById('tai-bet').classList.remove('selected');
             document.getElementById('xiu-bet').classList.remove('selected');
             document.getElementById('tai-amount').style.display = 'none';
             document.getElementById('xiu-amount').style.display = 'none';
 
-            // Set new bet
-            currentBet = { type: type, amount: betAmount };
+            // Re-enable roll button
+            document.getElementById('rollBtn').disabled = false;
+            document.getElementById('rollBtn').textContent = '🎲 LẮC XÚC XẮC';
+            isRolling = false;
 
-            // Update UI
-            document.getElementById(type + '-bet').classList.add('selected');
-            document.getElementById(type + '-amount').textContent = betAmount;
-            document.getElementById(type + '-amount').style.display = 'block';
-
-            document.getElementById('result').textContent = `Đã đặt cược ${betAmount} xu vào ${type.toUpperCase()}. Nhấn "Lắc xúc xắc" để bắt đầu!`;
-            document.getElementById('result').className = 'result';
-        }
-
-        function setBetAmount(amount) {
-            document.getElementById('betAmount').value = amount;
-        }
-
-        function rollDice() {
-            if (!currentBet.type) {
-                alert('Vui lòng chọn Tài hoặc Xỉu trước!');
-                return;
+            // Check if player is broke
+            if (balance <= 0) {
+                setTimeout(() => {
+                    // Play sound
+                    const gameOverSound = document.getElementById('gameOverSound');
+                    gameOverSound.play().catch(error => {
+                        console.error('Error playing sound:', error);
+                    });
+                    if (confirm('Bạn đã hết tiền! Chơi lại từ đầu?')) {
+                        balance = 1000;
+                        updateBalance();
+                        gameHistory = [];
+                        updateHistory();
+                    }
+                }, 2000);
             }
-            if (isRolling) return;
-            isRolling = true;
+        }, 1000);
+    }
 
-            // Disable roll button
-            document.getElementById('rollBtn').disabled = true;
-            document.getElementById('rollBtn').textContent = '🎲 ĐANG LẮC...';
+    function updateBalance() {
+        document.getElementById('balance').textContent = balance;
+    }
 
-            // Deduct bet amount
-            balance -= currentBet.amount;
-            updateBalance();
+    function updateHistory() {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '';
 
-            // Start rolling animation
-            const dice = ['die1', 'die2', 'die3'];
-            dice.forEach(die => {
-                document.getElementById(die).classList.add('rolling');
-                document.getElementById(die).textContent = '?';
-            });
-
-            // Generate random results after animation
-            setTimeout(() => {
-                const results = [
-                    Math.floor(Math.random() * 6) + 1,
-                    Math.floor(Math.random() * 6) + 1,
-                    Math.floor(Math.random() * 6) + 1
-                ];
-
-                // Update dice display
-                document.getElementById('die1').textContent = results[0];
-                document.getElementById('die2').textContent = results[1];
-                document.getElementById('die3').textContent = results[2];
-
-                // Remove rolling animation
-                dice.forEach(die => {
-                    document.getElementById(die).classList.remove('rolling');
-                });
-
-                // Calculate result
-                const total = results.reduce((sum, val) => sum + val, 0);
-                const outcome = (total >= 11 && total <= 17) ? 'tai' : 'xiu';
-                const won = outcome === currentBet.type;
-
-                // Update result
-                const resultElement = document.getElementById('result');
-                if (won) {
-                    balance += currentBet.amount * 2;
-                    resultElement.textContent = `🎉 THẮNG! Tổng: ${total} (${outcome.toUpperCase()}) - Thưởng: ${currentBet.amount * 2} xu`;
-                    resultElement.className = 'result win';
-                } else {
-                    resultElement.textContent = `💸 THUA! Tổng: ${total} (${outcome.toUpperCase()}) - Mất: ${currentBet.amount} xu`;
-                    resultElement.className = 'result lose';
-                }
-
-                // Add to history
-                gameHistory.unshift({
-                    dice: results,
-                    total: total,
-                    outcome: outcome,
-                    bet: currentBet,
-                    won: won,
-                    winnings: won ? currentBet.amount : -currentBet.amount
-                });
-
-                // Keep only last 10 games
-                if (gameHistory.length > 10) {
-                    gameHistory = gameHistory.slice(0, 10);
-                }
-                updateHistory();
-                updateBalance();
-
-                // Reset bet
-                currentBet = { type: null, amount: 0 };
-                document.getElementById('tai-bet').classList.remove('selected');
-                document.getElementById('xiu-bet').classList.remove('selected');
-                document.getElementById('tai-amount').style.display = 'none';
-                document.getElementById('xiu-amount').style.display = 'none';
-
-                // Re-enable roll button
-                document.getElementById('rollBtn').disabled = false;
-                document.getElementById('rollBtn').textContent = '🎲 LẮC XÚC XẮC';
-                isRolling = false;
-
-                // Check if player is broke
-                if (balance <= 0) {
-                    setTimeout(() => {
-                        // Play sound
-                        const gameOverSound = document.getElementById('gameOverSound');
-                        gameOverSound.play().catch(error => {
-                            console.error('Error playing sound:', error);
-                        });
-                        if (confirm('Bạn đã hết tiền! Chơi lại từ đầu?')) {
-                            balance = 1000;
-                            updateBalance();
-                            gameHistory = [];
-                            updateHistory();
-                        }
-                    }, 2000);
-                }
-            }, 1000);
-        }
-
-        function updateBalance() {
-            document.getElementById('balance').textContent = balance;
-        }
-
-        function updateHistory() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-
-            gameHistory.forEach((game, index) => {
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.innerHTML = `
-                    <span>🎲 ${game.dice.join('-')} (${game.total}) - ${game.outcome.toUpperCase()}</span>
-                    <span style="color: ${game.won ? '#10b981' : '#ef4444'}">
-                        ${game.won ? '+' : ''}${game.winnings} xu
-                    </span>
-                `;
-                historyList.appendChild(item);
-            });
-        }
-    </script>
+        gameHistory.forEach((game, index) => {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <span>🎲 ${game.dice.join('-')} (${game.total}) - ${game.outcome.toUpperCase()}</span>
+                <span style="color: ${game.won ? '#10b981' : '#ef4444'}">
+                    ${game.won ? '+' : ''}${game.winnings} xu
+                </span>
+            `;
+            historyList.appendChild(item);
+        });
+    }
+</script>
 </body>
 </html>
