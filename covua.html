@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Cờ Vua</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -30,12 +31,45 @@
             width: 100%;
         }
 
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 0;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .title {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
             font-size: 28px;
             font-weight: bold;
+            margin: 0;
         }
 
         .mode-btn {
@@ -171,6 +205,12 @@
                 font-size: 24px;
             }
             
+            .back-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
             .game-modes {
                 flex-direction: column;
             }
@@ -187,7 +227,10 @@
 </head>
 <body>
     <div class="game-container">
-        <h1 class="title">🏆 Game Cờ Vua</h1>
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="title">🏆 Game Cờ Vua</h1>
+        </div>
         
         <div class="game-modes">
             <button class="mode-btn active" onclick="setGameMode('vs-human')">👥 Chơi với Người</button>
@@ -650,24 +693,43 @@
 
         function newGame() {
             board = JSON.parse(JSON.stringify(initialBoard));
-            currentPlayer = 'white';
             selectedSquare = null;
             gameHistory = [];
             gameOver = false;
+            
+            if (gameMode === 'vs-ai') {
+                currentPlayer = 'black'; // Máy đi trước (quân đen)
+                setTimeout(makeAIMove, 500); // Máy đi nước đầu tiên
+            } else {
+                currentPlayer = 'white'; // Chơi với người, trắng đi trước
+            }
+            
             updateDisplay();
         }
 
         function playAgain() {
             board = JSON.parse(JSON.stringify(initialBoard));
-            currentPlayer = 'white';
             selectedSquare = null;
             gameHistory = [];
             gameOver = false;
+            
+            if (gameMode === 'vs-ai') {
+                currentPlayer = 'black'; // Máy đi trước (quân đen)
+                setTimeout(makeAIMove, 500); // Máy đi nước đầu tiên
+            } else {
+                currentPlayer = 'white'; // Chơi với người, trắng đi trước
+            }
+            
             updateDisplay();
         }
 
         // Khởi tạo game khi trang được tải
         window.addEventListener('load', initGame);
+
+        function goBack() {
+            // Quay lại trang game.html
+            window.location.href = 'game.html';
+        }
     </script>
 </body>
 </html>
