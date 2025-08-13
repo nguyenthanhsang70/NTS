@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tìm 3 số phép tính - NTS</title>
-  <link rel="icon" type="image/png" href="logos3.png">
+  <title>Game Bảng Số - Tìm 3 số thỏa phép tính</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
@@ -102,7 +101,7 @@
 <body class="min-h-screen flex items-center justify-center p-4">
   <div class="bg-gray-800 bg-opacity-90 backdrop-blur-lg rounded-2xl shadow-2xl p-6 max-w-5xl w-full relative">
     <header class="flex items-center justify-between mb-6 relative">
-      <button class="back-btn text-white bg-gray-700 bg-opacity-50 hover:bg-blue-600 hover:bg-opacity-80 rounded-lg p-3 transition-all duration-200 transform hover:-translate-y-1" onclick="goBack()">
+      <button class="back-btn text-white bg-gray-700 bg-opacity-50 hover:bg-blue-600 hover:bg-opacity-80 rounded-lg p-3 transition-all duration-200 transform hover:-translate-y-1">
         <i class="fas fa-arrow-left"></i>
       </button>
       <div class="flex-1 text-center">
@@ -213,6 +212,7 @@
       const guideContainer = document.getElementById('guideContainer');
       const infoButton = document.querySelector('.info-btn');
       const closeGuideButton = document.querySelector('.close-guide-btn');
+      const backButton = document.querySelector('.back-btn');
       // Attach event listeners
       if (infoButton) {
         infoButton.addEventListener('click', toggleGuide);
@@ -223,6 +223,11 @@
         closeGuideButton.addEventListener('click', toggleGuide);
       } else {
         console.error('Close guide button (.close-guide-btn) not found');
+      }
+      if (backButton) {
+        backButton.addEventListener('click', goBack);
+      } else {
+        console.error('Back button (.back-btn) not found');
       }
       // Back button navigation
       function goBack() {
@@ -660,3 +665,4 @@
   </script>
 </body>
 </html>
+```
