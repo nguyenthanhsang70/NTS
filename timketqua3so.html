@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tìm 3 số phép tính - NTS</title>
+  <link rel="icon" type="image/png" href="logos3.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --error: #ef4444;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg-gradient: linear-gradient(135deg, #1e3a8a, #4f46e5);
+    }
+    body {
+      background: var(--bg-gradient);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .cell {
+      transition: all 0.2s ease;
+      min-width: 48px;
+      min-height: 48px;
+    }
+    .cell:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .cell.selected {
+      outline: 3px solid var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .cell.found {
+      background: linear-gradient(90deg, #065f46, #10b981);
+      color: white;
+    }
+    .back-btn i, .info-btn i, .close-guide-btn i {
+      font-size: 1.25rem;
+    }
+    .ans-pill {
+      transition: all 0.2s ease;
+    }
+    .ans-pill:hover {
+      transform: translateY(-2px);
+    }
+    .progress-bar {
+      transition: width 0.3s ease;
+    }
+    #gridContainer {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(48px, 1fr));
+      gap: 8px;
+      min-height: 240px;
+    }
+    #guideContainer {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(31, 41, 55, 0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 50;
+      max-width: 90%;
+      width: 400px;
+    }
+    #guideContainer ol {
+      list-style-type: decimal;
+      list-style-position: inside;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    #guideContainer ol li {
+      margin-bottom: 0.5rem;
+    }
+    .close-guide-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .close-guide-btn:hover {
+      background: var(--accent-hover);
+      border-radius: 50%;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-gray-800 bg-opacity-90 backdrop-blur-lg rounded-2xl shadow-2xl p-6 max-w-5xl w-full relative">
+    <header class="flex items-center justify-between mb-6 relative">
+      <button class="back-btn text-white bg-gray-700 bg-opacity-50 hover:bg-blue-600 hover:bg-opacity-80 rounded-lg p-3 transition-all duration-200 transform hover:-translate-y-1" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="flex-1 text-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-blue-400">Tìm 3 số phép tính</h1>
+        <p class="text-sm text-gray-400">Level <span id="levelNum">1</span> · 60s mỗi level · Tìm 4 đáp án</p>
+      </div>
+      <button class="info-btn text-white bg-gray-700 bg-opacity-50 hover:bg-blue-600 hover:bg-opacity-80 rounded-lg p-3 transition-all duration-200 transform hover:-translate-y-1">
+        <i class="fas fa-info-circle"></i>
+      </button>
+    </header>
+    <div id="guideContainer" class="hidden">
+      <button class="close-guide-btn">
+        <i class="fas fa-times"></i>
+      </button>
+      <p class="text-sm text-gray-400 font-semibold">Hướng dẫn chơi game:</p>
+      <ol>
+        <li>Chọn 3 ô liên tiếp theo hàng hoặc cột trên lưới 5x5 để tạo phép tính đúng (a [phép toán] b = c).</li>
+        <li>Mục tiêu: Tìm 4 phép tính đúng trong 60 giây mỗi level để qua màn.</li>
+        <li>Các phép toán theo level:
+          <ul class="list-disc list-inside ml-4">
+            <li>Level 1: CỘNG (a + b = c)</li>
+            <li>Level 2: TRỪ (a - b = c)</li>
+            <li>Level 3: CHIA (a ÷ b = c, yêu cầu chia hết)</li>
+            <li>Level 4: NHÂN (a × b = c)</li>
+          </ul>
+        </li>
+        <li>Chọn sai: Tốc độ thời gian tăng gấp đôi (tối đa x20) và trừ 2 giây.</li>
+        <li>Nút "Gợi ý": Hiển thị một đáp án, trừ thời gian tùy level (10s, 20s, 40s, 60s).</li>
+        <li>Hết 60 giây mà chưa tìm đủ 4 đáp án, bạn thua. Nhấn "Khởi động lại" để chơi lại.</li>
+        <li>Sử dụng "Xáo trộn" để tạo lưới mới hoặc "Level tiếp theo" khi hoàn thành đủ 4 đáp án.</li>
+      </ol>
+    </div>
+    <div class="mb-4">
+      <p class="font-semibold text-lg text-gray-300">Level <span id="levelDisplay">1</span></p>
+      <p class="text-sm text-gray-400">Mục tiêu: Tìm <strong>4</strong> phép tính đúng.</p>
+    </div>
+    <div class="flex flex-col gap-6">
+      <div class="flex-1 bg-gray-900 bg-opacity-50 rounded-xl p-4">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="bg-gray-700 bg-opacity-50 rounded-lg px-3 py-1 text-sm font-semibold text-gray-300">Phép toán: <strong id="opName">CỘNG</strong></span>
+          <span class="bg-gray-700 bg-opacity-50 rounded-lg px-3 py-1 text-sm font-semibold text-gray-300">Tốc độ: <strong id="speedMult">x1</strong></span>
+          <span class="bg-gray-700 bg-opacity-50 rounded-lg px-3 py-1 text-sm font-semibold text-gray-300">Sai: <strong id="wrongCount">0</strong></span>
+        </div>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl md:text-3xl font-bold text-blue-400" id="timerText">60.0s</span>
+            <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div class="progress-bar h-full bg-gradient-to-r from-blue-500 to-blue-300" id="timeFill" style="width:100%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="small-btn bg-gray-700 bg-opacity-50 hover:bg-gray-600 text-white rounded-lg px-3 py-1.5 text-sm transition-all duration-200 transform hover:-translate-y-1" id="restart">Khởi động lại</button>
+            <button class="small-btn bg-gray-700 bg-opacity-50 hover:bg-gray-600 text-white rounded-lg px-3 py-1.5 text-sm transition-all duration-200 transform hover:-translate-y-1" id="shuffle">Xáo trộn</button>
+          </div>
+        </div>
+        <div id="gridContainer" class="grid grid-cols-5 gap-2"></div>
+        <p class="text-sm text-gray-400 italic mt-4">Chọn 3 ô liên tiếp theo hàng hoặc cột. Sai thì tốc độ thời gian tăng gấp đôi (tối đa x20).</p>
+        <p class="text-gray-300 mt-2">Đã tìm: <span id="foundCount">0</span>/4</p>
+        <div class="mt-4">
+          <p class="text-sm text-gray-400 font-semibold">Lệnh nhanh:</p>
+          <div class="flex gap-2 mt-2 flex-wrap">
+            <button class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm transition-all duration-200 transform hover:-translate-y-1" id="btnNext">Level tiếp theo</button>
+            <button class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm transition-all duration-200 transform hover:-translate-y-1" id="btnHint">Gợi ý (<span id="hintPenaltyText"></span>)</button>
+          </div>
+        </div>
+        <div class="mt-4">
+          <p class="text-sm text-gray-400 font-semibold">Danh sách đáp án:</p>
+          <div class="flex flex-wrap gap-2" id="foundList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (() => {
+      // Cấu hình
+      const GRID_N = 5; // 5x5
+      const START_TIME = 60.0; // giây
+      const NEED_FOUND = 4;
+      const MAX_SPEED = 20;
+      // Âm thanh
+      const loseSound = new Audio('lose.mp3');
+      const completeSound = new Audio('hoanthanh.mp3');
+      // trạng thái game
+      let level = 1;
+      let operation = 'add'; // add, sub, div, mul
+      let board = []; // 2D array numbers
+      let answers = []; // list of answer objects {cells:[{r,c},..], values:[a,b,c], key}
+      let found = new Set();
+      let selected = [];
+      let timer = START_TIME;
+      let baseTime = START_TIME;
+      let speedMult = 1;
+      let wrongCount = 0;
+      let tickHandle = null;
+      let gameState = 'playing'; // playing, won, lost, paused
+      // DOM
+      const gridContainer = document.getElementById('gridContainer');
+      const timerText = document.getElementById('timerText');
+      const timeFill = document.getElementById('timeFill');
+      const foundCountEl = document.getElementById('foundCount');
+      const foundListEl = document.getElementById('foundList');
+      const levelNum = document.getElementById('levelNum');
+      const opName = document.getElementById('opName');
+      const levelDisplay = document.getElementById('levelDisplay');
+      const speedMultEl = document.getElementById('speedMult');
+      const wrongCountEl = document.getElementById('wrongCount');
+      const hintPenaltyText = document.getElementById('hintPenaltyText');
+      const guideContainer = document.getElementById('guideContainer');
+      const infoButton = document.querySelector('.info-btn');
+      const closeGuideButton = document.querySelector('.close-guide-btn');
+      // Attach event listeners
+      if (infoButton) {
+        infoButton.addEventListener('click', toggleGuide);
+      } else {
+        console.error('Info button (.info-btn) not found');
+      }
+      if (closeGuideButton) {
+        closeGuideButton.addEventListener('click', toggleGuide);
+      } else {
+        console.error('Close guide button (.close-guide-btn) not found');
+      }
+      // Back button navigation
+      function goBack() {
+        window.location.href = 'game.html';
+      }
+      // Toggle guide visibility
+      function toggleGuide() {
+        if (guideContainer) {
+          guideContainer.classList.toggle('hidden');
+        } else {
+          console.error('Guide container (#guideContainer) not found');
+        }
+      }
+      // create grid element
+      function makeGridUI() {
+        if (!gridContainer) {
+          console.error('gridContainer not found');
+          return;
+        }
+        gridContainer.innerHTML = '';
+        for (let r = 0; r < GRID_N; r++) {
+          for (let c = 0; c < GRID_N; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell bg-gray-700 text-white text-lg md:text-xl font-bold rounded-lg flex items-center justify-center cursor-pointer select-none';
+            cell.dataset.r = r;
+            cell.dataset.c = c;
+            cell.id = `cell-${r}-${c}`;
+            cell.addEventListener('click', onClickCell);
+            gridContainer.appendChild(cell);
+          }
+        }
+      }
+      // Fill board with numbers and place answers
+      function generateBoardForLevel(lv) {
+        switch (lv) {
+          case 1:
+            operation = 'add';
+            if (opName) opName.textContent = 'CỘNG';
+            break;
+          case 2:
+            operation = 'sub';
+            if (opName) opName.textContent = 'TRỪ';
+            break;
+          case 3:
+            operation = 'div';
+            if (opName) opName.textContent = 'CHIA';
+            break;
+          case 4:
+            operation = 'mul';
+            if (opName) opName.textContent = 'NHÂN';
+            break;
+          default:
+            operation = 'add';
+            if (opName) opName.textContent = 'CỘNG';
+        }
+        board = Array.from({ length: GRID_N }, () => Array(GRID_N).fill(0));
+        answers = [];
+        found.clear();
+        selected = [];
+        wrongCount = 0;
+        speedMult = 1;
+        timer = baseTime = START_TIME;
+        gameState = 'playing';
+        updateInfo();
+        const tries = 150;
+        for (let t = 0; t < tries && answers.length < 6; t++) {
+          const dir = Math.random() < 0.5 ? 'h' : 'v';
+          const r = Math.floor(Math.random() * GRID_N);
+          const c = Math.floor(Math.random() * GRID_N);
+          if (dir === 'h' && c + 2 >= GRID_N) continue;
+          if (dir === 'v' && r + 2 >= GRID_N) continue;
+          let a, b, cVal;
+          if (operation === 'add') {
+            a = randInt(1, 30);
+            b = randInt(1, 30);
+            cVal = a + b;
+            if (cVal > 99) continue;
+          } else if (operation === 'sub') {
+            a = randInt(1, 50);
+            b = randInt(0, a);
+            cVal = a - b;
+          } else if (operation === 'mul') {
+            a = randInt(1, 12);
+            b = randInt(1, 12);
+            cVal = a * b;
+            if (cVal > 99) continue;
+          } else if (operation === 'div') {
+            b = randInt(1, 12);
+            const q = randInt(1, 12);
+            a = b * q;
+            cVal = q;
+          }
+          let ok = true;
+          const coords = dir === 'h'
+            ? [{ r, c }, { r, c: c + 1 }, { r, c: c + 2 }]
+            : [{ r, c }, { r: r + 1, c }, { r: r + 2, c }];
+          const vals = [a, b, cVal];
+          for (let i = 0; i < 3; i++) {
+            const rr = coords[i].r, cc = coords[i].c;
+            const cur = board[rr][cc];
+            if (cur !== 0 && cur !== vals[i]) { ok = false; break; }
+          }
+          if (!ok) continue;
+          for (let i = 0; i < 3; i++) {
+            const rr = coords[i].r, cc = coords[i].c;
+            board[rr][cc] = vals[i];
+          }
+          const key = `${coords.map(z => z.r + ',' + z.c).join('|')}`;
+          if (!answers.some(aobj => aobj.key === key)) {
+            answers.push({ cells: coords, values: vals, key });
+          }
+        }
+        for (let i = 0; i < GRID_N; i++) {
+          for (let j = 0; j < GRID_N; j++) {
+            if (board[i][j] === 0) board[i][j] = randInt(1, 99);
+          }
+        }
+        if (answers.length < NEED_FOUND) {
+          answers = [];
+          board = Array.from({ length: GRID_N }, () => Array(GRID_N).fill(0));
+          let forced = 0;
+          for (let r = 0; r < GRID_N && forced < 5; r++) {
+            for (let c = 0; c < GRID_N && forced < 5; c++) {
+              if (forced >= 5) break;
+              let dir = (forced % 2 === 0) ? 'h' : 'v';
+              if (dir === 'h' && c + 2 < GRID_N) {
+                const vals = forcedTripleForOperation();
+                board[r][c] = vals[0];
+                board[r][c + 1] = vals[1];
+                board[r][c + 2] = vals[2];
+                answers.push({ cells: [{ r, c }, { r, c: c + 1 }, { r, c: c + 2 }], values: vals, key: `${r},${c}|${r},${c + 1}|${r},${c + 2}` });
+                forced++;
+              } else if (dir === 'v' && r + 2 < GRID_N) {
+                const vals = forcedTripleForOperation();
+                board[r][c] = vals[0];
+                board[r + 1][c] = vals[1];
+                board[r + 2][c] = vals[2];
+                answers.push({ cells: [{ r, c }, { r: r + 1, c }, { r: r + 2, c }], values: vals, key: `${r},${c}|${r + 1},${c}|${r + 2},${c}` });
+                forced++;
+              }
+            }
+          }
+          for (let i = 0; i < GRID_N; i++) for (let j = 0; j < GRID_N; j++) if (board[i][j] === 0) board[i][j] = randInt(1, 99);
+        }
+        renderBoard();
+      }
+      function forcedTripleForOperation() {
+        if (operation === 'add') { const a = randInt(1, 20), b = randInt(1, 20); return [a, b, a + b]; }
+        if (operation === 'sub') { const a = randInt(10, 50), b = randInt(0, 9); return [a, b, a - b]; }
+        if (operation === 'mul') { const a = randInt(2, 10), b = randInt(2, 10); return [a, b, a * b]; }
+        if (operation === 'div') { const b = randInt(2, 10), q = randInt(2, 8); return [b * q, b, q]; }
+        return [1, 1, 2];
+      }
+      function renderBoard() {
+        for (let r = 0; r < GRID_N; r++) {
+          for (let c = 0; c < GRID_N; c++) {
+            const el = document.getElementById(`cell-${r}-${c}`);
+            if (el) {
+              el.textContent = board[r][c] || '0';
+              el.classList.remove('found', 'selected');
+            } else {
+              console.error(`Cell cell-${r}-${c} not found`);
+            }
+          }
+        }
+        if (foundListEl) {
+          foundListEl.innerHTML = '';
+        } else {
+          console.error('foundListEl (#foundList) not found');
+        }
+        if (foundCountEl) {
+          foundCountEl.textContent = '0';
+        } else {
+          console.error('foundCountEl (#foundCount) not found');
+        }
+      }
+      function onClickCell(e) {
+        if (gameState !== 'playing') return;
+        const el = e.currentTarget;
+        const r = Number(el.dataset.r), c = Number(el.dataset.c);
+        const id = `${r},${c}`;
+        if (selected.some(s => s.r === r && s.c === c)) {
+          selected = selected.filter(s => !(s.r === r && s.c === c));
+          updateSelectUI();
+          return;
+        }
+        if (selected.length === 3) {
+          selected = [{ r, c }];
+          updateSelectUI();
+          return;
+        }
+        selected.push({ r, c });
+        updateSelectUI();
+        if (selected.length === 3) {
+          if (!isThreeLinear(selected)) {
+            handleWrongAttempt();
+            flashSelectionBad();
+            selected = [];
+            updateSelectUI();
+            return;
+          }
+          const vals = selected.map(s => board[s.r][s.c]);
+          if (checkTriple(vals)) {
+            const key = keyForSelected(selected);
+            if (found.has(key)) {
+              flashSelectionNeutral();
+              selected = [];
+              updateSelectUI();
+              return;
+            }
+            found.add(key);
+            markFoundUI(selected, vals);
+            selected = [];
+            updateSelectUI();
+            if (found.size >= NEED_FOUND) {
+              onWinLevel();
+            }
+          } else {
+            handleWrongAttempt();
+            flashSelectionBad();
+            selected = [];
+            updateSelectUI();
+          }
+        }
+      }
+      function isThreeLinear(sel) {
+        if (sel.length !== 3) return false;
+        sel = sel.slice().sort((a, b) => a.r - b.r || a.c - b.c);
+        if (sel[0].r === sel[1].r && sel[1].r === sel[2].r) {
+          const cs = sel.map(s => s.c).sort((a, b) => a - b);
+          return cs[0] + 1 === cs[1] && cs[1] + 1 === cs[2];
+        }
+        if (sel[0].c === sel[1].c && sel[1].c === sel[2].c) {
+          const rs = sel.map(s => s.r).sort((a, b) => a - b);
+          return rs[0] + 1 === rs[1] && rs[1] + 1 === rs[2];
+        }
+        return false;
+      }
+      function keyForSelected(sel) {
+        const sorted = sel.slice().sort((a, b) => a.r - b.r || a.c - b.c);
+        return sorted.map(s => `${s.r},${s.c}`).join('|');
+      }
+      function checkTriple(vals) {
+        const a = vals[0], b = vals[1], c = vals[2];
+        if (operation === 'add') return (a + b) === c;
+        if (operation === 'sub') return (a - b) === c;
+        if (operation === 'mul') return (a * b) === c;
+        if (operation === 'div') {
+          if (b === 0) return false;
+          return (a % b === 0) && (a / b === c);
+        }
+        return false;
+      }
+      function markFoundUI(sel, vals) {
+        const sorted = sel.slice().sort((x, y) => x.r - y.r || x.c - y.c);
+        sorted.forEach(s => {
+          const el = document.getElementById(`cell-${s.r}-${s.c}`);
+          if (el) el.classList.add('found');
+        });
+        if (foundListEl) {
+          const pill = document.createElement('div');
+          pill.className = 'ans-pill bg-gray-700 bg-opacity-50 rounded-full px-3 py-1 text-sm text-gray-300';
+          pill.textContent = `${vals[0]} ${opSymbol()} ${vals[1]} = ${vals[2]}`;
+          foundListEl.appendChild(pill);
+        } else {
+          console.error('foundListEl (#foundList) not found');
+        }
+        if (foundCountEl) {
+          foundCountEl.textContent = found.size;
+        } else {
+          console.error('foundCountEl (#foundCount) not found');
+        }
+      }
+      function opSymbol() {
+        if (operation === 'add') return '+';
+        if (operation === 'sub') return '-';
+        if (operation === 'mul') return '×';
+        if (operation === 'div') return '÷';
+        return '?';
+      }
+      function updateSelectUI() {
+        document.querySelectorAll('.cell').forEach(el => el.classList.remove('selected'));
+        selected.forEach(s => {
+          const el = document.getElementById(`cell-${s.r}-${s.c}`);
+          if (el) el.classList.add('selected');
+        });
+        if (levelDisplay) levelDisplay.textContent = level;
+        else console.error('levelDisplay (#levelDisplay) not found');
+        if (levelNum) levelNum.textContent = level;
+        else console.error('levelNum (#levelNum) not found');
+        if (speedMultEl) speedMultEl.textContent = `x${speedMult}`;
+        else console.error('speedMultEl (#speedMult) not found');
+        if (wrongCountEl) wrongCountEl.textContent = wrongCount;
+        else console.error('wrongCountEl (#wrongCount) not found');
+        if (hintPenaltyText) hintPenaltyText.textContent = `-${getHintPenalty()}s`;
+        else console.error('hintPenaltyText (#hintPenaltyText) not found');
+      }
+      function getHintPenalty() {
+        switch (level) {
+          case 1: return 10;
+          case 2: return 20;
+          case 3: return 40;
+          case 4: return 60;
+          default: return 10;
+        }
+      }
+      function handleWrongAttempt() {
+        wrongCount++;
+        speedMult = Math.min(speedMult * 2, MAX_SPEED);
+        timer = Math.max(0, timer - 2);
+        updateInfo();
+      }
+      function flashSelectionBad() {
+        selected.forEach(s => {
+          const el = document.getElementById(`cell-${s.r}-${s.c}`);
+          if (!el) return;
+          el.classList.add('border-red-500');
+          el.style.transform = 'translateX(6px)';
+          setTimeout(() => {
+            el.classList.remove('border-red-500');
+            el.style.transform = '';
+          }, 160);
+        });
+      }
+      function flashSelectionNeutral() {
+        selected.forEach(s => {
+          const el = document.getElementById(`cell-${s.r}-${s.c}`);
+          if (!el) return;
+          el.style.transform = 'translateY(-6px)';
+          setTimeout(() => { el.style.transform = ''; }, 160);
+        });
+      }
+      function startTimer() {
+        if (tickHandle) clearInterval(tickHandle);
+        tickHandle = setInterval(() => {
+          if (gameState !== 'playing') return;
+          timer -= (speedMult * 0.1);
+          if (timer <= 0) {
+            timer = 0;
+            onLose();
+          }
+          updateInfo();
+        }, 100);
+      }
+      function updateInfo() {
+        if (timerText) timerText.textContent = `${timer.toFixed(1)}s`;
+        else console.error('timerText (#timerText) not found');
+        const pct = Math.max(0, Math.min(1, timer / baseTime));
+        if (timeFill) timeFill.style.width = `${pct * 100}%`;
+        else console.error('timeFill (#timeFill) not found');
+        if (speedMultEl) speedMultEl.textContent = `x${speedMult}`;
+        else console.error('speedMultEl (#speedMult) not found');
+        if (wrongCountEl) wrongCountEl.textContent = wrongCount;
+        else console.error('wrongCountEl (#wrongCount) not found');
+        if (foundCountEl) foundCountEl.textContent = found.size;
+        else console.error('foundCountEl (#foundCount) not found');
+        if (hintPenaltyText) hintPenaltyText.textContent = `-${getHintPenalty()}s`;
+        else console.error('hintPenaltyText (#hintPenaltyText) not found');
+      }
+      function onWinLevel() {
+        gameState = 'won';
+        updateInfo();
+        alert(`Chúc mừng! Bạn đã hoàn thành Level ${level}.`);
+        if (level < 4) {
+          level++;
+          if (levelNum) levelNum.textContent = level;
+          generateBoardForLevel(level);
+          startTimer();
+        } else {
+          completeSound.play().catch(e => console.log('Error playing complete sound:', e));
+          alert('Bạn đã thắng toàn bộ 4 level! 🎉');
+          clearInterval(tickHandle);
+        }
+      }
+      function onLose() {
+        gameState = 'lost';
+        updateInfo();
+        clearInterval(tickHandle);
+        loseSound.play().catch(e => console.log('Error playing lose sound:', e));
+        alert('Hết giờ! Bạn thua. Nhấn Restart để chơi lại.');
+      }
+      document.getElementById('restart').addEventListener('click', () => {
+        level = 1;
+        if (levelNum) levelNum.textContent = level;
+        generateBoardForLevel(level);
+        startTimer();
+      });
+      document.getElementById('shuffle').addEventListener('click', () => {
+        generateBoardForLevel(level);
+      });
+      document.getElementById('btnNext').addEventListener('click', () => {
+        if (found.size >= NEED_FOUND) {
+          if (level < 4) {
+            level++;
+            generateBoardForLevel(level);
+          } else {
+            alert('Bạn đã hoàn thành tất cả level!');
+          }
+        } else {
+          alert(`Bạn cần tìm đủ ${NEED_FOUND} đáp án để mở level tiếp. Hiện tại: ${found.size}`);
+        }
+      });
+      document.getElementById('btnHint').addEventListener('click', () => {
+        const penalty = getHintPenalty();
+        if (timer <= penalty) {
+          alert(`Không đủ thời gian cho gợi ý (-${penalty}s).`);
+          return;
+        }
+        timer -= penalty;
+        const remaining = answers.filter(a => !found.has(a.key));
+        if (remaining.length === 0) {
+          alert('Không còn đáp án chưa tìm (hoặc board không chứa nhiều đáp án).');
+          return;
+        }
+        const pick = remaining[Math.floor(Math.random() * remaining.length)];
+        pick.cells.forEach(pos => {
+          const el = document.getElementById(`cell-${pos.r}-${pos.c}`);
+          if (!el) return;
+          el.classList.add('border-purple-500');
+          el.style.transform = 'translateY(-6px)';
+          setTimeout(() => {
+            el.classList.remove('border-purple-500');
+            el.style.transform = '';
+          }, 800);
+        });
+        updateInfo();
+      });
+      function randInt(a, b) {
+        return Math.floor(Math.random() * (b - a + 1)) + a;
+      }
+      makeGridUI();
+      generateBoardForLevel(level);
+      startTimer();
+    })();
+  </script>
+</body>
+</html>
