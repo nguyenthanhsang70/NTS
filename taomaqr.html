@@ -164,8 +164,8 @@
             text-align: center;
         }
         #imagePreview {
-            max-width: 80px;
-            max-height: 80px;
+            max-width: 120px;
+            max-height: 120px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
@@ -214,7 +214,7 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
         }
-        
+       
         /* Responsive adjustments */
         @media (max-width: 480px) {
             .container {
@@ -241,6 +241,10 @@
             }
             #qrcode {
                 padding: 10px;
+            }
+            #imagePreview {
+                max-width: 100px;
+                max-height: 100px;
             }
         }
     </style>
@@ -276,12 +280,10 @@
             <div id="qrcode"></div>
         </div>
     </div>
-
     <script>
         let extractedColors = null;
         let imageLoaded = false;
         let currentQR = null;
-
         // Xử lý tải ảnh và hiển thị preview
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -297,7 +299,6 @@
                 reader.readAsDataURL(file);
             }
         });
-
         // Xử lý toggle màu sắc
         document.getElementById('colorToggle').addEventListener('change', function() {
             const statusText = document.getElementById('statusText');
@@ -314,14 +315,13 @@
                 statusText.textContent = 'Kết hợp: TẮT (mã QR đen trắng)';
                 statusText.className = 'status-text status-disabled';
             }
-            
+           
             // Tạo lại QR nếu đã có dữ liệu
             const linkInput = document.getElementById('linkInput');
             if (linkInput.value.trim()) {
                 generateQR();
             }
         });
-
         // Trích xuất màu chủ đạo từ ảnh
         function extractColorsFromImage(imageSrc) {
             const img = new Image();
@@ -335,7 +335,7 @@
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
-                
+               
                 // Tính màu trung bình
                 let r = 0, g = 0, b = 0;
                 const totalPixels = data.length / 4;
@@ -347,19 +347,16 @@
                 r = Math.round(r / totalPixels);
                 g = Math.round(g / totalPixels);
                 b = Math.round(b / totalPixels);
-
                 // Tạo màu sáng hơn cho nền
                 const lightR = Math.min(255, r + 100);
                 const lightG = Math.min(255, g + 100);
                 const lightB = Math.min(255, b + 100);
-
                 extractedColors = {
                     primary: `rgb(${r}, ${g}, ${b})`,
                     light: `rgb(${lightR}, ${lightG}, ${lightB})`,
                     hex: `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
                 };
                 imageLoaded = true;
-
                 // Cập nhật trạng thái nếu toggle đang bật
                 const colorToggle = document.getElementById('colorToggle');
                 const statusText = document.getElementById('statusText');
@@ -367,7 +364,7 @@
                     statusText.textContent = `Kết hợp: BẬT (QR + hình ảnh)`;
                     statusText.className = 'status-text status-enabled';
                 }
-                
+               
                 // Tạo lại QR nếu đã có dữ liệu
                 const linkInput = document.getElementById('linkInput');
                 if (linkInput.value.trim()) {
@@ -376,24 +373,20 @@
             };
             img.src = imageSrc;
         }
-
         // Tạo mã QR
         function generateQR() {
             const link = document.getElementById('linkInput').value.trim();
             const colorToggle = document.getElementById('colorToggle').checked;
             const qrContainer = document.getElementById('qrcode');
             const downloadButton = document.getElementById('downloadButton');
-
             if (!link) {
                 alert('Vui lòng nhập đường link!');
                 downloadButton.style.display = 'none';
                 qrContainer.innerHTML = '<p style="color:#666;">Mã QR sẽ xuất hiện ở đây</p>';
                 return;
             }
-
             // Xóa QR code cũ
             qrContainer.innerHTML = '';
-
             try {
                 if (colorToggle && imageLoaded) {
                     // Tạo QR với hình ảnh
@@ -402,10 +395,8 @@
                     // Tạo QR thông thường
                     createNormalQR(link, qrContainer);
                 }
-
                 // Hiển thị nút tải xuống
                 downloadButton.style.display = 'block';
-
                 // Thêm hiệu ứng
                 qrContainer.style.opacity = '0';
                 setTimeout(() => {
@@ -419,16 +410,15 @@
                 qrContainer.innerHTML = '<p style="color:#f44336;">Lỗi khi tạo mã QR</p>';
             }
         }
-
         // Tạo QR code thông thường
         function createNormalQR(link, container) {
             const canvas = document.createElement('canvas');
             canvas.id = 'qrCanvas';
             container.appendChild(canvas);
-            
+           
             // Kích thước responsive
             const size = Math.min(300, window.innerWidth - 100);
-            
+           
             currentQR = new QRious({
                 element: canvas,
                 value: link,
@@ -438,7 +428,6 @@
                 background: '#FFFFFF'
             });
         }
-
         // Tạo QR code với hình ảnh overlay
         function createQRWithImage(link, container) {
             const size = Math.min(300, window.innerWidth - 100);
@@ -447,7 +436,6 @@
             canvas.width = size;
             canvas.height = size;
             container.appendChild(canvas);
-
             // Tạo QR code tạm thời để lấy pattern
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = size;
@@ -460,7 +448,6 @@
                 foreground: '#000000',
                 background: '#FFFFFF'
             });
-
             // Lấy hình ảnh đã upload
             const imagePreview = document.getElementById('imagePreview');
             if (imagePreview && imagePreview.src) {
@@ -468,50 +455,47 @@
                 img.crossOrigin = 'anonymous';
                 img.onload = function() {
                     const ctx = canvas.getContext('2d');
-                    
+                   
                     // Vẽ hình ảnh làm nền, scale để fit canvas
                     ctx.drawImage(img, 0, 0, size, size);
-
                     // Lấy QR pattern
                     const qrImageData = tempCanvas.getContext('2d').getImageData(0, 0, size, size);
                     const backgroundImageData = ctx.getImageData(0, 0, size, size);
-
-                    // Blend QR pattern với hình ảnh
+                    // Blend QR pattern với hình ảnh - điều chỉnh để rõ hơn
                     const qrData = qrImageData.data;
                     const bgData = backgroundImageData.data;
-
                     for (let i = 0; i < qrData.length; i += 4) {
                         // Nếu pixel QR là đen (foreground pattern)
                         if (qrData[i] < 128 && qrData[i + 1] < 128 && qrData[i + 2] < 128) {
-                            // Làm tối hình nền ở vị trí này
-                            bgData[i] = Math.max(0, bgData[i] * 0.3);
-                            bgData[i + 1] = Math.max(0, bgData[i + 1] * 0.3);
-                            bgData[i + 2] = Math.max(0, bgData[i + 2] * 0.3);
+                            // Làm tối hình nền ít hơn để giữ độ rõ
+                            bgData[i] = Math.max(0, bgData[i] * 0.5);
+                            bgData[i + 1] = Math.max(0, bgData[i + 1] * 0.5);
+                            bgData[i + 2] = Math.max(0, bgData[i + 2] * 0.5);
                         } else {
-                            // Pixel trắng của QR - làm sáng hình nền
-                            bgData[i] = Math.min(255, bgData[i] * 1.2);
-                            bgData[i + 1] = Math.min(255, bgData[i + 1] * 1.2);
-                            bgData[i + 2] = Math.min(255, bgData[i + 2] * 1.2);
+                            // Pixel trắng của QR - làm sáng ít hơn
+                            bgData[i] = Math.min(255, bgData[i] * 1.1);
+                            bgData[i + 1] = Math.min(255, bgData[i + 1] * 1.1);
+                            bgData[i + 2] = Math.min(255, bgData[i + 2] * 1.1);
                         }
                         bgData[i + 3] = 255; // Alpha channel
                     }
-
                     // Vẽ kết quả cuối cùng
                     ctx.putImageData(backgroundImageData, 0, 0);
-
-                    // Tăng độ tương phản bằng cách chồng thêm QR mờ
+                    // Tăng độ tương phản bằng cách chồng thêm QR mờ hơn
                     ctx.globalCompositeOperation = 'multiply';
-                    ctx.globalAlpha = 0.7;
+                    ctx.globalAlpha = 0.5; // Giảm alpha để hình ảnh rõ hơn
                     ctx.drawImage(tempCanvas, 0, 0);
-
                     // Reset về mặc định
                     ctx.globalCompositeOperation = 'source-over';
                     ctx.globalAlpha = 1.0;
-
-                    // Thêm viền ngoài để dễ quét hơn
-                    ctx.strokeStyle = '#333333';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(2, 2, size - 4, size - 4);
+                    // Thêm viền ngoài để dễ quét hơn, sử dụng màu từ ảnh
+                    if (extractedColors) {
+                        ctx.strokeStyle = extractedColors.primary;
+                    } else {
+                        ctx.strokeStyle = '#333333';
+                    }
+                    ctx.lineWidth = 2; // Giảm lineWidth để viền mỏng hơn
+                    ctx.strokeRect(1, 1, size - 2, size - 2);
                 };
                 img.src = imagePreview.src;
             } else {
@@ -519,7 +503,6 @@
                 container.appendChild(tempCanvas);
             }
         }
-
         // Hàm tải QR code
         function downloadQR() {
             const canvas = document.getElementById('qrCanvas');
@@ -527,7 +510,6 @@
                 alert('Chưa có mã QR để tải!');
                 return;
             }
-
             try {
                 // Tạo link tải
                 const link = document.createElement('a');
@@ -543,7 +525,6 @@
                 alert('Có lỗi xảy ra khi tải mã QR!');
             }
         }
-
         // Tự động tạo QR khi nhập link (với debounce)
         let inputTimer;
         document.getElementById('linkInput').addEventListener('input', function() {
@@ -554,13 +535,11 @@
                 }
             }, 500);
         });
-
         // Tạo QR mặc định khi trang load
         window.addEventListener('load', function() {
             document.getElementById('linkInput').value = '';
             generateQR();
         });
-
         // Xử lý responsive khi thay đổi kích thước màn hình
         window.addEventListener('resize', function() {
             const linkInput = document.getElementById('linkInput');
