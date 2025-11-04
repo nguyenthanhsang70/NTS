@@ -18,35 +18,23 @@
         }
         .game-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
         }
         .game-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-8px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
         .game-card img {
             transition: transform 0.3s ease;
-            object-fit: cover;
-            height: 160px;
-            width: 100%;
         }
         .game-card:hover img {
             transform: scale(1.05);
-        }
-        .game-card .content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
         .music-control {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -54,86 +42,53 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            backdrop-filter: blur(4px);
         }
         .music-control:hover {
             transform: scale(1.1);
-            background: white;
+            background: rgba(255, 255, 255, 1);
         }
         .tooltip {
             position: absolute;
             right: 60px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s;
             pointer-events: none;
-            top: 50%;
-            transform: translateY(-50%);
         }
         .music-control:hover .tooltip {
             opacity: 1;
         }
-
-        /* Responsive Fixes */
-        @media (max-width: 640px) {
-            .back-btn {
-                position: fixed;
-                top: 16px;
-                left: 16px;
-                z-index: 999;
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-            header h1 {
-                font-size: 1.75rem;
-                padding-left: 3rem;
-                padding-right: 3rem;
-            }
-            .game-card img {
-                height: 140px;
-            }
-            .game-card h2 {
-                font-size: 1rem;
-            }
-            .game-card p {
-                font-size: 0.8rem;
-            }
-            .game-card a {
-                padding: 10px 20px;
-                font-size: 0.875rem;
-            }
-        }
-
-        @media (min-width: 641px) and (max-width: 768px) {
-            header h1 {
-                font-size: 2rem;
-            }
-        }
-
         @media (max-width: 480px) {
-            .music-control {
-                width: 44px;
-                height: 44px;
-                bottom: 16px;
-                right: 16px;
+            header h1 {
+                font-size: 30px;
             }
-            .music-control i {
-                font-size: 0.9rem;
+            header p {
+                font-size: 16px;
             }
-            .tooltip {
-                display: none;
+            .content h2 {
+                font-size: 26px;
+            }
+            .game-section h2 {
+                font-size: 28px;
+            }
+            .game-section a {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+            .social-icons a {
+                font-size: 20px;
             }
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
     <!-- Audio element for background music -->
     <audio id="backgroundMusic" loop>
         <source src="nhacnen2.mp3" type="audio/mpeg">
@@ -141,307 +96,231 @@
     </audio>
 
     <!-- Music control button -->
-    <div class="music-control" id="musicControl">
+    <div class="music-control" id="musicControl" title="Bật/Tắt nhạc nền">
         <i class="fas fa-music text-indigo-600"></i>
         <span class="tooltip">Bật/Tắt nhạc nền</span>
     </div>
 
-    <!-- Back Button -->
-    <a href="index.html" class="back-btn bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg flex items-center text-sm font-medium transition-all duration-300 shadow-lg">
-        <i class="fas fa-arrow-left mr-2"></i> Quay lại
-    </a>
-
-    <header class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-5 relative">
-        <div class="container mx-auto px-4">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center tracking-tight">Danh Sách Game</h1>
-        </div>
+    <header class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-6 relative">
+        <a href="index.html" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> 
+        </a>
+        <h1 class="text-3xl md:text-4xl font-bold text-center tracking-tight">Danh Sách Game</h1>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-            <!-- Game Card Template -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Xúc Xắc" class="w-full">
+                    <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Game 1" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Xúc Xắc</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Xúc Xắc</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
                     <div class="text-center">
                         <a href="xucxac.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="hinhquayten.png" alt="Quay Tên" class="w-full">
+                    <img src="hinhquayten.png" alt="Game 2" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Quay Tên</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Quay Tên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
                     <div class="text-center">
                         <a href="quayten.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Repeat for other games with same structure -->
-            <!-- Game 3 -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="screenshot_1739700866.png" alt="Đua Số Ngẫu Nhiên" class="w-full">
+                    <img src="screenshot_1739700866.png" alt="Game 3" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Đua Số Ngẫu Nhiên</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Đua Số Ngẫu Nhiên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game đua số mang đến trải nghiệm gay cấn và thú vị cho mọi người tham gia!</p>
                     <div class="text-center">
                         <a href="dua.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 4 -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="ttnthcp.jpg" alt="Thử Thách, Nói Thật Hay Chịu Phạt" class="w-full">
+                    <img src="ttnthcp.jpg" alt="Game 4" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Thử Thách, Nói Thật Hay Chịu Phạt</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi vui nhộn với lựa chọn: thử thách, trả lời thật lòng hoặc nhận hình phạt.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Thử Thách, Nói Thật Hay Chịu Phạt Ngẫu Nhiên</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi vui nhộn với lựa chọn: thử thách, trả lời thật lòng hoặc nhận hình phạt.</p>
                     <div class="text-center">
                         <a href="tthcp.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Continue for all 18 games with same pattern -->
-            <!-- Game 5: Cờ Caro -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="thi-dau-co-caro.jpg" alt="Cờ Caro" class="w-full">
+                    <img src="thi-dau-co-caro.jpg" alt="Game 5" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Cờ Caro</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Caro là trò chơi 2 người, đặt X hoặc O trên bàn cờ, ai xếp 5 quân liên tiếp trước sẽ thắng.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Cờ Caro</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Caro là trò chơi 2 người, đặt X hoặc O trên bàn cờ, ai xếp 5 quân liên tiếp theo hàng ngang, dọc hoặc chéo trước sẽ thắng.</p>
                     <div class="text-center">
                         <a href="caro.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 6: Tìm 3 Số Phép Tính -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="timkiemqua3so.png" alt="Tìm 3 Số Phép Tính" class="w-full">
+                    <img src="timkiemqua3so.png" alt="Game 6" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Tìm 3 Số Phép Tính</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Game rèn luyện tư duy logic, khả năng tính toán nhanh và giải đố thú vị!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Tìm 3 Số Phép Tính</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game rèn luyện tư duy logic, khả năng tính toán nhanh và giải đố thú vị qua nhiều cấp độ thử thách!</p>
                     <div class="text-center">
                         <a href="timketqua3so.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 7: Đánh Bài -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="solitaire-classic.jpg" alt="Đánh Bài" class="w-full">
+                    <img src="solitaire-classic.jpg" alt="Game 7" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Đánh Bài</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Game đánh bài sử dụng bộ bài Tây 52 lá, đầy chiến thuật và may mắn.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Đánh Bài</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game đánh bài là thể loại trò chơi sử dụng bộ bài (thường là bài Tây 52 lá).</p>
                     <div class="text-center">
                         <a href="danhbai.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 8: Tài Xỉu -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="taixiu.png" alt="Tài Xỉu" class="w-full">
+                    <img src="taixiu.png" alt="Game 8" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Tài Xỉu</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Trò cá cược phổ biến từ Trung Quốc, dự đoán tổng 3 xúc xắc.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Tài Xỉu</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Tài xỉu là trò cá cược phổ biến, có nguồn gốc từ Trung Quốc.</p>
                     <div class="text-center">
                         <a href="taixiu.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 9: Đố Vui -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="dovui.jpg" alt="Đố Vui" class="w-full">
+                    <img src="dovui.jpg" alt="Game 9" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Đố Vui</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Rèn luyện tư duy logic, suy luận và sáng tạo qua các câu hỏi thú vị.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Đố Vui</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game Đố Vui rèn luyện tư duy logic, suy luận và sáng tạo qua các câu hỏi thú vị.</p>
                     <div class="text-center">
                         <a href="dovui.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 10: Mê Cung -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="mecung.jpg" alt="Mê Cung" class="w-full">
+                    <img src="mecung.jpg" alt="Game 10" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Mê Cung</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Tìm lối thoát khỏi mê cung phức tạp, thử thách trí não!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Mê Cung</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game mê cung: người chơi phải tìm lối thoát khỏi mê cung phức tạp.</p>
                     <div class="text-center">
                         <a href="mecung.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 11: Memory Card -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="MemoryCardGame1.jpg" alt="Memory Card Game" class="w-full">
+                    <img src="MemoryCardGame1.jpg" alt="Game 11" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Memory Card Game</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Tìm các cặp thẻ giống nhau, rèn luyện trí nhớ ngắn hạn.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Memory Card Game</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Memory Card Game rèn luyện trí nhớ bằng cách tìm các cặp thẻ giống nhau trong bộ thẻ úp.</p>
                     <div class="text-center">
                         <a href="cardgame.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 12: Đập Chuột -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="dapchuota.png" alt="Đập Chuột" class="w-full">
+                    <img src="dapchuota.png" alt="Game 12" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Đập Chuột</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Click càng nhanh càng nhiều chuột trong thời gian giới hạn!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Đập Chuột</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Người chơi click/chạm càng nhiều chuột trong thời gian giới hạn để ghi điểm.</p>
                     <div class="text-center">
                         <a href="dapchuot.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 13: Oẳn Tù Tì -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="keobuabao.png" alt="Oẳn Tù Tì" class="w-full">
+                    <img src="keobuabao.png" alt="Game 13" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Oẳn Tù Tì</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi cổ điển, đơn giản, đầy bất ngờ và giải trí.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Oẳn Tù Tì</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Trò chơi đối kháng cổ điển, đơn giản, mang tính ngẫu nhiên và giải trí cao.</p>
                     <div class="text-center">
                         <a href="keobuabao.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 14: Đoán Số -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="doanso.png" alt="Đoán Số" class="w-full">
+                    <img src="doanso.png" alt="Game 14" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Đoán Số</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Đoán đúng số bí mật mà máy chọn ngẫu nhiên!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Đoán Số</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game đoán số: người chơi cố gắng đoán đúng số bí mật mà máy chọn ngẫu nhiên.</p>
                     <div class="text-center">
                         <a href="doanso.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 15: Trí Nhớ Màu Sắc -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="trinhomausac.png" alt="Trí Nhớ Màu Sắc" class="w-full">
+                    <img src="trinhomausac.png" alt="Game 15" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Trí Nhớ Màu Sắc</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Cải thiện trí nhớ, phản xạ và khả năng tập trung.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Trí Nhớ Màu Sắc</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Giúp cải thiện trí nhớ ngắn hạn, phản xạ và tập trung. </p>
                     <div class="text-center">
                         <a href="trinhomausac.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 16: Nhẩm Giây -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="nhamgiay.png" alt="Nhẩm Giây" class="w-full">
+                    <img src="nhamgiay.png" alt="Game 16" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Nhẩm Giây</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Rèn luyện khả năng cảm nhận và ước lượng thời gian chính xác.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Nhẩm Giây</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game nhẩm giây là một trò chơi rèn luyện khả năng cảm nhận và ước lượng thời gian của người chơi.</p>
                     <div class="text-center">
                         <a href="nhamgiay.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 17: Thám Tử Mật Khẩu -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="thamtumk.png" alt="Thám Tử Mật Khẩu" class="w-full">
+                    <img src="thamtumk.png" alt="Game 17" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Thám Tử Mật Khẩu</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Phá giải mật khẩu bí ẩn qua các manh mối logic.</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Thám Tử Mật Khẩu</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game Thám Tử Mật Khẩu là một trò chơi trí tuệ mang tính suy luận, nơi người chơi vào vai thám tử để phá giải mật khẩu bí ẩn thông qua các gợi ý hoặc manh mối.</p>
                     <div class="text-center">
                         <a href="thamtumk.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Game 18: Giải Mã Gỡ Bom -->
-            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col">
+            <div class="game-card bg-white rounded-2xl overflow-hidden shadow-lg max-w-xs">
                 <div class="overflow-hidden">
-                    <img src="goboom.png" alt="Giải Mã Gỡ Bom" class="w-full">
+                    <img src="goboom.png" alt="Game 18" class="w-full h-40 object-cover">
                 </div>
-                <div class="p-4 md:p-6 content">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 text-center">Giải Mã Gỡ Bom</h2>
-                        <p class="text-gray-600 text-sm mb-4 text-center">Giải đố gấp rút trước khi quả bom phát nổ!</p>
-                    </div>
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Giải Mã Gỡ Bom</h2>
+                    <p class="text-gray-600 text-sm mb-4 text-center">Game giải mã gỡ bom là một thể loại game giải đố kịch tính, trong đó người chơi phải gỡ một quả bom hẹn giờ trước khi nó phát nổ.</p>
                     <div class="text-center">
                         <a href="goboom.html" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Chơi Ngay</a>
                     </div>
@@ -450,9 +329,47 @@
         </div>
     </main>
 
-    <footer class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-6 mt-auto">
-        <div class="container mx-auto px-4 text-center">
-            <div class="flex justify-center space-x-6 mb-3">
+    <script>
+        // Background music control
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            const musicControl = document.getElementById('musicControl');
+            let isPlaying = false;
+
+            // Try to play music automatically (may be blocked by browser)
+            const playPromise = music.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isPlaying = true;
+                    musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+                })
+                .catch(error => {
+                    isPlaying = false;
+                    musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+                });
+            }
+
+            // Toggle play/pause when button is clicked
+            musicControl.addEventListener('click', function() {
+                if (isPlaying) {
+                    music.pause();
+                    musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+                } else {
+                    music.play();
+                    musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Bật/Tắt nhạc nền</span>';
+                }
+                isPlaying = !isPlaying;
+            });
+
+            // Lower volume to make it background music
+            music.volume = 0.3;
+        });
+    </script>
+</body>
+ <footer class="bg-gradient-to-r from-indigo-900 to-indigo-700 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-6 mb-4">
                 <a href="https://www.facebook.com" target="_blank" class="hover:text-indigo-200 transition-colors duration-300">
                     <i class="fab fa-facebook-f text-xl"></i>
                 </a>
@@ -463,40 +380,7 @@
                     <i class="fab fa-tiktok text-xl"></i>
                 </a>
             </div>
-            <p class="text-sm">© 2025 NTS. Được thiết kế bởi <a href="profile.html" class="text-indigo-200 hover:underline">Nguyễn Thanh Sang</a>.</p>
+            <p class="text-center text-sm">© 2025 NTS. Được thiết kế bởi <a href="profile.html" class="text-indigo-200 hover:underline">Nguyễn Thanh Sang</a>.</p>
         </div>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const music = document.getElementById('backgroundMusic');
-            const musicControl = document.getElementById('musicControl');
-            let isPlaying = false;
-
-            const playPromise = music.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    isPlaying = true;
-                    musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Tạm dừng nhạc</span>';
-                }).catch(() => {
-                    isPlaying = false;
-                    musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Phát nhạc nền</span>';
-                });
-            }
-
-            musicControl.addEventListener('click', function() {
-                if (isPlaying) {
-                    music.pause();
-                    musicControl.innerHTML = '<i class="fas fa-play text-indigo-600"></i><span class="tooltip">Phát nhạc nền</span>';
-                } else {
-                    music.play();
-                    musicControl.innerHTML = '<i class="fas fa-pause text-indigo-600"></i><span class="tooltip">Tạm dừng nhạc</span>';
-                }
-                isPlaying = !isPlaying;
-            });
-
-            music.volume = 0.3;
-        });
-    </script>
-</body>
 </html>
