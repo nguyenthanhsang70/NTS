@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trình tạo mã QR</title>
+    <title>Trình tạo mã QR Đẹp & Rõ Nét</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <link rel="icon" type="image/png" href="logos3.png">
     <style>
@@ -25,56 +25,50 @@
         .container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             max-width: 600px;
             width: 100%;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-size: clamp(1.6rem, 4.5vw, 2.4rem);
             background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            padding: 0 10px;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #555;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: #444;
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
         }
-        input[type="text"], input[type="url"] {
+        input[type="url"], input[type="file"] {
             width: 100%;
             padding: 12px;
             border: 2px solid #e1e5e9;
             border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
+            background: #fff;
         }
-        input[type="text"]:focus, input[type="url"]:focus {
+        input[type="url"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
         }
         input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px dashed #667eea;
-            border-radius: 10px;
+            border-style: dashed;
             background: rgba(102, 126, 234, 0.05);
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
         }
         input[type="file"]:hover {
             background: rgba(102, 126, 234, 0.1);
@@ -83,13 +77,13 @@
         .toggle-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin: 15px 0;
         }
         .toggle {
             position: relative;
-            width: 50px;
-            height: 25px;
+            width: 54px;
+            height: 28px;
         }
         .toggle input {
             opacity: 0;
@@ -99,19 +93,16 @@
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: 0.4s;
-            border-radius: 25px;
+            border-radius: 28px;
         }
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             left: 4px;
             bottom: 4px;
             background-color: white;
@@ -122,7 +113,7 @@
             background: linear-gradient(45deg, #667eea, #764ba2);
         }
         input:checked + .slider:before {
-            transform: translateX(24px);
+            transform: translateX(26px);
         }
         button {
             width: 100%;
@@ -135,61 +126,11 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
+            margin: 10px 0;
         }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        .qr-container {
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
-            margin-top: 15px;
-        }
-        #qrcode {
-            display: inline-block;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            max-width: 100%;
-        }
-        .preview-container {
-            margin-top: 10px;
-            text-align: center;
-        }
-        #imagePreview {
-            max-width: 80px;
-            max-height: 80px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .status-text {
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .status-enabled {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-        }
-        .status-disabled {
-            background: rgba(158, 158, 158, 0.1);
-            color: #666;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .qr-container {
-            animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
         .download-button {
             background: linear-gradient(45deg, #4CAF50, #66BB6A);
@@ -198,261 +139,207 @@
             background: linear-gradient(45deg, #45a049, #5cb85c);
         }
         .back-button {
-            background: linear-gradient(45deg, #2196F3, #42A5F5);
             display: inline-block;
-            text-decoration: none;
             text-align: center;
             padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
+            background: linear-gradient(45deg, #2196F3, #42A5F5);
             color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
         .back-button:hover {
-            background: linear-gradient(45deg, #1E88E5, #3d8bfd);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
-        
-        /* Responsive adjustments */
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        #qrcode {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border-radius: 12px;
+            max-width: 100%;
+        }
+        #imagePreview {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 10px;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+        .status-text {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .status-enabled {
+            background: rgba(76, 175, 80, 0.15);
+            color: #2e7d32;
+        }
+        .status-disabled {
+            background: rgba(158, 158, 158, 0.15);
+            color: #666;
+        }
         @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-                border-radius: 15px;
-            }
-            h1 {
-                margin-bottom: 15px;
-            }
-            input[type="text"], input[type="url"] {
-                padding: 10px;
-                font-size: 14px;
-            }
-            button {
-                padding: 12px;
-                font-size: 15px;
-            }
-            .back-button {
-                padding: 12px;
-                font-size: 15px;
-            }
-            .qr-container {
-                padding: 10px;
-            }
-            #qrcode {
-                padding: 10px;
-            }
+            .container { padding: 18px; }
+            button, .back-button { padding: 12px; font-size: 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎨 Trình tạo mã QR</h1>
+        <h1>Trình tạo mã QR Đẹp & Rõ Nét</h1>
+        
         <div class="form-group">
-            <label for="linkInput">🔗 Nhập đường link:</label>
+            <label for="linkInput">Nhập đường link:</label>
             <input type="url" id="linkInput" placeholder="https://example.com" required>
         </div>
+
         <div class="form-group">
-            <label for="imageInput">🖼️ Tải ảnh lên để lấy màu:</label>
+            <label for="imageInput">Tải ảnh lên (làm nền hoặc logo):</label>
             <input type="file" id="imageInput" accept="image/*">
         </div>
-        <div class="preview-container">
-            <img id="imagePreview" style="display: none;" alt="Preview">
+        <div style="text-align:center;">
+            <img id="imagePreview" alt="Preview">
         </div>
+
         <div class="toggle-container">
             <label class="toggle">
                 <input type="checkbox" id="colorToggle">
                 <span class="slider"></span>
             </label>
-            <label for="colorToggle" style="margin-bottom: 0;">Kết hợp hình ảnh với QR</label>
+            <label for="colorToggle">Kết hợp hình ảnh với QR (nền đẹp)</label>
         </div>
+
         <div id="statusText" class="status-text status-disabled">
-            Kết hợp: TẮT (mã QR đen trắng)
+            Kết hợp: TẮT (QR đen trắng)
         </div>
-        <button onclick="generateQR()">✨ Tạo mã QR</button>
-        <button class="download-button" onclick="downloadQR()" style="display: none;" id="downloadButton">⬇ Tải mã QR</button>
-        <a href="index.html" class="back-button">↩ Quay lại</a>
+
+        <button onclick="generateQR()">Tạo mã QR</button>
+        <button class="download-button" onclick="downloadQR()" style="display:none;" id="downloadButton">Tải mã QR</button>
+        <a href="index.html" class="back-button">Quay lại</a>
+
         <div class="qr-container">
             <div id="qrcode"></div>
         </div>
     </div>
 
     <script>
-        let extractedColors = null;
         let imageLoaded = false;
-        let currentQR = null;
+        let userImage = null;
 
-        // Xử lý tải ảnh và hiển thị preview
+        // Xử lý tải ảnh
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    // Trích xuất màu từ ảnh
-                    extractColorsFromImage(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+            if (!file) return;
 
-        // Xử lý toggle màu sắc
-        document.getElementById('colorToggle').addEventListener('change', function() {
-            const statusText = document.getElementById('statusText');
-            if (this.checked) {
-                if (imageLoaded && extractedColors) {
-                    statusText.textContent = `Kết hợp: BẬT (QR + hình ảnh)`;
-                    statusText.className = 'status-text status-enabled';
-                } else {
-                    statusText.textContent = 'Vui lòng tải ảnh trước!';
-                    statusText.className = 'status-text status-disabled';
-                    this.checked = false;
-                }
-            } else {
-                statusText.textContent = 'Kết hợp: TẮT (mã QR đen trắng)';
-                statusText.className = 'status-text status-disabled';
-            }
-            
-            // Tạo lại QR nếu đã có dữ liệu
-            const linkInput = document.getElementById('linkInput');
-            if (linkInput.value.trim()) {
-                generateQR();
-            }
-        });
-
-        // Trích xuất màu chủ đạo từ ảnh
-        function extractColorsFromImage(imageSrc) {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                // Resize ảnh để xử lý nhanh hơn
-                canvas.width = 100;
-                canvas.height = 100;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                
-                // Tính màu trung bình
-                let r = 0, g = 0, b = 0;
-                const totalPixels = data.length / 4;
-                for (let i = 0; i < data.length; i += 4) {
-                    r += data[i];
-                    g += data[i + 1];
-                    b += data[i + 2];
-                }
-                r = Math.round(r / totalPixels);
-                g = Math.round(g / totalPixels);
-                b = Math.round(b / totalPixels);
-
-                // Tạo màu sáng hơn cho nền
-                const lightR = Math.min(255, r + 100);
-                const lightG = Math.min(255, g + 100);
-                const lightB = Math.min(255, b + 100);
-
-                extractedColors = {
-                    primary: `rgb(${r}, ${g}, ${b})`,
-                    light: `rgb(${lightR}, ${lightG}, ${lightB})`,
-                    hex: `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-                };
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                userImage = new Image();
+                userImage.crossOrigin = 'anonymous';
+                userImage.src = e.target.result;
                 imageLoaded = true;
 
-                // Cập nhật trạng thái nếu toggle đang bật
-                const colorToggle = document.getElementById('colorToggle');
-                const statusText = document.getElementById('statusText');
-                if (colorToggle.checked) {
-                    statusText.textContent = `Kết hợp: BẬT (QR + hình ảnh)`;
-                    statusText.className = 'status-text status-enabled';
-                }
-                
-                // Tạo lại QR nếu đã có dữ liệu
-                const linkInput = document.getElementById('linkInput');
-                if (linkInput.value.trim()) {
-                    generateQR();
+                const toggle = document.getElementById('colorToggle');
+                if (toggle.checked) {
+                    updateStatus(true);
+                    if (document.getElementById('linkInput').value.trim()) generateQR();
                 }
             };
-            img.src = imageSrc;
+            reader.readAsDataURL(file);
+        });
+
+        // Toggle
+        document.getElementById('colorToggle').addEventListener('change', function() {
+            const enabled = this.checked && imageLoaded;
+            updateStatus(enabled);
+            if (document.getElementById('linkInput').value.trim()) generateQR();
+        });
+
+        function updateStatus(enabled) {
+            const status = document.getElementById('statusText');
+            if (enabled) {
+                status.textContent = 'Kết hợp: BẬT (Hình ảnh làm nền đẹp)';
+                status.className = 'status-text status-enabled';
+            } else {
+                status.textContent = imageLoaded ? 'Kết hợp: TẮT (QR đen trắng)' : 'Vui lòng tải ảnh!';
+                status.className = 'status-text status-disabled';
+            }
         }
 
-        // Tạo mã QR
+        // Tạo QR
         function generateQR() {
             const link = document.getElementById('linkInput').value.trim();
-            const colorToggle = document.getElementById('colorToggle').checked;
-            const qrContainer = document.getElementById('qrcode');
-            const downloadButton = document.getElementById('downloadButton');
+            const useImage = document.getElementById('colorToggle').checked && imageLoaded;
+            const container = document.getElementById('qrcode');
+            const downloadBtn = document.getElementById('downloadButton');
 
             if (!link) {
-                alert('Vui lòng nhập đường link!');
-                downloadButton.style.display = 'none';
-                qrContainer.innerHTML = '<p style="color:#666;">Mã QR sẽ xuất hiện ở đây</p>';
+                alert('Vui lòng nhập link!');
+                container.innerHTML = '<p style="color:#666;">Mã QR sẽ hiện ở đây</p>';
+                downloadBtn.style.display = 'none';
                 return;
             }
 
-            // Xóa QR code cũ
-            qrContainer.innerHTML = '';
+            container.innerHTML = '';
+            const size = Math.min(380, window.innerWidth - 80);
 
-            try {
-                if (colorToggle && imageLoaded) {
-                    // Tạo QR với hình ảnh
-                    createQRWithImage(link, qrContainer);
-                } else {
-                    // Tạo QR thông thường
-                    createNormalQR(link, qrContainer);
-                }
-
-                // Hiển thị nút tải xuống
-                downloadButton.style.display = 'block';
-
-                // Thêm hiệu ứng
-                qrContainer.style.opacity = '0';
-                setTimeout(() => {
-                    qrContainer.style.transition = 'opacity 0.3s ease-in';
-                    qrContainer.style.opacity = '1';
-                }, 50);
-            } catch (error) {
-                console.error('Lỗi tạo QR code:', error);
-                alert('Có lỗi xảy ra khi tạo mã QR!');
-                downloadButton.style.display = 'none';
-                qrContainer.innerHTML = '<p style="color:#f44336;">Lỗi khi tạo mã QR</p>';
-            }
-        }
-
-        // Tạo QR code thông thường
-        function createNormalQR(link, container) {
             const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
             canvas.id = 'qrCanvas';
             container.appendChild(canvas);
-            
-            // Kích thước responsive
-            const size = Math.min(300, window.innerWidth - 100);
-            
-            currentQR = new QRious({
+
+            if (useImage && userImage) {
+                createArtisticQR(link, canvas, size);
+            } else {
+                createStandardQR(link, canvas, size);
+            }
+
+            downloadBtn.style.display = 'block';
+        }
+
+        // QR tiêu chuẩn (đen trắng, rõ nét)
+        function createStandardQR(link, canvas, size) {
+            new QRious({
                 element: canvas,
                 value: link,
                 size: size,
                 level: 'H',
                 foreground: '#000000',
-                background: '#FFFFFF'
+                background: '#FFFFFF',
+                padding: 10
             });
         }
 
-        // Tạo QR code với hình ảnh overlay
-        function createQRWithImage(link, container) {
-            const size = Math.min(300, window.innerWidth - 100);
-            const canvas = document.createElement('canvas');
-            canvas.id = 'qrCanvas';
-            canvas.width = size;
-            canvas.height = size;
-            container.appendChild(canvas);
+        // QR nghệ thuật: hình ảnh làm nền + logo nhỏ ở giữa
+        function createArtisticQR(link, canvas, size) {
+            const ctx = canvas.getContext('2d');
 
-            // Tạo QR code tạm thời để lấy pattern
+            // 1. Vẽ nền trắng
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+
+            // 2. Tạo QR đen trắng tạm
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = size;
             tempCanvas.height = size;
-            currentQR = new QRious({
+            new QRious({
                 element: tempCanvas,
                 value: link,
                 size: size,
@@ -461,111 +348,67 @@
                 background: '#FFFFFF'
             });
 
-            // Lấy hình ảnh đã upload
-            const imagePreview = document.getElementById('imagePreview');
-            if (imagePreview && imagePreview.src) {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = function() {
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Vẽ hình ảnh làm nền, scale để fit canvas
-                    ctx.drawImage(img, 0, 0, size, size);
+            // 3. Vẽ hình ảnh làm nền (làm mờ nhẹ)
+            ctx.globalAlpha = 0.25;
+            ctx.drawImage(userImage, 0, 0, size, size);
+            ctx.globalAlpha = 1.0;
 
-                    // Lấy QR pattern
-                    const qrImageData = tempCanvas.getContext('2d').getImageData(0, 0, size, size);
-                    const backgroundImageData = ctx.getImageData(0, 0, size, size);
-
-                    // Blend QR pattern với hình ảnh
-                    const qrData = qrImageData.data;
-                    const bgData = backgroundImageData.data;
-
-                    for (let i = 0; i < qrData.length; i += 4) {
-                        // Nếu pixel QR là đen (foreground pattern)
-                        if (qrData[i] < 128 && qrData[i + 1] < 128 && qrData[i + 2] < 128) {
-                            // Làm tối hình nền ở vị trí này
-                            bgData[i] = Math.max(0, bgData[i] * 0.3);
-                            bgData[i + 1] = Math.max(0, bgData[i + 1] * 0.3);
-                            bgData[i + 2] = Math.max(0, bgData[i + 2] * 0.3);
-                        } else {
-                            // Pixel trắng của QR - làm sáng hình nền
-                            bgData[i] = Math.min(255, bgData[i] * 1.2);
-                            bgData[i + 1] = Math.min(255, bgData[i + 1] * 1.2);
-                            bgData[i + 2] = Math.min(255, bgData[i + 2] * 1.2);
-                        }
-                        bgData[i + 3] = 255; // Alpha channel
+            // 4. Vẽ pattern QR lên trên (chỉ các ô đen)
+            const qrData = tempCanvas.getContext('2d').getImageData(0, 0, size, size).data;
+            ctx.fillStyle = '#000000';
+            const moduleSize = size / 37; // QR 37x37 modules
+            for (let y = 0; y < 37; y++) {
+                for (let x = 0; x < 37; x++) {
+                    const i = (y * 37 + x) * 4;
+                    if (qrData[i] < 128) {
+                        ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
                     }
-
-                    // Vẽ kết quả cuối cùng
-                    ctx.putImageData(backgroundImageData, 0, 0);
-
-                    // Tăng độ tương phản bằng cách chồng thêm QR mờ
-                    ctx.globalCompositeOperation = 'multiply';
-                    ctx.globalAlpha = 0.7;
-                    ctx.drawImage(tempCanvas, 0, 0);
-
-                    // Reset về mặc định
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.globalAlpha = 1.0;
-
-                    // Thêm viền ngoài để dễ quét hơn
-                    ctx.strokeStyle = '#333333';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(2, 2, size - 4, size - 4);
-                };
-                img.src = imagePreview.src;
-            } else {
-                // Nếu không có ảnh, vẽ QR thông thường
-                container.appendChild(tempCanvas);
+                }
             }
+
+            // 5. Thêm logo nhỏ ở giữa (tối đa 15% kích thước)
+            const logoSize = size * 0.15;
+            const logoX = (size - logoSize) / 2;
+            const logoY = logoX;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, logoSize/2 + 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.clip();
+            ctx.drawImage(userImage, logoX, logoY, logoSize, logoSize);
+            ctx.restore();
+
+            // 6. Viền trắng quanh logo
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(logoX, logoY, logoSize, logoSize);
         }
 
-        // Hàm tải QR code
+        // Tải xuống
         function downloadQR() {
             const canvas = document.getElementById('qrCanvas');
-            if (!canvas) {
-                alert('Chưa có mã QR để tải!');
-                return;
-            }
+            if (!canvas) return alert('Chưa có QR để tải!');
 
-            try {
-                // Tạo link tải
-                const link = document.createElement('a');
-                link.download = 'qrcode_' + new Date().getTime() + '.png';
-                link.href = canvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                }, 100);
-            } catch (error) {
-                console.error('Lỗi khi tải QR code:', error);
-                alert('Có lỗi xảy ra khi tải mã QR!');
-            }
+            const link = document.createElement('a');
+            link.download = `qrcode_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
 
-        // Tự động tạo QR khi nhập link (với debounce)
-        let inputTimer;
+        // Tự động tạo khi nhập link
+        let timer;
         document.getElementById('linkInput').addEventListener('input', function() {
-            clearTimeout(inputTimer);
-            inputTimer = setTimeout(() => {
-                if (this.value.trim()) {
-                    generateQR();
-                }
-            }, 500);
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                if (this.value.trim()) generateQR();
+            }, 600);
         });
 
-        // Tạo QR mặc định khi trang load
-        window.addEventListener('load', function() {
-            document.getElementById('linkInput').value = '';
-            generateQR();
-        });
-
-        // Xử lý responsive khi thay đổi kích thước màn hình
-        window.addEventListener('resize', function() {
-            const linkInput = document.getElementById('linkInput');
-            if (linkInput.value.trim()) {
-                generateQR();
+        // Resize
+        window.addEventListener('resize', () => {
+            if (document.getElementById('linkInput').value.trim()) {
+                setTimeout(generateQR, 100);
             }
         });
     </script>
