@@ -49,7 +49,7 @@
   /* height: 100vh; */
   z-index: 0;
   background-repeat: no-repeat;
-  background-image: url(images.jpg);
+  background-image: url(hinh-nen-tinh-yeu-3d-1.jpg);
   background-size: cover;
   background-position: 50%;
   -webkit-filter: blur(4px);
@@ -111,4 +111,5 @@ header h4 {
 
 .swal2-backdrop-show{
   background-size: 200px 100px !important;
+
 }
