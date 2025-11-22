@@ -114,7 +114,16 @@
             font-size: clamp(22px, 5vw, 28px);
             font-weight: 600;
             color: var(--dark);
-            margin-bottom: 5px;
+            margin-bottom: 0px; /* Giảm khoảng cách dưới tên chính */
+        }
+        
+        /* CSS mới cho tên tiếng Trung */
+        .sub-name {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
         }
         
         .title {
@@ -297,21 +306,19 @@
 </head>
 <body>
     <div class="profile-card">
-        <!-- Nút quay lại -->
         <a href="index.html" class="back-button" onclick="history.back()">
             <i class="fas fa-arrow-left"></i>
         </a>
         
-        <!-- Avatar -->
         <div class="avatar-container">
             <img src="avatarnts.jpg" alt="Avatar" class="avatar">
         </div>
         
-        <!-- Tên và chức danh -->
         <h1 class="name">NGUYỄN THANH SANG</h1>
+        <div class="sub-name">(阮清尚)</div>
+        
         <div class="title">INFORMATION TECHNOLOGY (IT)</div>
         
-        <!-- Thông tin dạng lưới -->
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-icon">👦</div>
@@ -336,9 +343,14 @@
                 <div class="info-label">Ngành</div>
                 <div class="info-value">ỨNG DỤNG PHẦN MỀM</div>
             </div>
+
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-icon">🏢</div>
+                <div class="info-label">Công ty</div>
+                <div class="info-value">Zheng Xing</div>
+            </div>
         </div>
         
-        <!-- Sở thích -->
         <div class="hobbies">
             <div class="hobbies-title">Sở thích</div>
             <div class="hobbies-list">
@@ -348,7 +360,6 @@
             </div>
         </div>
         
-        <!-- Mạng xã hội -->
         <div class="social-links">
             <a href="https://www.facebook.com/nguyenthanhsang70" class="social-link facebook" target="_blank">
                 <i class="fab fa-facebook-f"></i>
