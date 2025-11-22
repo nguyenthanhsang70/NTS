@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bể Cá 3D - NTS</title>
-<link rel="icon" type="png" href="logos3.png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<title>Bể Cá 3D Pro - NTS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
   body, html {
     margin: 0;
@@ -13,348 +12,509 @@
     overflow: hidden;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, #1e90ff, #87cefa, #b0e0e6);
-    font-family: Arial, sans-serif;
-    position: relative;
+    background-color: #001e36; /* Màu nền cơ bản */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+  
   canvas {
     display: block;
   }
-  .back-button {
+
+  /* Giao diện điều khiển đẹp hơn */
+  .controls {
     position: absolute;
     top: 20px;
     left: 20px;
-    padding: 10px 20px;
-    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
-    border: none;
-    border-radius: 5px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
-    z-index: 10;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   }
-  .back-button:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
   }
-  @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
-    }
+
+  .btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Tooltip */
+  .btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+
+  .btn:hover::after {
+    opacity: 1;
+  }
+
 </style>
 </head>
 <body>
-<button class="back-button" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> </button>
+
+<div class="controls">
+  <button class="btn" onclick="window.location.href='index.html'" data-tooltip="Quay lại"><i class="fas fa-arrow-left"></i></button>
+  <button class="btn" onclick="toggleDayNight()" id="btnTheme" data-tooltip="Ngày/Đêm"><i class="fas fa-sun"></i></button>
+  <button class="btn" onclick="toggleMusic()" id="btnMusic" data-tooltip="Âm nhạc"><i class="fas fa-music"></i></button>
+</div>
+
 <canvas id="aquarium"></canvas>
+
 <script>
 const canvas = document.getElementById('aquarium');
 const ctx = canvas.getContext('2d');
-// Set canvas size
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-// Day/Night toggle
-let clickCount = 0;
+
+// Thiết lập kích thước
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Cấu hình
 let isDay = true;
-function toggleDayNight() {
-  isDay = !isDay;
-  if (isDay) {
-    document.body.style.background = 'linear-gradient(180deg, #1e90ff, #87cefa, #b0e0e6)';
+let audioEnabled = false;
+
+// Gradient màu nước
+const dayWater = ['#1e90ff', '#87cefa', '#b0e0e6'];
+const nightWater = ['#000033', '#000066', '#191970'];
+
+// Âm thanh (Xử lý lỗi nếu không có file)
+const bgMusic = new Audio('bien.mp3'); // Nhạc nền
+const eatSound = new Audio('caan.mp3'); // Tiếng ăn
+bgMusic.loop = true;
+
+function toggleMusic() {
+  audioEnabled = !audioEnabled;
+  const btn = document.getElementById('btnMusic');
+  if (audioEnabled) {
+    btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    btn.style.background = 'rgba(100, 255, 100, 0.4)';
+    bgMusic.play().catch(e => console.log("Chưa có file nhạc bien.mp3"));
   } else {
-    document.body.style.background = 'linear-gradient(180deg, #000033, #000066, #191970)';
+    btn.innerHTML = '<i class="fas fa-music"></i>';
+    btn.style.background = '';
+    bgMusic.pause();
   }
 }
-// Fish object
-function Fish(x, y, size, color, speed) {
+
+function playEatSound() {
+  if (audioEnabled) {
+    // Clone node để có thể phát chồng âm thanh liên tục
+    const sound = eatSound.cloneNode();
+    sound.play().catch(e => {});
+  }
+}
+
+function toggleDayNight() {
+  isDay = !isDay;
+  const btn = document.getElementById('btnTheme');
+  if (isDay) {
+    btn.innerHTML = '<i class="fas fa-sun"></i>';
+  } else {
+    btn.innerHTML = '<i class="fas fa-moon"></i>';
+  }
+}
+
+// --- OBJECTS ---
+
+// Hiệu ứng gợn sóng khi click
+let ripples = [];
+function Ripple(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 0;
+    this.alpha = 1;
+    this.lineWidth = 2;
+}
+Ripple.prototype.update = function() {
+    this.radius += 2;
+    this.alpha -= 0.02;
+    this.lineWidth -= 0.02;
+}
+Ripple.prototype.draw = function() {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.lineWidth = Math.max(0.1, this.lineWidth);
+    ctx.stroke();
+    ctx.restore();
+}
+
+// Cá (Cải tiến hình dáng và chuyển động)
+function Fish(x, y, size, color) {
   this.x = x;
   this.y = y;
   this.size = size;
-  this.color = color;
-  this.speed = speed;
+  this.baseColor = color;
+  this.speed = Math.random() * 1.5 + 0.5;
   this.angle = Math.random() * Math.PI * 2;
   this.targetX = null;
   this.targetY = null;
-  this.wiggle = Math.random() * 0.1;
+  this.wiggleOffset = Math.random() * 100;
 }
+
 Fish.prototype.draw = function() {
   ctx.save();
   ctx.translate(this.x, this.y);
-  ctx.rotate(this.angle);
-  // Shadow
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetX = 5;
-  ctx.shadowOffsetY = 5;
-  // Body
-  const gradient = ctx.createRadialGradient(0, 0, this.size / 4, 0, 0, this.size);
-  gradient.addColorStop(0, this.color);
-  gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
-  ctx.fillStyle = gradient;
+  
+  // Xoay cá theo hướng di chuyển nhưng mượt hơn
+  // Nếu cá đang bơi sang trái (angle > PI/2 && angle < 3*PI/2), lật ngược lại để bụng luôn ở dưới
+  let drawAngle = this.angle;
+  if (Math.abs(Math.cos(this.angle)) < 0.1) {
+      // Tránh lật liên tục khi đi thẳng đứng
+  }
+  
+  ctx.rotate(drawAngle);
+
+  // Tạo hiệu ứng động cho đuôi
+  const wiggle = Math.sin(Date.now() / 150 + this.wiggleOffset) * 0.15;
+
+  // Bóng đổ
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetY = 10;
+
+  // Thân cá (Gradient đẹp hơn)
+  const grad = ctx.createLinearGradient(-this.size, 0, this.size, 0);
+  grad.addColorStop(0, this.baseColor);
+  grad.addColorStop(1, 'white');
+  
+  ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.quadraticCurveTo(this.size / 2, -this.size / 4, this.size, 0);
-  ctx.quadraticCurveTo(this.size / 2, this.size / 4, 0, 0);
+  // Vẽ thân dạng hình giọt nước bầu dục
+  ctx.ellipse(0, 0, this.size, this.size / 2.2, 0, 0, Math.PI * 2);
   ctx.fill();
-  // Reset shadow
+
+  // Reset bóng cho các chi tiết
   ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  // Tail with wiggle
-  const tailWiggle = Math.sin(Date.now() / 100 + this.x) * 0.2;
-  ctx.fillStyle = '#FFFFFF'; // Solid white tail
+
+  // Đuôi cá
+  ctx.fillStyle = this.baseColor;
   ctx.beginPath();
-  ctx.moveTo(-this.size / 2, 0);
-  ctx.lineTo(-this.size, -this.size / 3 + tailWiggle * this.size);
-  ctx.lineTo(-this.size, this.size / 3 - tailWiggle * this.size);
+  ctx.moveTo(-this.size + 5, 0);
+  ctx.lineTo(-this.size * 1.6, -this.size / 1.5 + wiggle * 20);
+  ctx.lineTo(-this.size * 1.6, this.size / 1.5 + wiggle * 20);
   ctx.closePath();
   ctx.fill();
-  // Eye
+
+  // Vây bên (Side Fin) - Hiệu ứng vẫy
+  const finWiggle = Math.cos(Date.now() / 100 + this.wiggleOffset) * 0.2;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath();
+  ctx.ellipse(0, this.size/4, this.size/4, this.size/8, Math.PI/4 + finWiggle, 0, Math.PI*2);
+  ctx.fill();
+
+  // Mắt
   ctx.fillStyle = 'white';
   ctx.beginPath();
-  ctx.arc(this.size / 4, -this.size / 10, this.size / 10, 0, Math.PI * 2);
+  ctx.arc(this.size / 1.5, -this.size / 6, this.size / 8, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = 'black';
   ctx.beginPath();
-  ctx.arc(this.size / 4, -this.size / 10, this.size / 15, 0, Math.PI * 2);
+  ctx.arc(this.size / 1.5 + 1, -this.size / 6, this.size / 16, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.restore();
 };
+
 Fish.prototype.update = function() {
+  // Nếu có thức ăn
   if (this.targetX !== null && this.targetY !== null) {
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    if (distance > this.speed) {
-      this.angle = Math.atan2(dy, dx) + Math.sin(Date.now() / 500) * this.wiggle;
-      this.x += Math.cos(this.angle) * this.speed;
-      this.y += Math.sin(this.angle) * this.speed;
+    
+    // Góc mục tiêu
+    const targetAngle = Math.atan2(dy, dx);
+    
+    // Xoay từ từ về phía mục tiêu (Smooth Turn)
+    let diff = targetAngle - this.angle;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    this.angle += diff * 0.05;
+
+    if (distance > 10) {
+      // Tăng tốc khi thấy mồi
+      this.x += Math.cos(this.angle) * (this.speed * 2);
+      this.y += Math.sin(this.angle) * (this.speed * 2);
     } else {
+      // Đã ăn xong
       this.targetX = null;
       this.targetY = null;
-      this.speed = Math.random() * 2 + 0.5; // Reset speed
+      playEatSound();
     }
   } else {
-    this.angle += (Math.random() - 0.5) * 0.1;
+    // Bơi tự do
     this.x += Math.cos(this.angle) * this.speed;
     this.y += Math.sin(this.angle) * this.speed;
-    if (this.x < 0 || this.x > canvas.width) this.angle = Math.PI - this.angle + (Math.random() - 0.5) * 0.2;
-    if (this.y < 0 || this.y > canvas.height) this.angle = -this.angle + (Math.random() - 0.5) * 0.2;
+
+    // Đổi hướng ngẫu nhiên nhẹ nhàng
+    this.angle += (Math.random() - 0.5) * 0.05;
+
+    // Phản xạ khi gặp tường
+    const padding = 50;
+    if (this.x < padding) this.angle = 0 + Math.random();
+    if (this.x > canvas.width - padding) this.angle = Math.PI + Math.random();
+    if (this.y < padding) this.angle = Math.PI/2 + Math.random();
+    if (this.y > canvas.height - padding) this.angle = -Math.PI/2 - Math.random();
   }
 };
-// Create fish
+
 const fishes = [];
-for (let i = 0; i < 50; i++) {
-  const size = Math.random() * 30 + 10;
-  const x = Math.random() * canvas.width;
-  const y = Math.random() * canvas.height;
+for (let i = 0; i < 40; i++) {
   const hue = Math.random() * 360;
-  const color = `hsl(${hue}, 70%, ${50 + Math.random() * 20}%)`;
-  const speed = Math.random() * 2 + 0.5;
-  fishes.push(new Fish(x, y, size, color, speed));
+  const color = `hsl(${hue}, 80%, 50%)`;
+  fishes.push(new Fish(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 15 + 10, color));
 }
-// Feed particles
+
+// Thức ăn
 let feedParticles = [];
 function FeedParticle(x, y) {
   this.x = x;
   this.y = y;
-  this.size = Math.random() * 5 + 2;
-  this.speedY = Math.random() * 2 + 1;
-  this.alpha = 1;
+  this.size = Math.random() * 4 + 2;
+  this.vy = Math.random() * 1 + 1; // Tốc độ rơi
+  this.vx = (Math.random() - 0.5) * 1; // Lắc lư ngang
+  this.life = 1;
 }
-FeedParticle.prototype.update = function() {
-  this.y += this.speedY;
-  this.alpha -= 0.02;
-};
 FeedParticle.prototype.draw = function() {
-  ctx.fillStyle = `rgba(255, 215, 0, ${this.alpha})`;
+  ctx.fillStyle = `rgba(255, 165, 0, ${this.life})`;
   ctx.beginPath();
   ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
   ctx.fill();
 };
-function drawFeed() {
-  feedParticles = feedParticles.filter(p => p.alpha > 0);
-  feedParticles.forEach(particle => {
-    particle.update();
-    particle.draw();
-  });
-}
-// Bubble object
-function Bubble(x, y, size, speed) {
-  this.x = x;
-  this.y = y;
-  this.size = size;
-  this.speed = speed;
-  this.wiggle = Math.random() * 2 - 1;
+FeedParticle.prototype.update = function() {
+  this.y += this.vy;
+  this.x += Math.sin(this.y / 50) * 0.5; // Rơi lắc lư
+  this.life -= 0.002; // Tan biến dần
+};
+
+// Bong bóng
+const bubbles = [];
+function Bubble() {
+  this.x = Math.random() * canvas.width;
+  this.y = canvas.height + Math.random() * 100;
+  this.size = Math.random() * 5 + 2;
+  this.speed = Math.random() * 2 + 1;
+  this.wobble = Math.random() * Math.PI * 2;
 }
 Bubble.prototype.update = function() {
   this.y -= this.speed;
-  this.x += Math.sin(Date.now() / 200 + this.y) * this.wiggle;
-  if (this.y < 0) this.y = canvas.height;
+  this.wobble += 0.05;
+  this.x += Math.sin(this.wobble) * 1;
+  if (this.y < -10) this.y = canvas.height + Math.random() * 100;
 };
 Bubble.prototype.draw = function() {
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
   ctx.fill();
-};
-// Create bubbles
-const bubbles = [];
-for (let i = 0; i < 20; i++) {
-  bubbles.push(new Bubble(Math.random() * canvas.width, canvas.height, Math.random() * 4 + 1, Math.random() * 2 + 1));
-}
-// Decorations
-function drawDecorations() {
-  // Sand
-  const sandGradient = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height);
-  sandGradient.addColorStop(0, '#f4a460');
-  sandGradient.addColorStop(1, '#d2b48c');
-  ctx.fillStyle = sandGradient;
-  ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-  // Rocks
-  ctx.fillStyle = '#8b4513';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetX = 5;
-  ctx.shadowOffsetY = 5;
-  ctx.beginPath();
-  ctx.moveTo(100, canvas.height - 100);
-  ctx.quadraticCurveTo(150, canvas.height - 200, 250, canvas.height - 100);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(400, canvas.height - 100);
-  ctx.quadraticCurveTo(450, canvas.height - 180, 550, canvas.height - 100);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  // Seaweed
-  const seaweedColors = ['#228B22', '#32CD32', '#00FA9A'];
-  for (let i = 0; i < 10; i++) {
-    const x = Math.random() * canvas.width;
-    const height = Math.random() * 150 + 50;
-    const baseWidth = Math.random() * 20 + 10;
-    const color = seaweedColors[Math.floor(Math.random() * seaweedColors.length)];
-    drawSeaweed(x, canvas.height - 100, height, baseWidth, color);
-  }
-}
-function drawSeaweed(x, y, height, baseWidth, color) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  const sway = Math.sin(Date.now() / 500 + x) * 15;
-  ctx.moveTo(x, y);
-  ctx.bezierCurveTo(x + sway, y - height / 3, x - sway, y - (height * 2 / 3), x, y - height);
   ctx.stroke();
-  // Additional leaves with more density
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 5; i++) {
-    const leafY = y - height * (i + 1) / 6;
-    const leafSway = Math.sin(Date.now() / 600 + x + i) * 10;
-    const leafWidth = baseWidth * (1 - i / 6);
-    ctx.beginPath();
-    ctx.moveTo(x, leafY);
-    ctx.quadraticCurveTo(x + leafSway, leafY - 10, x + leafSway * leafWidth / 10, leafY - 20);
-    ctx.stroke();
-    // Add smaller side leaves for bushiness
-    ctx.beginPath();
-    ctx.moveTo(x, leafY);
-    ctx.quadraticCurveTo(x - leafSway / 2, leafY - 5, x - leafSway * leafWidth / 20, leafY - 15);
-    ctx.stroke();
-  }
+  // Điểm sáng trên bong bóng
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.beginPath();
+  ctx.arc(this.x - this.size/3, this.y - this.size/3, this.size/4, 0, Math.PI * 2);
+  ctx.fill();
+};
+for(let i=0; i<30; i++) bubbles.push(new Bubble());
+
+// Rong biển (Seaweed)
+const seaweeds = [];
+function initSeaweed() {
+    seaweeds.length = 0; // Clear old
+    const count = Math.floor(canvas.width / 40);
+    for(let i=0; i<count; i++) {
+        seaweeds.push({
+            x: i * 40 + (Math.random()-0.5)*20,
+            height: 100 + Math.random() * 150,
+            color: Math.random() > 0.5 ? '#228B22' : '#2E8B57',
+            segments: 5,
+            offset: Math.random() * Math.PI * 2
+        });
+    }
 }
-// Water effect
-function drawWaterEffect() {
-  const lightX = canvas.width / 2 + Math.sin(Date.now() / 1000) * 100;
-  const lightY = canvas.height / 4 + Math.cos(Date.now() / 1500) * 50;
-  const gradient = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, 300);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-  gradient.addColorStop(0.5, 'rgba(173, 216, 230, 0.2)');
-  gradient.addColorStop(1, 'rgba(0, 191, 255, 0)');
+initSeaweed();
+window.addEventListener('resize', initSeaweed);
+
+function drawSeaweed() {
+    const time = Date.now() / 1000;
+    seaweeds.forEach(sw => {
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(sw.x, canvas.height);
+        
+        let currentX = sw.x;
+        let currentY = canvas.height;
+        const segmentH = sw.height / sw.segments;
+
+        for(let i=0; i<sw.segments; i++) {
+            // Tạo chuyển động sóng
+            const sway = Math.sin(time + sw.offset + i) * (i * 2); 
+            currentX += sway;
+            currentY -= segmentH;
+            ctx.lineTo(currentX, currentY);
+        }
+        ctx.stroke();
+    });
+}
+
+// Tia nắng (God Rays)
+function drawSunbeams() {
+    if (!isDay) return; // Chỉ hiện vào ban ngày
+    ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    const time = Date.now() / 2000;
+    
+    // Vẽ 3 chùm tia
+    for(let i=0; i<3; i++) {
+        const gradient = ctx.createLinearGradient(canvas.width/2 + (i-1)*200, -100, canvas.width/2 + (i-1)*300 + Math.sin(time)*100, canvas.height);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2 + (i-1)*50 - 100, -100);
+        ctx.lineTo(canvas.width/2 + (i-1)*50 + 100, -100);
+        ctx.lineTo(canvas.width/2 + (i-1)*400 + 300 + Math.sin(time+i)*50, canvas.height);
+        ctx.lineTo(canvas.width/2 + (i-1)*400 - 300 + Math.sin(time+i)*50, canvas.height);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// Vẽ nền (Cát và Nước)
+function drawBackground() {
+  // Nước
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  const colors = isDay ? dayWater : nightWater;
+  gradient.addColorStop(0, colors[0]);
+  gradient.addColorStop(0.5, colors[1]);
+  gradient.addColorStop(1, colors[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Cát
+  const sandGrad = ctx.createLinearGradient(0, canvas.height - 80, 0, canvas.height);
+  sandGrad.addColorStop(0, isDay ? '#E6C288' : '#4b3621'); // Cát tối đi khi đêm xuống
+  sandGrad.addColorStop(1, isDay ? '#C19A6B' : '#2f1f10');
+  ctx.fillStyle = sandGrad;
+  
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height - 50);
+  // Tạo bề mặt cát gợn sóng
+  for(let i=0; i<=canvas.width; i+=50) {
+      ctx.lineTo(i, canvas.height - 60 + Math.sin(i/100)*20);
+  }
+  ctx.lineTo(canvas.width, canvas.height);
+  ctx.lineTo(0, canvas.height);
+  ctx.fill();
 }
-// Animation loop
+
+// MAIN LOOP
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawWaterEffect();
-  drawDecorations();
-  bubbles.forEach(bubble => {
-    bubble.update();
-    bubble.draw();
+  
+  drawBackground();
+  drawSunbeams();
+  drawSeaweed();
+  
+  // Xử lý thức ăn
+  feedParticles = feedParticles.filter(p => p.life > 0 && p.y < canvas.height - 50);
+  feedParticles.forEach(p => {
+      p.update();
+      p.draw();
   });
+
+  // Xử lý cá
   fishes.forEach(fish => {
     fish.update();
     fish.draw();
   });
-  drawFeed();
+
+  // Xử lý bong bóng
+  bubbles.forEach(b => {
+      b.update();
+      b.draw();
+  });
+
+  // Xử lý gợn sóng
+  ripples = ripples.filter(r => r.alpha > 0);
+  ripples.forEach(r => {
+      r.update();
+      r.draw();
+  });
+
   requestAnimationFrame(animate);
 }
+
+// Tương tác chuột/cảm ứng
+function handleInput(x, y) {
+    // Tạo gợn sóng
+    ripples.push(new Ripple(x, y));
+
+    // Thả thức ăn
+    for(let i=0; i<5; i++) {
+        feedParticles.push(new FeedParticle(x + (Math.random()-0.5)*30, y));
+    }
+
+    // Thu hút cá
+    fishes.forEach(fish => {
+        // Chỉ những con cá ở gần mới chạy lại (cho tự nhiên)
+        const dx = fish.x - x;
+        const dy = fish.y - y;
+        if (Math.sqrt(dx*dx + dy*dy) < 500) {
+            fish.targetX = x + (Math.random()-0.5)*100; // Tản ra xíu, không bu lại 1 điểm
+            fish.targetY = y + (Math.random()-0.5)*100;
+        }
+    });
+}
+
+canvas.addEventListener('mousedown', e => handleInput(e.clientX, e.clientY));
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    handleInput(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive: false});
+
 animate();
-// Audio setup
-const caanSound = new Audio('caan.mp3');
-const bienSound = new Audio('bien.mp3');
-// Event listeners
-canvas.addEventListener('mousedown', (e) => {
-  clickCount++;
-  if (clickCount === 1) {
-    caanSound.play().catch(err => console.log('Audio play failed:', err));
-  } else if (clickCount === 2) {
-    bienSound.play().catch(err => console.log('Audio play failed:', err));
-  } else if (clickCount === 3) {
-    toggleDayNight();
-    clickCount = 0;
-  }
-  const feedX = e.clientX;
-  const feedY = e.clientY;
-  for (let i = 0; i < 10; i++) {
-    feedParticles.push(new FeedParticle(feedX + (Math.random() - 0.5) * 20, feedY));
-  }
-  fishes.forEach(fish => {
-    fish.targetX = feedX;
-    fish.targetY = feedY;
-    fish.speed = Math.random() * 3 + 2;
-  });
-});
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  clickCount++;
-  if (clickCount === 1) {
-    caanSound.play().catch(err => console.log('Audio play failed:', err));
-  } else if (clickCount === 2) {
-    bienSound.play().catch(err => console.log('Audio play failed:', err));
-  } else if (clickCount === 3) {
-    toggleDayNight();
-    clickCount = 0;
-  }
-  const touch = e.touches[0];
-  const feedX = touch.clientX;
-  const feedY = touch.clientY;
-  for (let i = 0; i < 10; i++) {
-    feedParticles.push(new FeedParticle(feedX + (Math.random() - 0.5) * 20, feedY));
-  }
-  fishes.forEach(fish => {
-    fish.targetX = feedX;
-    fish.targetY = feedY;
-    fish.speed = Math.random() * 3 + 2;
-  });
-});
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
+
 </script>
 </body>
 </html>
