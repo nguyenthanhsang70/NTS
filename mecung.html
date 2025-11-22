@@ -3,9 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mê Cung - NTS</title>
-<link rel="icon" type="png" href="logos3.png">
+<title>Neon Maze - NTS</title>
+<link rel="icon" type="image/png" href="logos3.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg-color: #050510;
+    --wall-color: #00f3ff;
+    --wall-glow: #00f3ff;
+    --player-color: #ffd700;
+    --goal-color: #ff0055;
+    --ui-bg: rgba(255, 255, 255, 0.05);
+    --text-color: #ffffff;
+  }
+
   body {
     margin: 0;
     overflow: hidden;
@@ -14,125 +25,155 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #2c3e50;
-    color: white;
-    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+    color: var(--text-color);
+    font-family: 'Orbitron', sans-serif;
   }
+
+  /* Header Styling */
   header {
+    position: absolute;
+    top: 20px;
     width: 100%;
     text-align: center;
-    padding: 10px 0;
-    background: #34495e;
-    box-shadow: 0px 5px 15px rgba(52, 73, 94, 0.5);
+    pointer-events: none;
+    z-index: 10;
   }
-  canvas {
-    display: block;
-    background: #ecf0f1;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    border-radius: 10px;
-  }
-  .controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-  }
-  button {
-    padding: 12px 25px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    font-weight: bold;
-  }
-  button#startButton {
-    background-color: #3498db;
-    color: white;
-  }
-  button#startButton:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
-    box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.5);
-  }
-  button#restartButton {
-    background-color: #e74c3c;
-    color: white;
-  }
-  button#restartButton:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
-    box-shadow: 0px 5px 15px rgba(231, 76, 60, 0.5);
-  }
-  button#pauseButton {
-    background-color: #f1c40f;
-    color: white;
-  }
-  button#pauseButton:hover {
-    background-color: #d4ac0d;
-    transform: scale(1.05);
-    box-shadow: 0px 5px 15px rgba(241, 196, 15, 0.5);
-  }
-  .back-button {
-    background-color: #2ecc71;
-    color: white;
-  }
-  .back-button:hover {
-    background-color: #27ae60;
-    transform: scale(1.05);
-    box-shadow: 0px 5px 15px rgba(46, 204, 113, 0.5);
-  }
+
   .timer {
+    display: inline-block;
     font-size: 24px;
     font-weight: bold;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
+    color: var(--wall-color);
+    padding: 10px 30px;
+    background: var(--ui-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
+
+  /* Canvas Styling */
+  canvas {
+    display: block;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0px 0px 40px rgba(0, 243, 255, 0.15);
+    cursor: crosshair;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+  }
+
+  /* Controls Container */
+  .controls {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+  }
+
+  /* Button Styling */
+  button {
+    padding: 12px 30px;
+    font-size: 14px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    outline: none;
+  }
+
+  /* Start Button */
+  button#startButton {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
+  }
+  
+  /* Restart Button */
+  button#restartButton {
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    color: white;
+    box-shadow: 0 0 15px rgba(221, 36, 118, 0.4);
+  }
+
+  /* Pause Button */
+  button#pauseButton {
+    background: linear-gradient(45deg, #f09819, #edde5d);
+    color: #1a1a2e;
+    box-shadow: 0 0 15px rgba(240, 152, 25, 0.4);
+  }
+
+  /* Back Button */
+  .back-button {
+    background: linear-gradient(45deg, #11998e, #38ef7d);
+    color: white;
+    box-shadow: 0 0 15px rgba(56, 239, 125, 0.4);
+  }
+
+  /* Hover Effects */
+  button:hover {
+    transform: translateY(-3px) scale(1.05);
+    filter: brightness(1.2);
+  }
+  
+  button:active {
+    transform: translateY(1px);
+  }
+
+  /* Responsive */
   @media (max-width: 480px) {
-      header h1 {
-        font-size: 30px;
-      }
-      header p {
-        font-size: 16px;
-      }
-      .content h2 {
-        font-size: 26px;
-      }
-      .game-section h2 {
-        font-size: 28px;
-      }
-      .game-section a {
-        font-size: 16px;
-        padding: 12px 25px;
-      }
-      .social-icons a {
-        font-size: 20px;
-      }
+    .controls {
+      flex-wrap: wrap;
+      justify-content: center;
     }
+    button {
+      padding: 10px 20px;
+      font-size: 12px;
+    }
+    .timer {
+      font-size: 18px;
+    }
+  }
 </style>
 </head>
 <body>
+
 <header>
   <div class="timer" id="timer">Time: 60s</div>
 </header>
+
 <canvas id="mazeCanvas"></canvas>
+
 <div class="controls">
   <button id="startButton">Bắt Đầu</button>
   <button id="restartButton">Chơi Lại</button>
   <button id="pauseButton">Tạm Dừng</button>
-  <a href="game.html" target="_blank"><button class="back-button">Quay Lại</button></a>
+  <a href="game.html" target="_blank" style="text-decoration: none;"><button class="back-button">Quay Lại</button></a>
 </div>
+
 <script>
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = Math.min(window.innerWidth - 50, 600);
-canvas.height = Math.min(window.innerHeight - 150, 600);
+// Tăng kích thước canvas một chút để thoáng hơn
+canvas.width = Math.min(window.innerWidth - 40, 650);
+canvas.height = Math.min(window.innerHeight - 160, 650);
 
 const cellSize = 40;
 const rows = Math.floor(canvas.height / cellSize);
 const cols = Math.floor(canvas.width / cellSize);
+
+// Căn giữa mê cung trong canvas nếu kích thước không chia hết
+const offsetX = (canvas.width - cols * cellSize) / 2;
+const offsetY = (canvas.height - rows * cellSize) / 2;
 
 let maze = [];
 let currentCell = { x: 0, y: 0 };
@@ -157,38 +198,43 @@ function initializeMaze() {
 
 function drawMaze() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Thiết lập style cho tường phát sáng
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--wall-color').trim();
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--wall-glow').trim();
+
+  ctx.beginPath();
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       const cell = maze[i][j];
-      const x = j * cellSize;
-      const y = i * cellSize;
+      const x = j * cellSize + offsetX;
+      const y = i * cellSize + offsetY;
 
       if (cell.top) {
-        ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + cellSize, y);
-        ctx.stroke();
       }
       if (cell.right) {
-        ctx.beginPath();
         ctx.moveTo(x + cellSize, y);
         ctx.lineTo(x + cellSize, y + cellSize);
-        ctx.stroke();
       }
       if (cell.bottom) {
-        ctx.beginPath();
         ctx.moveTo(x, y + cellSize);
         ctx.lineTo(x + cellSize, y + cellSize);
-        ctx.stroke();
       }
       if (cell.left) {
-        ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x, y + cellSize);
-        ctx.stroke();
       }
     }
   }
+  ctx.stroke();
+  
+  // Reset shadow để không ảnh hưởng các hình vẽ sau nếu không muốn
+  // Nhưng ở đây ta giữ shadow để nhân vật cũng phát sáng
 }
 
 function removeWalls(current, next) {
@@ -243,13 +289,40 @@ function generateMaze() {
 }
 
 function drawCharacter() {
-  ctx.fillStyle = 'red';
-  ctx.fillRect(character.x * cellSize + 5, character.y * cellSize + 5, cellSize - 10, cellSize - 10);
+  const x = character.x * cellSize + cellSize / 2 + offsetX;
+  const y = character.y * cellSize + cellSize / 2 + offsetY;
+  
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#ffd700";
+  ctx.fillStyle = '#ffd700';
+  
+  ctx.beginPath();
+  ctx.arc(x, y, cellSize / 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Thêm tâm sáng trắng
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(x, y, cellSize / 6, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawGoal() {
-  ctx.fillStyle = 'green';
-  ctx.fillRect(goal.x * cellSize + 5, goal.y * cellSize + 5, cellSize - 10, cellSize - 10);
+  const x = goal.x * cellSize + cellSize / 2 + offsetX;
+  const y = goal.y * cellSize + cellSize / 2 + offsetY;
+  
+  // Hiệu ứng Pulsing đơn giản bằng cách thay đổi shadow dựa trên thời gian
+  const time = Date.now() / 200;
+  const pulse = Math.sin(time) * 5 + 15; // Dao động từ 10 đến 20
+  
+  ctx.shadowBlur = pulse;
+  ctx.shadowColor = "#ff0055";
+  ctx.fillStyle = '#ff0055';
+  
+  ctx.beginPath();
+  // Vẽ hình vuông xoay hoặc hình tròn
+  ctx.arc(x, y, cellSize / 3, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function canMoveTo(x, y) {
@@ -273,7 +346,7 @@ function checkPathClear(startX, startY, endX, endY) {
     }
     return true;
   }
-  return false; // Chỉ cho phép di chuyển thẳng, không chéo
+  return false;
 }
 
 function moveCharacter(targetX, targetY) {
@@ -282,13 +355,10 @@ function moveCharacter(targetX, targetY) {
   const dx = targetX - character.x;
   const dy = targetY - character.y;
 
-  // Chỉ cho phép di chuyển thẳng (ngang hoặc dọc), không chéo
   if (dx !== 0 && dy !== 0) return;
 
-  // Giới hạn di chuyển tối đa 4 ô
   const distance = Math.abs(dx) + Math.abs(dy);
   if (distance > 4) {
-    // Điều chỉnh targetX, targetY để chỉ di chuyển 4 ô tối đa
     if (dx !== 0) {
       targetX = character.x + Math.sign(dx) * 4;
       targetY = character.y;
@@ -301,14 +371,17 @@ function moveCharacter(targetX, targetY) {
   if (canMoveTo(targetX, targetY) && checkPathClear(character.x, character.y, targetX, targetY)) {
     character.x = targetX;
     character.y = targetY;
-    drawMaze();
-    drawCharacter();
-    drawGoal();
+    
+    // Vẽ lại ngay lập tức
+    gameLoop();
 
     if (character.x === goal.x && character.y === goal.y) {
       clearInterval(timerInterval);
-      alert("Bạn Đã Về Đích! Bạn Thắng!");
-      restartGame();
+      // Delay 1 xíu để render frame cuối cùng trước khi alert
+      setTimeout(() => {
+          alert("🎉 CHÚC MỪNG! BẠN ĐÃ VỀ ĐÍCH! 🎉");
+          restartGame();
+      }, 100);
     }
   }
 }
@@ -317,19 +390,30 @@ function handleClick(event) {
   if (isPaused) return;
 
   const rect = canvas.getBoundingClientRect();
-  const mouseX = event.clientX - rect.left;
-  const mouseY = event.clientY - rect.top;
+  const mouseX = event.clientX - rect.left - offsetX;
+  const mouseY = event.clientY - rect.top - offsetY;
 
   const clickedX = Math.floor(mouseX / cellSize);
   const clickedY = Math.floor(mouseY / cellSize);
+  
+  // Chặn click ra ngoài vùng mê cung
+  if (clickedX < 0 || clickedX >= cols || clickedY < 0 || clickedY >= rows) return;
 
   moveCharacter(clickedX, clickedY);
 }
 
+// Animation loop để tạo hiệu ứng "Goal" nhấp nháy
+function animate() {
+    if(!isPaused) {
+        gameLoop();
+    }
+    requestAnimationFrame(animate);
+}
+
 function gameLoop() {
   drawMaze();
+  drawGoal(); // Vẽ goal trước hoặc sau character đều được
   drawCharacter();
-  drawGoal();
 }
 
 // Timer setup
@@ -338,20 +422,22 @@ const timerElement = document.getElementById('timer');
 function updateTimer() {
   if (!isPaused) {
     timeElapsed++;
-    timerElement.textContent = `⏳ Thời Gian: ${timeLimit - timeElapsed}s`;
+    timerElement.textContent = `⏳ TIME: ${timeLimit - timeElapsed}s`;
+    timerElement.style.color = "#00f3ff";
 
     if (timeElapsed >= timeLimit) {
       clearInterval(timerInterval);
-      alert("⏰ Hết giờ rồi! Bạn thua rồi!");
+      alert("💀 GAME OVER! HẾT GIỜ RỒI!");
       restartGame();
     }
   } else {
     pauseTimeElapsed++;
-    timerElement.textContent = `⏸ Tạm Dừng: ${pauseTimeLimit - pauseTimeElapsed}s`;
+    timerElement.textContent = `⏸ PAUSED: ${pauseTimeLimit - pauseTimeElapsed}s`;
+    timerElement.style.color = "#f1c40f";
 
     if (pauseTimeElapsed >= pauseTimeLimit) {
       clearInterval(timerInterval);
-      alert("⏰ Hết giờ tạm dừng rồi! Bạn thua rồi!");
+      alert("💀 GAME OVER! TẠM DỪNG QUÁ LÂU!");
       restartGame();
     }
   }
@@ -362,14 +448,15 @@ function startGame() {
   timeElapsed = 0;
   pauseTimeElapsed = 0;
   isPaused = false;
-  timerElement.textContent = `⏳ Thời Gian: ${timeLimit}s`;
+  timerElement.textContent = `⏳ TIME: ${timeLimit}s`;
   timerInterval = setInterval(updateTimer, 1000);
 
   generateMaze();
   character = { x: 0, y: 0 };
   goal = { x: cols - 1, y: rows - 1 };
 
-  gameLoop();
+  // Bắt đầu vòng lặp animation
+  // Lưu ý: animate() gọi requestAnimationFrame liên tục
 }
 
 function restartGame() {
@@ -377,28 +464,35 @@ function restartGame() {
   timeElapsed = 0;
   pauseTimeElapsed = 0;
   isPaused = false;
-  timerElement.textContent = `⏳ Thời Gian: ${timeLimit}s`;
+  timerElement.textContent = `⏳ TIME: ${timeLimit}s`;
   timerInterval = setInterval(updateTimer, 1000);
 
+  // Giữ nguyên mê cung cũ hay tạo mới? Thường restart là về vị trí đầu
+  // Nếu muốn tạo mê cung mới thì gọi generateMaze(), còn chỉ reset vị trí thì:
   character = { x: 0, y: 0 };
-  gameLoop();
+  // generateMaze(); // Uncomment dòng này nếu muốn mê cung thay đổi mỗi lần chơi lại
 }
 
 function togglePause() {
   isPaused = !isPaused;
   pauseTimeElapsed = 0;
   if (!isPaused) {
-    timerElement.textContent = `⏳ Thời Gian: ${timeLimit - timeElapsed}s`;
+    timerElement.textContent = `⏳ TIME: ${timeLimit - timeElapsed}s`;
   }
 }
 
-document.getElementById('startButton').addEventListener('click', startGame);
+document.getElementById('startButton').addEventListener('click', () => {
+    generateMaze(); // Tạo mê cung mới khi ấn Start
+    startGame();
+});
 document.getElementById('restartButton').addEventListener('click', restartGame);
 document.getElementById('pauseButton').addEventListener('click', togglePause);
 canvas.addEventListener('click', handleClick);
 
-// Initialize game on page load
+// Initialize game
+generateMaze();
 startGame();
+requestAnimationFrame(animate); // Bắt đầu animation loop cho hiệu ứng đẹp
 </script>
 </body>
 </html>
