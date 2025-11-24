@@ -1,321 +1,353 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xúc Xắc - NTS</title>
-    <link rel="icon" type="png" href="logos3.png">
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* --- CÀI ĐẶT CƠ BẢN --- */
+        :root {
+            --bg-color: #2c3e50;
+            --dice-size: 80px; /* Thu nhỏ size xúc xắc lại cho gọn */
+            --dice-color: #fdfdfd;
+            --dot-color: #333;
+            --dot-red: #d32f2f;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at center, #34495e, #1a252f);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            position: relative;
-        }
-        h2 {
-            font-size: 2rem;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .back-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 12px;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-        }
-        .back-container:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        .back-container a {
-            text-decoration: none;
-            color: #ff6f61;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.3s ease;
-        }
-        .back-container a:hover {
-            color: #ff3b2f;
-        }
-        .back-container i {
-            font-size: 1rem;
-        }
-        .name-input-container {
-            margin-bottom: 20px;
-        }
-        .name-input-container input {
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .name-input-container input:focus {
-            border-color: #ff6f61;
-            outline: none;
-            box-shadow: 0 0 8px rgba(255, 111, 97, 0.5);
-        }
-        .controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        button {
-            flex: 1;
-            padding: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
-            background: #ff6f61;
             color: white;
-        }
-        button:hover {
-            background: #ff3b2f;
-            transform: scale(1.05);
-        }
-        button:active {
-            background: #c70000;
-            transform: scale(0.95);
-        }
-        select {
-            padding: 10px;
-            font-size: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            background: white;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-        select:focus {
-            border-color: #ff6f61;
-            outline: none;
-        }
-        .dice-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .dice {
-            font-size: 80px;
-            color: #ff6f61;
-            animation: none;
-            transition: transform 0.3s ease;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .rolling {
-            animation: spin 0.5s linear infinite;
-        }
-        .result-table {
-            margin-top: 20px;
-            width: 100%;
-            border-collapse: collapse;
-            border-radius: 10px;
+            perspective: 1000px; /* Giảm perspective để nhìn đỡ bị lồi quá đà */
             overflow: hidden;
         }
-        .result-table th, .result-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
+
+        /* --- GIAO DIỆN UI --- */
+        .container {
+            width: 100%;
+            max-width: 600px;
             text-align: center;
-        }
-        .result-table th {
-            background: #ff6f61;
-            color: white;
-        }
-        footer {
-            margin-top: 30px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-size: 0.9rem;
-            color: #555;
-            text-align: center;
-        }
-        footer .social-icons {
+            z-index: 10;
+            padding: 10px 20px;
+            max-height: 100vh;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            flex-direction: column;
         }
-        footer .social-icons a {
-            text-decoration: none;
-            color: #ff6f61;
-            font-size: 1.5rem;
-            transition: color 0.3s ease;
+
+        .back-btn {
+            position: absolute; top: 20px; left: 20px;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+            z-index: 20;
         }
-        footer .social-icons a:hover {
-            color: #ff3b2f;
+        .back-btn:hover { color: #fff; }
+
+        h2 { 
+            font-size: 2rem; margin-bottom: 15px; 
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+            letter-spacing: 2px;
+            flex-shrink: 0;
         }
-        footer a {
-            text-decoration: none;
-            color: #ff6f61;
-            font-weight: bold;
-            transition: color 0.3s ease;
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 10px; /* Giảm margin dưới để dành chỗ cho sân khấu */
+            display: flex; flex-direction: column; gap: 10px;
+            flex-shrink: 0;
+            z-index: 50; /* Đảm bảo nút bấm luôn nằm trên cùng */
+            position: relative;
         }
-        footer a:hover {
-            color: #ff3b2f;
+
+        .input-row { display: flex; gap: 10px; justify-content: center; }
+        
+        input, select, button {
+            padding: 10px 15px;
+            border-radius: 12px; border: none; font-size: 0.95rem; outline: none;
         }
-        /* Responsive Design */
+        input { flex: 2; background: rgba(255,255,255,0.9); }
+        select { flex: 1; cursor: pointer; }
+        button {
+            background: #e74c3c; color: white; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #c0392b;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        button:active { transform: translateY(4px); box-shadow: 0 0 0 #c0392b; }
+
+        /* --- SÂN KHẤU 3D --- */
+        .dice-platform {
+            display: flex; justify-content: center; gap: 60px;
+            /* Tăng khoảng cách trên dưới để xúc xắc có chỗ bay nhảy mà không đè vào nút */
+            padding: 80px 0 60px 0; 
+            transform-style: preserve-3d;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1; /* Nằm dưới controls */
+        }
+
+        .dice-wrapper {
+            position: relative;
+            width: var(--dice-size); height: var(--dice-size);
+        }
+
+        /* --- XÚC XẮC (CUBE) --- */
+        .cube {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            /* Thời gian xoay nhanh hơn một chút để cảm giác lực mạnh hơn */
+            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .face {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #fff 0%, #eee 100%);
+            border-radius: 14px;
+            border: 1px solid #ccc;
+            display: grid;
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 10px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            backface-visibility: hidden;
+        }
+
+        /* Tính toán lại translateZ dựa trên size mới (80px / 2 = 40px) */
+        .face-1 { transform: rotateY(0deg) translateZ(40px); }
+        .face-2 { transform: rotateX(-90deg) translateZ(40px); }
+        .face-3 { transform: rotateY(90deg) translateZ(40px); }
+        .face-4 { transform: rotateY(-90deg) translateZ(40px); }
+        .face-5 { transform: rotateX(90deg) translateZ(40px); }
+        .face-6 { transform: rotateY(180deg) translateZ(40px); }
+
+        .dot {
+            background: #222;
+            border-radius: 50%;
+            width: 14px; height: 14px; /* Chấm nhỏ lại */
+            align-self: center; justify-self: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .face-1 .dot { background: var(--dot-red); width: 20px; height: 20px; }
+
+        /* Bố trí chấm (giữ nguyên) */
+        .face-1 .dot:nth-child(1) { grid-area: 2/2; }
+        .face-2 .dot:nth-child(1) { grid-area: 1/1; } .face-2 .dot:nth-child(2) { grid-area: 3/3; }
+        .face-3 .dot:nth-child(1) { grid-area: 1/1; } .face-3 .dot:nth-child(2) { grid-area: 2/2; } .face-3 .dot:nth-child(3) { grid-area: 3/3; }
+        .face-4 .dot:nth-child(1) { grid-area: 1/1; } .face-4 .dot:nth-child(2) { grid-area: 1/3; } .face-4 .dot:nth-child(3) { grid-area: 3/1; } .face-4 .dot:nth-child(4) { grid-area: 3/3; }
+        .face-5 .dot:nth-child(1) { grid-area: 1/1; } .face-5 .dot:nth-child(2) { grid-area: 1/3; } .face-5 .dot:nth-child(3) { grid-area: 2/2; } .face-5 .dot:nth-child(4) { grid-area: 3/1; } .face-5 .dot:nth-child(5) { grid-area: 3/3; }
+        .face-6 .dot:nth-child(1) { grid-area: 1/1; } .face-6 .dot:nth-child(2) { grid-area: 1/3; } .face-6 .dot:nth-child(3) { grid-area: 2/1; } .face-6 .dot:nth-child(4) { grid-area: 2/3; } .face-6 .dot:nth-child(5) { grid-area: 3/1; } .face-6 .dot:nth-child(6) { grid-area: 3/3; }
+
+        .shadow {
+            width: 100%; height: 15px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%);
+            position: absolute; bottom: -40px; left: 0;
+            transform: scale(1); transition: transform 0.5s ease-in-out, opacity 0.5s; opacity: 0.8; z-index: -1;
+        }
+
+        .dice-wrapper.jumping { animation: jump 0.6s ease-out; }
+        .dice-wrapper.jumping .shadow { animation: shadow-shrink 0.6s ease-out; }
+
+        /* Animation nhảy được tinh chỉnh: Nhảy thấp hơn, không scale to */
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            40% { transform: translateY(-80px) rotateZ(10deg); } /* Chỉ nhảy cao 80px và nghiêng nhẹ */
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes shadow-shrink {
+            0% { transform: scale(1); opacity: 0.8; }
+            40% { transform: scale(0.6); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* --- BẢNG KẾT QUẢ --- */
+        .result-box {
+            background: white; color: #333;
+            width: 100%; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            position: relative;
+            flex-shrink: 1; /* Cho phép co lại nếu màn hình bé */
+        }
+
+        .result-box::-webkit-scrollbar { width: 6px; }
+        .result-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 15px 0; }
+        .result-box::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 4px; }
+
+        .result-box table { width: 100%; border-collapse: collapse; }
+        .result-box th { 
+            background: #34495e; color: white; padding: 10px; 
+            position: sticky; top: 0; z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result-box td { padding: 8px; border-bottom: 1px solid #eee; }
+        .result-box tr:first-child td { background: #e8f6f3; font-weight: bold; color: #e74c3c; }
+
         @media (max-width: 600px) {
-            h2 {
-                font-size: 1.5rem;
-            }
-            .back-container {
-                padding: 6px 10px;
-            }
-            .back-container a {
-                font-size: 0.8rem;
-            }
-            .dice {
-                font-size: 60px;
-            }
-            .controls {
-                flex-direction: column;
-            }
-            button {
-                flex: none;
-                width: 100%;
-            }
+            :root { --dice-size: 60px; } /* Mobile thì xúc xắc bé hơn nữa */
+            .dice-platform { gap: 30px; padding: 60px 0 40px 0; }
+            .face-1 { transform: rotateY(0deg) translateZ(30px); }
+            .face-2 { transform: rotateX(-90deg) translateZ(30px); }
+            .face-3 { transform: rotateY(90deg) translateZ(30px); }
+            .face-4 { transform: rotateY(-90deg) translateZ(30px); }
+            .face-5 { transform: rotateX(90deg) translateZ(30px); }
+            .face-6 { transform: rotateY(180deg) translateZ(30px); }
+            .shadow { bottom: -25px; }
         }
     </style>
 </head>
 <body>
+
+    <a href="game.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại</a>
+
     <div class="container">
-        <div class="back-container">
-            <a href="game.html">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
-        </div>
-        <h2>Xúc Xắc 🎲</h2>
-        <div class="name-input-container">
-            <input type="text" id="nameInput" placeholder="Nhập tên của bạn">
-        </div>
+        <h2>XÚC XẮC <span style="color:#e74c3c">(骰子)</span></h2>
+
         <div class="controls">
-            <button onclick="resetGame()">Làm mới</button>
-            <select id="diceCount" onchange="toggleDiceDisplay()">
-                <option value="1">1 Xúc Xắc</option>
-                <option value="2">2 Xúc Xắc</option>
-            </select>
-            <button onclick="rollDice()">Lắc Xúc Xắc</button>
+            <div class="input-row">
+                <input type="text" id="nameInput" placeholder="Nhập tên...">
+                <select id="diceCount" onchange="toggleDice()">
+                    <option value="1">1 Viên</option>
+                    <option value="2">2 Viên</option>
+                </select>
+            </div>
+            <button onclick="rollDice()">LẮC NGAY</button>
         </div>
-        <div class="dice-container">
-            <span class="dice" id="dice1">🎲</span>
-            <span class="dice" id="dice2" style="display: none;">🎲</span>
+
+        <div class="dice-platform">
+            <div class="dice-wrapper" id="diceWrap1">
+                <div class="cube" id="cube1">
+                    <div class="face face-1"><div class="dot"></div></div>
+                    <div class="face face-2"><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                </div>
+                <div class="shadow"></div>
+            </div>
+
+            <div class="dice-wrapper" id="diceWrap2" style="display: none;">
+                <div class="cube" id="cube2">
+                    <div class="face face-1"><div class="dot"></div></div>
+                    <div class="face face-2"><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    <div class="face face-6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                </div>
+                <div class="shadow"></div>
+            </div>
         </div>
-        <table class="result-table" id="resultTable">
-            <thead>
-                <tr>
-                    <th>Tên</th>
-                    <th>Kết quả</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+
+        <div class="result-box">
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>Người chơi</th>
+                        <th>Kết quả</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-    <audio id="diceRollSound" src="xucxaclan.mp3"></audio>
+
+    <audio id="soundRoll" src="xucxaclan.mp3"></audio>
+
     <script>
-        const rollSound = document.getElementById('diceRollSound');
+        let currentRotations = { cube1: { x: 0, y: 0 }, cube2: { x: 0, y: 0 } };
+
+        function toggleDice() {
+            const count = document.getElementById('diceCount').value;
+            document.getElementById('diceWrap2').style.display = count === "2" ? "block" : "none";
+        }
+
+        const faceAngles = {
+            1: { x: 0, y: 0 }, 6: { x: 0, y: 180 }, 2: { x: 90, y: 0 },
+            5: { x: -90, y: 0 }, 3: { x: 0, y: -90 }, 4: { x: 0, y: 90 }
+        };
+
+        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
         function rollDice() {
-            const dice1 = document.getElementById('dice1');
-            const dice2 = document.getElementById('dice2');
-            const nameInput = document.getElementById('nameInput').value.trim();
-            const diceCount = parseInt(document.getElementById('diceCount').value);
-            const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
-            if (nameInput === "") {
-                alert("Bạn phải nhập tên mới được phép lắc!");
-                return;
+            const name = document.getElementById('nameInput').value.trim();
+            const count = parseInt(document.getElementById('diceCount').value);
+            const sound = document.getElementById('soundRoll');
+
+            if (!name) { alert("Vui lòng nhập tên!"); return; }
+            if(sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
+
+            const wrap1 = document.getElementById('diceWrap1');
+            const wrap2 = document.getElementById('diceWrap2');
+            
+            // Kích hoạt animation nhảy
+            wrap1.classList.remove('jumping'); void wrap1.offsetWidth; wrap1.classList.add('jumping');
+            if(count === 2) { wrap2.classList.remove('jumping'); void wrap2.offsetWidth; wrap2.classList.add('jumping'); }
+
+            let val1, val2;
+            const isSang = name.toLowerCase() === "sang";
+
+            if (isSang) {
+                const r = Math.random();
+                val1 = r < 0.7 ? 6 : (r < 0.9 ? 5 : getRandomInt(1,4));
+                val2 = count === 2 ? (Math.random() < 0.7 ? 6 : getRandomInt(1,5)) : 0;
+            } else {
+                val1 = getRandomInt(1, 6);
+                val2 = count === 2 ? getRandomInt(1, 6) : 0;
             }
-            // Play sound and add rolling animation
-            rollSound.play();
-            dice1.classList.add("rolling");
-            dice2.classList.add("rolling");
+
+            rotateToFace('cube1', val1);
+            if(count === 2) rotateToFace('cube2', val2);
+
             setTimeout(() => {
-                dice1.classList.remove("rolling");
-                dice2.classList.remove("rolling");
-                let roll1, roll2;
-                if (nameInput.toLowerCase() === "sang") {
-                    const random = Math.random();
-                    if (diceCount === 1) {
-                        roll1 = random < 0.7 ? 6 : random < 0.9 ? 5 : Math.floor(Math.random() * 4) + 1;
-                    } else {
-                        roll1 = random < 0.7 ? 6 : random < 0.9 ? 5 : Math.floor(Math.random() * 4) + 1;
-                        roll2 = random < 0.7 ? 6 : random < 0.9 ? 5 : Math.floor(Math.random() * 4) + 1;
-                    }
-                } else {
-                    roll1 = Math.floor(Math.random() * 6) + 1;
-                    roll2 = diceCount === 2 ? Math.floor(Math.random() * 6) + 1 : 0;
-                }
-                dice1.textContent = `🎲`;
-                dice2.textContent = diceCount === 2 ? `🎲` : '';
-                const newRow = resultTable.insertRow();
-                newRow.insertCell(0).textContent = nameInput;
-                newRow.insertCell(1).textContent = diceCount === 2 ? roll1 + roll2 : roll1;
-            }, 500);
+                const tbody = document.querySelector('#resultTable tbody');
+                const row = tbody.insertRow(0);
+                row.insertCell(0).textContent = name;
+                row.insertCell(1).textContent = count === 2 ? `${val1} + ${val2} = ${val1+val2}` : val1;
+            }, 1200); // Khớp với transition CSS
         }
-        function resetGame() {
-            document.getElementById('nameInput').value = '';
-            document.getElementById('resultTable').getElementsByTagName('tbody')[0].innerHTML = '';
-        }
-        function toggleDiceDisplay() {
-            document.getElementById('dice2').style.display = document.getElementById('diceCount').value === "2" ? 'inline-block' : 'none';
+
+        function rotateToFace(cubeId, targetNumber) {
+            const cube = document.getElementById(cubeId);
+            const target = faceAngles[targetNumber];
+            
+            // Xoay thêm ngẫu nhiên để không bị lặp lại đơn điệu
+            const extraRotX = (getRandomInt(3, 6) * 360);
+            const extraRotY = (getRandomInt(3, 6) * 360);
+            
+            currentRotations[cubeId].x += extraRotX;
+            currentRotations[cubeId].y += extraRotY;
+
+            let nextX = target.x; let nextY = target.y;
+            // Đảm bảo luôn xoay tới, không quay ngược
+            while (nextX < currentRotations[cubeId].x + 720) { nextX += 360; }
+            while (nextY < currentRotations[cubeId].y + 720) { nextY += 360; }
+            
+            currentRotations[cubeId].x = nextX;
+            currentRotations[cubeId].y = nextY;
+            
+            // Thêm một chút nghiêng nhẹ (vài độ) để trông nó "thật" hơn như đang nằm trên bàn không phẳng tuyệt đối
+            // Nhưng phải rất nhỏ để không làm lệch số
+            
+            cube.style.transform = `rotateX(${nextX}deg) rotateY(${nextY}deg)`;
         }
     </script>
-    <footer>
-        <div class="footer-container">
-            <div class="social-icons">
-                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/ngth.sang70/" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-            </div>
-            &copy; 2025 NTS. Được thiết kế bởi <a href="profile.html">Nguyễn Thanh Sang</a>.
-        </div>
-    </footer>
 </body>
 </html>
