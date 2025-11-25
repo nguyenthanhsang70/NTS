@@ -1,212 +1,302 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuộc Đua Số - NTS</title>
+    <title>Neon Speed Race - NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
-    <!-- Add Font Awesome CDN for social media icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Add Google Fonts for Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #00f2ea;
+            --secondary-color: #ff0050;
+            --bg-color: #0f0c29;
+            --track-bg: #1a1a2e;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text-color: #fff;
+        }
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f7f7f7;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #ff00cc, #333399);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            margin: 20px 0;
-            padding: 10px;
-            display: inline-block;
-            transition: transform 0.3s ease, text-shadow 0.3s ease;
+            text-shadow: 0 0 10px rgba(255, 0, 204, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-align: center;
         }
-        h1:hover {
-            transform: scale(1.05);
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+        p { color: #a0a0a0; text-align: center; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .race-track {
-            position: relative;
+        .control-panel {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
             margin: 20px auto;
-            width: 80%;
-            height: 600px; /* Chiều cao để chứa 20 số */
-            border: 2px solid #ccc;
-            background-color: #e0f7fa;
-            overflow: hidden;
+            max-width: 600px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .start-line, .finish-line {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            background-color: red;
-        }
-        .start-line {
-            left: 10px;
-        }
-        .finish-line {
-            right: 10px;
-        }
-        .number {
-            width: 40px;
-            height: 40px;
-            background-color: yellow;
-            border-radius: 50%;
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: black;
-        }
-        .controls {
-            margin-top: 30px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
+        input[type="text"] {
+            padding: 12px;
+            border-radius: 8px;
             border: none;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            width: 60%;
+            font-family: 'Poppins', sans-serif;
+        }
+        input[type="text"]::placeholder { color: #bbb; }
+        button {
+            padding: 12px 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
             margin: 5px;
         }
-        button:disabled {
-            background-color: #ccc;
+        .btn-primary {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--primary-color);
         }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: green;
+        .btn-danger {
+            background: var(--secondary-color);
+            color: white;
+            box-shadow: 0 0 15px var(--secondary-color);
         }
+        button:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.2); }
+        button:disabled { background: #555; color: #888; box-shadow: none; cursor: not-allowed; }
         .number-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
+            margin: 20px 0;
         }
-        .number-container button {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        .selected {
-            background-color: #ff4d4d !important;
-            color: white;
-        }
-        .player-info {
-            margin-top: 20px;
-            font-size: 16px;
-            color: #333;
-        }
-        .player-list {
-            margin-top: 20px;
-            font-size: 16px;
-            color: #333;
-        }
-        .player-list div {
-            margin: 5px 0;
-        }
-        .name-input {
-            margin-top: 20px;
-        }
-        .name-input input {
-            padding: 5px;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        .name-input button {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        footer {
-            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
-            color: #fff;
-            padding: 20px 0;
-            width: 100%;
-            text-align: center;
-            font-size: 0.9em;
-            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-        }
-        footer a {
-            color: #fff;
-            text-decoration: none;
+        .num-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             font-weight: bold;
-            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        footer a:hover {
-            color: #acdded;
+        .num-btn.selected {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px var(--secondary-color);
+        }
+        .race-track {
+            position: relative;
+            background: var(--track-bg);
+            border: 4px solid #333;
+            border-radius: 10px;
+            margin: 30px auto;
+            width: 95%;
+            height: auto;
+            min-height: 600px;
+            padding-bottom: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px #000;
+            background-image: linear-gradient(#333 1px, transparent 1px);
+            background-size: 100% 30px;
+        }
+        .start-line {
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: repeating-linear-gradient(0deg, #fff, #fff 10px, transparent 10px, transparent 20px);
+            z-index: 1;
+        }
+        .finish-line {
+            position: absolute;
+            right: 50px;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px);
+            z-index: 1;
+            box-shadow: 0 0 10px #fff;
+        }
+        .racer {
+            position: absolute;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+            transition: transform 0.1s linear;
+            z-index: 10;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+            display: flex;
+            align-items: center;
+        }
+        .racer span {
+            font-size: 10px;
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #aaa;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .racer i {
+            transform: scaleX(-1);
+            display: inline-block;
+        }
+        .racer.nitro {
+            filter: drop-shadow(0 0 10px #00f2ea) drop-shadow(0 0 20px #00f2ea);
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translateY(0); }
+            25% { transform: translateY(-1px); }
+            75% { transform: translateY(1px); }
+            100% { transform: translateY(0); }
+        }
+        .result {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px;
+            min-height: 50px;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ==================== FOOTER ĐẸP - CĂN GIỮA HOÀN HẢO ==================== */
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9em;
+            padding: 20px 0;
+        }
+        .footer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
         }
         .social-icons {
-            margin-bottom: 15px;
+            display: flex;
+            gap: 30px;
         }
         .social-icons a {
-            text-decoration: none;
-            margin: 0 12px;
+            color: #ccc;
             font-size: 1.8em;
-            color: #fff;
-            transition: color 0.3s ease;
+            transition: all 0.4s ease;
         }
         .social-icons a:hover {
-            color: #acdded;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+            transform: translateY(-5px) scale(1.2);
         }
         footer p {
             margin: 0;
             line-height: 1.5;
         }
-        /* Media Queries for Mobile Devices */
-        @media (max-width: 600px) {
-            .name-input-container input {
-                width: 100%;
-            }
-            .controls {
-                flex-direction: column;
-            }
-            .dice {
-                font-size: 80px;
-            }
-            h1 {
-                font-size: 1.8em;
-                padding: 8px;
-            }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .race-track { width: 100%; border-left: none; border-right: none; }
+            .finish-line { right: 10px; }
+            .start-line { left: 10px; }
+            .social-icons { gap: 25px; }
+            .social-icons a { font-size: 2em; }
+            footer p { font-size: 0.85em; padding: 0 15px; }
         }
     </style>
 </head>
 <body>
-    <h1>Cuộc Đua May Mắn</h1>
-    <p>Hãy chọn một số để đặt cược!</p>
-    <div class="name-input">
-        <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi">
-        <button id="addPlayer">Thêm người chơi</button>
+    <canvas id="confetti-canvas"></canvas>
+    <div class="container">
+        <h1><i class="fas fa-flag-checkered"></i> Neon Speed Race <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
+        <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
+
+        <div class="control-panel">
+            <div class="name-input">
+                <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi..." autocomplete="off">
+                <button class="btn-primary" id="addPlayer"><i class="fas fa-user-plus"></i> Thêm</button>
+            </div>
+            <div id="playerInfo" style="margin-top: 15px; color: var(--primary-color);">Chào mừng! Hãy thêm người chơi đầu tiên.</div>
+        </div>
+
+        <div class="number-container" id="numberContainer"></div>
+
+        <div class="control-panel" style="background: transparent; box-shadow: none; padding: 0; text-align: center;">
+            <button id="startRace" class="btn-danger" disabled><i class="fas fa-rocket"></i> KHỞI ĐỘNG</button>
+            <button id="resetGame" class="btn-primary"><i class="fas fa-redo"></i> LÀM MỚI</button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="race-track" id="raceTrack">
+            <div class="start-line"></div>
+            <div class="finish-line"></div>
+        </div>
+
+        <div class="player-list" id="playerList" style="text-align: left; max-width: 600px; margin: 20px auto; color: #ddd;"></div>
     </div>
-    <div class="number-container" id="numberContainer"></div>
-    <div class="race-track" id="raceTrack">
-        <div class="start-line"></div>
-        <div class="finish-line"></div>
-    </div>
-    <div class="controls">
-        <button id="startRace" disabled>Bắt đầu cuộc đua</button>
-        <button id="resetGame">Làm mới</button>
-        <button><a href="game.html">
-            <i class="fas fa-arrow-left"></i> Quay lại</a></button>
-    </div>
-    <div class="player-info" id="playerInfo">Thêm người chơi và chọn số!</div>
-    <div class="player-list" id="playerList"></div>
-    <div class="result" id="result"></div>
-    <audio id="winnerSound" src="gayvangtroi.mp3"></audio>
+
+    <!-- FOOTER ĐÃ ĐƯỢC CĂN GIỮA HOÀN HẢO -->
+    <footer>
+        <div class="footer-container">
+            <div class="social-icons">
+                <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <p>© 2025 NTS Gaming. Designed by <a href="#" style="color: var(--primary-color); text-decoration: none;">Nguyễn Thanh Sang</a>.</p>
+        </div>
+    </footer>
+
+    <audio id="winnerSound" src="gayvangtroi.mp3" preload="auto"></audio>
+
     <script>
-        const totalNumbers = 20; // Số lượng số trong cuộc đua
-        let players = []; // Danh sách người chơi
+        const totalNumbers = 20;
+        let players = [];
         let currentPlayerIndex = 0;
+        const raceTrackHeight = 600;
+        const laneHeight = 28;
+
         const numberContainer = document.getElementById('numberContainer');
         const raceTrack = document.getElementById('raceTrack');
         const startRaceButton = document.getElementById('startRace');
@@ -217,181 +307,189 @@
         const playerNameInput = document.getElementById('playerNameInput');
         const addPlayerButton = document.getElementById('addPlayer');
         const winnerSound = document.getElementById('winnerSound');
+        const carColors = ['#ff0050', '#00f2ea', '#ffe600', '#00ff00', '#ff9900', '#cc00ff', '#ffffff'];
 
         function initializeGame() {
-            // Xóa các số hiện tại
             numberContainer.innerHTML = '';
-            raceTrack.innerHTML = '';
+            document.querySelectorAll('.racer').forEach(r => r.remove());
             players = [];
             currentPlayerIndex = 0;
-            // Thêm lại vạch xuất phát và đích
-            const startLine = document.createElement('div');
-            startLine.classList.add('start-line');
-            raceTrack.appendChild(startLine);
-            const finishLine = document.createElement('div');
-            finishLine.classList.add('finish-line');
-            raceTrack.appendChild(finishLine);
-            // Tạo các số
-            for (let i = 1; i <= totalNumbers; i++) {
-                const numberButton = document.createElement('button');
-                numberButton.textContent = `Số ${i}`;
-                numberButton.setAttribute('data-number', i);
-                numberContainer.appendChild(numberButton);
-                const number = document.createElement('div');
-                number.classList.add('number');
-                number.textContent = i; // Hiển thị số trên mỗi hình tròn
-                number.style.left = '10px'; // Vị trí xuất phát
-                number.style.top = `${(i * 25)}px`; // Khoảng cách giữa các số
-                number.setAttribute('data-number', i);
-                raceTrack.appendChild(number);
-                // Xử lý sự kiện khi người dùng chọn số
-                numberButton.addEventListener('click', () => {
-                    if (currentPlayerIndex < 20) {
-                        // Kiểm tra xem đã có người chơi tại currentPlayerIndex chưa
-                        if (!players[currentPlayerIndex]) {
-                            alert('Vui lòng thêm người chơi trước khi chọn số!');
-                            return;
-                        }
-                        const playerName = players[currentPlayerIndex].name;
-                        const selectedNumber = i;
-                        // Kiểm tra xem số đã được chọn chưa
-                        if (players.some(player => player.number === selectedNumber)) {
-                            alert(`Số ${selectedNumber} đã được chọn. Vui lòng chọn số khác!`);
-                            return;
-                        }
-                        // Thêm người chơi vào danh sách
-                        players[currentPlayerIndex].number = selectedNumber;
-                        // Cập nhật thông tin người chơi
-                        updatePlayerInfo();
-                        // Tô màu nút đã chọn
-                        numberButton.classList.add('selected');
-                        numberButton.disabled = true;
-                        // Di chuyển đến người chơi tiếp theo
-                        currentPlayerIndex++;
-                        // Cho phép bắt đầu cuộc đua nếu có ít nhất 2 người chơi
-                        if (players.length >= 2) {
-                            startRaceButton.disabled = false;
-                        }
-                        // Nếu đủ 20 người chơi, tự động vô hiệu hóa việc chọn thêm
-                        if (currentPlayerIndex === 20) {
-                            disableNumberButtons();
-                        }
-                    }
-                });
-            }
-            // Reset trạng thái
+            resultDiv.innerHTML = '';
             startRaceButton.disabled = true;
-            resultDiv.textContent = '';
-            playerInfoDiv.textContent = 'Thêm người chơi và chọn số!';
+            playerInfoDiv.innerHTML = '<i class="fas fa-info-circle"></i> Nhập tên và chọn xe để bắt đầu!';
             playerListDiv.innerHTML = '';
+
+            for (let i = 1; i <= totalNumbers; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'num-btn';
+                btn.textContent = i;
+                btn.onclick = () => selectNumber(i, btn);
+                numberContainer.appendChild(btn);
+                createRacer(i);
+            }
         }
-        // Cập nhật thông tin người chơi
-        function updatePlayerInfo() {
-            playerInfoDiv.textContent = `Đang thêm người chơi (${players.length}/20)...`;
-            playerListDiv.innerHTML = ''; // Xóa danh sách cũ
-            players.forEach((player) => {
-                const playerDiv = document.createElement('div');
-                playerDiv.textContent = `${player.name} đã chọn số ${player.number}.`;
-                playerListDiv.appendChild(playerDiv);
-            });
+
+        function createRacer(number) {
+            const racer = document.createElement('div');
+            racer.className = 'racer';
+            racer.id = `racer-${number}`;
+            racer.setAttribute('data-number', number);
+            const color = carColors[Math.floor(Math.random() * carColors.length)];
+            racer.innerHTML = `<span>${number}</span><i class="fas fa-car-side" style="color: ${color};"></i>`;
+            racer.style.left = '10px';
+            racer.style.top = `${(number * laneHeight)}px`;
+            raceTrack.appendChild(racer);
         }
-        // Vô hiệu hóa tất cả các nút chọn số
-        function disableNumberButtons() {
-            const buttons = document.querySelectorAll('.number-container button');
-            buttons.forEach((button) => {
-                button.disabled = true;
-            });
+
+        function selectNumber(number, btn) {
+            if (currentPlayerIndex >= 20) return;
+            if (!players[currentPlayerIndex]) {
+                alert('Vui lòng nhập tên người chơi trước!');
+                playerNameInput.focus();
+                return;
+            }
+            if (players.some(p => p.number === number)) {
+                alert('Số này đã có chủ! Chọn số khác đi.');
+                return;
+            }
+            players[currentPlayerIndex].number = number;
+            btn.classList.add('selected');
+            btn.disabled = true;
+
+            const racerEl = document.getElementById(`racer-${number}`);
+            if (racerEl) {
+                const nameTag = racerEl.querySelector('span');
+                nameTag.textContent = players[currentPlayerIndex].name;
+                nameTag.style.color = "#00f2ea";
+                nameTag.style.fontWeight = "bold";
+            }
+            updatePlayerList();
+            currentPlayerIndex++;
+            if (players.length >= 2) startRaceButton.disabled = false;
+
+            if (currentPlayerIndex < 20) {
+                playerInfoDiv.innerHTML = `Người tiếp theo, hãy nhập tên!`;
+                playerNameInput.value = '';
+                playerNameInput.focus();
+            } else {
+                playerInfoDiv.innerHTML = "Đã đủ người chơi!";
+                disableAllButtons();
+            }
         }
-        // Bắt đầu cuộc đua
+
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            if (!name) return alert('Vui lòng nhập tên!');
+            if (currentPlayerIndex >= 20) return alert('Đã đủ số lượng xe!');
+            players.push({ name: name, number: null });
+            playerInfoDiv.innerHTML = `Xin chào <b>${name}</b>! Hãy chọn một con số may mắn.`;
+            playerNameInput.value = '';
+        }
+        addPlayerButton.addEventListener('click', addPlayer);
+        playerNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
+
+        function updatePlayerList() {
+            playerListDiv.innerHTML = players.filter(p => p.number).map(p =>
+                `<div><i class="fas fa-check-circle" style="color:var(--primary-color)"></i> <b>${p.name}</b> lái xe số <b>${p.number}</b></div>`
+            ).join('');
+        }
+
+        function disableAllButtons() {
+            document.querySelectorAll('.num-btn').forEach(b => b.disabled = true);
+        }
+
         startRaceButton.addEventListener('click', () => {
             startRaceButton.disabled = true;
-            resultDiv.textContent = '';
-            const numbers = document.querySelectorAll('.number');
-            const raceWidth = raceTrack.offsetWidth - 20; // Chiều rộng đường đua trừ đi vạch đích
-            let raceFinished = false; // Biến để kiểm tra xem cuộc đua đã kết thúc chưa
-            // Tìm người chơi được ưu tiên (nếu có)
-            const favoredPlayer = players.find((p) =>
-                ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(p.name.toLowerCase())
-            );
-            numbers.forEach((number) => {
-                const numberValue = parseInt(number.getAttribute('data-number'));
-                const player = players.find((p) => p.number === numberValue);
-                let currentSpeed = Math.random() * 2 + 1; // Tốc độ ban đầu giống nhau cho tất cả (1 đến 3)
-                let distance = 0;
-                // Nếu có người chơi được ưu tiên và số này thuộc về họ, tăng tốc sau 2 giây
-                if (favoredPlayer && player &&
-                    ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase())) {
-                    setTimeout(() => {
-                        if (!raceFinished) {
-                            currentSpeed = 20; // Tăng tốc để đảm bảo thắng
-                        }
-                    }, 2000); // Tăng tốc sau 2 giây
-                }
+            addPlayerButton.disabled = true;
+            resultDiv.innerHTML = '<span style="color: yellow">Đang đua... </span>';
+
+            const racers = document.querySelectorAll('.racer');
+            const finishLine = raceTrack.offsetWidth - 60;
+            let isFinished = false;
+            const favoredNames = ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'];
+            const bossPlayer = players.find(p => favoredNames.includes(p.name.toLowerCase()));
+
+            racers.forEach(racer => {
+                let pos = 10;
+                let speed = Math.random() * 2 + 1;
+                const num = parseInt(racer.getAttribute('data-number'));
+                let isBossCar = bossPlayer && bossPlayer.number === num;
+
                 const interval = setInterval(() => {
-                    if (raceFinished) {
-                        clearInterval(interval); // Dừng nếu cuộc đua đã kết thúc
-                        return;
-                    }
-                    distance += currentSpeed; // Tăng khoảng cách di chuyển
-                    number.style.left = `${distance}px`;
-                    // Tăng tốc ngẫu nhiên cho các số không được ưu tiên
-                    if (!favoredPlayer || (player && !['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'].includes(player.name.toLowerCase()))) {
-                        if (Math.random() < 0.05) { // 5% cơ hội tăng tốc
-                            currentSpeed += Math.random() * 2; // Tăng tốc thêm từ 0 đến 2
+                    if (isFinished) { clearInterval(interval); return; }
+
+                    if (isBossCar) {
+                        if (pos > 50 && Math.random() > 0.8) speed = 8;
+                        if (pos > 150) {
+                            speed = 15;
+                            racer.classList.add('nitro');
                         }
+                    } else {
+                        if (Math.random() < 0.05) speed += Math.random();
                     }
-                    // Dừng khi chạm vạch đích
-                    if (parseFloat(number.style.left) >= raceWidth) {
-                        clearInterval(interval);
-                        raceFinished = true; // Đánh dấu cuộc đua đã kết thúc
-                        // Kiểm tra xem ai là người chiến thắng
-                        const winner = numberValue;
-                        // Tìm người chơi chiến thắng
-                        const winningPlayer = players.find((player) => player.number === winner);
-                        // Công bố kết quả và phát âm thanh
-                        if (winningPlayer) {
-                            resultDiv.innerHTML = `
-                                <p style="color: green;">Chúc mừng! ${winningPlayer.name} đã thắng với số ${winner}!</p>
-                            `;
-                            winnerSound.play().catch((error) => {
-                                console.error('Lỗi khi phát âm thanh:', error);
-                            });
-                        } else {
-                            resultDiv.innerHTML = `
-                                <p style="color: red;">Số chiến thắng là ${winner}, nhưng không ai chọn số này.</p>
-                            `;
-                        }
+                    pos += speed;
+                    racer.style.left = `${pos}px`;
+
+                    if (pos >= finishLine && !isFinished) {
+                        isFinished = true;
+                        announceWinner(num);
                     }
-                }, 50); // Cập nhật vị trí mỗi 50ms
+                }, 30);
             });
         });
-        // Làm mới trò chơi
-        resetGameButton.addEventListener('click', () => {
-            initializeGame();
-        });
-        // Thêm người chơi
-        addPlayerButton.addEventListener('click', () => {
-            const playerName = playerNameInput.value.trim();
-            if (playerName && currentPlayerIndex < 20) {
-                players.push({ name: playerName, number: null });
-                playerNameInput.value = '';
-                updatePlayerInfo();
+
+        function announceWinner(number) {
+            const winner = players.find(p => p.number === number);
+            if (winner) {
+                resultDiv.innerHTML = `CHÚC MỪNG <span style="color:var(--primary-color); text-shadow:0 0 20px var(--primary-color)">${winner.name}</span> (XE ${number}) VÔ ĐỊCH! `;
+                startConfetti();
+                winnerSound.play().catch(e => console.log("Audio error: ", e));
             } else {
-                alert('Vui lòng nhập tên người chơi hoặc đã đủ số lượng người chơi.');
+                resultDiv.innerHTML = `Xe số ${number} về nhất nhưng không có người lái! `;
+                resultDiv.style.color = "#ff0050";
             }
-        });
-        // Khởi tạo trò chơi lần đầu
+            startRaceButton.disabled = false;
+            addPlayerButton.disabled = false;
+        }
+
+        resetGameButton.addEventListener('click', initializeGame);
+
+        function startConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particles = [];
+            const colors = ['#ff0050', '#00f2ea', '#ffe600'];
+            for (let i = 0; i < 200; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 5 + 5,
+                    speed: Math.random() * 5 + 2,
+                    angle: Math.random() * 6.2
+                });
+            }
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+                particles.forEach(p => {
+                    p.y += p.speed;
+                    p.angle += 0.1;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x + Math.cos(p.angle) * 5, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (p.y < canvas.height) active = true;
+                });
+                if (active) requestAnimationFrame(draw);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            draw();
+        }
+
         initializeGame();
     </script>
-    <footer>
-        <div class="footer-container">
-            <div class="social-icons">
-                <a href="https://www.facebook.com/your-profile" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/your-profile" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank"><i class="fab fa-tiktok"></i></a>
-            </div>
-            <p>© 2025 NTS. Được thiết kế bởi <a href="profile.html">Nguyễn Thanh Sang</a>.</p>
-        </div>
-    </footer>
 </body>
 </html>
