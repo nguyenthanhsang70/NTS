@@ -9,8 +9,7 @@
         /* --- CÀI ĐẶT CƠ BẢN --- */
         :root {
             --bg-color: #2c3e50;
-            --table-color: #27ae60; /* Màu bàn nỉ xanh giống casino */
-            --dice-size: 100px;
+            --dice-size: 80px; /* Thu nhỏ size xúc xắc lại cho gọn */
             --dice-color: #fdfdfd;
             --dot-color: #333;
             --dot-red: #d32f2f;
@@ -27,7 +26,7 @@
             align-items: center;
             justify-content: center;
             color: white;
-            perspective: 1200px; /* Góc nhìn 3D sâu hơn */
+            perspective: 1000px; /* Giảm perspective để nhìn đỡ bị lồi quá đà */
             overflow: hidden;
         }
 
@@ -37,6 +36,10 @@
             max-width: 600px;
             text-align: center;
             z-index: 10;
+            padding: 10px 20px;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .back-btn {
@@ -44,48 +47,55 @@
             color: rgba(255,255,255,0.7); text-decoration: none;
             display: flex; align-items: center; gap: 8px;
             transition: 0.3s;
+            z-index: 20;
         }
         .back-btn:hover { color: #fff; }
 
         h2 { 
-            font-size: 2.5rem; margin-bottom: 20px; 
+            font-size: 2rem; margin-bottom: 15px; 
             text-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             letter-spacing: 2px;
+            flex-shrink: 0;
         }
 
         .controls {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 20px;
+            padding: 15px;
             border-radius: 20px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border: 1px solid rgba(255, 255, 255, 0.18);
-            margin-bottom: 40px;
-            display: flex; flex-direction: column; gap: 15px;
+            margin-bottom: 10px; /* Giảm margin dưới để dành chỗ cho sân khấu */
+            display: flex; flex-direction: column; gap: 10px;
+            flex-shrink: 0;
+            z-index: 50; /* Đảm bảo nút bấm luôn nằm trên cùng */
+            position: relative;
         }
 
         .input-row { display: flex; gap: 10px; justify-content: center; }
         
         input, select, button {
-            padding: 12px 20px;
-            border-radius: 12px; border: none; font-size: 1rem; outline: none;
+            padding: 10px 15px;
+            border-radius: 12px; border: none; font-size: 0.95rem; outline: none;
         }
         input { flex: 2; background: rgba(255,255,255,0.9); }
         select { flex: 1; cursor: pointer; }
         button {
             background: #e74c3c; color: white; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 0 #c0392b; /* Hiệu ứng nút bấm 3D */
+            box-shadow: 0 4px 0 #c0392b;
             transition: transform 0.1s, box-shadow 0.1s;
         }
         button:active { transform: translateY(4px); box-shadow: 0 0 0 #c0392b; }
 
         /* --- SÂN KHẤU 3D --- */
         .dice-platform {
-            display: flex; justify-content: center; gap: 80px;
-            padding: 50px 0;
-            margin-bottom: 30px;
-            /* Tạo mặt phẳng bàn ảo */
+            display: flex; justify-content: center; gap: 60px;
+            /* Tăng khoảng cách trên dưới để xúc xắc có chỗ bay nhảy mà không đè vào nút */
+            padding: 80px 0 60px 0; 
             transform-style: preserve-3d;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1; /* Nằm dưới controls */
         }
 
         .dice-wrapper {
@@ -98,131 +108,108 @@
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            /* Transition cực quan trọng: dùng cubic-bezier để tạo hiệu ứng chậm dần khi dừng */
-            transition: transform 1.5s cubic-bezier(0.15, 0.9, 0.34, 1);
+            /* Thời gian xoay nhanh hơn một chút để cảm giác lực mạnh hơn */
+            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        /* Các mặt của xúc xắc */
         .face {
             position: absolute;
             width: 100%; height: 100%;
-            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%); /* Giả lập ánh sáng */
-            border-radius: 16px; /* Bo góc mềm mại */
-            border: 1px solid #ddd;
+            background: linear-gradient(135deg, #fff 0%, #eee 100%);
+            border-radius: 14px;
+            border: 1px solid #ccc;
             display: grid;
             grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-            padding: 14px;
-            /* Hiệu ứng bóng đổ nội khối để tạo độ dày */
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-            backface-visibility: hidden; /* Ẩn mặt sau để đỡ lag */
+            padding: 10px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            backface-visibility: hidden;
         }
 
-        /* Định vị không gian 6 mặt */
-        .face-1 { transform: rotateY(0deg) translateZ(50px); }
-        .face-2 { transform: rotateX(-90deg) translateZ(50px); } /* Sửa lại trục chuẩn */
-        .face-3 { transform: rotateY(90deg) translateZ(50px); }
-        .face-4 { transform: rotateY(-90deg) translateZ(50px); }
-        .face-5 { transform: rotateX(90deg) translateZ(50px); }
-        .face-6 { transform: rotateY(180deg) translateZ(50px); }
+        /* Tính toán lại translateZ dựa trên size mới (80px / 2 = 40px) */
+        .face-1 { transform: rotateY(0deg) translateZ(40px); }
+        .face-2 { transform: rotateX(-90deg) translateZ(40px); }
+        .face-3 { transform: rotateY(90deg) translateZ(40px); }
+        .face-4 { transform: rotateY(-90deg) translateZ(40px); }
+        .face-5 { transform: rotateX(90deg) translateZ(40px); }
+        .face-6 { transform: rotateY(180deg) translateZ(40px); }
 
-        /* Chấm tròn (Pips) */
         .dot {
             background: #222;
             border-radius: 50%;
-            width: 18px; height: 18px;
+            width: 14px; height: 14px; /* Chấm nhỏ lại */
             align-self: center; justify-self: center;
-            box-shadow: inset 0 3px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.5); /* Hiệu ứng khắc sâu */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.5);
         }
-        .face-1 .dot { background: var(--dot-red); width: 24px; height: 24px; } /* Mặt 1 đỏ to hơn */
+        .face-1 .dot { background: var(--dot-red); width: 20px; height: 20px; }
 
-        /* Bố trí chấm trên lưới 3x3 */
+        /* Bố trí chấm (giữ nguyên) */
         .face-1 .dot:nth-child(1) { grid-area: 2/2; }
-        
-        .face-2 .dot:nth-child(1) { grid-area: 1/1; }
-        .face-2 .dot:nth-child(2) { grid-area: 3/3; }
+        .face-2 .dot:nth-child(1) { grid-area: 1/1; } .face-2 .dot:nth-child(2) { grid-area: 3/3; }
+        .face-3 .dot:nth-child(1) { grid-area: 1/1; } .face-3 .dot:nth-child(2) { grid-area: 2/2; } .face-3 .dot:nth-child(3) { grid-area: 3/3; }
+        .face-4 .dot:nth-child(1) { grid-area: 1/1; } .face-4 .dot:nth-child(2) { grid-area: 1/3; } .face-4 .dot:nth-child(3) { grid-area: 3/1; } .face-4 .dot:nth-child(4) { grid-area: 3/3; }
+        .face-5 .dot:nth-child(1) { grid-area: 1/1; } .face-5 .dot:nth-child(2) { grid-area: 1/3; } .face-5 .dot:nth-child(3) { grid-area: 2/2; } .face-5 .dot:nth-child(4) { grid-area: 3/1; } .face-5 .dot:nth-child(5) { grid-area: 3/3; }
+        .face-6 .dot:nth-child(1) { grid-area: 1/1; } .face-6 .dot:nth-child(2) { grid-area: 1/3; } .face-6 .dot:nth-child(3) { grid-area: 2/1; } .face-6 .dot:nth-child(4) { grid-area: 2/3; } .face-6 .dot:nth-child(5) { grid-area: 3/1; } .face-6 .dot:nth-child(6) { grid-area: 3/3; }
 
-        .face-3 .dot:nth-child(1) { grid-area: 1/1; }
-        .face-3 .dot:nth-child(2) { grid-area: 2/2; }
-        .face-3 .dot:nth-child(3) { grid-area: 3/3; }
-
-        .face-4 .dot:nth-child(1) { grid-area: 1/1; }
-        .face-4 .dot:nth-child(2) { grid-area: 1/3; }
-        .face-4 .dot:nth-child(3) { grid-area: 3/1; }
-        .face-4 .dot:nth-child(4) { grid-area: 3/3; }
-
-        .face-5 .dot:nth-child(1) { grid-area: 1/1; }
-        .face-5 .dot:nth-child(2) { grid-area: 1/3; }
-        .face-5 .dot:nth-child(3) { grid-area: 2/2; }
-        .face-5 .dot:nth-child(4) { grid-area: 3/1; }
-        .face-5 .dot:nth-child(5) { grid-area: 3/3; }
-
-        .face-6 .dot:nth-child(1) { grid-area: 1/1; }
-        .face-6 .dot:nth-child(2) { grid-area: 1/3; }
-        .face-6 .dot:nth-child(3) { grid-area: 2/1; }
-        .face-6 .dot:nth-child(4) { grid-area: 2/3; }
-        .face-6 .dot:nth-child(5) { grid-area: 3/1; }
-        .face-6 .dot:nth-child(6) { grid-area: 3/3; }
-
-        /* --- BÓNG ĐỔ DƯỚI SÀN (REALISTIC SHADOW) --- */
         .shadow {
-            width: 100%; height: 20px;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%);
-            position: absolute;
-            bottom: -50px; left: 0;
-            transform: scale(1);
-            transition: transform 0.5s ease-in-out, opacity 0.5s;
-            opacity: 0.8;
-            z-index: -1;
+            width: 100%; height: 15px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%);
+            position: absolute; bottom: -40px; left: 0;
+            transform: scale(1); transition: transform 0.5s ease-in-out, opacity 0.5s; opacity: 0.8; z-index: -1;
         }
 
-        /* --- ANIMATION KHI LẮC --- */
-        /* Hiệu ứng xúc xắc nảy lên */
-        .dice-wrapper.jumping {
-            animation: jump 0.8s ease-in-out;
-        }
-        .dice-wrapper.jumping .shadow {
-            animation: shadow-shrink 0.8s ease-in-out;
-        }
+        .dice-wrapper.jumping { animation: jump 0.6s ease-out; }
+        .dice-wrapper.jumping .shadow { animation: shadow-shrink 0.6s ease-out; }
 
+        /* Animation nhảy được tinh chỉnh: Nhảy thấp hơn, không scale to */
         @keyframes jump {
             0% { transform: translateY(0); }
-            50% { transform: translateY(-150px) scale(1.1); } /* Bay lên cao */
+            40% { transform: translateY(-80px) rotateZ(10deg); } /* Chỉ nhảy cao 80px và nghiêng nhẹ */
             100% { transform: translateY(0); }
         }
 
         @keyframes shadow-shrink {
             0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(0.5); opacity: 0.3; } /* Bóng nhỏ đi khi bay lên */
+            40% { transform: scale(0.6); opacity: 0.4; }
             100% { transform: scale(1); opacity: 0.8; }
         }
 
         /* --- BẢNG KẾT QUẢ --- */
         .result-box {
             background: white; color: #333;
-            width: 100%; border-radius: 15px; overflow: hidden;
+            width: 100%; 
+            border-radius: 15px; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            position: relative;
+            flex-shrink: 1; /* Cho phép co lại nếu màn hình bé */
         }
+
+        .result-box::-webkit-scrollbar { width: 6px; }
+        .result-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 15px 0; }
+        .result-box::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 4px; }
+
         .result-box table { width: 100%; border-collapse: collapse; }
-        .result-box th { background: #34495e; color: white; padding: 10px; }
-        .result-box td { padding: 10px; border-bottom: 1px solid #eee; }
-        .result-box tr:first-child td { background: #e8f6f3; font-weight: bold; color: #e74c3c; } /* Dòng mới nhất nổi bật */
+        .result-box th { 
+            background: #34495e; color: white; padding: 10px; 
+            position: sticky; top: 0; z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result-box td { padding: 8px; border-bottom: 1px solid #eee; }
+        .result-box tr:first-child td { background: #e8f6f3; font-weight: bold; color: #e74c3c; }
 
         @media (max-width: 600px) {
-            :root { --dice-size: 70px; }
-            .dice-platform { gap: 40px; }
-            .face-1, .face-2, .face-3, .face-4, .face-5, .face-6 { transform: rotateY(0) translateZ(35px); } /* Cần JS chỉnh lại transform nếu đổi size, ở đây ta dùng CSS var nên ổn */
-            /* Do transformZ hardcode ở trên nên ta chỉnh lại cho mobile */
-            .face-1 { transform: rotateY(0deg) translateZ(35px); }
-            .face-2 { transform: rotateX(-90deg) translateZ(35px); }
-            .face-3 { transform: rotateY(90deg) translateZ(35px); }
-            .face-4 { transform: rotateY(-90deg) translateZ(35px); }
-            .face-5 { transform: rotateX(90deg) translateZ(35px); }
-            .face-6 { transform: rotateY(180deg) translateZ(35px); }
-            
-            .shadow { bottom: -30px; }
+            :root { --dice-size: 60px; } /* Mobile thì xúc xắc bé hơn nữa */
+            .dice-platform { gap: 30px; padding: 60px 0 40px 0; }
+            .face-1 { transform: rotateY(0deg) translateZ(30px); }
+            .face-2 { transform: rotateX(-90deg) translateZ(30px); }
+            .face-3 { transform: rotateY(90deg) translateZ(30px); }
+            .face-4 { transform: rotateY(-90deg) translateZ(30px); }
+            .face-5 { transform: rotateX(90deg) translateZ(30px); }
+            .face-6 { transform: rotateY(180deg) translateZ(30px); }
+            .shadow { bottom: -25px; }
         }
-
     </style>
 </head>
 <body>
@@ -234,7 +221,7 @@
 
         <div class="controls">
             <div class="input-row">
-                <input type="text" id="nameInput" placeholder="Nhập tên của bạn...">
+                <input type="text" id="nameInput" placeholder="Nhập tên...">
                 <select id="diceCount" onchange="toggleDice()">
                     <option value="1">1 Viên</option>
                     <option value="2">2 Viên</option>
@@ -285,60 +272,35 @@
     <audio id="soundRoll" src="xucxaclan.mp3"></audio>
 
     <script>
-        // Lưu trữ trạng thái xoay hiện tại để cộng dồn (tránh bị xoay ngược)
-        let currentRotations = {
-            cube1: { x: 0, y: 0 },
-            cube2: { x: 0, y: 0 }
-        };
+        let currentRotations = { cube1: { x: 0, y: 0 }, cube2: { x: 0, y: 0 } };
 
         function toggleDice() {
             const count = document.getElementById('diceCount').value;
             document.getElementById('diceWrap2').style.display = count === "2" ? "block" : "none";
         }
 
-        // Bản đồ góc xoay để hiển thị mặt số tương ứng (X, Y)
-        // Dựa trên cấu trúc CSS face-1 đến face-6 đã định nghĩa
         const faceAngles = {
-            1: { x: 0, y: 0 },        // Mặt 1 (Front)
-            6: { x: 0, y: 180 },      // Mặt 6 (Back) - Xoay Y 180
-            2: { x: 90, y: 0 },       // Mặt 2 (Bottom - do set rotateX(-90) trong CSS thì xoay X ngược lại để thấy)
-            5: { x: -90, y: 0 },      // Mặt 5 (Top)
-            3: { x: 0, y: -90 },      // Mặt 3 (Right)
-            4: { x: 0, y: 90 }        // Mặt 4 (Left)
+            1: { x: 0, y: 0 }, 6: { x: 0, y: 180 }, 2: { x: 90, y: 0 },
+            5: { x: -90, y: 0 }, 3: { x: 0, y: -90 }, 4: { x: 0, y: 90 }
         };
 
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
         function rollDice() {
             const name = document.getElementById('nameInput').value.trim();
             const count = parseInt(document.getElementById('diceCount').value);
             const sound = document.getElementById('soundRoll');
 
-            if (!name) {
-                alert("Vui lòng nhập tên!");
-                return;
-            }
-
-            // Chơi âm thanh
+            if (!name) { alert("Vui lòng nhập tên!"); return; }
             if(sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
 
-            // Hiệu ứng nảy (Jumping)
             const wrap1 = document.getElementById('diceWrap1');
             const wrap2 = document.getElementById('diceWrap2');
             
-            wrap1.classList.remove('jumping');
-            void wrap1.offsetWidth; // Trigger reflow
-            wrap1.classList.add('jumping');
+            // Kích hoạt animation nhảy
+            wrap1.classList.remove('jumping'); void wrap1.offsetWidth; wrap1.classList.add('jumping');
+            if(count === 2) { wrap2.classList.remove('jumping'); void wrap2.offsetWidth; wrap2.classList.add('jumping'); }
 
-            if(count === 2) {
-                wrap2.classList.remove('jumping');
-                void wrap2.offsetWidth;
-                wrap2.classList.add('jumping');
-            }
-
-            // Logic tính toán kết quả (Logic "Sang" vẫn giữ nguyên)
             let val1, val2;
             const isSang = name.toLowerCase() === "sang";
 
@@ -351,59 +313,39 @@
                 val2 = count === 2 ? getRandomInt(1, 6) : 0;
             }
 
-            // Thực hiện xoay 3D
             rotateToFace('cube1', val1);
             if(count === 2) rotateToFace('cube2', val2);
 
-            // Hiện kết quả sau khi xoay xong (1.5s khớp với transition CSS)
             setTimeout(() => {
                 const tbody = document.querySelector('#resultTable tbody');
                 const row = tbody.insertRow(0);
                 row.insertCell(0).textContent = name;
                 row.insertCell(1).textContent = count === 2 ? `${val1} + ${val2} = ${val1+val2}` : val1;
-            }, 1500);
+            }, 1200); // Khớp với transition CSS
         }
 
         function rotateToFace(cubeId, targetNumber) {
             const cube = document.getElementById(cubeId);
             const target = faceAngles[targetNumber];
             
-            // Tính toán số vòng quay ngẫu nhiên thêm vào (để tạo cảm giác xoay mạnh)
-            // Quay thêm ít nhất 2 vòng (720 độ) đến 5 vòng
-            const extraRotX = (getRandomInt(2, 5) * 360);
-            const extraRotY = (getRandomInt(2, 5) * 360);
-
-            // Cập nhật tọa độ mới = Tọa độ cũ + Số vòng quay thêm + Góc đích đến
-            // Việc cộng dồn vào currentRotations giúp animation luôn quay tiếp chứ không quay ngược lại
+            // Xoay thêm ngẫu nhiên để không bị lặp lại đơn điệu
+            const extraRotX = (getRandomInt(3, 6) * 360);
+            const extraRotY = (getRandomInt(3, 6) * 360);
             
-            // Mẹo: Để đảm bảo mặt đích hiển thị đúng, ta cần tính toán offset
-            // Vì ta cộng dồn, ta cần đảm bảo phép chia cho 360 dư đúng bằng target
-            
-            // Đơn giản hóa: Cứ cộng thêm bội số 360 và set góc tuyệt đối thì CSS transition sẽ lo phần nội suy
-            // Nhưng để mượt nhất:
             currentRotations[cubeId].x += extraRotX;
             currentRotations[cubeId].y += extraRotY;
 
-            // Góc cần đến thực tế:
-            // Lấy phần góc hiện tại làm tròn 360, cộng thêm góc target
-            // Nhưng cách đơn giản nhất cho CSS transition hoạt động đúng hướng là cộng dồn góc
-            
-            // Logic chuẩn để không bao giờ bị lỗi mặt:
-            // 1. Reset góc đích (target.x, target.y)
-            // 2. Cộng thêm n * 360 vào góc đích để nó lớn hơn góc hiện tại
-            
-            let nextX = target.x;
-            let nextY = target.y;
-
-            // Đảm bảo nextX > currentRotations hiện tại để nó luôn quay tới
+            let nextX = target.x; let nextY = target.y;
+            // Đảm bảo luôn xoay tới, không quay ngược
             while (nextX < currentRotations[cubeId].x + 720) { nextX += 360; }
             while (nextY < currentRotations[cubeId].y + 720) { nextY += 360; }
-
-            // Thêm chút ngẫu nhiên nhỏ (vài độ) để trông nó rung rung lúc dừng? -> Không nên, sẽ lệch số
             
             currentRotations[cubeId].x = nextX;
             currentRotations[cubeId].y = nextY;
-
+            
+            // Thêm một chút nghiêng nhẹ (vài độ) để trông nó "thật" hơn như đang nằm trên bàn không phẳng tuyệt đối
+            // Nhưng phải rất nhỏ để không làm lệch số
+            
             cube.style.transform = `rotateX(${nextX}deg) rotateY(${nextY}deg)`;
         }
     </script>
