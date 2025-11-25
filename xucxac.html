@@ -16,9 +16,7 @@
             --dot-color: #333;
             --dot-red: #d32f2f;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(circle at center, #34495e, #1a252f);
@@ -32,6 +30,66 @@
             overflow: hidden;
         }
 
+        /* --- NÚT QUAY LẠI SIÊU ĐẸP (ĐÃ THAY THẾ) --- */
+        .back-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 1.15rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            overflow: hidden;
+        }
+        .back-btn:hover {
+            color: white;
+            background: #e74c3c;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+            border-color: #e74c3c;
+        }
+        .back-btn .back-icon {
+            font-size: 1.4rem;
+            transition: transform 0.4s ease;
+        }
+        .back-btn:hover .back-icon {
+            transform: translateX(-5px);
+        }
+        .back-btn .back-underline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: #fff;
+            transition: width 0.4s ease;
+        }
+        .back-btn:hover .back-underline {
+            width: 100%;
+        }
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 1rem;
+                gap: 8px;
+            }
+            .back-btn .back-text { display: none; }
+            .back-btn .back-icon { font-size: 1.5rem; }
+        }
+
         /* --- GIAO DIỆN UI --- */
         .container {
             width: 100%;
@@ -40,21 +98,11 @@
             z-index: 10;
             padding: 20px;
         }
-
-        .back-btn {
-            position: absolute; top: 20px; left: 20px;
-            color: rgba(255,255,255,0.7); text-decoration: none;
-            display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; font-size: 1.1rem;
-        }
-        .back-btn:hover { color: #fff; }
-
-        h2 { 
-            font-size: 2.5rem; margin-bottom: 20px; 
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        h2 {
+            font-size: 2.5rem; margin-bottom: 20px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
             letter-spacing: 2px;
         }
-
         .controls {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -65,9 +113,8 @@
             margin-bottom: 40px;
             display: flex; flex-direction: column; gap: 15px;
         }
-
         .input-row { display: flex; gap: 10px; justify-content: center; }
-        
+       
         input, select, button {
             padding: 12px 20px;
             border-radius: 12px; border: none; font-size: 1rem; outline: none;
@@ -88,7 +135,6 @@
             margin-bottom: 30px;
             transform-style: preserve-3d;
         }
-
         .dice-wrapper {
             position: relative;
             width: var(--dice-size); height: var(--dice-size);
@@ -101,7 +147,6 @@
             transform-style: preserve-3d;
             transition: transform 1.5s cubic-bezier(0.15, 0.9, 0.34, 1);
         }
-
         .face {
             position: absolute;
             width: 100%; height: 100%;
@@ -114,8 +159,6 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
             backface-visibility: hidden;
         }
-
-        /* Định vị 6 mặt */
         .face-1 { transform: rotateY(0deg) translateZ(50px); }
         .face-2 { transform: rotateX(-90deg) translateZ(50px); }
         .face-3 { transform: rotateY(90deg) translateZ(50px); }
@@ -123,7 +166,6 @@
         .face-5 { transform: rotateX(90deg) translateZ(50px); }
         .face-6 { transform: rotateY(180deg) translateZ(50px); }
 
-        /* Chấm tròn */
         .dot {
             background: #222;
             border-radius: 50%;
@@ -132,8 +174,6 @@
             box-shadow: inset 0 3px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.5);
         }
         .face-1 .dot { background: var(--dot-red); width: 24px; height: 24px; }
-
-        /* Bố trí chấm */
         .face-1 .dot:nth-child(1) { grid-area: 2/2; }
         .face-2 .dot:nth-child(1) { grid-area: 1/1; }
         .face-2 .dot:nth-child(2) { grid-area: 3/3; }
@@ -156,7 +196,6 @@
         .face-6 .dot:nth-child(5) { grid-area: 3/1; }
         .face-6 .dot:nth-child(6) { grid-area: 3/3; }
 
-        /* Bóng đổ */
         .shadow {
             width: 100%; height: 20px;
             background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%);
@@ -168,10 +207,8 @@
             z-index: -1;
         }
 
-        /* Animation nảy */
         .dice-wrapper.jumping { animation: jump 0.8s ease-in-out; }
         .dice-wrapper.jumping .shadow { animation: shadow-shrink 0.8s ease-in-out; }
-
         @keyframes jump {
             0% { transform: translateY(0); }
             50% { transform: translateY(-150px) scale(1.1); }
@@ -183,7 +220,7 @@
             100% { transform: scale(1); opacity: 0.8; }
         }
 
-        /* --- BẢNG KẾT QUẢ CÓ THỂ CUỘN ĐẸP --- */
+        /* --- BẢNG KẾT QUẢ --- */
         .result-box {
             background: white;
             color: #333;
@@ -192,15 +229,10 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             margin-top: 20px;
-            max-height: 360px;               /* Chiều cao tối đa */
+            max-height: 360px;
             border: 1px solid #ddd;
         }
-
-        .result-box table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        .result-box table { width: 100%; border-collapse: collapse; }
         .result-box thead th {
             background: #34495e;
             color: white;
@@ -210,48 +242,31 @@
             z-index: 10;
             text-align: center;
         }
-
         .result-box tbody {
             display: block;
             max-height: 300px;
             overflow-y: auto;
         }
-
-        .result-box thead,
-        .result-box tbody tr {
+        .result-box thead, .result-box tbody tr {
             display: table;
             width: 100%;
             table-layout: fixed;
         }
-
         .result-box td {
             padding: 12px 8px;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
-
         .result-box tr:first-child td {
             background: #e8f6f3;
             font-weight: bold;
             color: #e74c3c;
             font-size: 1.05em;
         }
-
-        /* Thanh cuộn đẹp */
-        .result-box tbody::-webkit-scrollbar {
-            width: 10px;
-        }
-        .result-box tbody::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .result-box tbody::-webkit-scrollbar-thumb {
-            background: #e74c3c;
-            border-radius: 10px;
-        }
-        .result-box tbody::-webkit-scrollbar-thumb:hover {
-            background: #c0392b;
-        }
+        .result-box tbody::-webkit-scrollbar { width: 10px; }
+        .result-box tbody::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .result-box tbody::-webkit-scrollbar-thumb { background: #e74c3c; border-radius: 10px; }
+        .result-box tbody::-webkit-scrollbar-thumb:hover { background: #c0392b; }
 
         /* Responsive */
         @media (max-width: 600px) {
@@ -272,19 +287,16 @@
     </style>
 </head>
 <body>
-    <!-- NÚT QUAY LẠI SIÊU ĐẸP -->
-    <a href="game.html" class="back-modern-btn">
-        <span class="back-icon">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-        </span>
+
+    <!-- NÚT QUAY LẠI ĐẸP MỚI -->
+    <a href="game.html" class="back-btn">
+        <span class="back-icon"><i class="fas fa-arrow-left"></i></span>
         <span class="back-text">Quay lại</span>
+        <span class="back-underline"></span>
     </a>
-    
+   
     <div class="container">
         <h2>XÚC XẮC <span style="color:#e74c3c">(骰子)</span></h2>
-
         <div class="controls">
             <div class="input-row">
                 <input type="text" id="nameInput" placeholder="Nhập tên của bạn...">
@@ -331,7 +343,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Kết quả sẽ được thêm bằng JavaScript -->
+                    <!-- Kết quả sẽ được thêm bằng JS -->
                 </tbody>
             </table>
         </div>
@@ -351,12 +363,12 @@
         }
 
         const faceAngles = {
-            1: { x: 0,   y: 0 },
-            6: { x: 0,   y: 180 },
-            2: { x: 90,  y: 0 },
+            1: { x: 0, y: 0 },
+            6: { x: 0, y: 180 },
+            2: { x: 90, y: 0 },
             5: { x: -90, y: 0 },
-            3: { x: 0,   y: -90 },
-            4: { x: 0,   y: 90 }
+            3: { x: 0, y: -90 },
+            4: { x: 0, y: 90 }
         };
 
         function getRandomInt(min, max) {
@@ -378,19 +390,14 @@
             // Hiệu ứng nảy
             const wrap1 = document.getElementById('diceWrap1');
             const wrap2 = document.getElementById('diceWrap2');
-            wrap1.classList.remove('jumping');
-            void wrap1.offsetWidth;
-            wrap1.classList.add('jumping');
+            wrap1.classList.remove('jumping'); void wrap1.offsetWidth; wrap1.classList.add('jumping');
             if (count === 2) {
-                wrap2.classList.remove('jumping');
-                void wrap2.offsetWidth;
-                wrap2.classList.add('jumping');
+                wrap2.classList.remove('jumping'); void wrap2.offsetWidth; wrap2.classList.add('jumping');
             }
 
-            // Logic kết quả (có ưu ái cho "Sang")
+            // Logic kết quả (ưu ái cho "Sang")
             let val1, val2 = 0;
             const isSang = name.toLowerCase() === "sang";
-
             if (isSang) {
                 const r = Math.random();
                 val1 = r < 0.7 ? 6 : (r < 0.9 ? 5 : getRandomInt(1,4));
@@ -410,25 +417,20 @@
                 const cell2 = row.insertCell(1);
                 cell1.textContent = name;
                 cell2.textContent = count === 2 ? `${val1} + ${val2} = ${val1 + val2}` : val1;
+                row.cells[0].parentElement.classList.add('latest'); // để nổi bật dòng mới nhất nếu muốn
             }, 1500);
         }
 
         function rotateToFace(cubeId, targetNumber) {
             const cube = document.getElementById(cubeId);
             const target = faceAngles[targetNumber];
-
-            let nextX = target.x;
-            let nextY = target.y;
-
-            while (nextX < currentRotations[cubeId].x + 720) nextX += 360;
-            while (nextY < currentRotations[cubeId].y + 720) nextY += 360;
+            let nextX = target.x + 720;
+            let nextY = target.y + 720;
 
             currentRotations[cubeId].x = nextX;
             currentRotations[cubeId].y = nextY;
-
             cube.style.transform = `rotateX(${nextX}deg) rotateY(${nextY}deg)`;
         }
     </script>
 </body>
 </html>
-
