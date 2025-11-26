@@ -16,6 +16,55 @@
             --glass: rgba(255, 255, 255, 0.05);
             --text-color: #fff;
         }
+        
+        /* HEADER VỚI NÚT QUAY LẠI VÀ TIÊU ĐỀ */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .back-button {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 12px 24px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 234, 0.4);
+            border-color: var(--primary-color);
+        }
+        .back-button i {
+            font-size: 1.1em;
+        }
+
+        .title-container {
+            flex: 1;
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .spacer {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
@@ -35,7 +84,6 @@
             text-shadow: 0 0 10px rgba(255, 0, 204, 0.5);
             margin-bottom: 10px;
             letter-spacing: 2px;
-            text-align: center;
         }
         p { color: #a0a0a0; text-align: center; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -274,6 +322,21 @@
         }
 
         @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .back-button {
+                order: 1;
+            }
+            .title-container {
+                order: 2;
+                margin: 0;
+            }
+            .spacer {
+                display: none;
+            }
             h1 { font-size: 2em; }
             .race-track { width: 100%; border-left: none; border-right: none; }
             .finish-line { right: 10px; }
@@ -286,10 +349,23 @@
 </head>
 <body>
     <canvas id="confetti-canvas"></canvas>
-    <div class="container">
-        <h1>ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
-        <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
+    
+    <!-- HEADER VỚI NÚT QUAY LẠI VÀ TIÊU ĐỀ -->
+    <div class="header-container">
+        <a href="game.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại
+        </a>
+        
+        <div class="title-container">
+            <h1>ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
+            <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
+        </div>
+        
+        <div class="spacer"></div> <!-- Spacer để cân bằng layout -->
+    </div>
 
+    <div class="container">
         <div class="control-panel">
             <div class="name-input">
                 <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi..." autocomplete="off">
