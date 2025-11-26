@@ -52,8 +52,6 @@
             max-width: 600px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-
-        /* PHẦN ĐÃ CHỈNH ĐẸP - NÚT "THÊM" ĐẨY SANG PHẢI */
         .name-input {
             display: flex;
             justify-content: center;
@@ -75,22 +73,27 @@
             font-family: 'Poppins', sans-serif;
         }
         .name-input input[type="text"]::placeholder { color: #bbb; }
-        .name-input button {
-            min-width: 120px;
-            padding: 12px 24px;
-        }
 
-        button {
+        /* NÚT CHUNG - ĐỒNG BẰ NHAU 100% */
+        .big-btn, #addPlayer {
+            min-width: 180px;
+            height: 50px;
+            padding: 0 24px;
             font-family: 'Orbitron', sans-serif;
             font-weight: bold;
+            font-size: 1em;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 0 15px;
         }
-        .btn-primary {
+        .btn-primary, #addPlayer {
             background: var(--primary-color);
             color: #000;
             box-shadow: 0 0 15px var(--primary-color);
@@ -100,8 +103,16 @@
             color: white;
             box-shadow: 0 0 15px var(--secondary-color);
         }
-        button:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.2); }
-        button:disabled { background: #555; color: #888; box-shadow: none; cursor: not-allowed; }
+        .big-btn:hover:not(:disabled), #addPlayer:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.2);
+        }
+        .big-btn:disabled {
+            background: #555;
+            color: #888;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
 
         .number-container {
             display: flex;
@@ -128,7 +139,6 @@
             border-color: var(--secondary-color);
             box-shadow: 0 0 10px var(--secondary-color);
         }
-
         .race-track {
             position: relative;
             background: var(--track-bg);
@@ -184,19 +194,15 @@
             white-space: nowrap;
             text-shadow: 1px 1px 2px #000;
         }
-        .racer i {
-            transform: scaleX(-1);
-            display: inline-block;
-        }
+        .racer i { transform: scaleX(-1); }
         .racer.nitro {
             filter: drop-shadow(0 0 10px #00f2ea) drop-shadow(0 0 20px #00f2ea);
             animation: shake 0.5s infinite;
         }
         @keyframes shake {
-            0% { transform: translateY(0); }
+            0%,100% { transform: translateY(0); }
             25% { transform: translateY(-1px); }
             75% { transform: translateY(1px); }
-            100% { transform: translateY(0); }
         }
         .result {
             font-size: 1.5em;
@@ -208,15 +214,11 @@
         }
         #confetti-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
             z-index: 9999;
         }
-
-        /* FOOTER */
         footer {
             margin-top: 80px;
             text-align: center;
@@ -228,55 +230,51 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 18px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
             padding-top: 30px;
-        }
-        .social-icons {
-            display: flex;
-            gap: 30px;
         }
         .social-icons a {
             color: #ccc;
             font-size: 1.8em;
-            transition: all 0.4s ease;
+            transition: all 0.4s;
         }
         .social-icons a:hover {
             color: var(--primary-color);
             text-shadow: 0 0 20px var(--primary-color);
             transform: translateY(-5px) scale(1.2);
         }
-
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
             .race-track { width: 100%; border-left: none; border-right: none; }
             .finish-line { right: 10px; }
             .start-line { left: 10px; }
-            .social-icons a { font-size: 2em; }
+            .big-btn, #addPlayer { width: 100%; max-width: 300px; margin: 8px 0; }
         }
     </style>
 </head>
 <body>
     <canvas id="confetti-canvas"></canvas>
     <div class="container">
-        <h1><i class="fas fa-flag-checkered"></i> ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
+        <h1>ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
         <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
 
         <div class="control-panel">
-            <!-- ĐÃ CHỈNH ĐẸP NÚT THÊM -->
             <div class="name-input">
                 <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi..." autocomplete="off">
-                <button class="btn-primary" id="addPlayer"><i class="fas fa-user-plus"></i> Thêm</button>
+                <button class="big-btn btn-primary" id="addPlayer">Thêm</button>
             </div>
-            <div id="playerInfo" style="margin-top:15px; color: var(--primary-color); text-align:center;">Chào mừng! Hãy thêm người chơi đầu tiên.</div>
+            <div id="playerInfo" style="margin-top:15px; color: var(--primary-color); text-align:center;">
+                Chào mừng! Hãy thêm người chơi đầu tiên.
+            </div>
         </div>
 
         <div class="number-container" id="numberContainer"></div>
 
-        <div class="control-panel" style="background: transparent; box-shadow: none; padding: 0; text-align: center;">
-            <button id="startRace" class="btn-danger" disabled><i class="fas fa-rocket"></i> KHỞI ĐỘNG</button>
-            <button id="resetGame" class="btn-primary"><i class="fas fa-redo"></i> LÀM MỚI</button>
+        <!-- NÚT KHỞI ĐỘNG & LÀM MỚI - ĐẸP ĐỀU NHƯ NÚT THÊM -->
+        <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin:25px 0;">
+            <button id="startRace" class="big-btn btn-danger" disabled>KHỞI ĐỘNG</button>
+            <button id="resetGame" class="big-btn btn-primary">LÀM MỚI</button>
         </div>
 
         <div class="result" id="result"></div>
@@ -288,13 +286,13 @@
 
         <div class="player-list" id="playerList" style="text-align: left; max-width: 600px; margin: 20px auto; color: #ddd;"></div>
     </div>
+
     <audio id="winnerSound" src="gayvangtroi.mp3" preload="auto"></audio>
 
     <script>
         const totalNumbers = 20;
         let players = [];
         let currentPlayerIndex = 0;
-        const raceTrackHeight = 600;
         const laneHeight = 28;
         const numberContainer = document.getElementById('numberContainer');
         const raceTrack = document.getElementById('raceTrack');
@@ -315,7 +313,7 @@
             currentPlayerIndex = 0;
             resultDiv.innerHTML = '';
             startRaceButton.disabled = true;
-            playerInfoDiv.innerHTML = '<i class="fas fa-info-circle"></i> Nhập tên và chọn xe để bắt đầu!';
+            playerInfoDiv.innerHTML = 'Nhập tên và chọn xe để bắt đầu!';
             playerListDiv.innerHTML = '';
             for (let i = 1; i <= totalNumbers; i++) {
                 const btn = document.createElement('button');
@@ -388,7 +386,7 @@
 
         function updatePlayerList() {
             playerListDiv.innerHTML = players.filter(p => p.number).map(p =>
-                `<div><i class="fas fa-check-circle" style="color:var(--primary-color)"></i> <b>${p.name}</b> lái xe số <b>${p.number}</b></div>`
+                `<div> <b>${p.name}</b> lái xe số <b>${p.number}</b></div>`
             ).join('');
         }
 
@@ -403,7 +401,6 @@
             const racers = document.querySelectorAll('.racer');
             const finishLine = raceTrack.offsetWidth - 60;
             let isFinished = false;
-
             const favoredNames = ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'];
             const bossPlayer = players.find(p => favoredNames.includes(p.name.toLowerCase()));
 
@@ -493,7 +490,7 @@
         // Khởi tạo game
         initializeGame();
     </script>
-</body>
+
     <footer>
         <div class="footer-container">
             <div class="social-icons">
@@ -501,8 +498,8 @@
                 <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-tiktok"></i></a>
             </div>
-            <p>© 2025 NTS Thiết Kế Bởi<a href="#" style="color: var(--primary-color); text-decoration: none;">Nguyễn Thanh Sang</a>.</p>
+            <p>© 2025 NTS Thiết Kế Bởi <a href="#" style="color: var(--primary-color); text-decoration: none;">Nguyễn Thanh Sang</a>.</p>
         </div>
     </footer>
+</body>
 </html>
-
