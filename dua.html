@@ -255,6 +255,87 @@
             .start-line { left: 10px; }
             .social-icons a { font-size: 2em; }
         }
+        /* NÚT ĐIỀU KHIỂN TO ĐẸP */
+.big-control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px auto;
+    flex-wrap: wrap;
+    padding: 0 10px;
+}
+
+.big-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;           /* to hơn rất nhiều */
+    font-weight: 800;
+    padding: 20px 40px;          /* nút dày và rộng hơn */
+    border-radius: 50px;         /* bo tròn kiểu viên thuốc */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-width: 280px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hiệu ứng phát sáng khi hover */
+.big-btn:before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: 0.7s;
+}
+.big-btn:hover:before {
+    left: 100%;
+}
+
+/* Nút KHỞI ĐỘNG (đỏ) */
+.btn-danger.big-btn {
+    background: linear-gradient(135deg, #ff0050, #ff4500);
+    color: white;
+    box-shadow: 0 0 30px #ff0050;
+}
+.btn-danger.big-btn:hover:not(:disabled) {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 50px #ff0050;
+}
+
+/* Nút LÀM MỚI (xanh) */
+.btn-primary.big-btn {
+    background: linear-gradient(135deg, #00f2ea, #00b4d8);
+    color: #000;
+    box-shadow: 0 0 30px #00f2ea;
+}
+.btn-primary.big-btn:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 50px #00f2ea;
+}
+
+/* Khi nút bị disable */
+.big-btn:disabled {
+    background: #444 !important;
+    color: #888 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: not-allowed;
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 768px) {
+    .big-btn {
+        font-size: 1.5rem;
+        padding: 18px 35px;
+        min-width: 240px;
+    }
+    .big-control-buttons {
+        gap: 20px;
+    }
+}
     </style>
 </head>
 <body>
@@ -274,10 +355,14 @@
 
         <div class="number-container" id="numberContainer"></div>
 
-        <div class="control-panel" style="background: transparent; box-shadow: none; padding: 0; text-align: center;">
-            <button id="startRace" class="btn-danger" disabled><i class="fas fa-rocket"></i> KHỞI ĐỘNG</button>
-            <button id="resetGame" class="btn-primary"><i class="fas fa-redo"></i> LÀM MỚI</button>
-        </div>
+        <div class="big-control-buttons">
+    <button id="startRace" class="btn-danger big-btn" disabled>
+        <i class="fas fa-rocket"></i> KHỞI ĐỘNG
+    </button>
+    <button id="resetGame" class="btn-primary big-btn">
+        <i class="fas fa-redo"></i> LÀM MỚI
+    </button>
+</div>
 
         <div class="result" id="result"></div>
 
@@ -505,5 +590,4 @@
         </div>
     </footer>
 </html>
-
 
