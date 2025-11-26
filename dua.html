@@ -17,54 +17,6 @@
             --text-color: #fff;
         }
         
-        /* HEADER VỚI NÚT QUAY LẠI VÀ TIÊU ĐỀ */
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 1200px;
-            margin: 0 auto 20px;
-            padding: 0 20px;
-            position: relative;
-        }
-
-        .back-button {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-            padding: 12px 24px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
-        }
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 242, 234, 0.4);
-            border-color: var(--primary-color);
-        }
-        .back-button i {
-            font-size: 1.1em;
-        }
-
-        .title-container {
-            flex: 1;
-            text-align: center;
-            margin: 0 20px;
-        }
-
-        .spacer {
-            width: 140px;
-            flex-shrink: 0;
-        }
-
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
@@ -84,6 +36,7 @@
             text-shadow: 0 0 10px rgba(255, 0, 204, 0.5);
             margin-bottom: 10px;
             letter-spacing: 2px;
+            text-align: center;
         }
         p { color: #a0a0a0; text-align: center; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -120,7 +73,8 @@
         }
         .name-input input[type="text"]::placeholder { color: #bbb; }
 
-        .big-btn, #addPlayer {
+        /* CÁC NÚT CÙNG KÍCH CỠ */
+        .big-btn, #addPlayer, .btn-back {
             min-width: 180px;
             height: 50px;
             padding: 0 24px;
@@ -137,6 +91,7 @@
             justify-content: center;
             gap: 10px;
             box-shadow: 0 0 15px;
+            text-decoration: none;
         }
         .btn-primary, #addPlayer {
             background: var(--primary-color);
@@ -148,7 +103,13 @@
             color: white;
             box-shadow: 0 0 15px var(--secondary-color);
         }
-        .big-btn:hover:not(:disabled), #addPlayer:hover {
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
+        }
+        .big-btn:hover:not(:disabled), #addPlayer:hover, .btn-back:hover {
             transform: translateY(-3px);
             filter: brightness(1.2);
         }
@@ -157,6 +118,11 @@
             color: #888;
             box-shadow: none;
             cursor: not-allowed;
+        }
+        .btn-back:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--primary-color);
         }
 
         .number-container {
@@ -322,49 +288,40 @@
         }
 
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .back-button {
-                order: 1;
-            }
-            .title-container {
-                order: 2;
-                margin: 0;
-            }
-            .spacer {
-                display: none;
-            }
             h1 { font-size: 2em; }
             .race-track { width: 100%; border-left: none; border-right: none; }
             .finish-line { right: 10px; }
             .start-line { left: 10px; }
-            .big-btn, #addPlayer { width: 100%; max-width: 300px; margin: 8px 0; }
+            .big-btn, #addPlayer, .btn-back { 
+                width: 100%; 
+                max-width: 300px; 
+                margin: 8px 0; 
+            }
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
             .social-icons { gap: 35px; }
             .social-link { width: 56px; height: 56px; }
+        }
+
+        /* Nhóm nút điều khiển */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 25px 0;
         }
     </style>
 </head>
 <body>
     <canvas id="confetti-canvas"></canvas>
     
-    <!-- HEADER VỚI NÚT QUAY LẠI VÀ TIÊU ĐỀ -->
-    <div class="header-container">
-        <a href="game.html" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        
-        <div class="title-container">
-            <h1>ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
-            <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
-        </div>
-        
-        <div class="spacer"></div> <!-- Spacer để cân bằng layout -->
-    </div>
-
     <div class="container">
+        <h1>ĐUA XE <span style="font-size: 0.5em; color: var(--primary-color)">by NTS</span></h1>
+        <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
+
         <div class="control-panel">
             <div class="name-input">
                 <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi..." autocomplete="off">
@@ -377,7 +334,12 @@
 
         <div class="number-container" id="numberContainer"></div>
 
-        <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin:25px 0;">
+        <!-- NHÓM NÚT ĐIỀU KHIỂN - TẤT CẢ NÚT CÙNG KÍCH CỠ -->
+        <div class="button-group">
+            <a href="game.html" class="btn-back big-btn">
+                <i class="fas fa-arrow-left"></i>
+                QUAY LẠI
+            </a>
             <button id="startRace" class="big-btn btn-danger" disabled>KHỞI ĐỘNG</button>
             <button id="resetGame" class="big-btn btn-primary">LÀM MỚI</button>
         </div>
@@ -619,4 +581,3 @@
     </script>
 </body>
 </html>
-
