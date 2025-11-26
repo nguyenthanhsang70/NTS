@@ -52,19 +52,35 @@
             max-width: 600px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        input[type="text"] {
+
+        /* PHẦN ĐÃ CHỈNH ĐẸP - NÚT "THÊM" ĐẨY SANG PHẢI */
+        .name-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .name-input input[type="text"] {
             padding: 12px;
             border-radius: 8px;
             border: none;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             outline: none;
-            width: 60%;
+            flex: 1;
+            min-width: 220px;
+            max-width: 380px;
             font-family: 'Poppins', sans-serif;
         }
-        input[type="text"]::placeholder { color: #bbb; }
-        button {
+        .name-input input[type="text"]::placeholder { color: #bbb; }
+        .name-input button {
+            min-width: 120px;
             padding: 12px 24px;
+        }
+
+        button {
             font-family: 'Orbitron', sans-serif;
             font-weight: bold;
             border: none;
@@ -86,6 +102,7 @@
         }
         button:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.2); }
         button:disabled { background: #555; color: #888; box-shadow: none; cursor: not-allowed; }
+
         .number-container {
             display: flex;
             flex-wrap: wrap;
@@ -111,6 +128,7 @@
             border-color: var(--secondary-color);
             box-shadow: 0 0 10px var(--secondary-color);
         }
+
         .race-track {
             position: relative;
             background: var(--track-bg);
@@ -198,7 +216,7 @@
             z-index: 9999;
         }
 
-        /* ==================== FOOTER ĐẸP - CĂN GIỮA HOÀN HẢO ==================== */
+        /* FOOTER */
         footer {
             margin-top: 80px;
             text-align: center;
@@ -229,19 +247,13 @@
             text-shadow: 0 0 20px var(--primary-color);
             transform: translateY(-5px) scale(1.2);
         }
-        footer p {
-            margin: 0;
-            line-height: 1.5;
-        }
 
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
             .race-track { width: 100%; border-left: none; border-right: none; }
             .finish-line { right: 10px; }
             .start-line { left: 10px; }
-            .social-icons { gap: 25px; }
             .social-icons a { font-size: 2em; }
-            footer p { font-size: 0.85em; padding: 0 15px; }
         }
     </style>
 </head>
@@ -252,11 +264,12 @@
         <p>Chọn "chiến mã" và tận hưởng tốc độ!</p>
 
         <div class="control-panel">
+            <!-- ĐÃ CHỈNH ĐẸP NÚT THÊM -->
             <div class="name-input">
                 <input type="text" id="playerNameInput" placeholder="Nhập tên người chơi..." autocomplete="off">
                 <button class="btn-primary" id="addPlayer"><i class="fas fa-user-plus"></i> Thêm</button>
             </div>
-            <div id="playerInfo" style="margin-top: 15px; color: var(--primary-color);">Chào mừng! Hãy thêm người chơi đầu tiên.</div>
+            <div id="playerInfo" style="margin-top:15px; color: var(--primary-color); text-align:center;">Chào mừng! Hãy thêm người chơi đầu tiên.</div>
         </div>
 
         <div class="number-container" id="numberContainer"></div>
@@ -276,7 +289,6 @@
         <div class="player-list" id="playerList" style="text-align: left; max-width: 600px; margin: 20px auto; color: #ddd;"></div>
     </div>
 
-    <!-- FOOTER ĐÃ ĐƯỢC CĂN GIỮA HOÀN HẢO -->
     <footer>
         <div class="footer-container">
             <div class="social-icons">
@@ -296,7 +308,6 @@
         let currentPlayerIndex = 0;
         const raceTrackHeight = 600;
         const laneHeight = 28;
-
         const numberContainer = document.getElementById('numberContainer');
         const raceTrack = document.getElementById('raceTrack');
         const startRaceButton = document.getElementById('startRace');
@@ -318,7 +329,6 @@
             startRaceButton.disabled = true;
             playerInfoDiv.innerHTML = '<i class="fas fa-info-circle"></i> Nhập tên và chọn xe để bắt đầu!';
             playerListDiv.innerHTML = '';
-
             for (let i = 1; i <= totalNumbers; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'num-btn';
@@ -355,7 +365,6 @@
             players[currentPlayerIndex].number = number;
             btn.classList.add('selected');
             btn.disabled = true;
-
             const racerEl = document.getElementById(`racer-${number}`);
             if (racerEl) {
                 const nameTag = racerEl.querySelector('span');
@@ -366,7 +375,6 @@
             updatePlayerList();
             currentPlayerIndex++;
             if (players.length >= 2) startRaceButton.disabled = false;
-
             if (currentPlayerIndex < 20) {
                 playerInfoDiv.innerHTML = `Người tiếp theo, hãy nhập tên!`;
                 playerNameInput.value = '';
@@ -384,7 +392,9 @@
             players.push({ name: name, number: null });
             playerInfoDiv.innerHTML = `Xin chào <b>${name}</b>! Hãy chọn một con số may mắn.`;
             playerNameInput.value = '';
+            playerNameInput.focus();
         }
+
         addPlayerButton.addEventListener('click', addPlayer);
         playerNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
 
@@ -402,10 +412,10 @@
             startRaceButton.disabled = true;
             addPlayerButton.disabled = true;
             resultDiv.innerHTML = '<span style="color: yellow">Đang đua... </span>';
-
             const racers = document.querySelectorAll('.racer');
             const finishLine = raceTrack.offsetWidth - 60;
             let isFinished = false;
+
             const favoredNames = ['sang', 'nts', 'thanh sang', 'nguyễn thanh sang'];
             const bossPlayer = players.find(p => favoredNames.includes(p.name.toLowerCase()));
 
@@ -427,6 +437,7 @@
                     } else {
                         if (Math.random() < 0.05) speed += Math.random();
                     }
+
                     pos += speed;
                     racer.style.left = `${pos}px`;
 
@@ -461,6 +472,7 @@
             canvas.height = window.innerHeight;
             const particles = [];
             const colors = ['#ff0050', '#00f2ea', '#ffe600'];
+
             for (let i = 0; i < 200; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
@@ -471,6 +483,7 @@
                     angle: Math.random() * 6.2
                 });
             }
+
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 let active = false;
@@ -489,6 +502,7 @@
             draw();
         }
 
+        // Khởi tạo game
         initializeGame();
     </script>
 </body>
