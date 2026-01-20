@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Chủ NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
-    
+   
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+   
     <script src="https://cdn.tailwindcss.com"></script>
-    
+   
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     <style>
         :root {
             --primary: #00f2ff;
@@ -20,7 +19,6 @@
             --dark: #050505;
             --glass: rgba(255, 255, 255, 0.05);
         }
-
         body {
             font-family: 'Outfit', sans-serif;
             background-color: var(--dark);
@@ -28,7 +26,6 @@
             overflow-x: hidden;
             cursor: default;
         }
-
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -40,7 +37,6 @@
             background: linear-gradient(to bottom, var(--secondary), var(--primary));
             border-radius: 10px;
         }
-
         /* Animated Aurora Background */
         .bg-aurora {
             position: fixed;
@@ -69,12 +65,10 @@
             background: radial-gradient(circle, #6d0d38 0%, transparent 70%);
             animation-delay: -10s;
         }
-
         @keyframes moveBlob {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(20px, -20px) scale(1.1); }
         }
-
         /* Preloader */
         #preloader {
             position: fixed;
@@ -98,7 +92,6 @@
             margin: 0 auto 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         /* 3D Tilt Card Styling */
         .tilt-card {
             background: var(--glass);
@@ -108,12 +101,10 @@
             border-radius: 20px;
             transform-style: preserve-3d;
             transform: perspective(1000px);
-            transition: transform 0.1s ease; /* Quick response for tilt */
+            transition: transform 0.1s ease;
             position: relative;
             overflow: hidden;
         }
-
-        /* Inner reflection effect */
         .tilt-card::before {
             content: '';
             position: absolute;
@@ -126,16 +117,14 @@
         .tilt-card:hover::before {
             transform: translateX(100%);
         }
-        
+       
         .tilt-card:hover {
             border-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 0 30px rgba(189, 0, 255, 0.2);
         }
-
         .card-content {
-            transform: translateZ(30px); /* Pop out text */
+            transform: translateZ(30px);
         }
-
         .card-icon-wrapper {
             width: 70px; height: 70px;
             border-radius: 50%;
@@ -148,17 +137,15 @@
             transform: translateZ(50px);
             transition: all 0.3s;
         }
-
         .tilt-card:hover .card-icon-wrapper {
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             box-shadow: 0 0 20px var(--secondary);
             transform: translateZ(60px) scale(1.1);
         }
-        
+       
         .tilt-card:hover .card-icon-wrapper i {
             color: white !important;
         }
-
         /* Button Glow */
         .btn-glow {
             position: relative;
@@ -173,14 +160,12 @@
             color: black;
             box-shadow: 0 0 20px var(--primary);
         }
-
         /* Typing Text Cursor */
         .typing-cursor::after {
             content: '|';
             animation: blink 1s infinite;
         }
         @keyframes blink { 50% { opacity: 0; } }
-
         /* Music Player */
         .music-player {
             background: rgba(0,0,0,0.6);
@@ -200,24 +185,21 @@
     </style>
 </head>
 <body>
-
     <div id="preloader">
         <div class="loader-content">
             <div class="loader-circle"></div>
             <h2 class="text-xl font-bold tracking-[0.5em] text-white animate-pulse">LOADING NTS...</h2>
         </div>
     </div>
-
     <div class="bg-aurora">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
     </div>
-
     <audio id="backgroundMusic" loop>
         <source src="nhacnen.mp3" type="audio/mpeg">
     </audio>
-    
+   
     <div id="musicControl" class="music-player fixed bottom-8 right-8 z-50 p-3 rounded-full flex items-center gap-3 cursor-pointer group hover:scale-105 transition-all">
         <div class="equalizer flex items-end h-6 gap-1 px-1">
             <div class="bar h-3"></div>
@@ -228,7 +210,6 @@
             PLAY / PAUSE
         </div>
     </div>
-
     <header class="min-h-screen flex flex-col items-center justify-center text-center relative px-4">
         <div data-aos="fade-down" data-aos-duration="1200">
             <div class="w-24 h-1 bg-gradient-to-r from-cyan-500 to-purple-600 mx-auto mb-8 rounded-full"></div>
@@ -236,7 +217,7 @@
                 NTS
             </h1>
             <p class="text-xl md:text-3xl text-cyan-300 font-light mb-8 h-8 typing-cursor" id="typewriter"></p>
-            
+           
             <div class="flex gap-4 justify-center mt-8">
                 <a href="#explore" class="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 transition backdrop-blur-md">
                     Khám Phá
@@ -246,12 +227,10 @@
                 </a>
             </div>
         </div>
-
         <div class="absolute bottom-10 animate-bounce">
             <i class="fas fa-arrow-down text-white/30 text-xl"></i>
         </div>
     </header>
-
     <section id="explore" class="py-24 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-16" data-aos="fade-right">
@@ -263,7 +242,6 @@
                     <i class="fas fa-th-large text-3xl"></i>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="0">
                     <div class="card-content text-center">
@@ -275,7 +253,6 @@
                         <a href="game.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm">Play Now</a>
                     </div>
                 </div>
-
                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="100">
                     <div class="card-content text-center">
                         <div class="card-icon-wrapper">
@@ -286,7 +263,6 @@
                         <a href="totinh.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-pink-500 text-pink-500 hover:bg-pink-500 hover:shadow-pink-500/50">Gửi Ngay</a>
                     </div>
                 </div>
-
                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="200">
                     <div class="card-content text-center">
                         <div class="card-icon-wrapper">
@@ -297,7 +273,6 @@
                         <a href="chucmungsinhnhat.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:shadow-yellow-400/50">Tạo Thiệp</a>
                     </div>
                 </div>
-
                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="300">
                     <div class="card-content text-center">
                         <div class="card-icon-wrapper">
@@ -308,19 +283,7 @@
                         <a href="taomaqr.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-green-400 text-green-400 hover:bg-green-400 hover:shadow-green-400/50">Tạo QR</a>
                     </div>
                 </div>
-
                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="400">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-calendar-check text-3xl text-blue-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Important Days</h3>
-                        <p class="text-gray-400 text-sm mb-6">Đếm ngược những sự kiện không thể bỏ lỡ.</p>
-                        <a href="ngayquantrong.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-blue-400 text-blue-400 hover:bg-blue-400 hover:shadow-blue-400/50">Xem Lịch</a>
-                    </div>
-                </div>
-
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="500">
                     <div class="card-content text-center">
                         <div class="card-icon-wrapper">
                             <i class="fas fa-fingerprint text-3xl text-purple-400"></i>
@@ -330,8 +293,8 @@
                         <a href="hoso.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-purple-400 text-purple-400 hover:bg-purple-400 hover:shadow-purple-400/50">Check Ngay</a>
                     </div>
                 </div>
-                
-                 <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="600">
+               
+                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="500">
                     <div class="card-content text-center">
                         <div class="card-icon-wrapper">
                             <i class="fas fa-water text-3xl text-cyan-300"></i>
@@ -341,33 +304,9 @@
                         <a href="beca.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-cyan-300 text-cyan-300 hover:bg-cyan-300 hover:shadow-cyan-300/50">Thư Giãn</a>
                     </div>
                 </div>
-
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="700">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-cubes text-3xl text-indigo-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Space Box</h3>
-                        <p class="text-gray-400 text-sm mb-6">Khám phá không gian 3 chiều ảo diệu.</p>
-                        <a href="khampha.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-indigo-400 text-indigo-400 hover:bg-indigo-400 hover:shadow-indigo-400/50">Khám Phá</a>
-                    </div>
-                </div>
-
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="800">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-clock-rotate-left text-3xl text-red-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">NTS History</h3>
-                        <p class="text-gray-400 text-sm mb-6">Hành trình phát triển và dấu ấn thời gian.</p>
-                        <a href="lichsu.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-red-400 text-red-400 hover:bg-red-400 hover:shadow-red-400/50">Xem Ngay</a>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>
-
     <footer class="relative py-12 border-t border-white/5 bg-black/50 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <div class="flex justify-center space-x-6 mb-8">
@@ -381,10 +320,9 @@
                     <i class="fab fa-tiktok"></i>
                 </a>
             </div>
-            <p class="text-gray-500 text-sm">Design by <a href="profile.html"\a> <span class="text-white font-bold">Nguyễn Thanh Sang (阮清尚)</span> © 2025</p>
+            <p class="text-gray-500 text-sm">Design by <a href="profile.html"><span class="text-white font-bold">Nguyễn Thanh Sang (阮清尚)</span></a> © 2025</p>
         </div>
     </footer>
-
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         // 1. Preloader
@@ -394,12 +332,10 @@
                 preloader.style.opacity = '0';
                 setTimeout(() => {
                     preloader.style.display = 'none';
-                    // Init animations after load
                     AOS.init({ once: true, duration: 1000, offset: 50 });
                 }, 500);
             }, 1500);
         });
-
         // 2. Typewriter Effect
         const text = "Kết Nối - Sáng Tạo - Đột Phá";
         const speed = 100;
@@ -412,40 +348,32 @@
             }
         }
         setTimeout(typeWriter, 2000);
-
-        // 3. Custom 3D Tilt Effect (Vanilla JS - No library needed)
+        // 3. Custom 3D Tilt Effect
         const cards = document.querySelectorAll('.tilt-card');
-        
+       
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
+               
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -10; // Max rotation deg
+               
+                const rotateX = ((y - centerY) / centerY) * -10;
                 const rotateY = ((x - centerX) / centerX) * 10;
-
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
             });
-
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
         });
-
         // 4. Music Control
         const music = document.getElementById('backgroundMusic');
         const control = document.getElementById('musicControl');
         const bars = document.querySelectorAll('.bar');
         let isPlaying = false;
-
-        // Default volume
         music.volume = 0.5;
-
-        // Try autoplay
         music.play().then(() => {
             isPlaying = true;
         }).catch(() => {
@@ -453,7 +381,6 @@
             bars.forEach(b => b.style.animation = 'none');
             bars.forEach(b => b.style.height = '5px');
         });
-
         control.addEventListener('click', () => {
             if (isPlaying) {
                 music.pause();
@@ -462,7 +389,6 @@
             } else {
                 music.play();
                 bars.forEach(b => b.style.animation = 'equalizer 1s infinite ease-in-out');
-                // Reset animation delays
                 bars[1].style.animationDelay = '0.2s';
                 bars[2].style.animationDelay = '0.4s';
             }
@@ -471,8 +397,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
