@@ -1,398 +1,393 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ NTS</title>
+    <title>NTS Digital Universe</title>
     <link rel="icon" type="image/png" href="logos3.png">
-   
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   
+    
     <script src="https://cdn.tailwindcss.com"></script>
-   
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #00f2ff;
             --secondary: #bd00ff;
-            --dark: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
+            --accent: #ff007a;
+            --dark: #030303;
         }
+
         body {
             font-family: 'Outfit', sans-serif;
             background-color: var(--dark);
-            color: white;
+            color: #e0e0e0;
             overflow-x: hidden;
-            cursor: default;
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, var(--secondary), var(--primary));
-            border-radius: 10px;
-        }
-        /* Animated Aurora Background */
-        .bg-aurora {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1;
-            background: var(--dark);
-            overflow: hidden;
-        }
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: moveBlob 20s infinite alternate;
-        }
-        .blob-1 {
-            top: -10%; left: -10%; width: 50vw; height: 50vw;
-            background: radial-gradient(circle, #4f0d6d 0%, transparent 70%);
-        }
-        .blob-2 {
-            bottom: -10%; right: -10%; width: 60vw; height: 60vw;
-            background: radial-gradient(circle, #0d366d 0%, transparent 70%);
-            animation-delay: -5s;
-        }
-        .blob-3 {
-            top: 40%; left: 40%; width: 40vw; height: 40vw;
-            background: radial-gradient(circle, #6d0d38 0%, transparent 70%);
-            animation-delay: -10s;
-        }
-        @keyframes moveBlob {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(20px, -20px) scale(1.1); }
-        }
-        /* Preloader */
+
+        /* --- NÂNG CẤP PRELOADER --- */
         #preloader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 9999;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .loader-wrapper {
+            position: relative;
+            width: 200px; height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.5s ease;
         }
-        .loader-content {
-            text-align: center;
-        }
-        .loader-circle {
-            width: 60px; height: 60px;
-            border: 3px solid transparent;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* 3D Tilt Card Styling */
-        .tilt-card {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            transform-style: preserve-3d;
-            transform: perspective(1000px);
-            transition: transform 0.1s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .tilt-card::before {
-            content: '';
+
+        .loader-circle-outer {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.1) 30%, transparent 100%);
-            transform: translateX(-100%);
-            transition: 0.5s;
-            z-index: 1;
-        }
-        .tilt-card:hover::before {
-            transform: translateX(100%);
-        }
-       
-        .tilt-card:hover {
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 30px rgba(189, 0, 255, 0.2);
-        }
-        .card-content {
-            transform: translateZ(30px);
-        }
-        .card-icon-wrapper {
-            width: 70px; height: 70px;
+            width: 100%; height: 100%;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--primary);
+            border-bottom: 2px solid var(--primary);
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.01));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
-            transform: translateZ(50px);
-            transition: all 0.3s;
+            animation: spin 2s linear infinite;
         }
-        .tilt-card:hover .card-icon-wrapper {
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
-            box-shadow: 0 0 20px var(--secondary);
-            transform: translateZ(60px) scale(1.1);
+
+        .loader-circle-inner {
+            position: absolute;
+            width: 75%; height: 75%;
+            border: 2px solid transparent;
+            border-left: 2px solid var(--secondary);
+            border-right: 2px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin-reverse 1.5s linear infinite;
         }
-       
-        .tilt-card:hover .card-icon-wrapper i {
-            color: white !important;
+
+        .loader-percent {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 20px var(--primary);
         }
-        /* Button Glow */
-        .btn-glow {
-            position: relative;
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        .btn-glow:hover {
+
+        .scan-line {
+            position: absolute;
+            width: 120%; height: 2px;
             background: var(--primary);
-            color: black;
-            box-shadow: 0 0 20px var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            animation: scan 2s ease-in-out infinite;
+            opacity: 0.5;
         }
-        /* Typing Text Cursor */
-        .typing-cursor::after {
-            content: '|';
-            animation: blink 1s infinite;
+
+        @keyframes scan {
+            0%, 100% { top: 10%; opacity: 0; }
+            50% { top: 90%; opacity: 1; }
         }
-        @keyframes blink { 50% { opacity: 0; } }
-        /* Music Player */
-        .music-player {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+
+        .preloader-finish { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+
+        /* --- GIAO DIỆN CHÍNH --- */
+        .bg-gradient-dynamic {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #0a051a 0%, #030303 100%);
         }
-        .equalizer .bar {
-            width: 4px; background: var(--primary);
-            animation: equalizer 1s infinite ease-in-out;
+
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px);
+            opacity: 0.35; animation: float 20s infinite alternate;
         }
-        .equalizer .bar:nth-child(2) { animation-delay: 0.2s; height: 15px; }
-        .equalizer .bar:nth-child(3) { animation-delay: 0.4s; height: 20px; }
-        @keyframes equalizer {
-            0%, 100% { height: 10px; }
-            50% { height: 25px; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 40px) scale(1.1); }
         }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 40px rgba(0, 242, 255, 0.6), 0 0 80px rgba(189, 0, 255, 0.4);
+        }
+
+        .btn-modern {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .btn-modern::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.6s;
+        }
+
+        .btn-modern:hover::after { left: 100%; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--secondary), var(--primary)); border-radius: 10px; }
     </style>
 </head>
 <body>
+
     <div id="preloader">
-        <div class="loader-content">
-            <div class="loader-circle"></div>
-            <h2 class="text-xl font-bold tracking-[0.5em] text-white animate-pulse">LOADING NTS...</h2>
+        <div class="loader-wrapper">
+            <div class="loader-circle-outer"></div>
+            <div class="loader-circle-inner"></div>
+            <div class="scan-line"></div>
+            <div class="loader-percent" id="load-percentage">0%</div>
+        </div>
+        <div class="mt-10 text-center">
+            <h2 class="text-xs tracking-[1em] text-cyan-400 font-black uppercase animate-pulse">
+                Establishing Neural Link
+            </h2>
+            <p class="text-[10px] text-gray-500 mt-3 font-mono" id="loader-status">Decrypting assets...</p>
         </div>
     </div>
-    <div class="bg-aurora">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+
+    <div class="bg-gradient-dynamic">
+        <div class="orb w-[600px] h-[600px] bg-purple-900 top-[-10%] left-[-10%]"></div>
+        <div class="orb w-[700px] h-[700px] bg-blue-900 bottom-[-10%] right-[-10%]" style="animation-delay: -5s;"></div>
     </div>
+
     <audio id="backgroundMusic" loop>
         <source src="nhacnen.mp3" type="audio/mpeg">
     </audio>
-   
-    <div id="musicControl" class="music-player fixed bottom-8 right-8 z-50 p-3 rounded-full flex items-center gap-3 cursor-pointer group hover:scale-105 transition-all">
-        <div class="equalizer flex items-end h-6 gap-1 px-1">
-            <div class="bar h-3"></div>
-            <div class="bar h-5"></div>
-            <div class="bar h-4"></div>
+
+    <div id="musicControl" class="fixed bottom-8 left-8 z-50 flex items-center gap-4 bg-black/40 backdrop-blur-2xl p-2 pr-6 rounded-full border border-white/10 cursor-pointer hover:border-cyan-400 transition-all group">
+        <div class="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-cyan-500 group-hover:text-black transition-all">
+            <i class="fas fa-music"></i>
         </div>
-        <div class="text-sm font-bold hidden group-hover:block transition-all pr-2 text-cyan-300">
-            PLAY / PAUSE
+        <div>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest leading-none">Vibe Check</p>
+            <p class="text-xs font-bold text-white uppercase">Audio System</p>
         </div>
     </div>
-    <header class="min-h-screen flex flex-col items-center justify-center text-center relative px-4">
-        <div data-aos="fade-down" data-aos-duration="1200">
-            <div class="w-24 h-1 bg-gradient-to-r from-cyan-500 to-purple-600 mx-auto mb-8 rounded-full"></div>
-            <h1 class="text-6xl md:text-9xl font-extrabold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500 drop-shadow-lg">
+
+    <header class="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+            <div class="w-[900px] h-[900px] border border-white/10 rounded-full animate-[spin_80s_linear_infinite]"></div>
+            <div class="absolute w-[700px] h-[700px] border border-cyan-500/10 rounded-full animate-[spin_50s_linear_infinite_reverse]"></div>
+        </div>
+
+        <div class="relative z-10 text-center" data-aos="fade-up" data-aos-duration="1500">
+            <span class="px-5 py-1.5 rounded-full border border-cyan-500/20 text-cyan-400 text-[10px] font-black tracking-[0.4em] mb-8 inline-block bg-cyan-500/5 uppercase">
+                Phiên bản nâng cấp cải tiến
+            </span>
+            <h1 class="text-8xl md:text-[14rem] font-black text-glow leading-none mb-4 tracking-tighter text-white">
                 NTS
             </h1>
-            <p class="text-xl md:text-3xl text-cyan-300 font-light mb-8 h-8 typing-cursor" id="typewriter"></p>
-           
-            <div class="flex gap-4 justify-center mt-8">
-                <a href="#explore" class="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 transition backdrop-blur-md">
-                    Khám Phá
+            <div class="h-10 mb-12">
+                <p id="typewriter" class="text-xl md:text-3xl font-light tracking-[0.3em] text-cyan-300 italic uppercase"></p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <a href="#explore" class="btn-modern px-12 py-4 rounded-full bg-white text-black font-black text-xs uppercase tracking-widest hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                    Khám phá ngay
                 </a>
-                <a href="totinh.html" class="px-8 py-3 rounded-full bg-gradient-to-r from-cyan-600 to-purple-600 font-bold hover:shadow-[0_0_30px_rgba(0,242,255,0.4)] transition">
-                    Tỏ Tình Ngay
+                <a href="totinh.html" class="btn-modern px-12 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-cyan-500/20">
+                    Mở lời ngay
                 </a>
             </div>
         </div>
-        <div class="absolute bottom-10 animate-bounce">
-            <i class="fas fa-arrow-down text-white/30 text-xl"></i>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-20">
+            <i class="fas fa-chevron-down text-2xl"></i>
         </div>
     </header>
-    <section id="explore" class="py-24 relative z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-16" data-aos="fade-right">
+
+    <section id="explore" class="py-32 relative z-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8" data-aos="fade-right">
                 <div>
-                    <h2 class="text-4xl font-bold text-white">Kho Tiện Ích</h2>
-                    <p class="text-gray-400 mt-2">Tất cả những gì bạn cần đều ở đây</p>
+                    <h2 class="text-6xl font-black mb-6 tracking-tighter">KHO TIỆN ÍCH</h2>
+                    <div class="w-24 h-2 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full"></div>
                 </div>
-                <div class="hidden md:block text-right text-purple-400">
-                    <i class="fas fa-th-large text-3xl"></i>
-                </div>
+                <p class="text-gray-400 max-w-sm text-lg font-light leading-relaxed">
+                    Nơi hội tụ những công cụ số được phát triển bởi NTS nhằm mang lại trải nghiệm độc đáo nhất.
+                </p>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="0">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-gamepad text-3xl text-cyan-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Minigames</h3>
-                        <p class="text-gray-400 text-sm mb-6">Giải trí đỉnh cao với kho game do NTS phát triển.</p>
-                        <a href="game.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm">Play Now</a>
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up">
+                    <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-10 border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-black transition-all duration-500">
+                        <i class="fas fa-gamepad text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Minigames</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Phòng lab trò chơi giải trí với những tựa game kinh điển được remake lại.</p>
+                    <a href="game.html" class="inline-flex items-center gap-3 text-cyan-400 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Launch Game <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="100">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-heart text-3xl text-pink-500"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Love Confession</h3>
-                        <p class="text-gray-400 text-sm mb-6">Gửi lời yêu thương đến Crush theo cách "IT".</p>
-                        <a href="totinh.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-pink-500 text-pink-500 hover:bg-pink-500 hover:shadow-pink-500/50">Gửi Ngay</a>
+
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-16 h-16 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-10 border border-pink-500/20 group-hover:bg-pink-500 group-hover:text-white transition-all duration-500">
+                        <i class="fas fa-heart-pulse text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Lời Tỏ Tình</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Giải mã trái tim Crush bằng những giao diện tỏ tình đầy sáng tạo.</p>
+                    <a href="totinh.html" class="inline-flex items-center gap-3 text-pink-500 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Send Love <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-cake-candles text-3xl text-yellow-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Happy Birthday</h3>
-                        <p class="text-gray-400 text-sm mb-6">Tạo thiệp sinh nhật online cực chất.</p>
-                        <a href="chucmungsinhnhat.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:shadow-yellow-400/50">Tạo Thiệp</a>
+
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mb-10 border border-yellow-500/20 group-hover:bg-yellow-500 group-hover:text-black transition-all duration-500">
+                        <i class="fas fa-cake-candles text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Birthday</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Tạo những kỷ niệm kỹ thuật số không bao giờ phai cho bạn bè.</p>
+                    <a href="chucmungsinhnhat.html" class="inline-flex items-center gap-3 text-yellow-400 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Create Card <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="300">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-qrcode text-3xl text-green-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">QR Generator</h3>
-                        <p class="text-gray-400 text-sm mb-6">Tạo mã QR cá nhân hóa độc đáo.</p>
-                        <a href="taomaqr.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-green-400 text-green-400 hover:bg-green-400 hover:shadow-green-400/50">Tạo QR</a>
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-10 border border-purple-500/20 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500">
+                        <i class="fas fa-id-badge text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Kiểm Tra Thiết Bị</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Phân tích sâu thông số phần cứng và địa chỉ định danh của bạn.</p>
+                    <a href="hoso.html" class="inline-flex items-center gap-3 text-purple-400 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Check Now <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="400">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-fingerprint text-3xl text-purple-400"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Device Check</h3>
-                        <p class="text-gray-400 text-sm mb-6">Kiểm tra thông số & bảo mật thiết bị.</p>
-                        <a href="hoso.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-purple-400 text-purple-400 hover:bg-purple-400 hover:shadow-purple-400/50">Check Ngay</a>
+
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mb-10 border border-green-500/20 group-hover:bg-green-500 group-hover:text-black transition-all duration-500">
+                        <i class="fas fa-qrcode text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Tạo QR</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Tạo mã định danh cá nhân nhanh chóng với nhiều định dạng tùy chỉnh.</p>
+                    <a href="taomaqr.html" class="inline-flex items-center gap-3 text-green-400 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Generate <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-               
-                <div class="tilt-card p-8 rounded-2xl group" data-aos="fade-up" data-aos-delay="500">
-                    <div class="card-content text-center">
-                        <div class="card-icon-wrapper">
-                            <i class="fas fa-water text-3xl text-cyan-300"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">3D Aquarium</h3>
-                        <p class="text-gray-400 text-sm mb-6">Bể cá ảo thư giãn ngay trên màn hình.</p>
-                        <a href="beca.html" class="btn-glow inline-block px-6 py-2 rounded-full font-semibold text-sm border-cyan-300 text-cyan-300 hover:bg-cyan-300 hover:shadow-cyan-300/50">Thư Giãn</a>
+
+                <div class="glass-card group p-10 rounded-[40px]" data-aos="fade-up" data-aos-delay="500">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-10 border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500">
+                        <i class="fas fa-water text-3xl"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight uppercase">Bể Cá</h3>
+                    <p class="text-gray-400 leading-relaxed mb-10">Bể cá 3D ảo giúp bạn tìm lại sự cân bằng sau áp lực công việc.</p>
+                    <a href="beca.html" class="inline-flex items-center gap-3 text-blue-400 font-black tracking-widest text-xs uppercase hover:gap-6 transition-all">
+                        Relax Now <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
-    <footer class="relative py-12 border-t border-white/5 bg-black/50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <div class="flex justify-center space-x-6 mb-8">
-                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#1877F2] hover:scale-110 transition duration-300">
+
+    <footer class="py-24 bg-black/80 backdrop-blur-3xl border-t border-white/5 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex justify-center gap-10 mb-16">
+                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank" class="text-gray-500 hover:text-blue-500 hover:scale-125 transition-all text-2xl">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="https://www.instagram.com/ngth.sang70/" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#E4405F] hover:scale-110 transition duration-300">
+                <a href="https://www.instagram.com/ngth.sang70/" target="_blank" class="text-gray-500 hover:text-pink-500 hover:scale-125 transition-all text-2xl">
                     <i class="fab fa-instagram"></i>
                 </a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white hover:text-black hover:scale-110 transition duration-300">
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" class="text-gray-500 hover:text-white hover:scale-125 transition-all text-2xl">
                     <i class="fab fa-tiktok"></i>
                 </a>
             </div>
-            <p class="text-gray-500 text-sm">Design by <a href="profile.html"><span class="text-white font-bold">Nguyễn Thanh Sang (阮清尚)</span></a> © 2025</p>
+            <p class="text-gray-500 text-xs tracking-[0.4em] uppercase mb-4">
+                Designed & Engineered by
+                 <a href="profile.html" target="_blank" class="footer-author-link text-white font-black ml-1">
+                    Nguyễn Thanh Sang
+                </a>>
+            </p>
+            <p class="text-[10px] text-gray-700 font-mono">© 2026 BẢN QUYỀN ĐƯỢC BẢO LƯU</p>
         </div>
     </footer>
+
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // 1. Preloader
+        // --- XỬ LÝ LOADING (CON SỐ CHẠY THỰC TẾ) ---
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const preloader = document.getElementById('preloader');
-                preloader.style.opacity = '0';
-                setTimeout(() => {
-                    preloader.style.display = 'none';
-                    AOS.init({ once: true, duration: 1000, offset: 50 });
-                }, 500);
-            }, 1500);
+            let percentage = 0;
+            const percentText = document.getElementById('load-percentage');
+            const statusText = document.getElementById('loader-status');
+            const preloader = document.getElementById('preloader');
+            
+            const interval = setInterval(() => {
+                percentage += Math.floor(Math.random() * 4) + 1;
+                if (percentage >= 100) {
+                    percentage = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        preloader.classList.add('preloader-finish');
+                        AOS.init({ once: true, duration: 800 });
+                    }, 600);
+                }
+                percentText.innerText = percentage + "%";
+                if(percentage > 30) statusText.innerText = "Syncing system modules...";
+                if(percentage > 60) statusText.innerText = "Establishing secure bridge...";
+                if(percentage > 90) statusText.innerText = "Finalizing UI/UX...";
+            }, 40);
         });
-        // 2. Typewriter Effect
-        const text = "Kết Nối - Sáng Tạo - Đột Phá";
-        const speed = 100;
+
+        // --- TYPEWRITER EFFECT ---
+        const text = "KẾT NỐI - SÁNG TẠO - ĐỘT PHÁ";
         let i = 0;
         function typeWriter() {
             if (i < text.length) {
                 document.getElementById("typewriter").innerHTML += text.charAt(i);
                 i++;
-                setTimeout(typeWriter, speed);
+                setTimeout(typeWriter, 120);
             }
         }
-        setTimeout(typeWriter, 2000);
-        // 3. Custom 3D Tilt Effect
-        const cards = document.querySelectorAll('.tilt-card');
-       
+        setTimeout(typeWriter, 1800);
+
+        // --- MUSIC CONTROL ---
+        const music = document.getElementById('backgroundMusic');
+        const control = document.getElementById('musicControl');
+        let isPlaying = false;
+        
+        control.addEventListener('click', () => {
+            if (isPlaying) {
+                music.pause();
+                control.querySelector('.w-11').classList.replace('bg-cyan-500', 'bg-white/10');
+            } else {
+                music.play();
+                control.querySelector('.w-11').classList.replace('bg-white/10', 'bg-cyan-500');
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // --- 3D TILT EFFECT CHO CARD ---
+        const cards = document.querySelectorAll('.glass-card');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-               
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-               
-                const rotateX = ((y - centerY) / centerY) * -10;
-                const rotateY = ((x - centerX) / centerX) * 10;
+                const rotateX = ((y - rect.height/2) / (rect.height/2)) * -8;
+                const rotateY = ((x - rect.width/2) / (rect.width/2)) * 8;
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
             });
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
-        });
-        // 4. Music Control
-        const music = document.getElementById('backgroundMusic');
-        const control = document.getElementById('musicControl');
-        const bars = document.querySelectorAll('.bar');
-        let isPlaying = false;
-        music.volume = 0.5;
-        music.play().then(() => {
-            isPlaying = true;
-        }).catch(() => {
-            isPlaying = false;
-            bars.forEach(b => b.style.animation = 'none');
-            bars.forEach(b => b.style.height = '5px');
-        });
-        control.addEventListener('click', () => {
-            if (isPlaying) {
-                music.pause();
-                bars.forEach(b => b.style.animation = 'none');
-                bars.forEach(b => b.style.height = '5px');
-            } else {
-                music.play();
-                bars.forEach(b => b.style.animation = 'equalizer 1s infinite ease-in-out');
-                bars[1].style.animationDelay = '0.2s';
-                bars[2].style.animationDelay = '0.4s';
-            }
-            isPlaying = !isPlaying;
         });
     </script>
 </body>
