@@ -23,180 +23,192 @@
             align-items: center;
             min-height: 100vh;
             color: white;
-            padding: 10px;
-            overflow: hidden;
+            padding: 8px;
+            overflow-y: auto;
             user-select: none;
-            cursor: none;
+            cursor: default;          /* con trỏ bình thường mặc định */
             touch-action: manipulation;
+        }
+        body.game-active {
+            cursor: none;             /* ẩn con trỏ khi đang chơi */
         }
         .game-container {
             text-align: center;
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(5px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 700px;
+            max-width: 640px;
             border: 2px solid rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 1;
+            min-height: 65vh;
         }
         h1 {
-            margin-bottom: 15px;
-            font-size: clamp(2em, 5vw, 3em);
+            margin-bottom: 12px;
+            font-size: clamp(1.8em, 7vw, 2.6em);
             color: #ffca28;
-            text-shadow: 3px 3px 0px #3e2723, 5px 5px 10px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #3e2723, 4px 4px 8px rgba(0,0,0,0.5);
+            letter-spacing: 1.5px;
         }
         .game-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             background: #3e2723;
-            padding: 15px;
-            border-radius: 15px;
+            padding: 10px;
+            border-radius: 12px;
             border: 2px solid #795548;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.5);
         }
         .info-item {
-            font-size: clamp(1em, 2.5vw, 1.3em);
+            font-size: clamp(0.95em, 4vw, 1.2em);
             font-weight: bold;
             color: #ffcc80;
         }
         .difficulty-selector {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
         .diff-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 50px;
+            border-radius: 40px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 100px;
+            min-width: 80px;
+            font-size: 0.9em;
         }
-        .diff-btn.easy   { background: #66bb6a; box-shadow: 0 4px 0 #388e3c; }
-        .diff-btn.medium { background: #ffa726; box-shadow: 0 4px 0 #f57c00; }
-        .diff-btn.hard   { background: #ef5350; box-shadow: 0 4px 0 #c62828; color: white; }
-        .diff-btn.active { transform: translateY(4px); box-shadow: 0 0 0; }
-
+        .diff-btn.easy { background: #66bb6a; box-shadow: 0 3px 0 #388e3c; }
+        .diff-btn.medium { background: #ffa726; box-shadow: 0 3px 0 #f57c00; }
+        .diff-btn.hard { background: #ef5350; box-shadow: 0 3px 0 #c62828; color: white; }
+        .diff-btn.active { transform: translateY(3px); box-shadow: 0 0 0; }
         .game-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 12px;
             margin: 0 auto;
-            max-width: 550px;
-            perspective: 1000px;
+            max-width: 500px;
+            perspective: 800px;
         }
         .hole {
-            position: relative; width: 100%; padding-top: 80%; border-radius: 50%;
+            position: relative; width: 100%; padding-top: 95%; border-radius: 50%;
             background: radial-gradient(ellipse at center, #251612 0%, #3e2723 60%, #5d4037 100%);
-            box-shadow: inset 0 10px 20px rgba(0,0,0,0.9), 0 5px 0 #3e2723, 0 10px 20px rgba(0,0,0,0.4);
-            overflow: hidden; border-bottom: 4px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 8px 16px rgba(0,0,0,0.9), 0 4px 0 #3e2723, 0 8px 16px rgba(0,0,0,0.4);
+            overflow: hidden; border-bottom: 3px solid rgba(255,255,255,0.1);
         }
         .mole {
-            width: 60%; height: 80%; background: radial-gradient(circle at 30% 30%, #a1887f, #5d4037);
+            width: 65%; height: 85%; background: radial-gradient(circle at 30% 30%, #a1887f, #5d4037);
             border-radius: 40% 40% 10% 10%; position: absolute; bottom: 0; left: 50%;
             transform: translateX(-50%) translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5); z-index: 2;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.5); z-index: 2;
         }
         .mole::before { content: ''; position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
-            width: 40px; height: 10px; background:
-                radial-gradient(circle at 10px 5px, white 1px, black 3px, transparent 4px),
-                radial-gradient(circle at 30px 5px, white 1px, black 3px, transparent 4px);
+            width: 32px; height: 8px; background:
+                radial-gradient(circle at 8px 4px, white 1px, black 3px, transparent 4px),
+                radial-gradient(circle at 24px 4px, white 1px, black 3px, transparent 4px);
         }
         .mole::after { content: ''; position: absolute; top: 40%; left: 50%; transform: translateX(-50%);
-            width: 20px; height: 15px; background: #ffab91; border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            width: 16px; height: 12px; background: #ffab91; border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        .mole.show { transform: translateX(-50%) translateY(10%); }
-        .mole.hit { transform: translateX(-50%) translateY(10%) scale(0.95);
+        .mole.show { transform: translateX(-50%) translateY(8%); }
+        .mole.hit { transform: translateX(-50%) translateY(8%) scale(0.95);
             filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(3); transition: 0.1s;
         }
-
-        /* Búa (cả PC + Mobile) */
         .hammer {
             position: fixed; pointer-events: none; z-index: 1000;
-            width: 90px; height: 90px; transform-origin: bottom right;
-            transition: transform 0.08s ease; filter: drop-shadow(6px 6px 8px rgba(0,0,0,0.6));
+            width: 80px; height: 80px; transform-origin: bottom right;
+            transition: transform 0.08s ease; filter: drop-shadow(5px 5px 7px rgba(0,0,0,0.6));
             opacity: 0; transition: opacity 0.2s, transform 0.08s;
         }
         .hammer.visible { opacity: 1; }
         .hammer.active { transform: rotate(-50deg) scale(1.1) !important; }
-        .hammer-head { position: absolute; top: 0; left: 0; width: 68px; height: 44px;
+        .hammer-head { position: absolute; top: 0; left: 0; width: 60px; height: 40px;
             background: linear-gradient(to bottom, #cfd8dc, #607d8b, #455a64);
-            border-radius: 12px; border: 3px solid #37474f;
+            border-radius: 10px; border: 3px solid #37474f;
         }
-        .hammer-handle { position: absolute; top: 24px; left: 28px; width: 12px; height: 70px;
-            background: linear-gradient(to right, #8d6e63, #4e342e); border-radius: 0 0 6px 6px;
+        .hammer-handle { position: absolute; top: 22px; left: 25px; width: 10px; height: 65px;
+            background: linear-gradient(to right, #8d6e63, #4e342e); border-radius: 0 0 5px 5px;
         }
-
         .controls {
-            margin-top: 30px;
+            margin-top: 20px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
         .btn {
             background: linear-gradient(to bottom, #ffeb3b, #fbc02d);
-            border: none; padding: 12px 35px; border-radius: 50px;
-            font-size: 1.1em; font-weight: bold; color: #3e2723; cursor: pointer;
-            box-shadow: 0 5px 0 #f57f17, 0 10px 10px rgba(0,0,0,0.3);
+            border: none; padding: 10px 30px; border-radius: 40px;
+            font-size: 1em; font-weight: bold; color: #3e2723; cursor: pointer;
+            box-shadow: 0 4px 0 #f57f17, 0 8px 8px rgba(0,0,0,0.3);
             transition: all 0.1s; text-transform: uppercase; position: relative; z-index: 10;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #f57f17, 0 15px 15px rgba(0,0,0,0.3); }
-        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #f57f17; }
-
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #f57f17, 0 12px 12px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #f57f17; }
         .btn-back {
             background: linear-gradient(to bottom, #42a5f5, #1976d2);
-            box-shadow: 0 5px 0 #1565c0;
+            box-shadow: 0 4px 0 #1565c0;
         }
-
-        .dirt-particle { position: absolute; background: #5d4037; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; z-index: 10; }
-        .score-popup { position: absolute; color: #fff; font-weight: 900; font-size: 1.5em;
+        .dirt-particle { position: absolute; background: #5d4037; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; z-index: 10; }
+        .score-popup { position: absolute; color: #fff; font-weight: 900; font-size: 1.3em;
             text-shadow: 2px 2px 0 #000; pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 100;
         }
         @keyframes floatUp { 0% { transform: translate(-50%,0) scale(1); opacity: 1; } 100% { transform: translate(-50%,-50px) scale(1.2); opacity: 0; } }
-        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-4px,0,0)} 40%,60%{transform:translate3d(4px,0,0)} }
-
+        .shake { animation: shake 0.25s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-3px,0,0)} 40%,60%{transform:translate3d(3px,0,0)} }
         .game-over { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);
-            display:flex; justify-content:center; align-items:center; z-index:2000; opacity:0; visibility:hidden; transition:0.3s; cursor:auto;
+            display:flex; justify-content:center; align-items:center; z-index:2000; opacity:0; visibility:hidden; transition:0.3s;
         }
         .game-over.show { opacity:1; visibility:visible; }
-        .game-over-content { background:linear-gradient(135deg,#fff,#f5f5f5); padding:40px; border-radius:20px; text-align:center;
-            color:#333; box-shadow:0 0 50px rgba(255,193,7,0.5); border:5px solid #ffca28;
+        .game-over-content { background:linear-gradient(135deg,#fff,#f5f5f5); padding:30px; border-radius:16px; text-align:center;
+            color:#333; box-shadow:0 0 40px rgba(255,193,7,0.5); border:4px solid #ffca28;
+        }
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .game-container { padding: 12px; border-radius: 14px; max-width: 96%; }
+            h1 { font-size: clamp(1.6em, 7.5vw, 2.2em); margin-bottom: 8px; }
+            .game-info { padding: 8px; flex-direction: column; gap: 6px; }
+            .difficulty-selector { gap: 6px; margin-bottom: 12px; }
+            .diff-btn { padding: 7px 14px; min-width: 75px; font-size: 0.85em; }
+            .game-grid { gap: 10px; max-width: 100%; }
+            .hole { padding-top: 100%; }
+            .controls { margin-top: 16px; flex-direction: column; gap: 10px; }
+            .btn { padding: 12px 35px; font-size: 1em; width: 100%; max-width: 260px; margin: 0 auto; }
+            .hammer { width: 100px; height: 100px; transform-origin: center center; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 6px; }
+            .game-container { padding: 10px; }
+            .btn { padding: 12px; font-size: 0.95em; max-width: 240px; }
+            .hammer { width: 90px; height: 90px; }
         }
     </style>
 </head>
 <body>
-
     <div class="hammer" id="hammer">
         <div class="hammer-head"></div>
         <div class="hammer-handle"></div>
     </div>
-
     <div class="game-container" id="gameContainer">
         <h1>ĐẬP CHUỘT</h1>
-
         <div class="game-info">
             <div class="info-item">Điểm: <span id="score">0</span></div>
             <div class="info-item">Thời gian: <span id="time">30</span>s</div>
         </div>
-
         <div class="difficulty-selector">
             <button class="diff-btn easy active" data-diff="easy">DỄ</button>
             <button class="diff-btn medium" data-diff="medium">TRUNG BÌNH</button>
             <button class="diff-btn hard" data-diff="hard">KHÓ</button>
         </div>
-
         <div class="game-grid">
             <div class="hole" data-index="0"><div class="mole"></div></div>
             <div class="hole" data-index="1"><div class="mole"></div></div>
@@ -208,21 +220,17 @@
             <div class="hole" data-index="7"><div class="mole"></div></div>
             <div class="hole" data-index="8"><div class="mole"></div></div>
         </div>
-
-        <!-- Chỉ còn 2 nút: Bắt Đầu & Quay Lại -->
         <div class="controls">
             <button class="btn" id="startBtn">BẮT ĐẦU</button>
             <button class="btn btn-back" onclick="window.location.href='game.html'">QUAY LẠI</button>
         </div>
     </div>
-
-    <!-- Màn hình Game Over cũng chỉ có 2 nút -->
     <div class="game-over" id="gameOver">
         <div class="game-over-content">
-            <h2 style="font-size:2em;margin-bottom:10px;color:#d32f2f;">HẾT GIỜ!</h2>
-            <p style="font-size:1.5em;margin-bottom:20px;">Điểm của bạn: <strong id="finalScore" style="color:#f57f17;font-size:1.5em;">0</strong></p>
+            <h2 style="font-size:1.8em;margin-bottom:8px;color:#d32f2f;">HẾT GIỜ!</h2>
+            <p style="font-size:1.3em;margin-bottom:16px;">Điểm của bạn: <strong id="finalScore" style="color:#f57f17;font-size:1.4em;">0</strong></p>
             <button class="btn" onclick="resetGame()">CHƠI LẠI</button>
-            <button class="btn btn-back" style="margin-top:15px;" onclick="window.location.href='game.html'">QUAY LẠI MENU</button>
+            <button class="btn btn-back" style="margin-top:12px;" onclick="window.location.href='game.html'">QUAY LẠI MENU</button>
         </div>
     </div>
 
@@ -240,13 +248,13 @@
 
         let lastHole, timeUp = false, score = 0, timeLeft = 30, timer, moleTimer;
         let currentDifficulty = 'medium';
-
         const difficulties = {
-            easy:   { minTime: 1200, maxTime: 2200 },
-            medium: { minTime: 600,  maxTime: 1200 },
-            hard:   { minTime: 300,  maxTime: 700  }
+            easy: { minTime: 1200, maxTime: 2200 },
+            medium: { minTime: 600, maxTime: 1200 },
+            hard: { minTime: 300, maxTime: 700 }
         };
 
+        // Chọn độ khó
         diffButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 diffButtons.forEach(b => b.classList.remove('active'));
@@ -256,20 +264,22 @@
         });
 
         function showHammer(x, y) {
-            hammer.style.left = x + 'px';
-            hammer.style.top = y + 'px';
+            hammer.style.left = `${x}px`;
+            hammer.style.top = `${y}px`;
             hammer.classList.add('visible', 'active');
             setTimeout(() => hammer.classList.remove('active'), 100);
             setTimeout(() => hammer.classList.remove('visible'), 300);
         }
 
+        // Di chuyển búa theo chuột (PC)
         document.addEventListener('mousemove', e => {
             if (window.innerWidth > 768) {
-                hammer.style.left = e.pageX + 'px';
-                hammer.style.top = e.pageY + 'px';
+                hammer.style.left = `${e.pageX}px`;
+                hammer.style.top = `${e.pageY}px`;
                 hammer.classList.add('visible');
             }
         });
+
         document.addEventListener('mousedown', e => showHammer(e.pageX, e.pageY));
         document.addEventListener('touchstart', e => {
             e.preventDefault();
@@ -278,18 +288,22 @@
         });
 
         function createDirtParticles(x, y) {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 8; i++) {
                 const p = document.createElement('div');
                 p.classList.add('dirt-particle');
-                const ox = (Math.random() - 0.5) * 80;
-                const oy = (Math.random() - 0.5) * 80;
-                p.style.left = (x + ox) + 'px';
-                p.style.top = (y + oy) + 'px';
+                const ox = (Math.random() - 0.5) * 70;
+                const oy = (Math.random() - 0.5) * 70;
+                p.style.left = `${x + ox}px`;
+                p.style.top = `${y + oy}px`;
                 document.body.appendChild(p);
-                p.animate([{transform:'translate(0,0) scale(1)',opacity:1},
-                           {transform:`translate(${ox}px,-60px) scale(0)`,opacity:0}],
-                          {duration:600+Math.random()*400,easing:'cubic-bezier(0.25,1,0.5,1)'});
-                setTimeout(() => p.remove(), 1000);
+                p.animate([
+                    {transform:'translate(0,0) scale(1)', opacity:1},
+                    {transform:`translate(${ox}px,-50px) scale(0)`, opacity:0}
+                ], {
+                    duration:500+Math.random()*300,
+                    easing:'cubic-bezier(0.25,1,0.5,1)'
+                });
+                setTimeout(() => p.remove(), 800);
             }
         }
 
@@ -297,12 +311,15 @@
             const { minTime, maxTime } = difficulties[currentDifficulty];
             return Math.round(Math.random() * (maxTime - minTime) + minTime);
         }
+
         function randomHole(holes) {
             const idx = Math.floor(Math.random() * holes.length);
             const hole = holes[idx];
             if (hole === lastHole) return randomHole(holes);
-            lastHole = hole; return hole;
+            lastHole = hole;
+            return hole;
         }
+
         function peep() {
             if (timeUp) return;
             const time = randomTime();
@@ -319,44 +336,64 @@
             score = 0; timeLeft = 30; timeUp = false;
             scoreBoard.textContent = 0; timeBoard.textContent = 30;
             gameOverScreen.classList.remove('show');
-            startBtn.disabled = true; startBtn.textContent = "Đang chơi..."; startBtn.style.opacity = "0.7";
+            startBtn.disabled = true;
+            startBtn.textContent = "Đang chơi...";
+            startBtn.style.opacity = "0.7";
+
+            document.body.classList.add('game-active');  // Ẩn con trỏ khi chơi
+
             peep();
             timer = setInterval(() => {
-                timeLeft--; timeBoard.textContent = timeLeft;
+                timeLeft--;
+                timeBoard.textContent = timeLeft;
                 if (timeLeft <= 0) endGame();
             }, 1000);
         }
 
         function endGame() {
-            timeUp = true; clearInterval(timer); clearTimeout(moleTimer);
-            startBtn.disabled = false; startBtn.textContent = "Bắt Đầu"; startBtn.style.opacity = "1";
+            timeUp = true;
+            clearInterval(timer);
+            clearTimeout(moleTimer);
+            startBtn.disabled = false;
+            startBtn.textContent = "Bắt Đầu";
+            startBtn.style.opacity = "1";
             finalScoreBoard.textContent = score;
-            setTimeout(() => gameOverScreen.classList.add('show'), 500);
+            setTimeout(() => gameOverScreen.classList.add('show'), 400);
+
+            document.body.classList.remove('game-active');  // Hiện lại con trỏ
         }
 
-        function resetGame() { gameOverScreen.classList.remove('show'); startGame(); }
+        function resetGame() {
+            gameOverScreen.classList.remove('show');
+            startGame();
+        }
 
         function bonk(e) {
             if (!e.isTrusted) return;
             const mole = this;
             if (!mole.classList.contains('show')) return;
-            score++; scoreBoard.textContent = score;
-            mole.classList.remove('show'); mole.classList.add('hit');
+
+            score++;
+            scoreBoard.textContent = score;
+            mole.classList.remove('show');
+            mole.classList.add('hit');
 
             const rect = mole.getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
 
             const popup = document.createElement('div');
-            popup.classList.add('score-popup'); popup.textContent = '+1';
-            popup.style.left = x + 'px'; popup.style.top = y + 'px';
+            popup.classList.add('score-popup');
+            popup.textContent = '+1';
+            popup.style.left = `${x}px`;
+            popup.style.top = `${y}px`;
             document.body.appendChild(popup);
             setTimeout(() => popup.remove(), 600);
 
             createDirtParticles(x, y);
             gameContainer.classList.add('shake');
-            setTimeout(() => gameContainer.classList.remove('shake'), 300);
-            setTimeout(() => mole.classList.remove('hit'), 200);
+            setTimeout(() => gameContainer.classList.remove('shake'), 250);
+            setTimeout(() => mole.classList.remove('hit'), 180);
         }
 
         moles.forEach(mole => {
@@ -365,6 +402,18 @@
         });
 
         startBtn.addEventListener('click', startGame);
+
+        // Tùy chọn: Hiện con trỏ khi hover vào nút (mượt hơn trên PC)
+        document.querySelectorAll('.controls, .btn, .diff-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                document.body.classList.remove('game-active');
+            });
+            el.addEventListener('mouseleave', () => {
+                if (!timeUp && startBtn.disabled) {  // chỉ ẩn nếu đang chơi
+                    document.body.classList.add('game-active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
