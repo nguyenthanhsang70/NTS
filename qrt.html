@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trình tạo mã QR Nghệ Thuật</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        input[type="url"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+        input[type="file"] {
+            border: 2px dashed #667eea;
+            background: #f8f9ff;
+            cursor: pointer;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f0f2f5;
+            border-radius: 10px;
+        }
+        /* Switch UI */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #667eea; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .btn-generate { background: #667eea; color: white; }
+        .btn-download { background: #2ecc71; color: white; display: none; }
+        
+        .qr-output {
+            margin-top: 20px;
+            text-align: center;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #qrCanvas {
+            max-width: 100%;
+            height: auto !important;
+            border-radius: 10px;
+        }
+        #imagePreview {
+            display: none;
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 10px auto;
+            border: 2px solid #667eea;
+        }
+        .status-msg { font-size: 13px; color: #666; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎨 QR Art Generator</h1>
+    
+    <div class="form-group">
+        <label>🔗 Liên kết (URL)</label>
+        <input type="url" id="linkInput" placeholder="https://example.com" value="https://google.com">
+    </div>
+
+    <div class="form-group">
+        <label>🖼️ Ảnh nền nghệ thuật</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="imagePreview">
+    </div>
+
+    <div class="toggle-container">
+        <label class="switch">
+            <input type="checkbox" id="colorToggle" checked>
+            <span class="slider"></span>
+        </label>
+        <span>Chế độ trộn ảnh nghệ thuật</span>
+    </div>
+
+    <div id="statusText" class="status-msg">Sẵn sàng tạo mã...</div>
+
+    <button class="btn-generate" onclick="generateQR()">✨ Tạo mã QR</button>
+    <button id="downloadBtn" class="btn-download" onclick="downloadQR()">⬇ Tải ảnh về máy</button>
+
+    <div class="qr-output">
+        <div id="qrcode">
+            <p style="color: #999;">Mã QR sẽ xuất hiện tại đây</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let extractedColors = null;
+    let imageLoaded = false;
+
+    // Xử lý khi chọn ảnh
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = document.getElementById('imagePreview');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                imageLoaded = true;
+                // Phân tích màu sắc cơ bản
+                analyzeImage(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function analyzeImage(src) {
+        const img = new Image();
+        img.onload = function() {
+            extractedColors = { primary: '#667eea' }; // Default color
+            document.getElementById('statusText').textContent = "Đã tải ảnh thành công!";
+        };
+        img.src = src;
+    }
+
+    function generateQR() {
+        const link = document.getElementById('linkInput').value.trim();
+        const useArt = document.getElementById('colorToggle').checked;
+        const container = document.getElementById('qrcode');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        if (!link) {
+            alert("Vui lòng nhập đường link!");
+            return;
+        }
+
+        container.innerHTML = '';
+        const size = 400; // Độ phân giải cao để dễ quét
+
+        if (useArt && imageLoaded) {
+            createArtisticQR(link, container, size);
+        } else {
+            createStandardQR(link, container, size);
+        }
+        
+        downloadBtn.style.display = 'block';
+    }
+
+    function createStandardQR(link, container, size) {
+        const canvas = document.createElement('canvas');
+        canvas.id = 'qrCanvas';
+        container.appendChild(canvas);
+        new QRious({
+            element: canvas,
+            value: link,
+            size: size,
+            level: 'H'
+        });
+    }
+
+    function createArtisticQR(link, container, size) {
+        const canvas = document.createElement('canvas');
+        canvas.id = 'qrCanvas';
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        container.appendChild(canvas);
+
+        // 1. Tạo QR thuần túy để lấy dữ liệu pixel (Level H để sửa lỗi 30%)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = size;
+        tempCanvas.height = size;
+        const qr = new QRious({
+            element: tempCanvas,
+            value: link,
+            size: size,
+            level: 'H',
+            foreground: '#000000',
+            background: '#ffffff'
+        });
+
+        const img = new Image();
+        img.src = document.getElementById('imagePreview').src;
+        img.onload = function() {
+            // 2. Vẽ ảnh nền (Cover)
+            const ratio = img.width / img.height;
+            let w = size, h = size, offsetX = 0, offsetY = 0;
+            if (ratio > 1) { w = size * ratio; offsetX = -(w - size) / 2; }
+            else { h = size / ratio; offsetY = -(h - size) / 2; }
+            
+            ctx.drawImage(img, offsetX, offsetY, w, h);
+
+            // 3. Phủ lớp trắng mờ 20% để làm sáng nền chung
+            ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+            ctx.fillRect(0, 0, size, size);
+
+            // 4. Trộn Pixel
+            const qrData = tempCanvas.getContext('2d').getImageData(0, 0, size, size).data;
+            const bgData = ctx.getImageData(0, 0, size, size).data;
+            const result = ctx.createImageData(size, size);
+            const resData = result.data;
+
+            for (let i = 0; i < qrData.length; i += 4) {
+                const isBlack = qrData[i] < 128; // Là điểm đen của QR
+
+                if (isBlack) {
+                    // CÔNG THỨC QUAN TRỌNG: Làm tối vùng ảnh tại điểm đen của QR
+                    // Lấy 15% màu ảnh trộn với 85% màu đen
+                    resData[i]     = bgData[i] * 0.15;
+                    resData[i + 1] = bgData[i+1] * 0.15;
+                    resData[i + 2] = bgData[i+2] * 0.15;
+                    resData[i + 3] = 255;
+                } else {
+                    // Vùng trắng của QR: Giữ ảnh nền nhưng làm sáng lên 1 chút để tăng tương phản
+                    resData[i]     = Math.min(255, bgData[i] + 40);
+                    resData[i + 1] = Math.min(255, bgData[i+1] + 40);
+                    resData[i + 2] = Math.min(255, bgData[i+2] + 40);
+                    resData[i + 3] = 255;
+                }
+            }
+            ctx.putImageData(result, 0, 0);
+            
+            // Vẽ viền mỏng
+            ctx.strokeStyle = "rgba(0,0,0,0.1)";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0,0, size, size);
+        };
+    }
+
+    function downloadQR() {
+        const canvas = document.getElementById('qrCanvas');
+        if (!canvas) return;
+        const link = document.createElement('a');
+        link.download = `QR_Art_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+</script>
+
+</body>
+</html>
