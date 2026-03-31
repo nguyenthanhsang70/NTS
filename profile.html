@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile NTS</title>
-    <link rel="icon" type="image/png" href="logos3.png">
+    <title>Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        /* Sử dụng Be Vietnam Pro để hỗ trợ dấu tiếng Việt tốt nhất */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;800&display=swap');
         
         :root {
-            --primary: #6C63FF;
-            --secondary: #4D44DB;
-            --dark: #2F2E41;
-            --light: #F8F9FA;
-            --text: #495057;
-            --facebook: #1877F2;
-            --instagram: #E4405F;
-            --tiktok: #000000;
-            --youtube: #FF0000;
+            --primary: #6366f1;
+            --accent: #06b6d4;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
         
         * {
@@ -28,352 +26,338 @@
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #E2E3FE 0%, #F9F9FF 100%);
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
-        
-        .profile-card {
-            width: 100%;
-            max-width: 420px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        
-        .profile-card::before {
+
+        body::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-            opacity: 0.1;
+            width: 350px;
+            height: 350px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.15;
+            top: -50px;
+            right: -50px;
             z-index: -1;
-            animation: rotate 15s linear infinite;
         }
-        
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
+
+        .profile-card {
+            width: 100%;
+            max-width: 450px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            padding: 45px 25px 35px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            position: relative;
         }
-        
+
         .back-button {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.8);
+            top: 25px;
+            left: 25px;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--glass);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
-            font-size: 18px;
+            color: var(--text-main);
             text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 2;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
         }
+        .back-button:hover { background: var(--primary); }
         
-        .back-button:hover {
-            background: white;
-            transform: translateX(-3px);
-        }
-        
-        .avatar-container {
+        .avatar-wrapper {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto 20px;
         }
+        .avatar-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 6s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
         .avatar {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
-            border: 5px solid white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 4px solid #0f172a;
         }
+        
+        .name-container { margin-bottom: 25px; }
         
         .name {
-            font-size: clamp(22px, 5vw, 28px);
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0px; /* Giảm khoảng cách dưới tên chính */
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            line-height: 1.5; 
+            padding-top: 5px;
+            display: block;
         }
         
-        /* CSS mới cho tên tiếng Trung */
         .sub-name {
-            font-size: 20px;
+            font-size: 18px;
+            color: var(--accent);
+            margin-bottom: 5px;
             font-weight: 400;
-            color: var(--text);
-            margin-bottom: 10px;
-            letter-spacing: 1px;
         }
         
-        .title {
-            font-size: clamp(14px, 3vw, 16px);
-            color: var(--primary);
-            font-weight: 500;
-            margin-bottom: 20px;
-            display: inline-block;
-            padding: 5px 15px;
-            background: rgba(108, 99, 255, 0.1);
-            border-radius: 50px;
+        .job-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            opacity: 0.8;
         }
         
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
         }
-        
         .info-item {
-            background: rgba(255, 255, 255, 0.6);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-width: 120px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 14px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: 0.3s;
         }
-        
-        .info-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.9);
+        .info-item i { font-size: 18px; color: var(--accent); margin-bottom: 8px; }
+        .info-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .info-value { font-size: 13px; font-weight: 600; }
+
+        .section-header {
+            text-align: left;
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0 0 15px 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
         }
-        
-        .info-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-            color: var(--primary);
+        .section-header i { font-size: 16px; color: var(--accent); }
+
+        .links-container {
+            text-align: left;
+            padding-left: 10px;
+            margin-bottom: 15px;
         }
-        
-        .info-label {
-            font-size: 12px;
-            color: var(--text);
-            margin-bottom: 3px;
+        .link-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .link-item i {
+            color: #f8fafc;
+            font-size: 16px;
+            transform: rotate(-45deg);
+            opacity: 0.8;
+        }
+        .link-item span {
+            color: #3b82f6;
+            font-size: 15px;
             font-weight: 500;
         }
-        
-        .info-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--dark);
+        .link-item:hover { transform: translateX(5px); }
+
+        /* ĐÃ CHỈNH SỬA GAP TẠI ĐÂY */
+        .hobbies-list {
+            display: flex;
+            justify-content: flex-start;
+            gap: 16px; /* Tăng khoảng cách giữa các tag */
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            padding-left: 5px;
         }
+        .hobby-tag {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 7px 15px;
+            border-radius: 100px;
+            font-size: 12px;
+            color: var(--text-main);
+            transition: 0.3s;
+        }
+        .hobby-tag:hover { background: var(--primary); transform: translateY(-2px); }
+
+        .company-card {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 16px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--glass-border);
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .company-logo img { width: 80%; object-fit: contain; }
+        .company-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .company-role { font-size: 13px; color: var(--text-muted); }
         
         .social-links {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            padding-top: 10px;
         }
-        
         .social-link {
             width: 45px;
             height: 45px;
-            border-radius: 50%;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
             text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
         }
-        
-        .social-link::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: translateX(-100%);
-            transition: 0.5s;
-        }
-        
         .social-link:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .social-link:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .facebook { background: var(--facebook); }
-        .instagram { background: var(--instagram); }
-        .tiktok { background: var(--tiktok); }
-        .youtube { background: var(--youtube); }
-        
-        .hobbies {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .hobbies-title {
-            font-size: 14px;
-            color: var(--text);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .hobbies-list {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .hobby {
-            background: rgba(108, 99, 255, 0.1);
-            color: var(--primary);
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 500;
+            transform: translateY(-5px);
+            background: var(--primary);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .profile-card {
-                padding: 25px 20px;
-                border-radius: 15px;
-            }
-            
-            .avatar-container {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            
-            .info-item {
-                padding: 12px 10px;
-                min-width: 100px;
-            }
-            
-            .social-link {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-            
-            .back-button {
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
-                top: 15px;
-                left: 15px;
-            }
-        }
-
-        @media (max-width: 350px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .hobby {
-                padding: 5px 12px;
-                font-size: 12px;
-            }
+        @media (max-width: 400px) {
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+
     <div class="profile-card">
-        <a href="index.html" class="back-button" onclick="history.back()">
+        <a href="#" class="back-button" onclick="history.back()">
             <i class="fas fa-arrow-left"></i>
         </a>
         
-        <div class="avatar-container">
-            <img src="avatarnts.jpg" alt="Avatar" class="avatar">
+        <div class="avatar-wrapper">
+            <img src="avatarnts.jpg" alt="Nguyễn Thanh Sang" class="avatar">
         </div>
         
-        <h1 class="name">NGUYỄN THANH SANG</h1>
-        <div class="sub-name">(阮清尚)</div>
-        
-        <div class="title">INFORMATION TECHNOLOGY (IT)</div>
+        <div class="name-container">
+            <h1 class="name">Nguyễn Thanh Sang</h1>
+            <div class="sub-name">阮清尚</div>
+            <div class="job-title">Information Technology (IT)</div>
+        </div>
         
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-icon">👦</div>
+                <i class="fas fa-venus-mars"></i>
                 <div class="info-label">Giới tính</div>
                 <div class="info-value">Nam</div>
             </div>
-            
             <div class="info-item">
-                <div class="info-icon">🎂</div>
+                <i class="fas fa-birthday-cake"></i>
                 <div class="info-label">Ngày sinh</div>
                 <div class="info-value">01/10/2006</div>
             </div>
-            
             <div class="info-item">
-                <div class="info-icon">💑</div>
+                <i class="fas fa-heart"></i>
                 <div class="info-label">Mối quan hệ</div>
                 <div class="info-value">Độc thân</div>
             </div>
-            
             <div class="info-item">
-                <div class="info-icon">💻</div>
-                <div class="info-label">Ngành</div>
-                <div class="info-value">ỨNG DỤNG PHẦN MỀM</div>
-            </div>
-
-            <div class="info-item" style="grid-column: span 2;">
-                <div class="info-icon">🏢</div>
-                <div class="info-label">Công ty</div>
-                <div class="info-value">Zheng Xing</div>
+                <i class="fas fa-laptop-code"></i>
+                <div class="info-label">Chuyên ngành</div>
+                <div class="info-value">Phần mềm</div>
             </div>
         </div>
-        
-        <div class="hobbies">
-            <div class="hobbies-title">Sở thích</div>
-            <div class="hobbies-list">
-                <div class="hobby">Nghe nhạc</div>
-                <div class="hobby">Xem phim</div>
-                <div class="hobby">Đá bóng</div>
+
+        <div class="section-header">
+            <i class="fas fa-briefcase"></i>
+            Công việc
+        </div>
+        <div class="company-card">
+            <div class="company-logo">
+                <img src="logo-zhengxing.jpg" alt="ZhengXing Logo">
             </div>
+            <div class="company-info">
+                <div class="company-name">Công Ty ZhengXing Việt Nam</div>
+                <div class="company-role">IT Department</div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <i class="fas fa-link"></i>
+            Liên kết
+        </div>
+        <div class="links-container">
+            <a href="https://locket.cam/thanhsang70" class="link-item" target="_blank">
+                <i class="fas fa-link"></i> <span>locket.cam/thanhsang70</span>
+            </a>
+        </div>
+        <div class="links-container">
+            <a href="https://nguyenthanhsang70.github.io/NTS/" class="link-item" target="_blank">
+                <i class="fas fa-link"></i> <span>Web của Sang</span>
+            </a>
+        </div>
+
+        <div class="section-header">
+            <i class="fas fa-star"></i>
+            Sở thích
+        </div>
+        <div class="hobbies-list">
+            <span class="hobby-tag">🎧 Nghe nhạc</span>
+            <span class="hobby-tag">🎬 Xem phim</span>
+            <span class="hobby-tag">⚽ Đá bóng</span>
         </div>
         
         <div class="social-links">
-            <a href="https://www.facebook.com/nguyenthanhsang70" class="social-link facebook" target="_blank">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://www.instagram.com/ngth.sang70/" class="social-link instagram" target="_blank">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://www.tiktok.com/@thanh.sang70" class="social-link tiktok" target="_blank">
-                <i class="fab fa-tiktok"></i>
-            </a>
-            <a href="https://www.youtube.com/@nguyenthanhsang70" class="social-link youtube" target="_blank">
-                <i class="fab fa-youtube"></i>
-            </a>
+            <a href="https://www.facebook.com/nguyenthanhsang70" class="social-link" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/ngth.sang70/" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/@thanh.sang70" class="social-link" target="_blank"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.youtube.com/@nguyenthanhsang70" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
         </div>
     </div>
+
 </body>
 </html>
