@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet" />
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Flag Icons (thay thế emoji cờ, hoạt động trên mọi trình duyệt) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css" />
   <!-- AOS (Animate On Scroll) -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 
@@ -49,6 +51,20 @@
     }
 
     /* ============================================================
+       FLAG ICONS — đảm bảo hiển thị đúng mọi trình duyệt
+       ============================================================ */
+    .fi {
+      display: inline-block;
+      width: 1.333em;
+      height: 1em;
+      border-radius: 2px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* ============================================================
        LANGUAGE SWITCHER
        ============================================================ */
     .lang-switcher {
@@ -78,7 +94,16 @@
     }
     .lang-switcher__toggle:hover { border-color: var(--color-primary); background: rgba(0,242,255,0.05); }
 
-    .lang-switcher__flag { font-size: 1rem; line-height: 1; }
+    .lang-switcher__flag {
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .lang-switcher__flag .fi {
+      width: 1.4em;
+      height: 1em;
+    }
 
     .lang-switcher__chevron {
       font-size: 0.6rem;
@@ -91,15 +116,14 @@
       position: absolute;
       top: calc(100% + 0.5rem);
       right: 0;
-      min-width: 180px;
+      min-width: 200px;
       max-height: 420px;
       overflow-y: auto;
+      overflow-x: hidden;
       background: rgba(10,5,26,0.97);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 1rem;
-      overflow-x: hidden;
-      /* hidden by default */
       opacity: 0;
       transform: translateY(-8px) scale(0.97);
       pointer-events: none;
@@ -114,10 +138,8 @@
       opacity: 1;
       transform: translateY(0) scale(1);
       pointer-events: auto;
-      overflow-y: auto;
     }
 
-    /* Divider line between language groups */
     .lang-switcher__divider {
       height: 1px;
       background: rgba(255,255,255,0.07);
@@ -148,7 +170,12 @@
       margin-left: auto;
       font-size: 0.75rem;
     }
-    .lang-switcher__option-flag { font-size: 1.125rem; }
+    .lang-switcher__option .fi {
+      width: 1.4em;
+      height: 1em;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
     .lang-switcher__option-name { flex: 1; }
 
     /* ============================================================
@@ -173,7 +200,6 @@
       pointer-events: none;
     }
 
-    /* Spinner rings */
     .preloader__spinner {
       position: relative;
       width: 200px;
@@ -348,7 +374,6 @@
       overflow: hidden;
     }
 
-    /* Decorative rotating rings behind hero content */
     .hero__rings {
       position: absolute;
       inset: 0;
@@ -453,7 +478,6 @@
       display: inline-block;
     }
 
-    /* Shimmer sweep on hover */
     .btn::after {
       content: '';
       position: absolute;
@@ -547,7 +571,6 @@
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
 
-    /* Icon box */
     .tool-card__icon-wrap {
       width: 4rem;
       height: 4rem;
@@ -561,7 +584,6 @@
       transition: background 0.5s, color 0.5s;
     }
 
-    /* Per-card accent colours via data attributes */
     .tool-card[data-accent="cyan"] .tool-card__icon-wrap {
       background: rgba(0,242,255,0.07); border-color: rgba(0,242,255,0.2); color: #22d3ee;
     }
@@ -694,11 +716,11 @@
        ============================================================ */
     @keyframes spin        { to { transform: rotate(360deg); } }
     @keyframes float       { to { transform: translate(60px, 40px) scale(1.1); } }
-    @keyframes bounce      {
+    @keyframes bounce {
       0%, 100% { transform: translateX(-50%) translateY(0); }
       50%      { transform: translateX(-50%) translateY(-12px); }
     }
-    @keyframes pulse       {
+    @keyframes pulse {
       0%, 100% { opacity: 1; }
       50%      { opacity: 0.4; }
     }
@@ -761,149 +783,151 @@
 
   <!-- ============================================================
        LANGUAGE SWITCHER (fixed, top-right)
+       — Dùng flag-icons CSS thay emoji, hoạt động mọi trình duyệt
        ============================================================ -->
   <div id="js-lang-switcher" class="lang-switcher" aria-label="Chọn ngôn ngữ">
     <button class="lang-switcher__toggle" id="js-lang-toggle" aria-haspopup="listbox" aria-expanded="false">
-      <span class="lang-switcher__flag" id="js-lang-flag">🇻🇳</span>
+      <span class="lang-switcher__flag" id="js-lang-flag"><span class="fi fi-vn"></span></span>
       <span id="js-lang-label">Tiếng Việt</span>
       <i class="fas fa-chevron-down lang-switcher__chevron" aria-hidden="true"></i>
     </button>
 
     <div class="lang-switcher__dropdown" role="listbox" id="js-lang-dropdown">
 
-      <!-- ── Đông Nam Á ── -->
+      <!-- Đông Nam Á -->
       <button class="lang-switcher__option is-active" role="option" data-lang="vi">
-        <span class="lang-switcher__option-flag">🇻🇳</span>
+        <span class="fi fi-vn"></span>
         <span class="lang-switcher__option-name">Tiếng Việt</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="th">
-        <span class="lang-switcher__option-flag">🇹🇭</span>
+        <span class="fi fi-th"></span>
         <span class="lang-switcher__option-name">ภาษาไทย</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="km">
-        <span class="lang-switcher__option-flag">🇰🇭</span>
+        <span class="fi fi-kh"></span>
         <span class="lang-switcher__option-name">ភាសាខ្មែរ</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="lo">
-        <span class="lang-switcher__option-flag">🇱🇦</span>
+        <span class="fi fi-la"></span>
         <span class="lang-switcher__option-name">ພາສາລາວ</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="id">
-        <span class="lang-switcher__option-flag">🇮🇩</span>
+        <span class="fi fi-id"></span>
         <span class="lang-switcher__option-name">Bahasa Indonesia</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="ms">
-        <span class="lang-switcher__option-flag">🇲🇾</span>
+        <span class="fi fi-my"></span>
         <span class="lang-switcher__option-name">Bahasa Melayu</span>
       </button>
 
       <div class="lang-switcher__divider"></div>
 
-      <!-- ── Đông Á ── -->
+      <!-- Đông Á -->
       <button class="lang-switcher__option" role="option" data-lang="zh">
-        <span class="lang-switcher__option-flag">🇨🇳</span>
+        <span class="fi fi-cn"></span>
         <span class="lang-switcher__option-name">中文 (简体)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="zh-TW">
-        <span class="lang-switcher__option-flag">🇹🇼</span>
+        <span class="fi fi-tw"></span>
         <span class="lang-switcher__option-name">中文 (繁體·臺灣)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="zh-HK">
-        <span class="lang-switcher__option-flag">🇭🇰</span>
+        <span class="fi fi-hk"></span>
         <span class="lang-switcher__option-name">中文 (繁體·香港)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="zh-MO">
-        <span class="lang-switcher__option-flag">🇲🇴</span>
+        <span class="fi fi-mo"></span>
         <span class="lang-switcher__option-name">中文 (繁體·澳門)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="ja">
-        <span class="lang-switcher__option-flag">🇯🇵</span>
+        <span class="fi fi-jp"></span>
         <span class="lang-switcher__option-name">日本語</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="ko">
-        <span class="lang-switcher__option-flag">🇰🇷</span>
+        <span class="fi fi-kr"></span>
         <span class="lang-switcher__option-name">한국어</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="kp">
-        <span class="lang-switcher__option-flag">🇰🇵</span>
+        <span class="fi fi-kp"></span>
         <span class="lang-switcher__option-name">조선말 (朝鮮)</span>
       </button>
 
       <div class="lang-switcher__divider"></div>
 
-      <!-- ── Nam Á & Trung Đông ── -->
+      <!-- Nam Á & Trung Đông -->
       <button class="lang-switcher__option" role="option" data-lang="hi">
-        <span class="lang-switcher__option-flag">🇮🇳</span>
+        <span class="fi fi-in"></span>
         <span class="lang-switcher__option-name">हिन्दी</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="ar">
-        <span class="lang-switcher__option-flag">🇸🇦</span>
+        <span class="fi fi-sa"></span>
         <span class="lang-switcher__option-name">العربية</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="tr">
-        <span class="lang-switcher__option-flag">🇹🇷</span>
+        <span class="fi fi-tr"></span>
         <span class="lang-switcher__option-name">Türkçe</span>
       </button>
 
       <div class="lang-switcher__divider"></div>
 
-      <!-- ── Châu Âu ── -->
+      <!-- Châu Âu -->
       <button class="lang-switcher__option" role="option" data-lang="en">
-        <span class="lang-switcher__option-flag">🇬🇧</span>
+        <span class="fi fi-gb"></span>
         <span class="lang-switcher__option-name">English (UK)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="en-US">
-        <span class="lang-switcher__option-flag">🇺🇸</span>
+        <span class="fi fi-us"></span>
         <span class="lang-switcher__option-name">English (US)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="en-NZ">
-        <span class="lang-switcher__option-flag">🇳🇿</span>
+        <span class="fi fi-nz"></span>
         <span class="lang-switcher__option-name">English (NZ)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="de">
-        <span class="lang-switcher__option-flag">🇩🇪</span>
+        <span class="fi fi-de"></span>
         <span class="lang-switcher__option-name">Deutsch</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="de-CH">
-        <span class="lang-switcher__option-flag">🇨🇭</span>
+        <span class="fi fi-ch"></span>
         <span class="lang-switcher__option-name">Deutsch (Schweiz)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="fr">
-        <span class="lang-switcher__option-flag">🇨🇦</span>
+        <span class="fi fi-ca"></span>
         <span class="lang-switcher__option-name">Français (Canada)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="it">
-        <span class="lang-switcher__option-flag">🇮🇹</span>
+        <span class="fi fi-it"></span>
         <span class="lang-switcher__option-name">Italiano</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="es">
-        <span class="lang-switcher__option-flag">🇪🇸</span>
+        <span class="fi fi-es"></span>
         <span class="lang-switcher__option-name">Español</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="es-MX">
-        <span class="lang-switcher__option-flag">🇲🇽</span>
+        <span class="fi fi-mx"></span>
         <span class="lang-switcher__option-name">Español (México)</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="pt">
-        <span class="lang-switcher__option-flag">🇵🇹</span>
+        <span class="fi fi-pt"></span>
         <span class="lang-switcher__option-name">Português</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="nl">
-        <span class="lang-switcher__option-flag">🇳🇱</span>
+        <span class="fi fi-nl"></span>
         <span class="lang-switcher__option-name">Nederlands</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="ru">
-        <span class="lang-switcher__option-flag">🇷🇺</span>
+        <span class="fi fi-ru"></span>
         <span class="lang-switcher__option-name">Русский</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="fi">
-        <span class="lang-switcher__option-flag">🇫🇮</span>
+        <span class="fi fi-fi"></span>
         <span class="lang-switcher__option-name">Suomi</span>
       </button>
       <button class="lang-switcher__option" role="option" data-lang="sv">
-        <span class="lang-switcher__option-flag">🇸🇪</span>
+        <span class="fi fi-se"></span>
         <span class="lang-switcher__option-name">Svenska</span>
       </button>
+
     </div>
   </div>
 
@@ -911,13 +935,11 @@
        HERO SECTION
        ============================================================ -->
   <header class="hero">
-    <!-- Decorative rings -->
     <div class="hero__rings" aria-hidden="true">
       <div class="hero__ring hero__ring--lg"></div>
       <div class="hero__ring hero__ring--md"></div>
     </div>
 
-    <!-- Main content -->
     <div class="hero__content" data-aos="fade-up" data-aos-duration="1500">
       <span class="hero__badge" data-i18n="hero.badge">Phiên bản nâng cấp cải tiến</span>
 
@@ -933,7 +955,6 @@
       </div>
     </div>
 
-    <!-- Scroll hint -->
     <div class="hero__scroll-hint" aria-hidden="true">
       <i class="fas fa-chevron-down" style="font-size:1.5rem;"></i>
     </div>
@@ -945,7 +966,6 @@
   <section id="tools" class="tools-section">
     <div class="tools-section__inner">
 
-      <!-- Section header -->
       <div class="tools-section__header" data-aos="fade-right">
         <div>
           <h2 class="tools-section__heading" data-i18n="tools.heading">Kho Tiện Ích</h2>
@@ -957,7 +977,6 @@
         </p>
       </div>
 
-      <!-- Cards grid -->
       <div class="tools-grid">
 
         <!-- Minigames -->
@@ -1045,7 +1064,7 @@
           </a>
         </article>
 
-      </div><!-- /.tools-grid -->
+      </div>
     </div>
   </section>
 
@@ -1058,8 +1077,7 @@
       <ul class="site-footer__social-list" aria-label="Mạng xã hội">
         <li>
           <a href="https://www.facebook.com/nguyenthanhsang70"
-             target="_blank"
-             rel="noopener noreferrer"
+             target="_blank" rel="noopener noreferrer"
              class="site-footer__social-link site-footer__social-link--facebook"
              aria-label="Facebook">
             <i class="fab fa-facebook-f" aria-hidden="true"></i>
@@ -1067,8 +1085,7 @@
         </li>
         <li>
           <a href="https://www.instagram.com/ngth.sang70/"
-             target="_blank"
-             rel="noopener noreferrer"
+             target="_blank" rel="noopener noreferrer"
              class="site-footer__social-link site-footer__social-link--instagram"
              aria-label="Instagram">
             <i class="fab fa-instagram" aria-hidden="true"></i>
@@ -1076,8 +1093,7 @@
         </li>
         <li>
           <a href="https://www.tiktok.com/@thanh.sang70"
-             target="_blank"
-             rel="noopener noreferrer"
+             target="_blank" rel="noopener noreferrer"
              class="site-footer__social-link site-footer__social-link--tiktok"
              aria-label="TikTok">
             <i class="fab fa-tiktok" aria-hidden="true"></i>
@@ -1103,17 +1119,12 @@
   <script>
     'use strict';
 
-    /* ==============================================================
-       SHARED STATE
-       ============================================================== */
     var typewriterTimer = null;
 
     /* ==============================================================
        I18N — Translations dictionary
        ============================================================== */
     const TRANSLATIONS = {
-
-      /* ── Tiếng Việt ─────────────────────────────────────────── */
       vi: {
         'page.title':          'NTS — Trang Chủ',
         'hero.badge':          'Phiên bản nâng cấp cải tiến',
@@ -1143,8 +1154,6 @@
         'footer.credit':       'Designed & Engineered by',
         'footer.copyright':    '© 2026 Bản quyền được bảo lưu',
       },
-
-      /* ── English ─────────────────────────────────────────────── */
       en: {
         'page.title':          'NTS — Home',
         'hero.badge':          'Upgraded & Improved Version',
@@ -1174,8 +1183,6 @@
         'footer.credit':       'Designed & Engineered by',
         'footer.copyright':    '© 2026 All Rights Reserved',
       },
-
-      /* ── 日本語 ───────────────────────────────────────────────── */
       ja: {
         'page.title':          'NTS — ホーム',
         'hero.badge':          'アップグレード・改善バージョン',
@@ -1205,8 +1212,6 @@
         'footer.credit':       'デザイン・エンジニアリング by',
         'footer.copyright':    '© 2026 全著作権所有',
       },
-
-      /* ── 中文 ─────────────────────────────────────────────────── */
       zh: {
         'page.title':          'NTS — 首页',
         'hero.badge':          '升级改进版本',
@@ -1236,8 +1241,6 @@
         'footer.credit':       '设计与开发 by',
         'footer.copyright':    '© 2026 版权所有',
       },
-
-      /* ── 한국어 ───────────────────────────────────────────────── */
       ko: {
         'page.title':          'NTS — 홈',
         'hero.badge':          '업그레이드 및 개선 버전',
@@ -1267,8 +1270,6 @@
         'footer.credit':       '디자인 & 개발 by',
         'footer.copyright':    '© 2026 모든 권리 보유',
       },
-
-      /* ── Français (Canada) ────────────────────────────────────── */
       fr: {
         'page.title':          'NTS — Accueil',
         'hero.badge':          'Version améliorée et mise à niveau',
@@ -1298,8 +1299,6 @@
         'footer.credit':       'Conçu & développé par',
         'footer.copyright':    '© 2026 Tous droits réservés',
       },
-
-      /* ── Italiano ─────────────────────────────────────────────── */
       it: {
         'page.title':          'NTS — Home',
         'hero.badge':          'Versione aggiornata e migliorata',
@@ -1312,7 +1311,7 @@
         'card.games.desc':     'Un laboratorio di giochi con classici intramontabili rimasterizzati.',
         'card.games.cta':      'Avvia gioco',
         'card.love.title':     'Dichiarazione d\'Amore',
-        'card.love.desc':      'Conquista il cuore del tuo crush con interfacce creative (per chi ha qualcuno di speciale).',
+        'card.love.desc':      'Conquista il cuore del tuo crush con interfacce creative.',
         'card.love.cta':       'Invia amore',
         'card.birthday.title': 'Compleanno',
         'card.birthday.desc':  'Crea ricordi digitali indimenticabili per i tuoi amici.',
@@ -1329,8 +1328,6 @@
         'footer.credit':       'Progettato & sviluppato da',
         'footer.copyright':    '© 2026 Tutti i diritti riservati',
       },
-
-      /* ── ภาษาไทย ─────────────────────────────────────────────── */
       th: {
         'page.title':          'NTS — หน้าแรก',
         'hero.badge':          'เวอร์ชันอัปเกรดและปรับปรุง',
@@ -1360,8 +1357,6 @@
         'footer.credit':       'ออกแบบและพัฒนาโดย',
         'footer.copyright':    '© 2026 สงวนลิขสิทธิ์ทั้งหมด',
       },
-
-      /* ── ភាសាខ្មែរ (Khmer / Cambodia) ───────────────────────── */
       km: {
         'page.title':          'NTS — ទំព័រដើម',
         'hero.badge':          'កំណែដែលបានធ្វើឱ្យប្រសើរ',
@@ -1380,7 +1375,7 @@
         'card.birthday.desc':  'បង្កើតការចងចាំឌីជីថលដែលមិនអាចបំភ្លេចបាន សម្រាប់មិត្តភ័ក្ដិ។',
         'card.birthday.cta':   'បង្កើតកាតអំណាប',
         'card.device.title':   'ពិនិត្យឧបករណ៍',
-        'card.device.desc':    'វិភាគស្ រ អំពីលក្ខណៈបច្ចេកទេសសន្ និ ដ្ ឋានអ ុ បករណ៍ ។',
+        'card.device.desc':    'វិភាគស្រ អំពីលក្ខណៈបច្ចេកទេសសន្និដ្ឋានអុបករណ៍។',
         'card.device.cta':     'ពិនិត្យឥឡូវ',
         'card.qr.title':       'បង្កើត QR',
         'card.qr.desc':        'បង្កើតលេខសម្គាល់ផ្ទាល់ខ្លួនយ៉ាងរហ័ស ជាមួយទម្រង់ច្រើនប្រភេទ។',
@@ -1391,8 +1386,6 @@
         'footer.credit':       'រចនា & អភិវឌ្ឍដោយ',
         'footer.copyright':    '© 2026 រក្សាសិទ្ធិទាំងអស់',
       },
-
-      /* ── हिन्दी (India) ──────────────────────────────────────── */
       hi: {
         'page.title':          'NTS — होम',
         'hero.badge':          'अपग्रेडेड और बेहतर संस्करण',
@@ -1405,7 +1398,7 @@
         'card.games.desc':     'क्लासिक गेम्स के रीमेक के साथ एक मनोरंजन प्रयोगशाला।',
         'card.games.cta':      'गेम शुरू करें',
         'card.love.title':     'प्रेम निवेदन',
-        'card.love.desc':      'क्रिएटिव इंटरफेस से अपने क्रश का दिल जीतें (उनके लिए जिनका कोई खास है)।',
+        'card.love.desc':      'क्रिएटिव इंटरफेस से अपने क्रश का दिल जीतें।',
         'card.love.cta':       'प्यार भेजें',
         'card.birthday.title': 'जन्मदिन',
         'card.birthday.desc':  'दोस्तों के लिए अविस्मरणीय डिजिटल यादें बनाएं।',
@@ -1422,8 +1415,6 @@
         'footer.credit':       'डिज़ाइन & इंजीनियरिंग by',
         'footer.copyright':    '© 2026 सर्वाधिकार सुरक्षित',
       },
-
-      /* ── ພາສາລາວ (Lào) ───────────────────────────────────────── */
       lo: {
         'page.title':          'NTS — ໜ້າຫຼັກ',
         'hero.badge':          'ສະບັບອັບເກຣດແລະປັບປຸງ',
@@ -1453,8 +1444,6 @@
         'footer.credit':       'ອອກແບບ & ພັດທະນາໂດຍ',
         'footer.copyright':    '© 2026 ສະຫງວນລິຂະສິດ',
       },
-
-      /* ── Bahasa Indonesia ─────────────────────────────────────── */
       id: {
         'page.title':          'NTS — Beranda',
         'hero.badge':          'Versi yang Ditingkatkan',
@@ -1484,8 +1473,6 @@
         'footer.credit':       'Dirancang & Dikembangkan oleh',
         'footer.copyright':    '© 2026 Semua Hak Dilindungi',
       },
-
-      /* ── Bahasa Melayu (Malaysia) ─────────────────────────────── */
       ms: {
         'page.title':          'NTS — Laman Utama',
         'hero.badge':          'Versi Dinaik Taraf & Ditambah Baik',
@@ -1515,8 +1502,6 @@
         'footer.credit':       'Direka & Dibangunkan oleh',
         'footer.copyright':    '© 2026 Hak Cipta Terpelihara',
       },
-
-      /* ── 中文 繁體·臺灣 ────────────────────────────────────────── */
       'zh-TW': {
         'page.title':          'NTS — 首頁',
         'hero.badge':          '升級改進版本',
@@ -1546,8 +1531,6 @@
         'footer.credit':       '設計與開發 by',
         'footer.copyright':    '© 2026 版權所有',
       },
-
-      /* ── 中文 繁體·香港 ────────────────────────────────────────── */
       'zh-HK': {
         'page.title':          'NTS — 主頁',
         'hero.badge':          '升級改進版本',
@@ -1577,8 +1560,6 @@
         'footer.credit':       '設計與開發 by',
         'footer.copyright':    '© 2026 版權所有',
       },
-
-      /* ── 中文 繁體·澳門 ────────────────────────────────────────── */
       'zh-MO': {
         'page.title':          'NTS — 主頁',
         'hero.badge':          '升級改進版本',
@@ -1608,8 +1589,6 @@
         'footer.credit':       '設計與開發 by',
         'footer.copyright':    '© 2026 版權所有',
       },
-
-      /* ── 조선말 (Triều Tiên / CHDCND Triều Tiên) ─────────────── */
       kp: {
         'page.title':          'NTS — 기본 페지',
         'hero.badge':          '갱신 및 개선된 판본',
@@ -1639,8 +1618,6 @@
         'footer.credit':       '설계 & 개발',
         'footer.copyright':    '© 2026 모든 권리 보유',
       },
-
-      /* ── العربية ──────────────────────────────────────────────── */
       ar: {
         'page.title':          'NTS — الرئيسية',
         'hero.badge':          'النسخة المحسّنة والمطوّرة',
@@ -1670,8 +1647,6 @@
         'footer.credit':       'تصميم وتطوير بواسطة',
         'footer.copyright':    '© 2026 جميع الحقوق محفوظة',
       },
-
-      /* ── Türkçe ───────────────────────────────────────────────── */
       tr: {
         'page.title':          'NTS — Ana Sayfa',
         'hero.badge':          'Geliştirilmiş ve İyileştirilmiş Sürüm',
@@ -1701,8 +1676,6 @@
         'footer.credit':       'Tasarım & Geliştirme by',
         'footer.copyright':    '© 2026 Tüm Hakları Saklıdır',
       },
-
-      /* ── English (US) ────────────────────────────────────────── */
       'en-US': {
         'page.title':          'NTS — Home',
         'hero.badge':          'Upgraded & Improved Version',
@@ -1732,8 +1705,6 @@
         'footer.credit':       'Designed & Engineered by',
         'footer.copyright':    '© 2026 All Rights Reserved',
       },
-
-      /* ── English (New Zealand) ───────────────────────────────── */
       'en-NZ': {
         'page.title':          'NTS — Home',
         'hero.badge':          'Upgraded & Improved Version',
@@ -1763,8 +1734,6 @@
         'footer.credit':       'Designed & Engineered by',
         'footer.copyright':    '© 2026 All Rights Reserved',
       },
-
-      /* ── Deutsch ──────────────────────────────────────────────── */
       de: {
         'page.title':          'NTS — Startseite',
         'hero.badge':          'Verbesserte & aktualisierte Version',
@@ -1794,8 +1763,6 @@
         'footer.credit':       'Gestaltet & entwickelt von',
         'footer.copyright':    '© 2026 Alle Rechte vorbehalten',
       },
-
-      /* ── Deutsch (Schweiz) ───────────────────────────────────── */
       'de-CH': {
         'page.title':          'NTS — Startseite',
         'hero.badge':          'Verbesserte & aktualisierte Version',
@@ -1825,8 +1792,6 @@
         'footer.credit':       'Gestaltet & entwickelt von',
         'footer.copyright':    '© 2026 Alle Rechte vorbehalten',
       },
-
-      /* ── Español (España) ────────────────────────────────────── */
       es: {
         'page.title':          'NTS — Inicio',
         'hero.badge':          'Versión mejorada y actualizada',
@@ -1856,8 +1821,6 @@
         'footer.credit':       'Diseñado & desarrollado por',
         'footer.copyright':    '© 2026 Todos los derechos reservados',
       },
-
-      /* ── Español (México) ────────────────────────────────────── */
       'es-MX': {
         'page.title':          'NTS — Inicio',
         'hero.badge':          'Versión mejorada y actualizada',
@@ -1887,8 +1850,6 @@
         'footer.credit':       'Diseñado & desarrollado por',
         'footer.copyright':    '© 2026 Todos los derechos reservados',
       },
-
-      /* ── Português ────────────────────────────────────────────── */
       pt: {
         'page.title':          'NTS — Página Inicial',
         'hero.badge':          'Versão melhorada e atualizada',
@@ -1918,8 +1879,6 @@
         'footer.credit':       'Desenhado & desenvolvido por',
         'footer.copyright':    '© 2026 Todos os direitos reservados',
       },
-
-      /* ── Nederlands ───────────────────────────────────────────── */
       nl: {
         'page.title':          'NTS — Startpagina',
         'hero.badge':          'Verbeterde & bijgewerkte versie',
@@ -1949,8 +1908,6 @@
         'footer.credit':       'Ontworpen & ontwikkeld door',
         'footer.copyright':    '© 2026 Alle rechten voorbehouden',
       },
-
-      /* ── Русский ──────────────────────────────────────────────── */
       ru: {
         'page.title':          'NTS — Главная',
         'hero.badge':          'Улучшенная и обновлённая версия',
@@ -1980,8 +1937,6 @@
         'footer.credit':       'Дизайн & разработка by',
         'footer.copyright':    '© 2026 Все права защищены',
       },
-
-      /* ── Suomi (Finland) ──────────────────────────────────────── */
       fi: {
         'page.title':          'NTS — Etusivu',
         'hero.badge':          'Päivitetty ja parannettu versio',
@@ -2011,8 +1966,6 @@
         'footer.credit':       'Suunniteltu & kehitetty by',
         'footer.copyright':    '© 2026 Kaikki oikeudet pidätetään',
       },
-
-      /* ── Svenska ──────────────────────────────────────────────── */
       sv: {
         'page.title':          'NTS — Startsida',
         'hero.badge':          'Uppgraderad och förbättrad version',
@@ -2044,38 +1997,40 @@
       },
     };
 
-    /* Language metadata (flag + display label for the switcher button) */
+    /* ----------------------------------------------------------
+       LANG_META — dùng flagClass thay vì emoji
+       ---------------------------------------------------------- */
     const LANG_META = {
-      vi:      { flag: '🇻🇳', label: 'Tiếng Việt'           },
-      th:      { flag: '🇹🇭', label: 'ภาษาไทย'              },
-      km:      { flag: '🇰🇭', label: 'ភាសាខ្មែរ'            },
-      lo:      { flag: '🇱🇦', label: 'ພາສາລາວ'              },
-      id:      { flag: '🇮🇩', label: 'Bahasa Indonesia'      },
-      ms:      { flag: '🇲🇾', label: 'Bahasa Melayu'         },
-      zh:      { flag: '🇨🇳', label: '中文 (简体)'           },
-      'zh-TW': { flag: '🇹🇼', label: '中文 (繁體·臺灣)'      },
-      'zh-HK': { flag: '🇭🇰', label: '中文 (繁體·香港)'      },
-      'zh-MO': { flag: '🇲🇴', label: '中文 (繁體·澳門)'      },
-      ja:      { flag: '🇯🇵', label: '日本語'                },
-      ko:      { flag: '🇰🇷', label: '한국어'                },
-      kp:      { flag: '🇰🇵', label: '조선말 (朝鮮)'         },
-      hi:      { flag: '🇮🇳', label: 'हिन्दी'               },
-      ar:      { flag: '🇸🇦', label: 'العربية'              },
-      tr:      { flag: '🇹🇷', label: 'Türkçe'               },
-      en:      { flag: '🇬🇧', label: 'English (UK)'          },
-      'en-US': { flag: '🇺🇸', label: 'English (US)'          },
-      'en-NZ': { flag: '🇳🇿', label: 'English (NZ)'          },
-      de:      { flag: '🇩🇪', label: 'Deutsch'               },
-      'de-CH': { flag: '🇨🇭', label: 'Deutsch (Schweiz)'     },
-      fr:      { flag: '🇨🇦', label: 'Français (Canada)'     },
-      it:      { flag: '🇮🇹', label: 'Italiano'              },
-      es:      { flag: '🇪🇸', label: 'Español'               },
-      'es-MX': { flag: '🇲🇽', label: 'Español (México)'      },
-      pt:      { flag: '🇵🇹', label: 'Português'             },
-      nl:      { flag: '🇳🇱', label: 'Nederlands'            },
-      ru:      { flag: '🇷🇺', label: 'Русский'               },
-      fi:      { flag: '🇫🇮', label: 'Suomi'                 },
-      sv:      { flag: '🇸🇪', label: 'Svenska'               },
+      vi:      { flagClass: 'fi-vn', label: 'Tiếng Việt'           },
+      th:      { flagClass: 'fi-th', label: 'ภาษาไทย'              },
+      km:      { flagClass: 'fi-kh', label: 'ភាសាខ្មែរ'            },
+      lo:      { flagClass: 'fi-la', label: 'ພາສາລາວ'              },
+      id:      { flagClass: 'fi-id', label: 'Bahasa Indonesia'      },
+      ms:      { flagClass: 'fi-my', label: 'Bahasa Melayu'         },
+      zh:      { flagClass: 'fi-cn', label: '中文 (简体)'           },
+      'zh-TW': { flagClass: 'fi-tw', label: '中文 (繁體·臺灣)'      },
+      'zh-HK': { flagClass: 'fi-hk', label: '中文 (繁體·香港)'      },
+      'zh-MO': { flagClass: 'fi-mo', label: '中文 (繁體·澳門)'      },
+      ja:      { flagClass: 'fi-jp', label: '日本語'                },
+      ko:      { flagClass: 'fi-kr', label: '한국어'                },
+      kp:      { flagClass: 'fi-kp', label: '조선말 (朝鮮)'         },
+      hi:      { flagClass: 'fi-in', label: 'हिन्दी'               },
+      ar:      { flagClass: 'fi-sa', label: 'العربية'              },
+      tr:      { flagClass: 'fi-tr', label: 'Türkçe'               },
+      en:      { flagClass: 'fi-gb', label: 'English (UK)'          },
+      'en-US': { flagClass: 'fi-us', label: 'English (US)'          },
+      'en-NZ': { flagClass: 'fi-nz', label: 'English (NZ)'          },
+      de:      { flagClass: 'fi-de', label: 'Deutsch'               },
+      'de-CH': { flagClass: 'fi-ch', label: 'Deutsch (Schweiz)'     },
+      fr:      { flagClass: 'fi-ca', label: 'Français (Canada)'     },
+      it:      { flagClass: 'fi-it', label: 'Italiano'              },
+      es:      { flagClass: 'fi-es', label: 'Español'               },
+      'es-MX': { flagClass: 'fi-mx', label: 'Español (México)'      },
+      pt:      { flagClass: 'fi-pt', label: 'Português'             },
+      nl:      { flagClass: 'fi-nl', label: 'Nederlands'            },
+      ru:      { flagClass: 'fi-ru', label: 'Русский'               },
+      fi:      { flagClass: 'fi-fi', label: 'Suomi'                 },
+      sv:      { flagClass: 'fi-se', label: 'Svenska'               },
     };
 
     /* ==============================================================
@@ -2119,9 +2074,10 @@
         });
       }
 
+      /* Cập nhật nút toggle — dùng innerHTML để render thẻ <span class="fi"> */
       function updateToggleDisplay(lang) {
         const meta = LANG_META[lang];
-        flagEl.textContent  = meta.flag;
+        flagEl.innerHTML = `<span class="fi ${meta.flagClass}"></span>`;
         labelEl.textContent = meta.label;
       }
 
