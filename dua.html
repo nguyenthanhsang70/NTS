@@ -143,6 +143,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
         .num-btn.selected {
             background: var(--secondary-color);
@@ -228,6 +229,70 @@
             width: 100%; height: 100%;
             pointer-events: none;
             z-index: 9999;
+        }
+
+        /* ==================== MODAL HƯỚNG DẪN CHƠI MỚI ==================== */
+        .instructions-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+        .instructions-modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-content {
+            background: rgba(26, 26, 46, 0.95);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 25px var(--primary-color);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: left;
+            animation: modalScale 0.4s ease;
+        }
+        @keyframes modalScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .modal-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+        .modal-steps li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+        }
+        .modal-steps i {
+            color: var(--secondary-color);
+            margin-top: 4px;
+            font-size: 1.1em;
+        }
+        .modal-footer {
+            text-align: center;
         }
 
         /* ==================== FOOTER MỚI - ĐẸP HOÀN HẢO ==================== */
@@ -316,6 +381,34 @@
     </style>
 </head>
 <body>
+    <!-- MODAL HƯỚNG DẪN CHƠI -->
+    <div class="instructions-modal" id="instructionsModal">
+        <div class="modal-content">
+            <h2 class="modal-title"><i class="fas fa-flag-checkered"></i> Hướng Dẫn Chơi</h2>
+            <ul class="modal-steps">
+                <li>
+                    <i class="fas fa-user-plus"></i>
+                    <span><strong>Bước 1:</strong> Nhập tên của bạn vào ô trống rồi nhấn nút <strong>"Thêm"</strong>.</span>
+                </li>
+                <li>
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span><strong>Bước 2:</strong> Chọn một con số may mắn tương ứng với chiếc xe đua bạn muốn sở hữu.</span>
+                </li>
+                <li>
+                    <i class="fas fa-users"></i>
+                    <span><strong>Bước 3:</strong> Lặp lại cho người chơi tiếp theo (Cần tối thiểu 2 người chơi để kích hoạt cuộc đua).</span>
+                </li>
+                <li>
+                    <i class="fas fa-bolt"></i>
+                    <span><strong>Bước 4:</strong> Nhấn nút <strong>"KHỞI ĐỘNG"</strong> để bắt đầu cuộc đua nghẹt thở!</span>
+                </li>
+            </ul>
+            <div class="modal-footer">
+                <button class="big-btn btn-primary" id="closeInstructionsBtn">ĐÃ HIỂU & CHƠI NGAY</button>
+            </div>
+        </div>
+    </div>
+
     <canvas id="confetti-canvas"></canvas>
     
     <div class="container">
@@ -366,7 +459,7 @@
                 </a>
                 <!-- Instagram -->
                 <a href="https://instagram.com/yourpage" target="_blank" class="social-link ig" aria-label="Instagram">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>
+                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204 013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>
                 </a>
                 <!-- TikTok - ĐÃ SỬA -->
                 <a href="https://tiktok.com/@yourpage" target="_blank" class="social-link tt" aria-label="TikTok">
@@ -400,6 +493,14 @@
         const addPlayerButton = document.getElementById('addPlayer');
         const winnerSound = document.getElementById('winnerSound');
         const carColors = ['#ff0050', '#00f2ea', '#ffe600', '#00ff00', '#ff9900', '#cc00ff', '#ffffff'];
+
+        // XỬ LÝ ĐÓNG POPUP HƯỚNG DẪN CHƠI
+        const instructionsModal = document.getElementById('instructionsModal');
+        const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+        closeInstructionsBtn.addEventListener('click', () => {
+            instructionsModal.classList.add('hidden');
+            playerNameInput.focus(); // Tự động đưa chuột vào ô nhập tên sau khi tắt popup
+        });
 
         function initializeGame() {
             numberContainer.innerHTML = '';
@@ -581,4 +682,3 @@
     </script>
 </body>
 </html>
-
