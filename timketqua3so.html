@@ -659,12 +659,17 @@
       function randInt(a, b) {
         return Math.floor(Math.random() * (b - a + 1)) + a;
       }
+      
+      // Khởi tạo Game
       makeGridUI();
       generateBoardForLevel(level);
       startTimer();
+      
+      // Tự động hiển thị hướng dẫn khi mới vào game
+      if (guideContainer) {
+        guideContainer.classList.remove('hidden');
+      }
     })();
   </script>
 </body>
 </html>
-```
-
