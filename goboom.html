@@ -385,11 +385,25 @@
     }
 
     .timer {
-      margin: 6px 0 0;
+      margin: 8px 0 0;
       color: var(--red);
-      font: 900 clamp(52px, 10vw, 92px)/0.92 "Courier New", monospace;
-      letter-spacing: 0.03em;
+      font: 900 clamp(32px, 7.2vw, 66px)/0.95 "Courier New", monospace;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
       text-shadow: 0 0 8px rgba(255, 60, 60, 0.9), 0 0 28px rgba(255, 60, 60, 0.45);
+    }
+
+    .timer-units {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 430px;
+      margin: 9px auto 0;
+      color: #a46862;
+      font: 800 clamp(8px, 1.8vw, 10px)/1.2 "Courier New", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     .timer.critical {
@@ -943,6 +957,7 @@
           <p class="status-note">Bạn có 60 giây để giải mã hoặc làm nhiệm vụ cắt dây theo chỉ thị. Mỗi lần sai, tốc độ đếm ngược tăng gấp đôi.</p>
         </div>
         <div class="mission-badge"><span class="led"></span> HỆ THỐNG ĐANG CHỜ LỆNH</div>
+
         <button class="btn start" type="button" onclick="startGame()">Bắt đầu nhiệm vụ</button>
       </section>
 
@@ -971,7 +986,12 @@
 
               <div class="timer-wrap">
                 <div class="timer-label">Thời gian còn lại</div>
-                <div class="timer" id="timer">60</div>
+                <div class="timer" id="timer">60:00:00</div>
+                <div class="timer-units" aria-hidden="true">
+                  <span>Giây · Second</span>
+                  <span>Mili giây · Millisecond</span>
+                  <span>Micro giây · Microsecond</span>
+                </div>
               </div>
 
               <div class="speed-meter">CẢNH BÁO TỐC ĐỘ: <strong id="speedText">BÌNH THƯỜNG</strong></div>
@@ -1065,7 +1085,7 @@
         <button class="close-btn" type="button" onclick="closeInstructions()" aria-label="Đóng">×</button>
       </div>
       <div class="instructions">
-        <div class="instruction-row"><span class="instruction-number">1</span><span>Mỗi nhiệm vụ có 60 giây. Hãy giải mã bốn chữ số hoặc chọn đúng dây trước khi bộ đếm về 0.</span></div>
+        <div class="instruction-row"><span class="instruction-number">1</span><span>Mỗi nhiệm vụ có 60 giây. Đồng hồ hiển thị theo dạng Giây : Mili giây : Micro giây. Hãy hoàn thành trước khi bộ đếm về 00:00:00.</span></div>
         <div class="instruction-row"><span class="instruction-number">2</span><span>Ở chế độ giải mã, nhập mã vào màn hình rồi nhấn “Xác nhận mã” hoặc phím Enter.</span></div>
         <div class="instruction-row"><span class="instruction-number">3</span><span>Ở chế độ cắt dây, đọc chỉ thị hiển thị trong màn hình nhiệm vụ rồi nhấn trực tiếp vào đúng một trong bốn dây đỏ, xanh dương, xanh lá hoặc vàng.</span></div>
         <div class="instruction-row"><span class="instruction-number">4</span><span>Mỗi lựa chọn sai làm tốc độ đếm ngược tăng gấp đôi, tối đa gấp tám lần.</span></div>
@@ -1079,9 +1099,11 @@
 
   <script>
     let timeLeft = 60;
+    let remainingTimeMs = 60000;
+    let lastTimerFrame = 0;
     let gameActive = false;
     let currentPuzzle = {};
-    let timer;
+    let timer = null;
     let timerSpeed = 1000;
     let level = 1;
     let solvedPuzzles = 0;
@@ -1301,6 +1323,7 @@
 
       gameActive = true;
       timeLeft = 60;
+      remainingTimeMs = 60000;
       timerSpeed = 1000;
       level = 1;
       solvedPuzzles = 0;
@@ -1344,31 +1367,64 @@
       document.querySelectorAll(".wire-row").forEach((wire) => wire.classList.remove("cut"));
     }
 
+    function updateTimerDisplay() {
+      const safeMs = Math.max(0, remainingTimeMs);
+      const totalMicroseconds = Math.floor(safeMs * 1000);
+      const seconds = Math.floor(totalMicroseconds / 1000000);
+      const milliseconds = Math.floor((totalMicroseconds % 1000000) / 10000);
+      const microseconds = Math.floor((totalMicroseconds % 10000) / 100);
+
+      timeLeft = Math.ceil(safeMs / 1000);
+      document.getElementById("timer").textContent =
+        String(seconds).padStart(2, "0") + ":" +
+        String(milliseconds).padStart(2, "0") + ":" +
+        String(microseconds).padStart(2, "0");
+
+      document.getElementById("timer").classList.toggle("critical", safeMs <= 10000 && safeMs > 0);
+    }
+
     function updateDisplay() {
       const multiplier = 1000 / timerSpeed;
       document.getElementById("levelDisplay").textContent = level;
       document.getElementById("solvedDisplay").textContent = solvedPuzzles;
       document.getElementById("speedDisplay").textContent = "×" + multiplier;
-      document.getElementById("timer").textContent = String(timeLeft).padStart(2, "0");
+      updateTimerDisplay();
 
       const speedText = multiplier === 1 ? "BÌNH THƯỜNG" : multiplier <= 4 ? "NGUY HIỂM" : "CỰC HẠN";
       document.getElementById("speedText").textContent = speedText;
     }
 
+    function stopTimer() {
+      if (timer !== null) {
+        cancelAnimationFrame(timer);
+        timer = null;
+      }
+    }
+
     function startTimer() {
-      clearInterval(timer);
-      timer = setInterval(() => {
-        timeLeft -= 1;
-        document.getElementById("timer").textContent = String(Math.max(timeLeft, 0)).padStart(2, "0");
+      stopTimer();
+      lastTimerFrame = performance.now();
 
-        if (timeLeft <= 10) {
-          document.getElementById("timer").classList.add("critical");
-        }
+      function timerFrame(now) {
+        if (!gameActive) return;
 
-        if (timeLeft <= 0) {
+        const elapsedMs = Math.min(now - lastTimerFrame, 250);
+        lastTimerFrame = now;
+        const multiplier = 1000 / timerSpeed;
+        remainingTimeMs -= elapsedMs * multiplier;
+        updateTimerDisplay();
+
+        if (remainingTimeMs <= 0) {
+          remainingTimeMs = 0;
+          updateTimerDisplay();
           explodeBomb();
+          return;
         }
-      }, timerSpeed);
+
+        timer = requestAnimationFrame(timerFrame);
+      }
+
+      timer = requestAnimationFrame(timerFrame);
     }
 
     function cutWire(wire) {
@@ -1409,8 +1465,9 @@
     function handleSuccess(message) {
       solvedPuzzles += 1;
       level += 1;
-      clearInterval(timer);
+      stopTimer();
       timeLeft = 60;
+      remainingTimeMs = 60000;
       document.getElementById("timer").classList.remove("critical");
       setFeedback(message, "good");
       flashInput(true);
@@ -1425,7 +1482,7 @@
 
     function handleFailure(message) {
       timerSpeed = Math.max(125, timerSpeed / 2);
-      clearInterval(timer);
+      stopTimer();
       startTimer();
       updateDisplay();
       setFeedback(message, "bad");
@@ -1456,7 +1513,7 @@
       if (!gameActive) return;
 
       gameActive = false;
-      clearInterval(timer);
+      stopTimer();
 
       const explosionSound = document.getElementById("explosionSound");
       explosionSound.currentTime = 0;
@@ -1511,8 +1568,9 @@
 
     function resetGame() {
       gameActive = false;
-      clearInterval(timer);
+      stopTimer();
       timeLeft = 60;
+      remainingTimeMs = 60000;
       timerSpeed = 1000;
       level = 1;
       solvedPuzzles = 0;
@@ -1556,6 +1614,7 @@
     document.getElementById("instructionsModal").addEventListener("click", (event) => {
       if (event.target.id === "instructionsModal") closeInstructions();
     });
+
   </script>
 </body>
 </html>
