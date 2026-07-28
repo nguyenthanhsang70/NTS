@@ -1,672 +1,1561 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giải Mã Gỡ Bom - NTS</title>
-    <link rel="icon" type="image/png" href="logos3.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
-            color: #00ff00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-        .bomb-container {
-            background: #000;
-            border: 3px solid #ff0000;
-            border-radius: 20px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
-            animation: pulse 1s infinite;
-            max-width: 500px;
-            width: 95%;
-            min-height: auto;
-            box-sizing: border-box;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); }
-            50% { box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
-            100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); }
-        }
-        .timer {
-            font-size: clamp(2.5em, 8vw, 4em);
-            color: #ff0000;
-            margin: 15px 0;
-            text-shadow: 0 0 20px #ff0000;
-            font-weight: bold;
-        }
-        .timer.critical {
-            animation: blink 0.5s infinite;
-        }
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-        .puzzle {
-            background: #1a1a1a;
-            border: 2px solid #00ff00;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 10px;
-            box-sizing: border-box;
-        }
-        .puzzle-title {
-            color: #ffff00;
-            font-size: clamp(1em, 4vw, 1.2em);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        .puzzle-text {
-            font-size: clamp(0.9em, 3.5vw, 1.1em);
-            line-height: 1.4;
-            margin-bottom: 15px;
-            word-wrap: break-word;
-        }
-        .code-input {
-            background: #000;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: clamp(1.5em, 6vw, 2em);
-            padding: 10px;
-            text-align: center;
-            width: min(200px, 80%);
-            margin: 10px auto;
-            border-radius: 5px;
-            box-sizing: border-box;
-            display: block;
-        }
-        .code-input:focus {
-            outline: none;
-            box-shadow: 0 0 20px #00ff00;
-        }
-        .btn {
-            background: #ff0000;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: clamp(1em, 4vw, 1.2em);
-            font-family: 'Courier New', monospace;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 8px 5px;
-            transition: all 0.3s;
-            touch-action: manipulation;
-            min-width: 100px;
-        }
-        .btn:hover {
-            background: #cc0000;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-        }
-        .btn.start {
-            background: #00ff00;
-            color: #000;
-        }
-        .btn.start:hover {
-            background: #00cc00;
-        }
-        .status {
-            font-size: clamp(1.2em, 4vw, 1.5em);
-            margin: 15px 0;
-            font-weight: bold;
-            word-wrap: break-word;
-        }
-        .success {
-            color: #00ff00;
-            text-shadow: 0 0 20px #00ff00;
-        }
-        .failure {
-            color: #ff0000;
-            text-shadow: 0 0 20px #ff0000;
-        }
-        .hidden {
-            display: none;
-        }
-        .wires {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        .wire {
-            width: max(3px, 1vw);
-            height: clamp(60px, 15vw, 100px);
-            margin: 5px;
-            border-radius: 3px;
-            animation: spark 2s infinite;
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .wire.red { background: #ff0000; }
-        .wire.blue { background: #0066ff; }
-        .wire.green { background: #00ff00; }
-        .wire.yellow { background: #ffff00; }
-        .wire.cut {
-            opacity: 0.3;
-            animation: none;
-        }
-        @keyframes spark {
-            0%, 90% { opacity: 1; }
-            95% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        .explosion {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, #ff4500, #ff0000, #000);
-            z-index: 1000;
-            animation: explode 2s ease-out;
-        }
-        .title-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px 0;
-        }
-        h1 {
-            font-size: clamp(1.5em, 6vw, 2.5em);
-            text-shadow: 0 0 15px #ff0000;
-            margin: 0 10px;
-            line-height: 1;
-        }
-        .info-icon, .back-icon {
-            display: inline-block;
-            cursor: pointer;
-            font-size: clamp(1em, 4vw, 1.2em);
-            color: #ffff00;
-            text-shadow: 0 0 10px #ffff00;
-            text-decoration: none;
-            line-height: 1;
-        }
-        .info-icon:hover, .back-icon:hover {
-            color: #ccff00;
-            text-shadow: 0 0 15px #ccff00;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #1a1a1a;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 80%;
-            max-height: 80%;
-            overflow-y: auto;
-            color: #00ff00;
-            font-size: clamp(0.9em, 3.5vw, 1.1em);
-            line-height: 1.5;
-        }
-        .close-btn {
-            background: #ff0000;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            font-family: 'Courier New', monospace;
-            cursor: pointer;
-            border-radius: 5px;
-            float: right;
-        }
-        .close-btn:hover {
-            background: #cc0000;
-        }
-        @media (max-width: 480px) {
-            .bomb-container {
-                padding: 10px;
-                border-width: 2px;
-            }
-            .puzzle {
-                padding: 10px;
-                margin: 10px 0;
-            }
-            .btn {
-                display: block;
-                width: 90%;
-                margin: 8px auto;
-                padding: 15px;
-            }
-            .wires {
-                margin: 10px 0;
-            }
-            .wire {
-                height: 60px;
-                width: 4px;
-                margin: 0 3px;
-            }
-            .modal-content {
-                max-width: 90%;
-                padding: 15px;
-            }
-            .title-container {
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-            h1 {
-                margin: 0 5px;
-            }
-        }
-        @media (min-width: 481px) and (max-width: 768px) {
-            .bomb-container {
-                padding: 20px;
-                max-width: 90%;
-            }
-            .btn {
-                display: inline-block;
-                margin: 10px 8px;
-            }
-        }
-        @media (min-width: 769px) {
-            .bomb-container {
-                padding: 25px;
-                max-width: 500px;
-            }
-            .btn {
-                display: inline-block;
-                margin: 10px;
-                padding: 15px 30px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0d0f" />
+  <title>Giải Mã Gỡ Bom</title>
+  <link rel="icon" type="image/png" href="logos3.png" />
+  <style>
+    :root {
+      --bg: #07090a;
+      --panel: #15191b;
+      --panel-2: #0c0f11;
+      --metal: #31383b;
+      --metal-edge: #596266;
+      --screen: #07130d;
+      --green: #67ff96;
+      --green-dark: #1dbd58;
+      --amber: #ffc857;
+      --red: #ff3c3c;
+      --red-dark: #9c1515;
+      --text: #e7ecee;
+      --muted: #879196;
+      --shadow: rgba(0, 0, 0, 0.68);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 14px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% 14%, rgba(255, 60, 60, 0.12), transparent 28%),
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(145deg, #131719 0%, #07090a 58%, #020303 100%);
+      background-size: auto, 28px 28px, 28px 28px, auto;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.012) 0,
+        rgba(255, 255, 255, 0.012) 2px,
+        transparent 2px,
+        transparent 8px
+      );
+      mix-blend-mode: screen;
+      opacity: 0.28;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .device {
+      position: relative;
+      width: min(100%, 820px);
+      padding: 18px;
+      border: 1px solid #657074;
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 18%),
+        linear-gradient(160deg, #3d4548, #1c2224 46%, #0b0f10 100%);
+      box-shadow:
+        0 30px 80px var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -6px 18px rgba(0, 0, 0, 0.7);
+    }
+
+    .device::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 21px;
+      pointer-events: none;
+    }
+
+    .screw {
+      position: absolute;
+      z-index: 4;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #0b0d0e;
+      background:
+        linear-gradient(45deg, transparent 44%, #111 45%, #111 55%, transparent 56%),
+        radial-gradient(circle at 35% 30%, #9aa2a5, #3d4447 45%, #101314 72%);
+      box-shadow: 0 2px 5px #000, inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    }
+
+    .screw.tl { top: 16px; left: 16px; }
+    .screw.tr { top: 16px; right: 16px; }
+    .screw.bl { bottom: 16px; left: 16px; }
+    .screw.br { bottom: 16px; right: 16px; }
+
+    .device-inner {
+      position: relative;
+      z-index: 2;
+      padding: clamp(16px, 3vw, 30px);
+      border-radius: 18px;
+      border: 1px solid #07090a;
+      background:
+        radial-gradient(circle at 15% 8%, rgba(255, 255, 255, 0.045), transparent 24%),
+        linear-gradient(180deg, #131719, #080b0c);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+        inset 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border: 1px solid #4c5559;
+      border-radius: 11px;
+      color: var(--amber);
+      background: linear-gradient(#2a3033, #111416);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 3px 7px #000;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 800;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      text-decoration: none;
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-btn:hover {
+      filter: brightness(1.18);
+      transform: translateY(-1px);
+    }
+
+    .title-block {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin-bottom: 4px;
+      color: var(--muted);
+      font: 700 11px/1.2 "Courier New", monospace;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #f5f7f7;
+      font-size: clamp(23px, 4.7vw, 42px);
+      line-height: 1;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 0 #000, 0 0 18px rgba(255, 60, 60, 0.3);
+    }
+
+    .danger-strip {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 30px;
+      margin: 0 0 18px;
+      border: 1px solid #1a1e20;
+      border-radius: 7px;
+      color: #111;
+      background: repeating-linear-gradient(
+        -45deg,
+        #e3b332 0,
+        #e3b332 14px,
+        #171717 14px,
+        #171717 28px
+      );
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), 0 3px 9px #000;
+    }
+
+    .danger-strip span {
+      padding: 4px 14px;
+      color: #ffd760;
+      background: rgba(0, 0, 0, 0.88);
+      font: 900 11px/1.2 "Courier New", monospace;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .screen-card {
+      position: relative;
+      border: 2px solid #303b36;
+      border-radius: 13px;
+      padding: clamp(15px, 3vw, 24px);
+      background:
+        linear-gradient(rgba(103, 255, 150, 0.025) 50%, transparent 50%),
+        radial-gradient(circle at 50% 10%, rgba(103, 255, 150, 0.08), transparent 42%),
+        #06100b;
+      background-size: 100% 4px, auto, auto;
+      box-shadow:
+        inset 0 0 30px rgba(0, 0, 0, 0.92),
+        0 7px 18px #000;
+      overflow: hidden;
+    }
+
+    .screen-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.045) 32%, transparent 48%);
+      transform: translateX(-120%);
+      animation: screenSweep 5.5s linear infinite;
+    }
+
+    @keyframes screenSweep {
+      to { transform: translateX(160%); }
+    }
+
+    .status {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--green);
+      font: 700 clamp(16px, 3vw, 22px)/1.5 "Courier New", monospace;
+      text-align: center;
+      text-shadow: 0 0 12px rgba(103, 255, 150, 0.45);
+    }
+
+    .status-note {
+      margin: 12px auto 0;
+      max-width: 560px;
+      color: var(--amber);
+      font: 700 clamp(12px, 2.5vw, 14px)/1.5 "Courier New", monospace;
+      text-align: center;
+    }
+
+    .start-area {
+      display: grid;
+      gap: 20px;
+    }
+
+    .mission-badge {
+      display: inline-flex;
+      justify-self: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+      padding: 8px 12px;
+      border: 1px solid #38423e;
+      border-radius: 999px;
+      color: #cbd4cf;
+      background: #0c110e;
+      font: 700 12px/1 "Courier New", monospace;
+      letter-spacing: 0.08em;
+    }
+
+    .led {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px var(--green);
+      animation: ledBlink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes ledBlink {
+      50% { opacity: 0.36; }
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .module {
+      border: 1px solid #3e474a;
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 20%),
+        linear-gradient(180deg, #242a2d, #111517);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 7px 18px #000;
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 9px 13px;
+      border-bottom: 1px solid #080a0b;
+      color: #c8d0d3;
+      background: linear-gradient(#343c3f, #1d2224);
+      border-radius: 13px 13px 0 0;
+      font: 800 11px/1 "Courier New", monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .module-body {
+      padding: 16px;
+    }
+
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .hud-cell {
+      min-width: 0;
+      padding: 10px 8px;
+      border: 1px solid #27302c;
+      border-radius: 9px;
+      background: #07100b;
+      text-align: center;
+      box-shadow: inset 0 0 14px #000;
+    }
+
+    .hud-label {
+      display: block;
+      margin-bottom: 4px;
+      color: #6f8177;
+      font: 700 9px/1 "Courier New", monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hud-value {
+      color: var(--green);
+      font: 800 17px/1.15 "Courier New", monospace;
+      text-shadow: 0 0 8px rgba(103, 255, 150, 0.4);
+    }
+
+    .timer-wrap {
+      position: relative;
+      margin: 0 0 14px;
+      padding: 15px;
+      border: 1px solid #4e241f;
+      border-radius: 12px;
+      background:
+        linear-gradient(rgba(255, 60, 60, 0.025) 50%, transparent 50%),
+        #140706;
+      background-size: 100% 4px, auto;
+      box-shadow: inset 0 0 24px #000;
+      text-align: center;
+    }
+
+    .timer-label {
+      color: #a46862;
+      font: 800 9px/1 "Courier New", monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .timer {
+      margin: 6px 0 0;
+      color: var(--red);
+      font: 900 clamp(52px, 10vw, 92px)/0.92 "Courier New", monospace;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 8px rgba(255, 60, 60, 0.9), 0 0 28px rgba(255, 60, 60, 0.45);
+    }
+
+    .timer.critical {
+      animation: criticalBlink 0.46s steps(1) infinite;
+    }
+
+    @keyframes criticalBlink {
+      50% { color: #ffe6e6; background: rgba(255, 0, 0, 0.08); }
+    }
+
+    .speed-meter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 14px;
+      color: #aeb7ba;
+      font: 700 11px/1 "Courier New", monospace;
+    }
+
+    .speed-meter strong {
+      color: var(--amber);
+      font-size: 15px;
+    }
+
+    .puzzle {
+      min-height: 164px;
+      padding: 16px;
+      border: 1px solid #2b3931;
+      border-radius: 11px;
+      background: #07100b;
+      box-shadow: inset 0 0 22px #000;
+    }
+
+    .puzzle-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--amber);
+      font: 900 12px/1.2 "Courier New", monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .puzzle-title::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 10px var(--amber);
+    }
+
+    .puzzle-text {
+      margin: 0;
+      color: #d2e7d8;
+      font: 700 clamp(14px, 2.3vw, 17px)/1.65 "Courier New", monospace;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .input-zone {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .code-input {
+      width: 100%;
+      min-width: 0;
+      height: 56px;
+      padding: 8px 14px;
+      border: 2px solid #2a5f3d;
+      border-radius: 10px;
+      outline: none;
+      color: var(--green);
+      caret-color: var(--green);
+      background: #020806;
+      box-shadow: inset 0 0 18px #000;
+      font: 900 28px/1 "Courier New", monospace;
+      letter-spacing: 0.35em;
+      text-align: center;
+      text-indent: 0.35em;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .code-input:focus {
+      border-color: var(--green);
+      box-shadow: inset 0 0 18px #000, 0 0 14px rgba(103, 255, 150, 0.22);
+    }
+
+    .wire-board {
+      display: grid;
+      gap: 13px;
+    }
+
+    .wire-instruction {
+      min-height: 48px;
+      margin: 0;
+      color: #c9d0d3;
+      font: 700 13px/1.45 "Courier New", monospace;
+      text-align: center;
+    }
+
+    .wire-list {
+      display: grid;
+      gap: 12px;
+      padding: 8px 0 4px;
+    }
+
+    .wire-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 35px 1fr 35px;
+      align-items: center;
+      min-height: 48px;
+      padding: 4px 0;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    .wire-row:hover {
+      transform: translateX(2px);
+      filter: brightness(1.16);
+    }
+
+    .terminal {
+      position: relative;
+      z-index: 2;
+      width: 31px;
+      height: 31px;
+      border: 5px solid #596164;
+      border-radius: 50%;
+      background: radial-gradient(circle, #111 0 35%, #858e91 37% 44%, #222 46%);
+      box-shadow: 0 2px 4px #000, inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+
+    .wire-line {
+      position: relative;
+      height: 14px;
+      margin: 0 -3px;
+      border-radius: 999px;
+      background: var(--wire-color);
+      box-shadow:
+        0 4px 4px rgba(0, 0, 0, 0.45),
+        inset 0 3px 2px rgba(255, 255, 255, 0.32),
+        inset 0 -3px 3px rgba(0, 0, 0, 0.32),
+        0 0 12px color-mix(in srgb, var(--wire-color) 35%, transparent);
+      transition: opacity 0.2s ease;
+    }
+
+    .wire-line::before,
+    .wire-line::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #121719;
+      border: 2px solid #717a7d;
+      transform: translateY(-50%);
+      box-shadow: inset 0 0 4px #000;
+    }
+
+    .wire-line::before { left: -9px; }
+    .wire-line::after { right: -9px; }
+
+    .wire-row.red { --wire-color: #e93535; }
+    .wire-row.blue { --wire-color: #2679ed; }
+    .wire-row.green { --wire-color: #28c96d; }
+    .wire-row.yellow { --wire-color: #e8c22d; }
+
+    .wire-row.cut .wire-line {
+      opacity: 0.32;
+    }
+
+    .wire-row.cut .wire-line::before {
+      left: calc(50% - 16px);
+      transform: translateY(-50%) rotate(-28deg);
+    }
+
+    .wire-row.cut .wire-line::after {
+      right: calc(50% - 16px);
+      transform: translateY(-50%) rotate(28deg);
+    }
+
+    .wire-tag {
+      position: absolute;
+      right: 42px;
+      top: -2px;
+      z-index: 3;
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: #d5dcdf;
+      background: #171c1e;
+      border: 1px solid #495154;
+      font: 800 9px/1 "Courier New", monospace;
+      letter-spacing: 0.08em;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 0.72fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      min-height: 52px;
+      padding: 12px 18px;
+      border: 1px solid #050607;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(#d53f37, #8c1712);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.3),
+        0 5px 0 #380805,
+        0 8px 12px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      font: 900 clamp(13px, 2.5vw, 16px)/1 "Courier New", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: transform 0.12s ease, filter 0.16s ease, box-shadow 0.12s ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.12);
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+        0 1px 0 #380805,
+        0 3px 6px rgba(0, 0, 0, 0.45);
+    }
+
+    .btn.start {
+      justify-self: center;
+      width: min(100%, 390px);
+      min-height: 62px;
+      color: #031007;
+      background: linear-gradient(#73ff9d, #21b655);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.22),
+        0 5px 0 #0a5d29,
+        0 0 25px rgba(103, 255, 150, 0.2),
+        0 9px 14px rgba(0, 0, 0, 0.48);
+    }
+
+    .btn.secondary {
+      color: #d4dbde;
+      background: linear-gradient(#465055, #202629);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.28),
+        0 5px 0 #090b0c,
+        0 8px 12px rgba(0, 0, 0, 0.45);
+    }
+
+    .feedback {
+      min-height: 24px;
+      margin-top: 12px;
+      color: var(--muted);
+      font: 800 12px/1.4 "Courier New", monospace;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .feedback.good {
+      color: var(--green);
+      text-shadow: 0 0 9px rgba(103, 255, 150, 0.45);
+    }
+
+    .feedback.bad {
+      color: var(--red);
+      text-shadow: 0 0 9px rgba(255, 60, 60, 0.45);
+    }
+
+    .success {
+      color: var(--green);
+      text-shadow: 0 0 17px rgba(103, 255, 150, 0.5);
+    }
+
+    .failure {
+      color: var(--red);
+      text-shadow: 0 0 17px rgba(255, 60, 60, 0.55);
+    }
+
+    .end-panel {
+      display: grid;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .end-icon {
+      font-size: clamp(55px, 12vw, 100px);
+      line-height: 1;
+      filter: drop-shadow(0 0 20px rgba(255, 60, 60, 0.4));
+    }
+
+    .end-details {
+      display: grid;
+      gap: 7px;
+      color: #dce3e5;
+      font: 700 14px/1.45 "Courier New", monospace;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(7px);
+    }
+
+    .modal.show {
+      display: grid;
+    }
+
+    .modal-content {
+      width: min(100%, 610px);
+      max-height: min(82vh, 720px);
+      overflow-y: auto;
+      border: 1px solid #657074;
+      border-radius: 18px;
+      background: linear-gradient(#202628, #0c1011);
+      box-shadow: 0 26px 80px #000, inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 17px;
+      border-bottom: 1px solid #07090a;
+      background: #202628;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      color: var(--amber);
+      font: 900 17px/1 "Courier New", monospace;
+      letter-spacing: 0.08em;
+    }
+
+    .close-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid #5a2521;
+      border-radius: 9px;
+      color: #fff;
+      background: #8f201a;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .instructions {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .instruction-row {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 11px;
+      align-items: start;
+      color: #d3dade;
+      font: 600 14px/1.55 "Courier New", monospace;
+    }
+
+    .instruction-number {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #51605a;
+      border-radius: 50%;
+      color: var(--green);
+      background: #07100b;
+      font-weight: 900;
+    }
+
+    .explosion {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 50%, #fff 0 2%, #fff7a4 5%, #ffb000 12%, #ff4200 22%, rgba(200, 0, 0, 0.92) 34%, #070000 58%, #000 74%);
+      animation: explode 1.5s ease-out forwards;
+    }
+
+    .explosion::before,
+    .explosion::after {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background: repeating-conic-gradient(from 0deg, transparent 0 8deg, rgba(255, 214, 82, 0.32) 9deg 11deg, transparent 12deg 20deg);
+      animation: blastSpin 1.4s ease-out forwards;
+    }
+
+    .explosion::after {
+      filter: blur(12px);
+      transform: rotate(11deg);
+    }
+
+    @keyframes explode {
+      0% { opacity: 0; transform: scale(0.18); filter: brightness(4); }
+      22% { opacity: 1; transform: scale(1); filter: brightness(1.8); }
+      68% { opacity: 0.94; transform: scale(1.12); }
+      100% { opacity: 0; transform: scale(1.2); filter: brightness(0.4); }
+    }
+
+    @keyframes blastSpin {
+      from { transform: scale(0.3) rotate(0deg); opacity: 1; }
+      to { transform: scale(1.35) rotate(35deg); opacity: 0; }
+    }
+
+    .shake {
+      animation: shake 0.34s linear;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(7px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(3px); }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 10px;
+        align-items: start;
+      }
+
+      .device {
+        padding: 10px;
+        border-radius: 20px;
+      }
+
+      .device-inner {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .wire-module {
+        order: 2;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        grid-template-columns: 40px 1fr 40px;
+      }
+
+      .icon-btn {
+        width: 38px;
+        height: 38px;
+      }
+
+      .input-zone {
+        grid-template-columns: 1fr;
+      }
+
+      .input-zone .btn {
+        min-height: 50px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hud-grid {
+        gap: 5px;
+      }
+
+      .hud-cell {
+        padding: 9px 4px;
+      }
+
+      .hud-value {
+        font-size: 14px;
+      }
+
+      .wire-tag {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="bomb-container">
-        <div class="title-container">
-            <a href="game.html" class="back-icon"><i class="fas fa-arrow-left"></i></a>
-            <h1>GIẢI MÃ GỠ BOM</h1>
-            <span class="info-icon" onclick="showInstructions()">ⓘ</span>
-        </div>
-        <div id="startScreen">
-            <div class="status">Bạn có 60 giây để giải mã hoặc cắt dây gỡ bom!</div>
-            <div style="color: #ffff00; margin: 10px 0; font-size: clamp(0.9em, 3vw, 1em);">
-                Cẩn thận: Mỗi lần sai, thời gian sẽ chạy nhanh gấp đôi!
-            </div>
-            <button class="btn start" onclick="startGame()">BẮT ĐẦU NHIỆM VỤ</button>
-        </div>
-        <div id="gameScreen" class="hidden">
-            <div class="status" style="color: #ffff00; font-size: clamp(1em, 3.5vw, 1.2em);">
-                NHIỆM VỤ <span id="levelDisplay">1</span> | ĐÃ HOÀN THÀNH: <span id="solvedDisplay">0</span>
-            </div>
-            <div class="timer" id="timer">60</div>
-            <div style="color: #ff6600; font-size: clamp(0.8em, 3vw, 0.9em); margin: 5px 0;">
-                Tốc độ thời gian: <span id="speedDisplay">x1</span>
-            </div>
-            <div class="wires">
-                <div class="wire red" onclick="cutWire('red')"></div>
-                <div class="wire blue" onclick="cutWire('blue')"></div>
-                <div class="wire green" onclick="cutWire('green')"></div>
-                <div class="wire yellow" onclick="cutWire('yellow')"></div>
-            </div>
-            <div class="puzzle" id="codePuzzle">
-                <div class="puzzle-title">NHIỆM VỤ GIẢI MÃ</div>
-                <div class="puzzle-text" id="puzzleText"></div>
-            </div>
-            <div class="puzzle hidden" id="wirePuzzle">
-                <div class="puzzle-title">NHIỆM VỤ CẮT DÂY</div>
-                <div class="puzzle-text">Chọn và cắt một dây để gỡ bom!</div>
-            </div>
-            <input type="text" class="code-input" id="codeInput" placeholder="MÃ" maxlength="4">
-            <br>
-            <button class="btn" onclick="defuseBomb()">GỠ BOM</button>
-            <button class="btn" onclick="resetGame()">RESET</button>
-        </div>
-        <div id="endScreen" class="hidden">
-            <div class="status" id="endStatus"></div>
-            <button class="btn start" onclick="resetGame()">CHƠI LẠI</button>
-        </div>
-    </div>
-    <div id="instructionsModal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeInstructions()">Đóng</button>
-            <h2>HƯỚNG DẪN CHƠI</h2>
-            <p>- Nhiệm vụ của bạn là giải mã các câu đố hoặc cắt dây để gỡ bom trước khi thời gian về 0.</p>
-            <p>- Bạn có 60 giây cho mỗi nhiệm vụ. Nhập mã 4 chữ số hoặc chọn dây để cắt.</p>
-            <p>- Nhấn nút "GỠ BOM" hoặc phím Enter để gửi mã, hoặc nhấp vào dây để cắt.</p>
-            <p>- Nếu đúng, bạn sẽ tiến sang nhiệm vụ tiếp theo và thời gian được đặt lại về 60 giây.</p>
-            <p>- Nếu sai, thời gian sẽ chạy nhanh gấp đôi (tối đa x8) và giữ nguyên tốc độ qua các nhiệm vụ sau.</p>
-            <p>- Nếu thời gian về 0, bom sẽ nổ và trò chơi kết thúc.</p>
-            <p>- Nhấn "RESET" hoặc "CHƠI LẠI" để bắt đầu lại từ đầu.</p>
-            <p>- Chú ý: Chỉ nhập số vào ô mã, tối đa 4 chữ số.</p>
-        </div>
-    </div>
-    <audio id="explosionSound" src="boom.mp3"></audio>
-    <audio id="successSound" src="hoanthanh.mp3"></audio>
-    <script>
-        let timeLeft = 60;
-        let gameActive = false;
-        let currentPuzzle = {};
-        let timer;
-        let timerSpeed = 1000;
-        let level = 1;
-        let solvedPuzzles = 0;
-        let isWirePuzzle = false;
-        let correctWire = '';
-        const wires = ['red', 'blue', 'green', 'yellow'];
-        const puzzles = [
-            {
-                type: 'code',
-                text: "Số nguyên tố đầu tiên: 2, 3, 5, 7\nMã = tổng 2 số đầu + tổng 2 số cuối",
-                answer: "1717",
-                explanation: "(2+3) + (5+7) = 5 + 12 = 17"
-            },
-            {
-                type: 'code',
-                text: "Dãy Fibonacci: 1, 1, 2, 3, 5, 8\nMã = số thứ 4 + số thứ 6 + số thứ 2 + số thứ 5",
-                answer: "3816",
-                explanation: "Số thứ 4(3) + thứ 6(8) + thứ 2(1) + thứ 5(5) = 3816"
-            },
-            {
-                type: 'code',
-                text: "Năm sinh: 1990\nTuổi hiện tại: 35\nMã = 2 chữ số cuối năm sinh + tuổi",
-                answer: "9035",
-                explanation: "90 (2 số cuối 1990) + 35 (tuổi) = 9035"
-            },
-            {
-                type: 'code',
-                text: "A=1, B=2, C=3...\nCHƯ BOMB = ?\nMã = tổng giá trị các chữ cái",
-                answer: "0052",
-                explanation: "C(3)+H(8)+U(21)+B(2)+O(15)+M(13)+B(2) = 64, lấy 52"
-            },
-            {
-                type: 'code',
-                text: "Thời gian: 12:34\nMã = giờ × phút ÷ 2",
-                answer: "0204",
-                explanation: "12 × 34 ÷ 2 = 408 ÷ 2 = 204"
-            },
-            {
-                type: 'code',
-                text: "Số lẻ: 1, 3, 5, 7\nMã = bình phương số thứ 3 + số thứ 1",
-                answer: "0026",
-                explanation: "5² + 1 = 25 + 1 = 26"
-            },
-            {
-                type: 'code',
-                text: "Dãy: 4, 8, 12, 16\nMã = (số thứ 2 × số thứ 4) ÷ số thứ 1",
-                answer: "0032",
-                explanation: "(8 × 16) ÷ 4 = 128 ÷ 4 = 32"
-            },
-            {
-                type: 'code',
-                text: "Mật mã: 1234\nMã = đảo ngược số + 1000",
-                answer: "4321",
-                explanation: "Đảo ngược 1234 = 4321, cộng 1000 = 4321"
-            },
-            {
-                type: 'code',
-                text: "Số: 6, 12, 18, 24\nMã = tổng các số chia 3",
-                answer: "0020",
-                explanation: "(6 + 12 + 18 + 24) ÷ 3 = 60 ÷ 3 = 20"
-            },
-            {
-                type: 'code',
-                text: "Ngày: 07/08\nMã = ngày × tháng × 10",
-                answer: "0560",
-                explanation: "7 × 8 × 10 = 560"
-            },
-            {
-                type: 'code',
-                text: "A=1, Z=26\nTICK = ?\nMã = tổng giá trị chữ cái",
-                answer: "0059",
-                explanation: "T(20) + I(9) + C(3) + K(11) = 59"
-            },
-            {
-                type: 'code',
-                text: "Số: 9, 8, 7, 6\nMã = (số lớn nhất × số nhỏ nhất) + 1",
-                answer: "0055",
-                explanation: "(9 × 6) + 1 = 54 + 1 = 55"
-            },
-            {
-                type: 'code',
-                text: "Dãy: 2, 4, 8, 16\nMã = số thứ 4 - số thứ 2 + số thứ 1",
-                answer: "0014",
-                explanation: "16 - 4 + 2 = 14"
-            },
-            {
-                type: 'code',
-                text: "Mã Morse: .- -.- = AK\nA=1, K=11\nMã = A × K × 10",
-                answer: "0110",
-                explanation: "1 × 11 × 10 = 110"
-            },
-            {
-                type: 'code',
-                text: "Số: 15, 25, 35\nMã = tổng số chia số lượng số",
-                answer: "0025",
-                explanation: "(15 + 25 + 35) ÷ 3 = 75 ÷ 3 = 25"
-            },
-            {
-                type: 'code',
-                text: "Thời gian: 15:45\nMã = phút - giờ + 100",
-                answer: "0130",
-                explanation: "45 - 15 + 100 = 130"
-            },
-            {
-                type: 'code',
-                text: "Dãy: 1, 3, 9, 27\nMã = số thứ 3 × 2 + số thứ 2",
-                answer: "0021",
-                explanation: "9 × 2 + 3 = 18 + 3 = 21"
-            },
-            {
-                type: 'code',
-                text: "Số: 7, 14, 21, 28\nMã = số thứ 4 ÷ số thứ 2 × 10",
-                answer: "0020",
-                explanation: "(28 ÷ 14) × 10 = 2 × 10 = 20"
-            },
-            {
-                type: 'code',
-                text: "A=1, B=2, ..., Z=26\nBOOM = ?\nMã = tổng chữ cái - 10",
-                answer: "0050",
-                explanation: "B(2) + O(15) + O(15) + M(13) = 60 - 10 = 50"
-            },
-            {
-                type: 'code',
-                text: "Dãy: 5, 10, 15, 20\nMã = (số thứ 1 + số thứ 3) × 2",
-                answer: "0040",
-                explanation: "(5 + 15) × 2 = 20 × 2 = 40"
-            }
-        ];
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameScreen').classList.remove('hidden');
-            gameActive = true;
-            timeLeft = 60;
-            timerSpeed = 1000;
-            level = 1;
-            solvedPuzzles = 0;
-            updateDisplay();
-            loadNewPuzzle();
-            startTimer();
-        }
-        function loadNewPuzzle() {
-            isWirePuzzle = Math.random() > 0.5;
-            if (isWirePuzzle) {
-                correctWire = wires[Math.floor(Math.random() * wires.length)];
-                document.getElementById('codePuzzle').classList.add('hidden');
-                document.getElementById('wirePuzzle').classList.remove('hidden');
-                document.getElementById('codeInput').classList.add('hidden');
-                document.getElementById('puzzleText').textContent = '';
-                resetWires();
-            } else {
-                currentPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
-                document.getElementById('codePuzzle').classList.remove('hidden');
-                document.getElementById('wirePuzzle').classList.add('hidden');
-                document.getElementById('codeInput').classList.remove('hidden');
-                document.getElementById('puzzleText').textContent = currentPuzzle.text;
-                document.getElementById('codeInput').value = '';
-                document.getElementById('codeInput').focus();
-                resetWires();
-            }
-        }
-        function resetWires() {
-            wires.forEach(wire => {
-                const wireElement = document.querySelector(`.wire.${wire}`);
-                wireElement.classList.remove('cut');
-            });
-        }
-        function updateDisplay() {
-            document.getElementById('levelDisplay').textContent = level;
-            document.getElementById('solvedDisplay').textContent = solvedPuzzles;
-            document.getElementById('speedDisplay').textContent = 'x' + (1000 / timerSpeed);
-            document.getElementById('timer').textContent = timeLeft;
-        }
-        function startTimer() {
-            clearInterval(timer);
-            timer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer').textContent = timeLeft;
-                if (timeLeft <= 10) {
-                    document.getElementById('timer').classList.add('critical');
-                }
-                if (timeLeft <= 0) {
-                    explodeBomb();
-                }
-            }, timerSpeed);
-        }
-        function cutWire(wire) {
-            if (!gameActive || !isWirePuzzle) return;
-            const wireElement = document.querySelector(`.wire.${wire}`);
-            wireElement.classList.add('cut');
-            if (wire === correctWire) {
-                solvedPuzzles++;
-                level++;
-                clearInterval(timer);
-                timeLeft = 60; // Reset timer to 60 seconds, keep timerSpeed
-                document.getElementById('timer').classList.remove('critical');
-                updateDisplay();
-                loadNewPuzzle();
-                startTimer();
-            } else {
-                timerSpeed = Math.max(125, timerSpeed / 2);
-                clearInterval(timer);
-                startTimer();
-                updateDisplay();
-            }
-        }
-        function defuseBomb() {
-            if (!gameActive || isWirePuzzle) return;
-            const userCode = document.getElementById('codeInput').value.padStart(4, '0');
-            if (userCode === currentPuzzle.answer) {
-                solvedPuzzles++;
-                level++;
-                clearInterval(timer);
-                timeLeft = 60; // Reset timer to 60 seconds, keep timerSpeed
-                document.getElementById('timer').classList.remove('critical');
-                document.getElementById('codeInput').style.background = '#003300';
-                setTimeout(() => {
-                    document.getElementById('codeInput').style.background = '#000';
-                }, 500);
-                updateDisplay();
-                loadNewPuzzle();
-                startTimer();
-            } else {
-                timerSpeed = Math.max(125, timerSpeed / 2);
-                clearInterval(timer);
-                startTimer();
-                updateDisplay();
-                document.getElementById('codeInput').value = '';
-                document.getElementById('codeInput').style.background = '#330000';
-                setTimeout(() => {
-                    document.getElementById('codeInput').style.background = '#000';
-                }, 500);
-            }
-        }
-        function explodeBomb() {
-            gameActive = false;
-            clearInterval(timer);
-            const explosionSound = document.getElementById('explosionSound');
-            explosionSound.play().catch(error => console.log('Audio play failed:', error));
-            const explosion = document.createElement('div');
-            explosion.className = 'explosion';
-            document.body.appendChild(explosion);
-            setTimeout(() => {
-                document.body.removeChild(explosion);
-                showEndScreen(false);
-            }, 2000);
-        }
-        function showEndScreen(success) {
-            document.getElementById('gameScreen').classList.add('hidden');
-            document.getElementById('endScreen').classList.remove('hidden');
-            const statusEl = document.getElementById('endStatus');
-            if (success) {
-                const successSound = document.getElementById('successSound');
-                successSound.play().catch(error => console.log('Audio play failed:', error));
-                statusEl.innerHTML = `
-                    <div class="success">🎉 HOÀN THÀNH XUẤT SẮC! 🎉</div>
-                    <div>Bạn đã hoàn thành ${solvedPuzzles} nhiệm vụ!</div>
-                    <div>Mức độ cuối: ${level}</div>
-                `;
-                statusEl.className = 'status success';
-            } else {
-                const answerText = isWirePuzzle
-                    ? `Dây đúng: ${correctWire}`
-                    : `Đáp án cuối: ${currentPuzzle.answer}<br>Giải thích: ${currentPuzzle.explanation}`;
-                statusEl.innerHTML = `
-                    <div class="failure">💥 THẤT BẠI! 💥</div>
-                    <div>Bom đã nổ ở nhiệm vụ ${level}!</div>
-                    <div>Đã hoàn thành: ${solvedPuzzles} nhiệm vụ</div>
-                    <div>${answerText}</div>
-                `;
-                statusEl.className = 'status failure';
-            }
-        }
-        function resetGame() {
-            gameActive = false;
-            clearInterval(timer);
-            timeLeft = 60;
-            timerSpeed = 1000;
-            level = 1;
-            solvedPuzzles = 0;
-            isWirePuzzle = false;
-            document.getElementById('gameScreen').classList.add('hidden');
-            document.getElementById('endScreen').classList.add('hidden');
-            document.getElementById('startScreen').classList.remove('hidden');
-            document.getElementById('timer').classList.remove('critical');
-            document.getElementById('codeInput').value = '';
-            resetWires();
-            closeInstructions();
-            const explosionSound = document.getElementById('explosionSound');
-            explosionSound.pause();
-            explosionSound.currentTime = 0;
-            const successSound = document.getElementById('successSound');
-            successSound.pause();
-            successSound.currentTime = 0;
-        }
-        function showInstructions() {
-            document.getElementById('instructionsModal').style.display = 'flex';
-        }
-        function closeInstructions() {
-            document.getElementById('instructionsModal').style.display = 'none';
-        }
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && gameActive && !isWirePuzzle) {
-                defuseBomb();
-            }
-        });
-        document.getElementById('codeInput').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-    </script>
-</body>
+  <main class="device" id="device">
+    <span class="screw tl" aria-hidden="true"></span>
+    <span class="screw tr" aria-hidden="true"></span>
+    <span class="screw bl" aria-hidden="true"></span>
+    <span class="screw br" aria-hidden="true"></span>
 
+    <section class="device-inner">
+      <header class="topbar">
+        <a href="game.html" class="icon-btn" aria-label="Quay lại">←</a>
+        <div class="title-block">
+          <div class="eyebrow">NTS Tactical System</div>
+          <h1>Giải Mã Gỡ Bom</h1>
+        </div>
+        <button class="icon-btn" type="button" onclick="showInstructions()" aria-label="Hướng dẫn">?</button>
+      </header>
+
+      <div class="danger-strip"><span>Danger · Explosive Device · Authorized Operator Only</span></div>
+
+      <section id="startScreen" class="start-area">
+        <div class="screen-card">
+          <p class="status">THIẾT BỊ ĐÃ ĐƯỢC KÍCH HOẠT</p>
+          <p class="status-note">Bạn có 60 giây để giải mã hoặc làm nhiệm vụ cắt dây theo chỉ thị. Mỗi lần sai, tốc độ đếm ngược tăng gấp đôi.</p>
+        </div>
+        <div class="mission-badge"><span class="led"></span> HỆ THỐNG ĐANG CHỜ LỆNH</div>
+        <button class="btn start" type="button" onclick="startGame()">Bắt đầu nhiệm vụ</button>
+      </section>
+
+      <section id="gameScreen" class="hidden">
+        <div class="game-layout">
+          <article class="module">
+            <div class="module-header">
+              <span>Bộ điều khiển trung tâm</span>
+              <span id="modeIndicator">CODE MODE</span>
+            </div>
+            <div class="module-body">
+              <div class="hud-grid">
+                <div class="hud-cell">
+                  <span class="hud-label">Nhiệm vụ</span>
+                  <span class="hud-value" id="levelDisplay">1</span>
+                </div>
+                <div class="hud-cell">
+                  <span class="hud-label">Hoàn thành</span>
+                  <span class="hud-value" id="solvedDisplay">0</span>
+                </div>
+                <div class="hud-cell">
+                  <span class="hud-label">Tốc độ</span>
+                  <span class="hud-value" id="speedDisplay">×1</span>
+                </div>
+              </div>
+
+              <div class="timer-wrap">
+                <div class="timer-label">Thời gian còn lại</div>
+                <div class="timer" id="timer">60</div>
+              </div>
+
+              <div class="speed-meter">CẢNH BÁO TỐC ĐỘ: <strong id="speedText">BÌNH THƯỜNG</strong></div>
+
+              <div class="puzzle" id="codePuzzle">
+                <div class="puzzle-title">Nhiệm vụ giải mã</div>
+                <p class="puzzle-text" id="puzzleText"></p>
+              </div>
+
+              <div class="puzzle hidden" id="wirePuzzle">
+                <div class="puzzle-title">Nhiệm vụ cắt dây</div>
+                <p class="puzzle-text">Phân tích cụm dây bên phải và chọn một dây để vô hiệu hóa thiết bị.</p>
+              </div>
+
+              <div class="input-zone" id="inputZone">
+                <input
+                  type="text"
+                  class="code-input"
+                  id="codeInput"
+                  placeholder="0000"
+                  maxlength="4"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Nhập mã gồm bốn chữ số"
+                />
+                <button class="btn" type="button" onclick="defuseBomb()">Xác nhận mã</button>
+              </div>
+
+              <div class="feedback" id="feedback" aria-live="polite">Hệ thống sẵn sàng.</div>
+
+              <div class="controls">
+                <button class="btn secondary" type="button" onclick="resetGame()">Khởi động lại</button>
+                <button class="btn secondary" type="button" onclick="showInstructions()">Hướng dẫn</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="module wire-module">
+            <div class="module-header">
+              <span>Cụm dây kích nổ</span>
+              <span>4 CHANNELS</span>
+            </div>
+            <div class="module-body wire-board">
+              <p class="wire-instruction" id="wireInstruction">Dây chỉ hoạt động khi hệ thống chuyển sang chế độ cắt dây.</p>
+
+              <div class="wire-list" aria-label="Cụm dây điện">
+                <button class="wire-row red" type="button" data-wire="red" onclick="cutWire('red')" aria-label="Cắt dây đỏ">
+                  <span class="terminal"></span>
+                  <span class="wire-line"></span>
+                  <span class="terminal"></span>
+                  <span class="wire-tag">RED</span>
+                </button>
+                <button class="wire-row blue" type="button" data-wire="blue" onclick="cutWire('blue')" aria-label="Cắt dây xanh dương">
+                  <span class="terminal"></span>
+                  <span class="wire-line"></span>
+                  <span class="terminal"></span>
+                  <span class="wire-tag">BLUE</span>
+                </button>
+                <button class="wire-row green" type="button" data-wire="green" onclick="cutWire('green')" aria-label="Cắt dây xanh lá">
+                  <span class="terminal"></span>
+                  <span class="wire-line"></span>
+                  <span class="terminal"></span>
+                  <span class="wire-tag">GREEN</span>
+                </button>
+                <button class="wire-row yellow" type="button" data-wire="yellow" onclick="cutWire('yellow')" aria-label="Cắt dây vàng">
+                  <span class="terminal"></span>
+                  <span class="wire-line"></span>
+                  <span class="terminal"></span>
+                  <span class="wire-tag">YELLOW</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="endScreen" class="hidden">
+        <div class="screen-card end-panel">
+          <div class="end-icon" id="endIcon">💥</div>
+          <div class="status" id="endStatus"></div>
+          <button class="btn start" type="button" onclick="resetGame()">Chơi lại</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="instructionsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="instructionsTitle">
+    <div class="modal-content">
+      <div class="modal-head">
+        <h2 id="instructionsTitle">Hướng dẫn vận hành</h2>
+        <button class="close-btn" type="button" onclick="closeInstructions()" aria-label="Đóng">×</button>
+      </div>
+      <div class="instructions">
+        <div class="instruction-row"><span class="instruction-number">1</span><span>Mỗi nhiệm vụ có 60 giây. Hãy giải mã bốn chữ số hoặc chọn đúng dây trước khi bộ đếm về 0.</span></div>
+        <div class="instruction-row"><span class="instruction-number">2</span><span>Ở chế độ giải mã, nhập mã vào màn hình rồi nhấn “Xác nhận mã” hoặc phím Enter.</span></div>
+        <div class="instruction-row"><span class="instruction-number">3</span><span>Ở chế độ cắt dây, đọc chỉ thị hiển thị trong màn hình nhiệm vụ rồi nhấn trực tiếp vào đúng một trong bốn dây đỏ, xanh dương, xanh lá hoặc vàng.</span></div>
+        <div class="instruction-row"><span class="instruction-number">4</span><span>Mỗi lựa chọn sai làm tốc độ đếm ngược tăng gấp đôi, tối đa gấp tám lần.</span></div>
+        <div class="instruction-row"><span class="instruction-number">5</span><span>Giải đúng sẽ chuyển sang nhiệm vụ mới và khôi phục thời gian về 60 giây, nhưng tốc độ đã tăng vẫn được giữ nguyên.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="explosionSound" src="boom.mp3" preload="auto"></audio>
+  <audio id="successSound" src="hoanthanh.mp3" preload="auto"></audio>
+
+  <script>
+    let timeLeft = 60;
+    let gameActive = false;
+    let currentPuzzle = {};
+    let timer;
+    let timerSpeed = 1000;
+    let level = 1;
+    let solvedPuzzles = 0;
+    let isWirePuzzle = false;
+    let correctWire = "";
+    let currentWireMission = null;
+
+    const wires = ["red", "blue", "green", "yellow"];
+    const wireNames = {
+      red: "ĐỎ",
+      blue: "XANH DƯƠNG",
+      green: "XANH LÁ",
+      yellow: "VÀNG"
+    };
+
+    const wireMissions = [
+      {
+        text: "CẢNH BÁO 01\nKhông cắt dây ở đầu hoặc cuối. Không cắt dây màu lạnh. Chỉ còn một lựa chọn.",
+        answer: "green",
+        explanation: "Không chọn đầu hoặc cuối loại đỏ và vàng, không chọn màu lạnh là xanh dương, nên còn lại xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 02\nCắt dây đứng ngay dưới dây đỏ.",
+        answer: "blue",
+        explanation: "Dây đỏ ở trên cùng, ngay dưới là dây xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 03\nCắt dây đứng giữa dây xanh dương và dây vàng.",
+        answer: "green",
+        explanation: "Thứ tự là đỏ, xanh dương, xanh lá, vàng nên dây ở giữa xanh dương và vàng là xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 04\nKhông cắt dây màu ấm. Không cắt dây đứng giữa. Hãy chọn dây còn lại ở nhóm màu lạnh.",
+        answer: "blue",
+        explanation: "Màu ấm là đỏ và vàng, dây đứng giữa gồm xanh dương và xanh lá nhưng phải chọn nhóm màu lạnh còn phù hợp là xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 05\nLấy vị trí 1 + 2. Cắt dây ở vị trí đó tính từ trên xuống.",
+        answer: "green",
+        explanation: "1 + 2 = 3, dây thứ ba là xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 06\nCắt dây có thứ tự là số chẵn lớn nhất nhưng không phải dây cuối cùng.",
+        answer: "blue",
+        explanation: "Các vị trí chẵn là 2 và 4, nhưng không phải cuối cùng nên là vị trí 2: xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 07\nKhông cắt dây có chữ cái đầu là R hoặc G. Không cắt dây cuối cùng.",
+        answer: "blue",
+        explanation: "Loại red, green và yellow (dây cuối), còn lại blue."
+      },
+      {
+        text: "CẢNH BÁO 08\nCắt dây ở vị trí bằng số cạnh của hình tam giác.",
+        answer: "green",
+        explanation: "Tam giác có 3 cạnh, dây thứ ba là xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 09\nNếu đỏ là 1, xanh dương là 2, xanh lá là 3, vàng là 4 thì hãy cắt dây có số lớn hơn 1 và nhỏ hơn 3.",
+        answer: "blue",
+        explanation: "Số lớn hơn 1 và nhỏ hơn 3 là 2, tức dây xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 10\nKhông chọn dây số 1. Không chọn dây số 2. Không chọn dây số 4.",
+        answer: "green",
+        explanation: "Chỉ còn lại dây số 3 là xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 11\nCắt dây ngay trước dây vàng.",
+        answer: "green",
+        explanation: "Dây đứng ngay trước vàng là xanh lá."
+      },
+      {
+        text: "CẢNH BÁO 12\nCắt dây có vị trí bằng 8 chia 4.",
+        answer: "blue",
+        explanation: "8 chia 4 bằng 2, dây thứ hai là xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 13\nKhông cắt dây đầu tiên. Không cắt dây có màu của cỏ. Không cắt dây cuối cùng.",
+        answer: "blue",
+        explanation: "Loại đỏ, xanh lá và vàng, còn lại xanh dương."
+      },
+      {
+        text: "CẢNH BÁO 14\nCắt dây có vị trí đứng sau vị trí thứ 2 đúng một bậc.",
+        answer: "green",
+        explanation: "Sau vị trí 2 một bậc là vị trí 3: xanh lá."
+      }
+    ];
+
+    const puzzles = [
+      {
+        type: "code",
+        text: "Số nguyên tố đầu tiên: 2, 3, 5, 7\nMã = ghép tổng hai số đầu với tổng hai số cuối",
+        answer: "0512",
+        explanation: "2 + 3 = 5 và 5 + 7 = 12, ghép lại thành 0512."
+      },
+      {
+        type: "code",
+        text: "Dãy Fibonacci: 1, 1, 2, 3, 5, 8\nMã = số thứ 4, thứ 6, thứ 2, thứ 5",
+        answer: "3815",
+        explanation: "Số thứ 4 là 3, thứ 6 là 8, thứ 2 là 1 và thứ 5 là 5."
+      },
+      {
+        type: "code",
+        text: "Năm sinh: 1990\nTuổi: 35\nMã = hai chữ số cuối năm sinh + tuổi",
+        answer: "9035",
+        explanation: "Hai chữ số cuối của 1990 là 90, ghép với 35 thành 9035."
+      },
+      {
+        type: "code",
+        text: "A = 1, B = 2, ..., Z = 26\nTừ BOMB có tổng bằng bao nhiêu?",
+        answer: "0032",
+        explanation: "B(2) + O(15) + M(13) + B(2) = 32."
+      },
+      {
+        type: "code",
+        text: "Thời gian: 12:34\nMã = giờ × phút ÷ 2",
+        answer: "0204",
+        explanation: "12 × 34 ÷ 2 = 204."
+      },
+      {
+        type: "code",
+        text: "Số lẻ: 1, 3, 5, 7\nMã = bình phương số thứ 3 + số thứ 1",
+        answer: "0026",
+        explanation: "5² + 1 = 26."
+      },
+      {
+        type: "code",
+        text: "Dãy: 4, 8, 12, 16\nMã = (số thứ 2 × số thứ 4) ÷ số thứ 1",
+        answer: "0032",
+        explanation: "(8 × 16) ÷ 4 = 32."
+      },
+      {
+        type: "code",
+        text: "Mật mã gốc: 1234\nMã = đảo ngược bốn chữ số",
+        answer: "4321",
+        explanation: "Đảo ngược 1234 thành 4321."
+      },
+      {
+        type: "code",
+        text: "Số: 6, 12, 18, 24\nMã = tổng các số ÷ 3",
+        answer: "0020",
+        explanation: "(6 + 12 + 18 + 24) ÷ 3 = 20."
+      },
+      {
+        type: "code",
+        text: "Ngày: 07/08\nMã = ngày × tháng × 10",
+        answer: "0560",
+        explanation: "7 × 8 × 10 = 560."
+      },
+      {
+        type: "code",
+        text: "A = 1, Z = 26\nTICK = ?",
+        answer: "0043",
+        explanation: "T(20) + I(9) + C(3) + K(11) = 43."
+      },
+      {
+        type: "code",
+        text: "Số: 9, 8, 7, 6\nMã = (số lớn nhất × số nhỏ nhất) + 1",
+        answer: "0055",
+        explanation: "(9 × 6) + 1 = 55."
+      },
+      {
+        type: "code",
+        text: "Dãy: 2, 4, 8, 16\nMã = số thứ 4 - số thứ 2 + số thứ 1",
+        answer: "0014",
+        explanation: "16 - 4 + 2 = 14."
+      },
+      {
+        type: "code",
+        text: "Mã Morse: .-  -.- = AK\nA = 1, K = 11\nMã = A × K × 10",
+        answer: "0110",
+        explanation: "1 × 11 × 10 = 110."
+      },
+      {
+        type: "code",
+        text: "Số: 15, 25, 35\nMã = tổng ÷ số lượng số",
+        answer: "0025",
+        explanation: "(15 + 25 + 35) ÷ 3 = 25."
+      },
+      {
+        type: "code",
+        text: "Thời gian: 15:45\nMã = phút - giờ + 100",
+        answer: "0130",
+        explanation: "45 - 15 + 100 = 130."
+      },
+      {
+        type: "code",
+        text: "Dãy: 1, 3, 9, 27\nMã = số thứ 3 × 2 + số thứ 2",
+        answer: "0021",
+        explanation: "9 × 2 + 3 = 21."
+      },
+      {
+        type: "code",
+        text: "Số: 7, 14, 21, 28\nMã = số thứ 4 ÷ số thứ 2 × 10",
+        answer: "0020",
+        explanation: "28 ÷ 14 × 10 = 20."
+      },
+      {
+        type: "code",
+        text: "A = 1, B = 2, ..., Z = 26\nBOOM = tổng chữ cái - 10",
+        answer: "0035",
+        explanation: "B(2) + O(15) + O(15) + M(13) = 45; 45 - 10 = 35."
+      },
+      {
+        type: "code",
+        text: "Dãy: 5, 10, 15, 20\nMã = (số thứ 1 + số thứ 3) × 2",
+        answer: "0040",
+        explanation: "(5 + 15) × 2 = 40."
+      }
+    ];
+
+
+    function startGame() {
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+      document.getElementById("gameScreen").classList.remove("hidden");
+
+      gameActive = true;
+      timeLeft = 60;
+      timerSpeed = 1000;
+      level = 1;
+      solvedPuzzles = 0;
+
+      setFeedback("Hệ thống bắt đầu quét nhiệm vụ...", "");
+      updateDisplay();
+      loadNewPuzzle();
+      startTimer();
+    }
+
+    function loadNewPuzzle() {
+      isWirePuzzle = Math.random() > 0.5;
+      resetWires();
+
+      if (isWirePuzzle) {
+        currentWireMission = wireMissions[Math.floor(Math.random() * wireMissions.length)];
+        correctWire = currentWireMission.answer;
+        document.getElementById("codePuzzle").classList.add("hidden");
+        document.getElementById("wirePuzzle").classList.remove("hidden");
+        document.getElementById("inputZone").classList.add("hidden");
+        document.getElementById("modeIndicator").textContent = "WIRE MODE";
+        document.querySelector("#wirePuzzle .puzzle-text").textContent = currentWireMission.text;
+        document.getElementById("wireInstruction").textContent = "CHẾ ĐỘ CẮT DÂY ĐANG HOẠT ĐỘNG — ĐỌC MANH MỐI VÀ TỰ SUY LUẬN.";
+        setFeedback("Đang chờ người chơi suy luận để cắt dây.", "");
+      } else {
+        currentWireMission = null;
+        currentPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+        document.getElementById("codePuzzle").classList.remove("hidden");
+        document.getElementById("wirePuzzle").classList.add("hidden");
+        document.getElementById("inputZone").classList.remove("hidden");
+        document.getElementById("puzzleText").textContent = currentPuzzle.text;
+        document.getElementById("codeInput").value = "";
+        document.getElementById("modeIndicator").textContent = "CODE MODE";
+        document.getElementById("wireInstruction").textContent = "Cụm dây đang khóa. Hãy giải mã trên bộ điều khiển trung tâm.";
+        setFeedback("Nhập mã gồm bốn chữ số.", "");
+        setTimeout(() => document.getElementById("codeInput").focus(), 50);
+      }
+    }
+
+    function resetWires() {
+      document.querySelectorAll(".wire-row").forEach((wire) => wire.classList.remove("cut"));
+    }
+
+    function updateDisplay() {
+      const multiplier = 1000 / timerSpeed;
+      document.getElementById("levelDisplay").textContent = level;
+      document.getElementById("solvedDisplay").textContent = solvedPuzzles;
+      document.getElementById("speedDisplay").textContent = "×" + multiplier;
+      document.getElementById("timer").textContent = String(timeLeft).padStart(2, "0");
+
+      const speedText = multiplier === 1 ? "BÌNH THƯỜNG" : multiplier <= 4 ? "NGUY HIỂM" : "CỰC HẠN";
+      document.getElementById("speedText").textContent = speedText;
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft -= 1;
+        document.getElementById("timer").textContent = String(Math.max(timeLeft, 0)).padStart(2, "0");
+
+        if (timeLeft <= 10) {
+          document.getElementById("timer").classList.add("critical");
+        }
+
+        if (timeLeft <= 0) {
+          explodeBomb();
+        }
+      }, timerSpeed);
+    }
+
+    function cutWire(wire) {
+      if (!gameActive || !isWirePuzzle) {
+        if (gameActive) setFeedback("Cụm dây đang bị khóa trong nhiệm vụ này.", "bad");
+        return;
+      }
+
+      const wireElement = document.querySelector(`[data-wire="${wire}"]`);
+      wireElement.classList.add("cut");
+
+      if (wire === correctWire) {
+        handleSuccess("Dây " + wireNames[wire] + " đã vô hiệu hóa mạch kích nổ.");
+      } else {
+        handleFailure("Sai dây! Tốc độ đếm ngược đã tăng gấp đôi.");
+      }
+    }
+
+    function defuseBomb() {
+      if (!gameActive || isWirePuzzle) return;
+
+      const rawValue = document.getElementById("codeInput").value;
+      if (!rawValue) {
+        setFeedback("Hãy nhập mã trước khi xác nhận.", "bad");
+        return;
+      }
+
+      const userCode = rawValue.padStart(4, "0");
+
+      if (userCode === currentPuzzle.answer) {
+        handleSuccess("Mã chính xác. Mạch kích nổ tạm thời bị vô hiệu hóa.");
+      } else {
+        document.getElementById("codeInput").value = "";
+        handleFailure("Mã sai! Tốc độ đếm ngược đã tăng gấp đôi.");
+      }
+    }
+
+    function handleSuccess(message) {
+      solvedPuzzles += 1;
+      level += 1;
+      clearInterval(timer);
+      timeLeft = 60;
+      document.getElementById("timer").classList.remove("critical");
+      setFeedback(message, "good");
+      flashInput(true);
+      updateDisplay();
+
+      setTimeout(() => {
+        if (!gameActive) return;
+        loadNewPuzzle();
+        startTimer();
+      }, 650);
+    }
+
+    function handleFailure(message) {
+      timerSpeed = Math.max(125, timerSpeed / 2);
+      clearInterval(timer);
+      startTimer();
+      updateDisplay();
+      setFeedback(message, "bad");
+      flashInput(false);
+      shakeDevice();
+    }
+
+    function flashInput(success) {
+      const input = document.getElementById("codeInput");
+      input.style.background = success ? "#063117" : "#330707";
+      setTimeout(() => { input.style.background = "#020806"; }, 420);
+    }
+
+    function setFeedback(message, type) {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = message;
+      feedback.className = "feedback" + (type ? " " + type : "");
+    }
+
+    function shakeDevice() {
+      const device = document.getElementById("device");
+      device.classList.remove("shake");
+      void device.offsetWidth;
+      device.classList.add("shake");
+    }
+
+    function explodeBomb() {
+      if (!gameActive) return;
+
+      gameActive = false;
+      clearInterval(timer);
+
+      const explosionSound = document.getElementById("explosionSound");
+      explosionSound.currentTime = 0;
+      explosionSound.play().catch(() => {});
+
+      const explosion = document.createElement("div");
+      explosion.className = "explosion";
+      document.body.appendChild(explosion);
+
+      shakeDevice();
+
+      setTimeout(() => {
+        explosion.remove();
+        showEndScreen(false);
+      }, 1500);
+    }
+
+    function showEndScreen(success) {
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.remove("hidden");
+
+      const statusEl = document.getElementById("endStatus");
+      const iconEl = document.getElementById("endIcon");
+
+      if (success) {
+        const successSound = document.getElementById("successSound");
+        successSound.currentTime = 0;
+        successSound.play().catch(() => {});
+        iconEl.textContent = "✓";
+        statusEl.innerHTML = `
+          <div class="success">HOÀN THÀNH NHIỆM VỤ</div>
+          <div class="end-details">
+            <span>Đã xử lý: ${solvedPuzzles} nhiệm vụ</span>
+            <span>Cấp độ cuối: ${level}</span>
+          </div>`;
+      } else {
+        const answerText = isWirePuzzle
+          ? `Dây đúng: ${wireNames[correctWire]}<br>${currentWireMission ? currentWireMission.explanation : ""}`
+          : `Đáp án cuối: ${currentPuzzle.answer}<br>${currentPuzzle.explanation}`;
+
+        iconEl.textContent = "💥";
+        statusEl.innerHTML = `
+          <div class="failure">THIẾT BỊ ĐÃ PHÁT NỔ</div>
+          <div class="end-details">
+            <span>Thất bại ở nhiệm vụ ${level}</span>
+            <span>Đã hoàn thành: ${solvedPuzzles} nhiệm vụ</span>
+            <span>${answerText}</span>
+          </div>`;
+      }
+    }
+
+    function resetGame() {
+      gameActive = false;
+      clearInterval(timer);
+      timeLeft = 60;
+      timerSpeed = 1000;
+      level = 1;
+      solvedPuzzles = 0;
+      isWirePuzzle = false;
+      correctWire = "";
+      currentWireMission = null;
+
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+      document.getElementById("startScreen").classList.remove("hidden");
+      document.getElementById("timer").classList.remove("critical");
+      document.getElementById("codeInput").value = "";
+      resetWires();
+      closeInstructions();
+      updateDisplay();
+
+      ["explosionSound", "successSound"].forEach((id) => {
+        const sound = document.getElementById(id);
+        sound.pause();
+        sound.currentTime = 0;
+      });
+    }
+
+    function showInstructions() {
+      document.getElementById("instructionsModal").classList.add("show");
+    }
+
+    function closeInstructions() {
+      document.getElementById("instructionsModal").classList.remove("show");
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && gameActive && !isWirePuzzle) defuseBomb();
+      if (event.key === "Escape") closeInstructions();
+    });
+
+    document.getElementById("codeInput").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 4);
+    });
+
+    document.getElementById("instructionsModal").addEventListener("click", (event) => {
+      if (event.target.id === "instructionsModal") closeInstructions();
+    });
+  </script>
+</body>
 </html>
