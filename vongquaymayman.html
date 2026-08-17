@@ -1,0 +1,3028 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Vòng quay may mắn</title>
+
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #4c1d95;
+      --danger: #ef4444;
+      --text: #1e293b;
+      --muted: #64748b;
+      --card: rgba(255, 255, 255, 0.95);
+      --border: rgba(255, 255, 255, 0.55);
+      --shadow: 0 25px 60px rgba(49, 18, 99, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 35px 20px;
+      overflow-x: hidden;
+      background:
+        radial-gradient(
+          circle at 10% 20%,
+          rgba(236, 72, 153, 0.4),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 90% 80%,
+          rgba(34, 211, 238, 0.3),
+          transparent 34%
+        ),
+        linear-gradient(
+          135deg,
+          #32106b 0%,
+          #6d28d9 45%,
+          #2563eb 100%
+        );
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    body::before,
+    body::after {
+      position: fixed;
+      z-index: -1;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      content: "";
+      filter: blur(15px);
+      opacity: 0.45;
+    }
+
+    body::before {
+      top: -90px;
+      right: -70px;
+      background: #fbbf24;
+    }
+
+    body::after {
+      bottom: -110px;
+      left: -70px;
+      background: #22d3ee;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: none;
+    }
+
+    /* =========================
+       TIÊU ĐỀ
+    ========================== */
+
+    .page-header {
+      margin-bottom: 30px;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -2px;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .page-header p {
+      max-width: 650px;
+      margin: 13px auto 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       BỐ CỤC CHÍNH
+    ========================== */
+
+    .app-container {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(320px, 0.75fr);
+      gap: 24px;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    /* =========================
+       KHUNG VÒNG QUAY
+    ========================== */
+
+    .wheel-card {
+      display: flex;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      padding: 32px 24px 38px;
+      overflow: visible;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .wheel-heading {
+      width: 100%;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .wheel-heading h2 {
+      margin: 0 0 7px;
+      font-size: 25px;
+    }
+
+    .wheel-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .wheel-stage {
+      position: relative;
+      display: flex;
+      width: min(560px, 82vw);
+      aspect-ratio: 1;
+      margin: 38px auto 0;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel-glow {
+      position: absolute;
+      inset: 5%;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle,
+          rgba(168, 85, 247, 0.5),
+          rgba(236, 72, 153, 0.2) 45%,
+          transparent 70%
+        );
+      filter: blur(38px);
+      animation: wheelGlow 2.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes wheelGlow {
+      from {
+        opacity: 0.65;
+        transform: scale(0.93);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.07);
+      }
+    }
+
+    .wheel-frame {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      padding: 35px;
+      border-radius: 50%;
+      background:
+        linear-gradient(
+          145deg,
+          #fff8d4 0%,
+          #f5c451 14%,
+          #9b5c00 40%,
+          #ffe89a 65%,
+          #a96000 82%,
+          #ffd76a 100%
+        );
+      box-shadow:
+        0 38px 70px rgba(44, 17, 91, 0.38),
+        0 16px 25px rgba(0, 0, 0, 0.2),
+        inset 0 6px 12px rgba(255, 255, 255, 0.85),
+        inset 0 -9px 16px rgba(107, 56, 0, 0.58);
+    }
+
+    .wheel-frame::before {
+      position: absolute;
+      inset: 13px;
+      border: 3px solid rgba(255, 249, 206, 0.68);
+      border-radius: 50%;
+      content: "";
+      box-shadow:
+        inset 0 0 17px rgba(255, 255, 255, 0.8),
+        0 0 14px rgba(255, 221, 113, 0.5);
+      pointer-events: none;
+    }
+
+    .wheel-frame::after {
+      position: absolute;
+      inset: 26px;
+      border: 2px solid rgba(105, 54, 0, 0.35);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+
+    .wheel-inner-frame {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      padding: 7px;
+      border-radius: 50%;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.96),
+          rgba(255, 220, 122, 0.82),
+          rgba(124, 58, 237, 0.38)
+        );
+      box-shadow:
+        inset 0 0 13px rgba(255, 255, 255, 0.98),
+        0 6px 17px rgba(0, 0, 0, 0.25);
+    }
+
+    #wheelCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      filter: saturate(1.08) contrast(1.03);
+    }
+
+    /* =========================
+       ĐÈN TRANG TRÍ
+    ========================== */
+
+    .decorative-lights {
+      position: absolute;
+      z-index: 8;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .wheel-light {
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255, 255, 255, 0.88);
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #ffffff 0%,
+          #fff3a7 20%,
+          #ffc928 50%,
+          #ff7a00 100%
+        );
+      box-shadow:
+        0 0 8px #fff4ad,
+        0 0 15px rgba(255, 179, 0, 0.95);
+      transform: translate(-50%, -50%);
+      animation: lightBlink 1.4s ease-in-out infinite alternate;
+      animation-delay: var(--delay);
+    }
+
+    @keyframes lightBlink {
+      from {
+        opacity: 0.5;
+        filter: brightness(0.8);
+      }
+
+      to {
+        opacity: 1;
+        filter: brightness(1.5);
+      }
+    }
+
+    /* =========================
+       CÂY KIM
+    ========================== */
+
+    .pointer-wrapper {
+      position: absolute;
+      top: -31px;
+      left: 50%;
+      z-index: 60;
+      width: 72px;
+      height: 112px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .pointer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-origin: 50% 28px;
+      animation: pointerIdle 2.2s ease-in-out infinite;
+    }
+
+    .pointer-cap {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      z-index: 4;
+      width: 58px;
+      height: 58px;
+      border: 5px solid #fff3ba;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle at 32% 25%,
+          #ffd4df 0%,
+          #fb7185 24%,
+          #e11d48 55%,
+          #9f1239 100%
+        );
+      box-shadow:
+        0 7px 15px rgba(72, 15, 43, 0.38),
+        0 0 0 3px rgba(136, 75, 5, 0.3),
+        inset 0 4px 6px rgba(255, 255, 255, 0.42),
+        inset 0 -7px 10px rgba(88, 5, 32, 0.42);
+      transform: translateX(-50%);
+    }
+
+    .pointer-cap::before {
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .pointer-highlight {
+      position: absolute;
+      top: 9px;
+      left: 11px;
+      width: 20px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.62);
+      transform: rotate(-28deg);
+    }
+
+    .pointer-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      border: 3px solid #fff7c2;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #fffce3,
+          #fbbf24 45%,
+          #b45309 100%
+        );
+      box-shadow:
+        0 2px 5px rgba(91, 42, 0, 0.35),
+        inset 0 2px 3px rgba(255, 255, 255, 0.7);
+      transform: translate(-50%, -50%);
+    }
+
+    .pointer-arrow-border {
+      position: absolute;
+      top: 42px;
+      left: 50%;
+      z-index: 2;
+      width: 42px;
+      height: 68px;
+      background: #fff3ba;
+      clip-path: polygon(
+        50% 100%,
+        4% 19%,
+        18% 0,
+        82% 0,
+        96% 19%
+      );
+      filter: drop-shadow(0 7px 5px rgba(81, 8, 37, 0.28));
+      transform: translateX(-50%);
+    }
+
+    .pointer-arrow {
+      position: absolute;
+      inset: 5px;
+      background:
+        linear-gradient(
+          160deg,
+          #ff9caf 0%,
+          #f43f5e 35%,
+          #be123c 68%,
+          #881337 100%
+        );
+      clip-path: polygon(
+        50% 100%,
+        0 18%,
+        15% 0,
+        85% 0,
+        100% 18%
+      );
+    }
+
+    .pointer-arrow::after {
+      position: absolute;
+      top: 7px;
+      left: 8px;
+      width: 7px;
+      height: 30px;
+      border-radius: 999px;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.55),
+          rgba(255, 255, 255, 0)
+        );
+      content: "";
+      transform: rotate(-8deg);
+    }
+
+    @keyframes pointerIdle {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(2px);
+      }
+    }
+
+    .pointer-wrapper.is-spinning .pointer {
+      animation: pointerTick 0.11s ease-in-out infinite alternate;
+    }
+
+    @keyframes pointerTick {
+      from {
+        transform: rotate(-5deg);
+      }
+
+      to {
+        transform: rotate(5deg);
+      }
+    }
+
+    /* =========================
+       NÚT QUAY
+    ========================== */
+
+    .spin-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 30;
+      display: flex;
+      width: 135px;
+      height: 135px;
+      padding: 0;
+      border: 9px solid rgba(255, 248, 199, 0.97);
+      border-radius: 50%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(
+          circle at 35% 25%,
+          #ff9bd6 0%,
+          #ec4899 25%,
+          #8b5cf6 60%,
+          #4c1d95 100%
+        );
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow:
+        0 15px 30px rgba(76, 29, 149, 0.52),
+        inset 0 5px 8px rgba(255, 255, 255, 0.42),
+        inset 0 -10px 17px rgba(48, 15, 98, 0.58),
+        0 0 0 5px rgba(122, 66, 15, 0.36);
+      transform: translate(-50%, -50%);
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    .spin-button::before {
+      position: absolute;
+      inset: 9px;
+      border: 2px dashed rgba(255, 255, 255, 0.48);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .spin-button:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform:
+        translate(-50%, -50%)
+        scale(1.07);
+    }
+
+    .spin-button:active:not(:disabled) {
+      transform:
+        translate(-50%, -50%)
+        scale(0.96);
+    }
+
+    .spin-button:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      opacity: 0.78;
+    }
+
+    .spin-button-small {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 2px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      opacity: 0.85;
+    }
+
+    .spin-button-main {
+      position: relative;
+      z-index: 2;
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: 1px;
+      text-shadow:
+        0 3px 6px rgba(49, 13, 80, 0.5);
+    }
+
+    /* =========================
+       KẾT QUẢ DƯỚI VÒNG QUAY
+    ========================== */
+
+    .result-box {
+      display: flex;
+      width: min(520px, 100%);
+      min-height: 82px;
+      margin-top: 45px;
+      padding: 16px 20px;
+      border: 1px solid rgba(124, 58, 237, 0.14);
+      border-radius: 20px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124, 58, 237, 0.08),
+          rgba(236, 72, 153, 0.08)
+        );
+      text-align: center;
+    }
+
+    .result-placeholder {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .result-content {
+      animation: resultAppear 0.5s ease;
+    }
+
+    .result-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .result-value {
+      display: block;
+      color: var(--primary-dark);
+      font-size: 25px;
+      font-weight: 950;
+      word-break: break-word;
+    }
+
+    @keyframes resultAppear {
+      from {
+        opacity: 0;
+        transform:
+          translateY(10px)
+          scale(0.93);
+      }
+
+      to {
+        opacity: 1;
+        transform:
+          translateY(0)
+          scale(1);
+      }
+    }
+
+    /* =========================
+       KHUNG THÊM NỘI DUNG
+    ========================== */
+
+    .control-card {
+      display: flex;
+      height: 750px;
+      min-height: 750px;
+      max-height: 750px;
+      padding: 28px;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .control-card h2 {
+      margin: 0 0 7px;
+      flex: 0 0 auto;
+      font-size: 23px;
+    }
+
+    .control-description {
+      margin: 0 0 24px;
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .input-group {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .input-wrapper {
+      position: relative;
+      min-width: 0;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      width: 20px;
+      height: 20px;
+      color: #94a3b8;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    #itemInput {
+      width: 100%;
+      height: 52px;
+      padding: 0 15px 0 45px;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      outline: none;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 15px;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    #itemInput:focus {
+      border-color: var(--primary);
+      box-shadow:
+        0 0 0 4px rgba(124, 58, 237, 0.12);
+    }
+
+    #addButton {
+      height: 52px;
+      padding: 0 21px;
+      border-radius: 15px;
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 850;
+      box-shadow:
+        0 9px 20px rgba(91, 33, 182, 0.28);
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    #addButton:hover {
+      box-shadow:
+        0 13px 26px rgba(91, 33, 182, 0.35);
+      transform: translateY(-2px);
+    }
+
+    #addButton:active {
+      transform: translateY(0);
+    }
+
+    .helper-text {
+      margin: 9px 2px 0;
+      flex: 0 0 auto;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .list-header {
+      display: flex;
+      margin-top: 26px;
+      margin-bottom: 14px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .list-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .item-count {
+      display: inline-flex;
+      min-width: 29px;
+      height: 29px;
+      padding: 0 8px;
+      border-radius: 999px;
+      align-items: center;
+      justify-content: center;
+      background:
+        rgba(124, 58, 237, 0.1);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .clear-button {
+      padding: 8px 11px;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 850;
+      transition: background 0.2s ease;
+    }
+
+    .clear-button:hover {
+      background:
+        rgba(239, 68, 68, 0.09);
+    }
+
+    .list-container {
+      min-height: 0;
+      padding-right: 6px;
+      flex: 1 1 auto;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color:
+        #a78bfa transparent;
+    }
+
+    .list-container::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .list-container::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .list-container::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background:
+        linear-gradient(
+          180deg,
+          #a78bfa,
+          #7c3aed
+        );
+    }
+
+    .list-container::-webkit-scrollbar-thumb:hover {
+      background: #6d28d9;
+    }
+
+    #itemList {
+      display: flex;
+      width: 100%;
+      margin: 0;
+      padding: 0 2px 12px 0;
+      flex-direction: column;
+      gap: 9px;
+      list-style: none;
+    }
+
+    .list-item {
+      display: flex;
+      width: 100%;
+      min-height: 56px;
+      padding: 9px 10px 9px 14px;
+      border: 1px solid #edf0f5;
+      border-radius: 15px;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 11px;
+      background: #ffffff;
+      box-shadow:
+        0 5px 15px rgba(15, 23, 42, 0.05);
+      animation: itemAppear 0.3s ease;
+    }
+
+    .list-item:first-child {
+      border-color:
+        rgba(124, 58, 237, 0.25);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124, 58, 237, 0.07),
+          rgba(236, 72, 153, 0.04)
+        );
+    }
+
+    @keyframes itemAppear {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .item-number {
+      display: flex;
+      width: 31px;
+      height: 31px;
+      flex: 0 0 31px;
+      border-radius: 10px;
+      align-items: center;
+      justify-content: center;
+      background:
+        rgba(124, 58, 237, 0.1);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .item-name {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 750;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .top-badge {
+      flex: 0 0 auto;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background:
+        rgba(16, 185, 129, 0.12);
+      color: #047857;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .delete-button {
+      display: flex;
+      width: 35px;
+      height: 35px;
+      flex: 0 0 35px;
+      border-radius: 10px;
+      align-items: center;
+      justify-content: center;
+      background:
+        rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      cursor: pointer;
+      transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .delete-button:hover {
+      background:
+        rgba(239, 68, 68, 0.17);
+      transform: scale(1.08);
+    }
+
+    .delete-button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .empty-list {
+      padding: 36px 15px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 17px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .empty-list strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .empty-list span {
+      font-size: 12px;
+    }
+
+    .notice {
+      display: flex;
+      margin-top: 19px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      flex: 0 0 auto;
+      align-items: flex-start;
+      gap: 9px;
+      background:
+        rgba(16, 185, 129, 0.08);
+      color: #047857;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .notice svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+    }
+
+    /* =========================
+       THÔNG BÁO KẾT QUẢ
+    ========================== */
+
+    .result-modal {
+      position: fixed;
+      z-index: 10000;
+      inset: 0;
+      display: flex;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+    }
+
+    .result-modal.is-visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .result-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .result-modal-card {
+      --result-accent: #3867e8;
+      --result-accent-dark: #2d57c7;
+      position: relative;
+      z-index: 1;
+      width: min(470px, 100%);
+      padding: 34px 0 0;
+      border: 1px solid #d7d7d7;
+      background: #ffffff;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      text-align: center;
+      overflow: hidden;
+      transform: scale(0.92) translateY(14px);
+      transition: transform 0.25s ease;
+    }
+
+    .result-modal.is-visible .result-modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .result-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      display: flex;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: #8d8d8d;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .result-modal-close:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: #555555;
+    }
+
+    .result-modal-label {
+      display: block;
+      margin-bottom: 20px;
+      color: #7b7b7b;
+      font-size: 16px;
+      font-weight: 750;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .result-modal-check {
+      display: flex;
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 20px;
+      border: 5px solid var(--result-accent);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+    }
+
+    .result-modal-check svg {
+      width: 36px;
+      height: 36px;
+      stroke: var(--result-accent);
+      stroke-width: 3.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .result-modal.is-visible .result-modal-check {
+      animation: checkPop 0.35s ease both;
+    }
+
+    .result-modal.is-visible .result-modal-check svg path {
+      stroke-dasharray: 36;
+      stroke-dashoffset: 36;
+      animation: drawCheck 0.5s ease 0.15s forwards;
+    }
+
+    @keyframes checkPop {
+      from {
+        opacity: 0;
+        transform: scale(0.7);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes drawCheck {
+      from {
+        stroke-dashoffset: 36;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .result-modal-value {
+      margin: 0;
+      padding: 0 26px 28px;
+      color: var(--result-accent);
+      font-size: clamp(34px, 7vw, 50px);
+      font-weight: 500;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .result-modal-footer {
+      display: flex;
+      padding: 20px 18px 16px;
+      border-top: 1px solid #d9d9d9;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #fafafa;
+    }
+
+    .result-modal-button,
+    .result-modal-delete {
+      min-width: 120px;
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 6px;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    .result-modal-button {
+      background: #808a97;
+    }
+
+    .result-modal-delete {
+      background: #e63946;
+    }
+
+    .result-modal-button:hover,
+    .result-modal-delete:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+
+    /* =========================
+       HOA GIẤY
+    ========================== */
+
+    .confetti {
+      position: fixed;
+      z-index: 10001;
+      top: -20px;
+      width: 10px;
+      height: 18px;
+      border-radius: 2px;
+      pointer-events: none;
+      animation:
+        confettiFall linear forwards;
+    }
+
+    @keyframes confettiFall {
+      from {
+        opacity: 1;
+        transform:
+          translateY(-20px)
+          rotate(0deg);
+      }
+
+      to {
+        opacity: 0;
+        transform:
+          translateY(110vh)
+          rotate(900deg);
+      }
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 960px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .wheel-card {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+      }
+
+      .control-card {
+        width: 100%;
+        height: 650px;
+        min-height: 650px;
+        max-height: 650px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      body {
+        padding: 24px 12px;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .page-header h1 {
+        font-size: 36px;
+        letter-spacing: -1px;
+      }
+
+      .page-header p {
+        font-size: 13px;
+      }
+
+      .card {
+        border-radius: 22px;
+      }
+
+      .wheel-card {
+        height: auto;
+        min-height: 0;
+        padding: 27px 10px 32px;
+        overflow: visible;
+      }
+
+      .control-card {
+        height: 600px;
+        min-height: 600px;
+        max-height: 600px;
+        padding: 22px 17px;
+      }
+
+      .wheel-stage {
+        width: min(430px, 86vw);
+        margin-top: 32px;
+      }
+
+      .wheel-frame {
+        padding: 27px;
+      }
+
+      .wheel-light {
+        width: 10px;
+        height: 10px;
+      }
+
+      .pointer-wrapper {
+        top: -26px;
+        transform:
+          translateX(-50%)
+          scale(0.8);
+      }
+
+      .spin-button {
+        width: 104px;
+        height: 104px;
+        border-width: 7px;
+      }
+
+      .spin-button-main {
+        font-size: 19px;
+      }
+
+      .spin-button-small {
+        font-size: 8px;
+      }
+
+      .input-group {
+        grid-template-columns: 1fr;
+      }
+
+      #addButton {
+        width: 100%;
+      }
+
+      .result-box {
+        width: calc(100% - 20px);
+        margin-top: 35px;
+      }
+
+      .top-badge {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .result-modal-card {
+        width: min(94vw, 470px);
+      }
+
+      .result-modal-check {
+        width: 68px;
+        height: 68px;
+      }
+
+      .result-modal-value {
+        padding: 0 18px 24px;
+        font-size: 27px;
+      }
+
+      .result-modal-footer {
+        flex-wrap: wrap;
+      }
+
+      .result-modal-button,
+      .result-modal-delete {
+        min-width: 130px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .wheel-heading {
+        margin-bottom: 10px;
+      }
+
+      .wheel-stage {
+        width: 84vw;
+        margin-top: 28px;
+      }
+
+      .control-card {
+        height: 570px;
+        min-height: 570px;
+        max-height: 570px;
+      }
+
+      .result-box {
+        min-height: 70px;
+        margin-top: 28px;
+      }
+    }
+
+
+    /* Cho phép bôi đen và sao chép nội dung */
+    html,
+    body {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+  </style>
+</head>
+
+<body>
+  <header class="page-header">
+    <h1>Vòng quay may mắn</h1>
+
+    <p>
+      Thêm tên, phần thưởng hoặc nội dung vào danh sách.
+      Nhấn nút quay để chọn kết quả ngẫu nhiên.
+    </p>
+  </header>
+
+  <main class="app-container">
+    <section class="card wheel-card">
+      <div class="wheel-heading">
+        <h2>Sẵn sàng quay</h2>
+
+        <p>
+          Kim chỉ phía trên là vị trí kết quả
+        </p>
+      </div>
+
+      <div class="wheel-stage">
+        <div class="wheel-glow"></div>
+
+        <div class="wheel-frame">
+          <div
+            class="decorative-lights"
+            id="decorativeLights"
+          ></div>
+
+          <div
+            class="pointer-wrapper"
+            id="wheelPointer"
+          >
+            <div class="pointer">
+              <div class="pointer-cap">
+                <span class="pointer-highlight"></span>
+                <span class="pointer-dot"></span>
+              </div>
+
+              <div class="pointer-arrow-border">
+                <div class="pointer-arrow"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wheel-inner-frame">
+            <canvas
+              id="wheelCanvas"
+              width="800"
+              height="800"
+            ></canvas>
+          </div>
+
+          <button
+            type="button"
+            id="spinButton"
+            class="spin-button"
+          >
+            <span class="spin-button-small">
+              NHẤN ĐỂ
+            </span>
+
+            <span class="spin-button-main">
+              QUAY
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="resultBox"
+        class="result-box"
+      >
+        <span class="result-placeholder">
+          Kết quả sẽ xuất hiện tại đây
+        </span>
+      </div>
+    </section>
+
+    <aside class="card control-card">
+      <h2>Thêm nội dung</h2>
+
+      <p class="control-description">
+        Nội dung mới sẽ được đưa lên đầu danh sách và
+        tự động đặt ở vị trí trên cùng của vòng quay.
+      </p>
+
+      <div class="input-group">
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+
+          <input
+            type="text"
+            id="itemInput"
+            maxlength="40"
+            autocomplete="off"
+            placeholder="Nhập tên hoặc phần thưởng..."
+          >
+        </div>
+
+        <button
+          type="button"
+          id="addButton"
+        >
+          Thêm
+        </button>
+      </div>
+
+      <p class="helper-text">
+        Nhấn Enter để thêm nhanh.
+      </p>
+
+      <div class="list-header">
+        <div class="list-title">
+          Danh sách
+
+          <span
+            id="itemCount"
+            class="item-count"
+          >
+            0
+          </span>
+        </div>
+
+        <button
+          type="button"
+          id="clearButton"
+          class="clear-button"
+        >
+          Xóa tất cả
+        </button>
+      </div>
+
+      <div
+        class="list-container"
+        id="listContainer"
+      >
+        <ul id="itemList"></ul>
+
+        <div
+          id="emptyList"
+          class="empty-list"
+        >
+          <strong>
+            Danh sách đang trống
+          </strong>
+
+          <span>
+            Hãy thêm ít nhất 2 nội dung để bắt đầu.
+          </span>
+        </div>
+      </div>
+
+      <div class="notice">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+          ></circle>
+
+          <path d="M12 8v4M12 16h.01"></path>
+        </svg>
+
+        <span>
+          Mỗi ô trên vòng quay có xác suất được chọn
+          như nhau.
+        </span>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Thông báo kết quả giữa màn hình -->
+  <div
+    class="result-modal"
+    id="resultModal"
+    aria-hidden="true"
+  >
+    <div class="result-modal-backdrop"></div>
+
+    <div
+      class="result-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalResultLabel"
+    >
+      <button
+        type="button"
+        class="result-modal-close"
+        id="resultModalClose"
+        aria-label="Đóng thông báo"
+      >
+        ×
+      </button>
+
+      <span
+        class="result-modal-label"
+        id="modalResultLabel"
+      >
+        KẾT QUẢ VÒNG QUAY
+      </span>
+
+      <div class="result-modal-check" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M5 12.5l4.2 4.2L19 7.8"></path>
+        </svg>
+      </div>
+
+      <div
+        class="result-modal-value"
+        id="modalResultValue"
+      ></div>
+
+      <div class="result-modal-footer">
+        <button
+          type="button"
+          class="result-modal-delete"
+          id="resultModalDelete"
+        >
+          Xóa ô này
+        </button>
+
+        <button
+          type="button"
+          class="result-modal-button"
+          id="resultModalButton"
+        >
+          Đóng lại
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas =
+      document.getElementById("wheelCanvas");
+
+    const context =
+      canvas.getContext("2d");
+
+    const itemInput =
+      document.getElementById("itemInput");
+
+    const addButton =
+      document.getElementById("addButton");
+
+    const spinButton =
+      document.getElementById("spinButton");
+
+    const clearButton =
+      document.getElementById("clearButton");
+
+    const itemList =
+      document.getElementById("itemList");
+
+    const itemCount =
+      document.getElementById("itemCount");
+
+    const emptyList =
+      document.getElementById("emptyList");
+
+    const listContainer =
+      document.getElementById("listContainer");
+
+    const resultBox =
+      document.getElementById("resultBox");
+
+    const decorativeLights =
+      document.getElementById("decorativeLights");
+
+    const wheelPointer =
+      document.getElementById("wheelPointer");
+
+    const resultModal =
+      document.getElementById("resultModal");
+
+    const modalResultValue =
+      document.getElementById("modalResultValue");
+
+    const resultModalCard =
+      resultModal.querySelector(
+        ".result-modal-card"
+      );
+
+    const resultModalButton =
+      document.getElementById("resultModalButton");
+
+    const resultModalDelete =
+      document.getElementById("resultModalDelete");
+
+    const resultModalClose =
+      document.getElementById("resultModalClose");
+
+    const resultModalBackdrop =
+      resultModal.querySelector(
+        ".result-modal-backdrop"
+      );
+
+    const wheelColors = [
+      ["#8b5cf6", "#5b21b6"],
+      ["#fb7185", "#be123c"],
+      ["#38bdf8", "#0369a1"],
+      ["#fbbf24", "#d97706"],
+      ["#34d399", "#047857"],
+      ["#f472b6", "#be185d"],
+      ["#818cf8", "#4338ca"],
+      ["#fb923c", "#c2410c"],
+      ["#2dd4bf", "#0f766e"],
+      ["#c084fc", "#7e22ce"],
+      ["#f87171", "#b91c1c"],
+      ["#60a5fa", "#1d4ed8"]
+    ];
+
+    const defaultItems = [
+      "Giải nhất",
+      "Giải nhì",
+      "Giải ba",
+      "Chúc bạn may mắn"
+    ];
+
+    let items = loadItems();
+    let rotation = 0;
+    let isSpinning = false;
+    let latestResultIndex = null;
+
+    function loadItems() {
+      try {
+        const storedItems =
+          localStorage.getItem(
+            "luckyWheelItems"
+          );
+
+        if (!storedItems) {
+          return [...defaultItems];
+        }
+
+        const parsedItems =
+          JSON.parse(storedItems);
+
+        if (!Array.isArray(parsedItems)) {
+          return [...defaultItems];
+        }
+
+        return parsedItems;
+      } catch (error) {
+        return [...defaultItems];
+      }
+    }
+
+    function saveItems() {
+      try {
+        localStorage.setItem(
+          "luckyWheelItems",
+          JSON.stringify(items)
+        );
+      } catch (error) {
+        console.warn(
+          "Không thể lưu danh sách.",
+          error
+        );
+      }
+    }
+
+    function createDecorativeLights() {
+      decorativeLights.innerHTML = "";
+
+      const totalLights = 26;
+      const radiusPercent = 46.5;
+
+      for (
+        let index = 0;
+        index < totalLights;
+        index++
+      ) {
+        const light =
+          document.createElement("span");
+
+        const angle =
+          (
+            index /
+            totalLights
+          ) *
+          Math.PI *
+          2 -
+          Math.PI / 2;
+
+        const left =
+          50 +
+          Math.cos(angle) *
+          radiusPercent;
+
+        const top =
+          50 +
+          Math.sin(angle) *
+          radiusPercent;
+
+        light.className =
+          "wheel-light";
+
+        light.style.left =
+          `${left}%`;
+
+        light.style.top =
+          `${top}%`;
+
+        light.style.setProperty(
+          "--delay",
+          `${(index % 5) * 0.14}s`
+        );
+
+        decorativeLights.appendChild(
+          light
+        );
+      }
+    }
+
+    function normalizeAngle(angle) {
+      const fullCircle =
+        Math.PI * 2;
+
+      return (
+        (
+          angle %
+          fullCircle
+        ) +
+        fullCircle
+      ) % fullCircle;
+    }
+
+    function getTopRotation(index) {
+      if (items.length === 0) {
+        return 0;
+      }
+
+      const sliceAngle =
+        (Math.PI * 2) /
+        items.length;
+
+      return (
+        -Math.PI / 2 -
+        index * sliceAngle -
+        sliceAngle / 2
+      );
+    }
+
+    function truncateText(
+      text,
+      maximumLength
+    ) {
+      if (
+        text.length <=
+        maximumLength
+      ) {
+        return text;
+      }
+
+      return (
+        text.substring(
+          0,
+          maximumLength
+        ) +
+        "..."
+      );
+    }
+
+    function drawEmptyWheel(
+      centerX,
+      centerY,
+      radius
+    ) {
+      const gradient =
+        context.createRadialGradient(
+          centerX - 80,
+          centerY - 100,
+          20,
+          centerX,
+          centerY,
+          radius
+        );
+
+      gradient.addColorStop(
+        0,
+        "#ffffff"
+      );
+
+      gradient.addColorStop(
+        0.55,
+        "#ede9fe"
+      );
+
+      gradient.addColorStop(
+        1,
+        "#c4b5fd"
+      );
+
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        radius,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        gradient;
+
+      context.fill();
+
+      context.strokeStyle =
+        "#ffffff";
+
+      context.lineWidth = 12;
+      context.stroke();
+
+      context.fillStyle =
+        "#6d28d9";
+
+      context.textAlign =
+        "center";
+
+      context.textBaseline =
+        "middle";
+
+      context.font =
+        "900 34px Arial";
+
+      context.fillText(
+        "Chưa có nội dung",
+        centerX,
+        centerY - 75
+      );
+
+      context.fillStyle =
+        "#8b5cf6";
+
+      context.font =
+        "600 20px Arial";
+
+      context.fillText(
+        "Hãy thêm nội dung để bắt đầu",
+        centerX,
+        centerY - 30
+      );
+    }
+
+    function drawWheel() {
+      const centerX =
+        canvas.width / 2;
+
+      const centerY =
+        canvas.height / 2;
+
+      const radius =
+        canvas.width / 2 - 12;
+
+      context.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      if (items.length === 0) {
+        drawEmptyWheel(
+          centerX,
+          centerY,
+          radius
+        );
+
+        return;
+      }
+
+      const sliceAngle =
+        (Math.PI * 2) /
+        items.length;
+
+      items.forEach(
+        (item, index) => {
+          const startAngle =
+            rotation +
+            index * sliceAngle;
+
+          const endAngle =
+            startAngle +
+            sliceAngle;
+
+          const middleAngle =
+            startAngle +
+            sliceAngle / 2;
+
+          const color =
+            wheelColors[
+              index %
+              wheelColors.length
+            ];
+
+          const gradient =
+            context.createLinearGradient(
+              centerX - radius,
+              centerY - radius,
+              centerX + radius,
+              centerY + radius
+            );
+
+          gradient.addColorStop(
+            0,
+            color[0]
+          );
+
+          gradient.addColorStop(
+            0.5,
+            color[1]
+          );
+
+          gradient.addColorStop(
+            1,
+            color[0]
+          );
+
+          context.beginPath();
+
+          context.moveTo(
+            centerX,
+            centerY
+          );
+
+          context.arc(
+            centerX,
+            centerY,
+            radius,
+            startAngle,
+            endAngle
+          );
+
+          context.closePath();
+
+          context.fillStyle =
+            gradient;
+
+          context.fill();
+
+          context.strokeStyle =
+            "rgba(255,255,255,0.92)";
+
+          context.lineWidth = 5;
+          context.stroke();
+
+          const shineGradient =
+            context.createRadialGradient(
+              centerX -
+                radius * 0.38,
+              centerY -
+                radius * 0.45,
+              10,
+              centerX,
+              centerY,
+              radius
+            );
+
+          shineGradient.addColorStop(
+            0,
+            "rgba(255,255,255,0.3)"
+          );
+
+          shineGradient.addColorStop(
+            0.55,
+            "rgba(255,255,255,0.04)"
+          );
+
+          shineGradient.addColorStop(
+            1,
+            "rgba(0,0,0,0.15)"
+          );
+
+          context.beginPath();
+
+          context.moveTo(
+            centerX,
+            centerY
+          );
+
+          context.arc(
+            centerX,
+            centerY,
+            radius - 3,
+            startAngle,
+            endAngle
+          );
+
+          context.closePath();
+
+          context.fillStyle =
+            shineGradient;
+
+          context.fill();
+
+          drawItemText(
+            item,
+            middleAngle,
+            centerX,
+            centerY,
+            radius
+          );
+        }
+      );
+
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        radius,
+        0,
+        Math.PI * 2
+      );
+
+      context.strokeStyle =
+        "rgba(255,255,255,0.97)";
+
+      context.lineWidth = 12;
+      context.stroke();
+
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        radius - 14,
+        0,
+        Math.PI * 2
+      );
+
+      context.strokeStyle =
+        "rgba(255,255,255,0.27)";
+
+      context.lineWidth = 4;
+      context.stroke();
+
+      drawCenterDecoration(
+        centerX,
+        centerY
+      );
+    }
+
+    function drawItemText(
+      item,
+      middleAngle,
+      centerX,
+      centerY,
+      radius
+    ) {
+      context.save();
+
+      context.translate(
+        centerX,
+        centerY
+      );
+
+      context.rotate(
+        middleAngle
+      );
+
+      const fontSize =
+        items.length > 18
+          ? 14
+          : items.length > 14
+            ? 16
+            : items.length > 10
+              ? 18
+              : items.length > 7
+                ? 21
+                : 24;
+
+      const maximumLength =
+        items.length > 16
+          ? 9
+          : items.length > 12
+            ? 11
+            : items.length > 8
+              ? 14
+              : 19;
+
+      const displayText =
+        truncateText(
+          item,
+          maximumLength
+        );
+
+      context.font =
+        `900 ${fontSize}px Arial`;
+
+      context.textBaseline =
+        "middle";
+
+      let textPosition =
+        radius - 40;
+
+      const normalizedMiddle =
+        normalizeAngle(
+          middleAngle
+        );
+
+      const isLeftSide =
+        normalizedMiddle >
+          Math.PI / 2 &&
+        normalizedMiddle <
+          Math.PI * 1.5;
+
+      if (isLeftSide) {
+        context.rotate(
+          Math.PI
+        );
+
+        context.textAlign =
+          "left";
+
+        textPosition =
+          -radius + 40;
+      } else {
+        context.textAlign =
+          "right";
+      }
+
+      context.shadowColor =
+        "rgba(31,10,63,0.55)";
+
+      context.shadowBlur = 7;
+      context.shadowOffsetY = 3;
+
+      context.lineWidth = 5;
+
+      context.strokeStyle =
+        "rgba(37,14,68,0.3)";
+
+      context.strokeText(
+        displayText,
+        textPosition,
+        0
+      );
+
+      context.fillStyle =
+        "#ffffff";
+
+      context.fillText(
+        displayText,
+        textPosition,
+        0
+      );
+
+      context.restore();
+    }
+
+    function drawCenterDecoration(
+      centerX,
+      centerY
+    ) {
+      const centerRadius = 92;
+
+      const centerGradient =
+        context.createRadialGradient(
+          centerX - 30,
+          centerY - 35,
+          5,
+          centerX,
+          centerY,
+          centerRadius
+        );
+
+      centerGradient.addColorStop(
+        0,
+        "rgba(255,255,255,0.58)"
+      );
+
+      centerGradient.addColorStop(
+        0.35,
+        "rgba(236,72,153,0.4)"
+      );
+
+      centerGradient.addColorStop(
+        1,
+        "rgba(76,29,149,0.85)"
+      );
+
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        centerRadius,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        centerGradient;
+
+      context.fill();
+
+      context.strokeStyle =
+        "rgba(255,248,199,0.96)";
+
+      context.lineWidth = 9;
+      context.stroke();
+    }
+
+    function updateList() {
+      itemList.innerHTML = "";
+
+      itemCount.textContent =
+        items.length;
+
+      emptyList.style.display =
+        items.length === 0
+          ? "block"
+          : "none";
+
+      clearButton.style.visibility =
+        items.length === 0
+          ? "hidden"
+          : "visible";
+
+      items.forEach(
+        (item, index) => {
+          const listItem =
+            document.createElement(
+              "li"
+            );
+
+          listItem.className =
+            "list-item";
+
+          const number =
+            document.createElement(
+              "span"
+            );
+
+          number.className =
+            "item-number";
+
+          number.textContent =
+            index + 1;
+
+          const name =
+            document.createElement(
+              "span"
+            );
+
+          name.className =
+            "item-name";
+
+          name.textContent =
+            item;
+
+          name.title =
+            item;
+
+          listItem.appendChild(
+            number
+          );
+
+          listItem.appendChild(
+            name
+          );
+
+          if (index === 0) {
+            const topBadge =
+              document.createElement(
+                "span"
+              );
+
+            topBadge.className =
+              "top-badge";
+
+            topBadge.textContent =
+              "Trên cùng";
+
+            listItem.appendChild(
+              topBadge
+            );
+          }
+
+          const deleteButton =
+            document.createElement(
+              "button"
+            );
+
+          deleteButton.type =
+            "button";
+
+          deleteButton.className =
+            "delete-button";
+
+          deleteButton.setAttribute(
+            "aria-label",
+            `Xóa ${item}`
+          );
+
+          deleteButton.innerHTML = `
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="M19 6l-1 14H6L5 6"></path>
+              <path d="M10 11v5M14 11v5"></path>
+            </svg>
+          `;
+
+          deleteButton.addEventListener(
+            "click",
+            () => {
+              removeItem(index);
+            }
+          );
+
+          listItem.appendChild(
+            deleteButton
+          );
+
+          itemList.appendChild(
+            listItem
+          );
+        }
+      );
+    }
+
+    function scrollListToTop() {
+      requestAnimationFrame(
+        () => {
+          listContainer.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+        }
+      );
+    }
+
+    function resetResult() {
+      resultBox.innerHTML = `
+        <span class="result-placeholder">
+          Kết quả sẽ xuất hiện tại đây
+        </span>
+      `;
+    }
+
+    function showResult(
+      value,
+      selectedIndex
+    ) {
+      latestResultIndex =
+        selectedIndex;
+
+      resultBox.innerHTML = `
+        <div class="result-content">
+          <span class="result-label">
+            Kết quả
+          </span>
+
+          <strong class="result-value"></strong>
+        </div>
+      `;
+
+      resultBox.querySelector(
+        ".result-value"
+      ).textContent = value;
+
+      modalResultValue.textContent =
+        value;
+
+      const resultColor =
+        wheelColors[
+          selectedIndex %
+          wheelColors.length
+        ];
+
+      resultModalCard.style.setProperty(
+        "--result-accent",
+        resultColor[0]
+      );
+
+      resultModalCard.style.setProperty(
+        "--result-accent-dark",
+        resultColor[1]
+      );
+
+      resultModal.classList.add(
+        "is-visible"
+      );
+
+      resultModal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+      document.body.classList.add(
+        "modal-open"
+      );
+
+      setTimeout(() => {
+        resultModalButton.focus();
+      }, 100);
+    }
+
+    function closeResultModal() {
+      resultModal.classList.remove(
+        "is-visible"
+      );
+
+      resultModal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      document.body.classList.remove(
+        "modal-open"
+      );
+    }
+
+    function deleteLatestResult() {
+      if (
+        latestResultIndex === null ||
+        latestResultIndex < 0 ||
+        latestResultIndex >= items.length
+      ) {
+        closeResultModal();
+        return;
+      }
+
+      items.splice(
+        latestResultIndex,
+        1
+      );
+
+      rotation =
+        items.length > 0
+          ? getTopRotation(0)
+          : 0;
+
+      latestResultIndex = null;
+
+      saveItems();
+      resetResult();
+      updateList();
+      drawWheel();
+      closeResultModal();
+    }
+
+    function showConfetti() {
+      const colors = [
+        "#f43f5e",
+        "#fbbf24",
+        "#22c55e",
+        "#3b82f6",
+        "#8b5cf6",
+        "#ec4899",
+        "#06b6d4"
+      ];
+
+      for (
+        let index = 0;
+        index < 90;
+        index++
+      ) {
+        const confetti =
+          document.createElement(
+            "span"
+          );
+
+        confetti.className =
+          "confetti";
+
+        confetti.style.left =
+          `${Math.random() * 100}vw`;
+
+        confetti.style.background =
+          colors[
+            Math.floor(
+              Math.random() *
+              colors.length
+            )
+          ];
+
+        confetti.style.animationDuration =
+          `${
+            2.5 +
+            Math.random() * 2.5
+          }s`;
+
+        confetti.style.animationDelay =
+          `${
+            Math.random() * 0.5
+          }s`;
+
+        document.body.appendChild(
+          confetti
+        );
+
+        setTimeout(
+          () => {
+            confetti.remove();
+          },
+          5500
+        );
+      }
+    }
+
+    function showInputError() {
+      itemInput.focus();
+
+      itemInput.style.borderColor =
+        "#ef4444";
+
+      itemInput.style.boxShadow =
+        "0 0 0 4px rgba(239,68,68,0.12)";
+
+      setTimeout(
+        () => {
+          itemInput.style.borderColor =
+            "";
+
+          itemInput.style.boxShadow =
+            "";
+        },
+        900
+      );
+    }
+
+    function addItem() {
+      if (isSpinning) {
+        return;
+      }
+
+      const value =
+        itemInput.value.trim();
+
+      if (!value) {
+        showInputError();
+        return;
+      }
+
+      items.unshift(value);
+
+      rotation =
+        getTopRotation(0);
+
+      itemInput.value = "";
+
+      saveItems();
+      resetResult();
+      updateList();
+      drawWheel();
+      scrollListToTop();
+
+      itemInput.focus();
+    }
+
+    function removeItem(index) {
+      if (isSpinning) {
+        return;
+      }
+
+      items.splice(index, 1);
+
+      rotation =
+        items.length > 0
+          ? getTopRotation(0)
+          : 0;
+
+      saveItems();
+      resetResult();
+      updateList();
+      drawWheel();
+
+      listContainer.scrollTop =
+        0;
+    }
+
+    function clearItems() {
+      if (
+        isSpinning ||
+        items.length === 0
+      ) {
+        return;
+      }
+
+      const shouldClear =
+        window.confirm(
+          "Bạn có chắc muốn xóa toàn bộ danh sách không?"
+        );
+
+      if (!shouldClear) {
+        return;
+      }
+
+      items = [];
+      rotation = 0;
+
+      saveItems();
+      resetResult();
+      updateList();
+      drawWheel();
+
+      listContainer.scrollTop =
+        0;
+    }
+
+    function setSpinButtonLoading() {
+      spinButton.innerHTML = `
+        <span class="spin-button-small">
+          ĐANG
+        </span>
+
+        <span class="spin-button-main">
+          QUAY...
+        </span>
+      `;
+    }
+
+    function resetSpinButton() {
+      spinButton.innerHTML = `
+        <span class="spin-button-small">
+          NHẤN ĐỂ
+        </span>
+
+        <span class="spin-button-main">
+          QUAY
+        </span>
+      `;
+    }
+
+    function spinWheel() {
+      if (isSpinning) {
+        return;
+      }
+
+      if (items.length < 2) {
+        window.alert(
+          "Vui lòng thêm ít nhất 2 nội dung để quay."
+        );
+
+        return;
+      }
+
+      closeResultModal();
+
+      isSpinning = true;
+      spinButton.disabled = true;
+
+      wheelPointer.classList.add(
+        "is-spinning"
+      );
+
+      setSpinButtonLoading();
+      resetResult();
+
+      const selectedIndex =
+        Math.floor(
+          Math.random() *
+          items.length
+        );
+
+      const sliceAngle =
+        (Math.PI * 2) /
+        items.length;
+
+      const currentRotation =
+        normalizeAngle(
+          rotation
+        );
+
+      const targetNormalized =
+        normalizeAngle(
+          -Math.PI / 2 -
+          selectedIndex *
+            sliceAngle -
+          sliceAngle / 2
+        );
+
+      let additionalRotation =
+        targetNormalized -
+        currentRotation;
+
+      if (
+        additionalRotation <
+        0
+      ) {
+        additionalRotation +=
+          Math.PI * 2;
+      }
+
+      const extraTurns =
+        (
+          6 +
+          Math.floor(
+            Math.random() * 3
+          )
+        ) *
+        Math.PI *
+        2;
+
+      const startRotation =
+        rotation;
+
+      const targetRotation =
+        rotation +
+        extraTurns +
+        additionalRotation;
+
+      const duration =
+        5000;
+
+      const startTime =
+        performance.now();
+
+      function animate(
+        currentTime
+      ) {
+        const elapsed =
+          currentTime -
+          startTime;
+
+        const progress =
+          Math.min(
+            elapsed / duration,
+            1
+          );
+
+        const easedProgress =
+          1 -
+          Math.pow(
+            1 - progress,
+            4
+          );
+
+        rotation =
+          startRotation +
+          (
+            targetRotation -
+            startRotation
+          ) *
+          easedProgress;
+
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(
+            animate
+          );
+
+          return;
+        }
+
+        rotation =
+          normalizeAngle(
+            targetRotation
+          );
+
+        drawWheel();
+
+        wheelPointer.classList.remove(
+          "is-spinning"
+        );
+
+        spinButton.disabled =
+          false;
+
+        resetSpinButton();
+
+        isSpinning =
+          false;
+
+        showResult(
+          items[selectedIndex],
+          selectedIndex
+        );
+
+        showConfetti();
+      }
+
+      requestAnimationFrame(
+        animate
+      );
+    }
+
+    addButton.addEventListener(
+      "click",
+      addItem
+    );
+
+    spinButton.addEventListener(
+      "click",
+      spinWheel
+    );
+
+    clearButton.addEventListener(
+      "click",
+      clearItems
+    );
+
+    itemInput.addEventListener(
+      "keydown",
+      event => {
+        if (
+          event.key ===
+          "Enter"
+        ) {
+          addItem();
+        }
+      }
+    );
+
+    resultModalButton.addEventListener(
+      "click",
+      closeResultModal
+    );
+
+    resultModalClose.addEventListener(
+      "click",
+      closeResultModal
+    );
+
+    resultModalDelete.addEventListener(
+      "click",
+      deleteLatestResult
+    );
+
+    resultModalBackdrop.addEventListener(
+      "click",
+      closeResultModal
+    );
+
+    document.addEventListener(
+      "keydown",
+      event => {
+        if (
+          event.key === "Escape" &&
+          resultModal.classList.contains(
+            "is-visible"
+          )
+        ) {
+          closeResultModal();
+        }
+      }
+    );
+
+    window.addEventListener(
+      "resize",
+      createDecorativeLights
+    );
+
+    createDecorativeLights();
+
+    rotation =
+      items.length > 0
+        ? getTopRotation(0)
+        : 0;
+
+    updateList();
+    drawWheel();
+
+    /*
+      Hạn chế các thao tác phổ biến dùng để mở mã nguồn/DevTools.
+      Ctrl+C / Cmd+C không bị chặn nên người dùng vẫn sao chép văn bản được.
+      Lưu ý: mã chạy phía trình duyệt không thể được bảo vệ tuyệt đối.
+    */
+    document.addEventListener(
+      "contextmenu",
+      event => {
+        event.preventDefault();
+      },
+      true
+    );
+
+    document.addEventListener(
+      "keydown",
+      event => {
+        const key = event.key.toLowerCase();
+
+        const isViewSourceShortcut =
+          (event.ctrlKey || event.metaKey) &&
+          !event.shiftKey &&
+          !event.altKey &&
+          key === "u";
+
+        const isWindowsDevToolsShortcut =
+          event.ctrlKey &&
+          event.shiftKey &&
+          ["i", "j", "c", "k"].includes(key);
+
+        const isMacDevToolsShortcut =
+          event.metaKey &&
+          event.altKey &&
+          ["i", "j", "c", "k"].includes(key);
+
+        if (
+          event.key === "F12" ||
+          isViewSourceShortcut ||
+          isWindowsDevToolsShortcut ||
+          isMacDevToolsShortcut
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      },
+      true
+    );
+  </script>
+</body>
+</html>
