@@ -50,6 +50,7 @@
         .game-card:nth-child(13){animation-delay:.7s} .game-card:nth-child(14){animation-delay:.75s}
         .game-card:nth-child(15){animation-delay:.8s} .game-card:nth-child(16){animation-delay:.85s}
         .game-card:nth-child(17){animation-delay:.9s} .game-card:nth-child(18){animation-delay:.95s}
+        .game-card:nth-child(19){animation-delay:1s} .game-card:nth-child(20){animation-delay:1.05s}
         @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
 
         .game-card:hover {
@@ -244,7 +245,7 @@
         <section class="game-search-panel" aria-labelledby="gameSearchLabel">
             <div class="game-search-label">
                 <label id="gameSearchLabel" for="gameSearch" data-i18n="search.label">Tìm kiếm game</label>
-                <span class="game-search-count"><strong id="visibleGameCount">18</strong>/<span id="totalGameCount">18</span> <span data-i18n="search.results">game</span></span>
+                <span class="game-search-count"><strong id="visibleGameCount">20</strong>/<span id="totalGameCount">20</span> <span data-i18n="search.results">game</span></span>
             </div>
             <div class="game-search-box">
                 <i class="fas fa-search" aria-hidden="true"></i>
@@ -508,6 +509,38 @@
                 </div>
             </div>
 
+            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
+                <div class="relative overflow-hidden group h-48">
+                    <img src="duoihinhbatchu.png" alt="Đuổi Hình Bắt Chữ" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i class="fas fa-gamepad text-3xl text-white"></i>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.catchphrase.title">Đuổi Hình Bắt Chữ</h2>
+                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.catchphrase.desc">Nhìn hình, đoán từ khóa và chinh phục những câu đố thú vị.</p>
+                    <div class="text-center mt-auto">
+                        <a href="duoihinhbatchu.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
+                <div class="relative overflow-hidden group h-48">
+                    <img src="vongquaymayman.png" alt="Vòng Quay May Mắn" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i class="fas fa-gamepad text-3xl text-white"></i>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.luckywheel.title">Vòng Quay May Mắn</h2>
+                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.luckywheel.desc">Quay vòng quay để nhận kết quả ngẫu nhiên đầy bất ngờ.</p>
+                    <div class="text-center mt-auto">
+                        <a href="vongquaymayman.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -581,6 +614,10 @@
         'game.detective.desc':   'Vào vai thám tử phá giải mật khẩu bí ẩn.',
         'game.bomb.title':       'Giải Mã Gỡ Bom',
         'game.bomb.desc':        'Gỡ bom hẹn giờ trước khi nó phát nổ cực căng thẳng.',
+        'game.catchphrase.title': 'Đuổi Hình Bắt Chữ',
+        'game.catchphrase.desc':  'Nhìn hình, đoán từ khóa và chinh phục những câu đố thú vị.',
+        'game.luckywheel.title':  'Vòng Quay May Mắn',
+        'game.luckywheel.desc':   'Quay vòng quay để nhận kết quả ngẫu nhiên đầy bất ngờ.',
         'footer.prefix':         'Thiết kế bởi',
         'footer.author':         'Nguyễn Thanh Sang',
       },
@@ -624,6 +661,10 @@
         'game.detective.desc':   'Play as a detective and crack the mysterious password.',
         'game.bomb.title':       'Bomb Defusal',
         'game.bomb.desc':        'Defuse the ticking bomb before it explodes!',
+        'game.catchphrase.title': 'Catchphrase Puzzle',
+        'game.catchphrase.desc':  'Look at the pictures, guess the word, and solve fun visual puzzles.',
+        'game.luckywheel.title':  'Lucky Wheel',
+        'game.luckywheel.desc':   'Spin the wheel for a random and exciting result.',
         'footer.prefix':         'Designed & Engineered by',
         'footer.author':         'Nguyễn Thanh Sang',
       },
@@ -667,6 +708,10 @@
         'game.detective.desc':   '探偵として謎のパスワードを解読しよう。',
         'game.bomb.title':       '爆弾解除',
         'game.bomb.desc':        '爆発前に時限爆弾を解除せよ！',
+        'game.catchphrase.title': '画像クイズ',
+        'game.catchphrase.desc':  '画像を見て言葉を当て、楽しい問題に挑戦しよう。',
+        'game.luckywheel.title':  'ラッキールーレット',
+        'game.luckywheel.desc':   'ルーレットを回して、ランダムでワクワクする結果を楽しもう。',
         'footer.prefix':         'デザイン・開発',
         'footer.author':         'グエン・タイン・サン',
       },
@@ -710,6 +755,10 @@
         'game.detective.desc':   '扮演侦探破解神秘密码。',
         'game.bomb.title':       '拆弹解码',
         'game.bomb.desc':        '在定时炸弹爆炸前将其拆除！',
+        'game.catchphrase.title': '看图猜词',
+        'game.catchphrase.desc':  '看图片猜关键词，挑战有趣的视觉谜题。',
+        'game.luckywheel.title':  '幸运转盘',
+        'game.luckywheel.desc':   '转动幸运轮盘，获得随机又惊喜的结果。',
         'footer.prefix':         '设计与开发',
         'footer.author':         '阮青桑',
       },
@@ -753,6 +802,10 @@
         'game.detective.desc':   '탐정이 되어 신비로운 비밀번호를 해독하세요.',
         'game.bomb.title':       '폭탄 해제',
         'game.bomb.desc':        '폭발 전에 시한폭탄을 해제하세요!',
+        'game.catchphrase.title': '그림 보고 단어 맞히기',
+        'game.catchphrase.desc':  '그림을 보고 단어를 맞히며 재미있는 퍼즐에 도전하세요.',
+        'game.luckywheel.title':  '행운의 룰렛',
+        'game.luckywheel.desc':   '룰렛을 돌려 무작위의 짜릿한 결과를 확인하세요.',
         'footer.prefix':         '디자인 & 개발',
         'footer.author':         '응우옌 탄 상',
       },
@@ -796,6 +849,10 @@
         'game.detective.desc':   'รับบทนักสืบเพื่อถอดรหัสลับ',
         'game.bomb.title':       'ปลดชนวนระเบิด',
         'game.bomb.desc':        'ปลดชนวนระเบิดก่อนที่มันจะระเบิด!',
+        'game.catchphrase.title': 'ทายคำจากภาพ',
+        'game.catchphrase.desc':  'ดูภาพแล้วทายคำ พร้อมพิชิตปริศนาสนุก ๆ',
+        'game.luckywheel.title':  'วงล้อเสี่ยงโชค',
+        'game.luckywheel.desc':   'หมุนวงล้อเพื่อรับผลลัพธ์แบบสุ่มที่น่าตื่นเต้น',
         'footer.prefix':         'ออกแบบและพัฒนาโดย',
         'footer.author':         'เหงียน ทาน ซัง',
       },
@@ -839,6 +896,10 @@
         'game.detective.desc':   'Jouez au détective pour craquer le mot de passe.',
         'game.bomb.title':       'Désamorçage de Bombe',
         'game.bomb.desc':        'Désamorcez la bombe avant qu\'elle explose !',
+        'game.catchphrase.title': 'Rébus en Images',
+        'game.catchphrase.desc':  'Observez les images, devinez le mot et résolvez des énigmes amusantes.',
+        'game.luckywheel.title':  'Roue de la Chance',
+        'game.luckywheel.desc':   'Tournez la roue pour obtenir un résultat aléatoire et surprenant.',
         'footer.prefix':         'Conçu & développé par',
         'footer.author':         'Nguyễn Thanh Sang',
       },
@@ -882,6 +943,10 @@
         'game.detective.desc':   'Spiele als Detektiv und knacke das Passwort.',
         'game.bomb.title':       'Bombenentschärfung',
         'game.bomb.desc':        'Entschärfe die Bombe bevor sie explodiert!',
+        'game.catchphrase.title': 'Bilderrätsel',
+        'game.catchphrase.desc':  'Sieh dir die Bilder an, errate das Wort und löse spannende Rätsel.',
+        'game.luckywheel.title':  'Glücksrad',
+        'game.luckywheel.desc':   'Drehe das Rad für ein zufälliges und überraschendes Ergebnis.',
         'footer.prefix':         'Gestaltet & entwickelt von',
         'footer.author':         'Nguyễn Thanh Sang',
       },
@@ -925,6 +990,10 @@
         'game.detective.desc':   'Actúa como detective y descifra la contraseña.',
         'game.bomb.title':       'Desactivar Bomba',
         'game.bomb.desc':        '¡Desactiva la bomba antes de que explote!',
+        'game.catchphrase.title': 'Adivina por Imágenes',
+        'game.catchphrase.desc':  'Mira las imágenes, adivina la palabra y resuelve divertidos acertijos.',
+        'game.luckywheel.title':  'Ruleta de la Suerte',
+        'game.luckywheel.desc':   'Gira la ruleta para obtener un resultado aleatorio y emocionante.',
         'footer.prefix':         'Diseñado & desarrollado por',
         'footer.author':         'Nguyễn Thanh Sang',
       },
@@ -968,6 +1037,10 @@
         'game.detective.desc':   'Сыграй детективом и взломай пароль.',
         'game.bomb.title':       'Обезвреживание Бомбы',
         'game.bomb.desc':        'Обезвредь бомбу до взрыва!',
+        'game.catchphrase.title': 'Угадай по Картинке',
+        'game.catchphrase.desc':  'Смотри на картинки, угадывай слово и решай весёлые загадки.',
+        'game.luckywheel.title':  'Колесо Удачи',
+        'game.luckywheel.desc':   'Крути колесо и получай случайный неожиданный результат.',
         'footer.prefix':         'Дизайн & разработка',
         'footer.author':         'Нгуен Тхань Санг',
       },
@@ -1011,6 +1084,10 @@
         'game.detective.desc':   'العب دور المحقق وافك رموز كلمة المرور.',
         'game.bomb.title':       'نزع فتيل القنبلة',
         'game.bomb.desc':        'نزّع القنبلة قبل أن تنفجر!',
+        'game.catchphrase.title': 'خمن الكلمة من الصورة',
+        'game.catchphrase.desc':  'انظر إلى الصور وخمّن الكلمة وحل ألغازًا ممتعة.',
+        'game.luckywheel.title':  'عجلة الحظ',
+        'game.luckywheel.desc':   'أدر العجلة للحصول على نتيجة عشوائية ومفاجئة.',
         'footer.prefix':         'تصميم وتطوير بواسطة',
         'footer.author':         'نغوين ثانه سانغ',
       },
