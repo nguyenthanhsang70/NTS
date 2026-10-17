@@ -1,704 +1,2647 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chúc Mừng Sinh Nhật</title>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="logos3.png">
-  <style>
-    :root {
-      --primary: #FF6B6B;
-      --secondary: #FF8E8E;
-      --accent: #FFD166;
-      --light: #FFF5F5;
-      --dark: #2D3436;
-      --gradient: linear-gradient(90deg, #ff00c7, #ff9f00);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật </title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js r128 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts supporting Vietnamese -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Dancing+Script:wght@600;700&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <style>
+        :root {
+            --gold-bright: #FFF5C0;
+            --gold-metallic: #D4AF37;
+            --gold-deep: #8A5A00;
+            --ruby-top: #B81D24;
+            --ruby-bottom: #5E080C;
+        }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f6e6e6 0%, #ffecec 100%);
-      min-height: 100vh;
-      color: var(--dark);
-      overflow-x: hidden;
-      position: relative;
-    }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 50% 42%, #2d1c0b 0%, #140b03 48%, #050301 100%);
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://i.gifer.com/7VE.gif') center/cover no-repeat;
-      opacity: 0.05;
-      z-index: -1;
-      pointer-events: none;
-    }
+        /* 3D Embossed Metallic Gold Title */
+        .royal-3d-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFF2B2 25%, #F3C65F 50%, #B87E14 78%, #F9E498 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 0px #6e4805)
+                    drop-shadow(0 5px 0px #3d2500)
+                    drop-shadow(0 10px 24px rgba(255, 190, 60, 0.55));
+        }
 
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--gradient);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
+        .royal-3d-vip {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            background: linear-gradient(180deg, #FFFDF0 0%, #FFE484 30%, #D99B26 60%, #7B4A00 85%, #FFE89E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 3px 0px #5c3802)
+                    drop-shadow(0 6px 0px #2b1800)
+                    drop-shadow(0 12px 30px rgba(255, 200, 70, 0.75));
+        }
 
-    body.loading::after {
-      opacity: 1;
-    }
+        /* Ruby Red & Metallic Gold Pill Buttons (Matching Mockup) */
+        .ruby-gold-btn {
+            background: linear-gradient(180deg, rgba(185, 28, 28, 0.92) 0%, rgba(105, 10, 15, 0.96) 100%);
+            border: 2px solid #F3C65F;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65),
+                        0 0 18px rgba(243, 198, 95, 0.35),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.45);
+            color: #FFF9E6;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
+        .ruby-gold-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 240, 180, 0.35), transparent);
+            transition: left 0.55s ease;
+        }
 
-    h1 {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 15px;
-      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-      animation: pulse 2s infinite;
-    }
+        .ruby-gold-btn:hover::after {
+            left: 120%;
+        }
 
-    .subtitle {
-      color: var(--secondary);
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      font-weight: 600;
-      margin-bottom: 30px;
-      letter-spacing: 1px;
-    }
+        .ruby-gold-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            border-color: #FFF2B2;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75),
+                        0 0 28px rgba(255, 210, 90, 0.75),
+                        inset 0 1px 4px rgba(255, 255, 255, 0.65);
+        }
 
-    .input-group {
-      background: rgba(255, 255, 255, 0.95);
-      padding: clamp(20px, 5vw, 40px);
-      border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
-      backdrop-filter: blur(10px);
-      margin-bottom: 30px;
-      transition: transform 0.3s ease;
-    }
+        .ruby-gold-btn:active {
+            transform: translateY(1px) scale(0.98);
+        }
 
-    .input-group:hover {
-      transform: translateY(-5px);
-    }
+        /* Luxury Dark Gold Glass Panel */
+        .luxury-panel {
+            background: linear-gradient(145deg, rgba(26, 16, 6, 0.9) 0%, rgba(12, 7, 2, 0.94) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(243, 198, 95, 0.55);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85),
+                        0 0 30px rgba(212, 175, 55, 0.25),
+                        inset 0 0 20px rgba(243, 198, 95, 0.08);
+        }
 
-    input {
-      padding: 15px;
-      margin: 12px 0;
-      width: 85%;
-      max-width: 350px;
-      border: 2px solid #f0f0f0;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      background: #fff;
-    }
+        #webgl-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            cursor: grab;
+        }
 
-    input:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
-    }
+        #webgl-container:active {
+            cursor: grabbing;
+        }
 
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.3);
-      outline: none;
-    }
+        #fx-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
 
-    input::placeholder {
-      color: #bbb;
-      font-style: italic;
-    }
+        #ui-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-    .controls {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
+        .interactive {
+            pointer-events: auto;
+        }
 
-    button, .submit-btn {
-      padding: 12px 35px;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 140px;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      position: relative;
-      overflow: hidden;
-    }
+        .font-script {
+            font-family: 'Dancing Script', cursive;
+        }
 
-    button::after, .submit-btn::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        to bottom right,
-        rgba(255,255,255,0.3) 0%,
-        rgba(255,255,255,0) 60%
-      );
-      transform: rotate(30deg);
-      animation: shine 3s infinite;
-    }
+        .font-serif-luxury {
+            font-family: 'Playfair Display', serif;
+        }
 
-    button.submit-btn:hover, .submit-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-    }
+        /* Interactive 3D Name Header Hover Effect */
+        .editable-3d-badge {
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+        }
+        .editable-3d-badge:hover {
+            transform: scale(1.04);
+            filter: brightness(1.12);
+        }
 
-    button.submit-btn:active, .submit-btn:active {
-      transform: translateY(1px);
-    }
+        /* Quick Input Glass Pill */
+        .quick-name-pill {
+            background: linear-gradient(145deg, rgba(35, 20, 6, 0.92) 0%, rgba(16, 9, 2, 0.96) 100%);
+            border: 1.5px solid rgba(243, 198, 95, 0.7);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75),
+                        0 0 18px rgba(243, 198, 95, 0.25);
+        }
 
-    .submit-btn i {
-      margin-right: 8px;
-    }
+        /* Microphone pulse ring */
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 60, 60, 0.8); }
+            50% { box-shadow: 0 0 0 12px rgba(255, 215, 0, 0), 0 0 32px rgba(255, 215, 0, 0.95); }
+        }
 
-    .birthday-message {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-    }
-
-    .birthday-message.show {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .birthday-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
-      transform-style: preserve-3d;
-      perspective: 1000px;
-      animation: cardFloat 6s ease-in-out infinite;
-    }
-
-    .birthday-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,107,107,0.2) 0%, rgba(255,107,107,0) 70%);
-      animation: rotate 20s linear infinite;
-      z-index: -1;
-    }
-
-    .birthday-message h2 {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(2rem, 4vw, 2.5rem);
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 15px;
-      animation: bounceIn 0.8s ease;
-    }
-
-    .birthday-message p {
-      font-size: clamp(0.9rem, 2vw, 1.2rem);
-      color: white;
-      margin: 8px 0;
-      font-weight: 500;
-      line-height: 1.5;
-      animation: fadeInUp 0.8s ease 0.2s both;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      transition: text-shadow 0.3s ease;
-    }
-
-    .birthday-message p:hover {
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-    }
-
-    .birthday-message .highlight {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .birthday-message .cake {
-      font-size: clamp(2.5rem, 6vw, 3rem);
-      margin: 15px 0;
-      display: inline-block;
-      animation: bounce 2s infinite;
-    }
-
-    .close-btn-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-      width: 100%;
-    }
-
-    .close-btn {
-      padding: 10px 25px;
-      font-size: clamp(0.9rem, 1.5vw, 1rem);
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      border-radius: 50px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(5px);
-    }
-
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .close-btn:active {
-      transform: translateY(1px);
-    }
-
-    .close-btn i {
-      font-size: 0.8em;
-    }
-
-    .confetti {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      background: var(--accent);
-      opacity: 0;
-      z-index: 999;
-      pointer-events: none;
-      animation: fall linear forwards;
-    }
-
-    .firework {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      box-shadow: 0 0 10px 5px;
-      animation: explode 1s ease-out forwards;
-      opacity: 0;
-      z-index: 998;
-    }
-
-    .balloon {
-      position: fixed;
-      bottom: -100px;
-      width: 50px;
-      height: 60px;
-      border-radius: 50%;
-      animation: float 8s ease-in infinite;
-      z-index: 1;
-      transform-origin: bottom center;
-    }
-
-    .balloon::before {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 10px;
-      height: 12px;
-      border-radius: 50% 50% 0 0;
-    }
-
-    .balloon::after {
-      content: '';
-      position: absolute;
-      bottom: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1px;
-      height: 60px;
-      background: rgba(0,0,0,0.2);
-    }
-
-    /* Màu sắc cho các bóng bay */
-    .balloon:nth-child(6n+1) {
-      background: #FF6B6B;
-    }
-    .balloon:nth-child(6n+1)::before {
-      background: #e05555;
-    }
-    .balloon:nth-child(6n+2) {
-      background: #FFD166;
-    }
-    .balloon:nth-child(6n+2)::before {
-      background: #e6b955;
-    }
-    .balloon:nth-child(6n+3) {
-      background: #06D6A0;
-    }
-    .balloon:nth-child(6n+3)::before {
-      background: #05b888;
-    }
-    .balloon:nth-child(6n+4) {
-      background: #118AB2;
-    }
-    .balloon:nth-child(6n+4)::before {
-      background: #0f7a9d;
-    }
-    .balloon:nth-child(6n+5) {
-      background: #FFFFFF;
-    }
-    .balloon:nth-child(6n+5)::before {
-      background: #e6e6e6;
-    }
-    .balloon:nth-child(6n+6) {
-      background: #C77DFF;
-    }
-    .balloon:nth-child(6n+6)::before {
-      background: #b066e0;
-    }
-
-    /* CSS cho thông báo tùy chỉnh */
-    .custom-alert {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      z-index: 10000;
-      display: none;
-      text-align: center;
-      font-size: clamp(0.9rem, 1.5vw, 1rem);
-      color: var(--dark);
-      font-family: 'Poppins', sans-serif;
-      backdrop-filter: blur(5px);
-    }
-
-    .custom-alert.show {
-      display: block;
-    }
-
-    .custom-alert button {
-      margin-top: 15px;
-      padding: 8px 20px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-    }
-
-    .custom-alert button:hover {
-      background: var(--secondary);
-      transform: translateY(-2px);
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    @keyframes bounceIn {
-      0% { transform: scale(0.3); opacity: 0; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes explode {
-      0% {
-        transform: scale(0.1);
-        opacity: 0;
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1.5);
-        opacity: 0;
-      }
-    }
-
-    @keyframes shine {
-      0% { transform: rotate(30deg) translate(-30%, -30%); }
-      100% { transform: rotate(30deg) translate(30%, 30%); }
-    }
-
-    @keyframes float {
-      0% {
-        transform: translateY(0) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-50vh) rotate(5deg);
-      }
-      100% {
-        transform: translateY(-100vh) rotate(0deg);
-      }
-    }
-
-    @keyframes cardFloat {
-      0%, 100% { transform: translateY(0) rotateY(0deg); }
-      50% { transform: translateY(-20px) rotateY(5deg); }
-    }
-
-    @media (max-width: 600px) {
-      .input-group {
-        padding: 20px 15px;
-      }
-      input {
-        width: 90%;
-      }
-      .controls {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-  </style>
+        .mic-listening {
+            animation: micPulse 1.5s infinite;
+        }
+    </style>
 </head>
-<body>
-  <div class="balloon-container"></div>
+<body class="text-amber-50 antialiased">
 
-  <div class="container">
-    <h1>Chúc Mừng Sinh Nhật</h1>
-    <p class="subtitle">Nhập thông tin của bạn để nhận lời chúc đặc biệt</p>
-    
-    <div class="input-group">
-      <input type="text" id="ten" placeholder="Tên của bạn"><br>
-      <input type="number" id="ngay" placeholder="Ngày sinh (1-31)" min="1" max="31"><br>
-      <input type="number" id="thang" placeholder="Tháng sinh (1-12)" min="1" max="12"><br>
-      <input type="number" id="nam" placeholder="Năm sinh (VD: 2000)"><br>
-      <div class="controls">
-        <button class="submit-btn" onclick="chucMung()"><i class="fas fa-gift"></i> Gửi Lời Chúc</button>
-        <a href="index.html" class="submit-btn"><i class="fas fa-arrow-left"></i> Quay Lại</a>
-      </div>
+    <!-- 1. THREE.JS PHOTOREALISTIC 3D SCENE -->
+    <div id="webgl-container"></div>
+
+    <!-- 2. 2D GOLDEN FOIL CONFETTI & FIREWORKS CANVAS -->
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- 3. UI LAYER MATCHING THE MOCKUP AESTHETIC -->
+    <div id="ui-layer" class="flex flex-col justify-between p-4 sm:p-7">
+
+        <!-- Top Navigation Row -->
+        <div class="flex items-start justify-between w-full relative">
+            <!-- Top-Left: Circular Ruby-Gold Menu Button -->
+            <div class="relative interactive">
+                <button id="btn-menu-toggle" class="ruby-gold-btn w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg shadow-xl" title="Menu Điều Khiển Nhanh">
+                    <i class="fas fa-bars text-amber-200"></i>
+                </button>
+
+                <!-- Quick Dropdown Menu -->
+                <div id="quick-menu" class="hidden absolute left-0 mt-3 w-64 luxury-panel rounded-2xl p-3 space-y-2 z-30">
+                    <div class="text-[11px] uppercase tracking-widest text-amber-300/80 font-bold px-2 py-1 border-b border-amber-500/20">
+                        Điều Khiển Không Gian 3D
+                    </div>
+                    <button id="menu-btn-music" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i id="menu-icon-music" class="fas fa-music text-amber-400 w-4"></i> Nhạc Mừng Sinh Nhật</span>
+                        <span id="menu-status-music" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200">Bật</span>
+                    </button>
+                    <button id="menu-btn-mic" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i class="fas fa-microphone text-amber-400 w-4"></i> Thổi Nến Bằng Micro</span>
+                        <span id="menu-status-mic" class="text-[11px] px-2 py-0.5 rounded-full bg-white/10 text-gray-300">Tắt</span>
+                    </button>
+                    <button id="menu-btn-camera" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i class="fas fa-video text-amber-400 w-4"></i> Góc Máy Điện Ảnh</span>
+                        <span id="menu-status-cam" class="text-[11px] text-amber-300">Chính diện</span>
+                    </button>
+                    <button id="menu-btn-rotate" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i class="fas fa-sync-alt text-amber-400 w-4"></i> Tự Xoay Đế Bánh</span>
+                        <span id="menu-status-rotate" class="text-[11px] text-amber-300">Đang bật</span>
+                    </button>
+                    <button id="menu-btn-plaque" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i class="fas fa-award text-amber-400 w-4"></i> Bảng Tên Vàng 3D Trên Bánh</span>
+                        <span id="menu-status-plaque" class="text-[11px] text-amber-300">Hiện</span>
+                    </button>
+                    <button id="menu-btn-fireworks" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-500/15 transition text-xs sm:text-sm">
+                        <span class="flex items-center gap-2.5"><i class="fas fa-sparkles text-amber-400 w-4"></i> Bắn Pháo Hoa Hoàng Gia</span>
+                        <i class="fas fa-chevron-right text-[10px] text-amber-400"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top-Right: Pill Action Button Matching Mockup -->
+            <div class="interactive flex items-center gap-2">
+                <button id="btn-top-right" class="ruby-gold-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wide flex items-center gap-2 shadow-xl">
+                    <i id="top-right-icon" class="fas fa-volume-up text-amber-300"></i>
+                    <span id="top-right-label">Bật Nhạc & Pháo Hoa</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Microphone Blow Meter + Bottom-Right Stacked Ruby-Gold Pill Buttons -->
+        <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full gap-4">
+
+            <!-- Bottom-Left: Microphone Blow Meter (Only visible when mic is enabled) -->
+            <div class="interactive flex flex-col items-center sm:items-start gap-2">
+                <div id="mic-indicator" class="hidden luxury-panel px-4 py-2 rounded-full items-center gap-3 border border-amber-400/60">
+                    <i class="fas fa-microphone-lines text-amber-300 animate-pulse"></i>
+                    <span class="text-xs text-amber-100">Hãy thổi vào Micro để tắt nến...</span>
+                    <div class="w-16 h-2 bg-black/60 rounded-full overflow-hidden border border-amber-500/40">
+                        <div id="mic-level-bar" class="h-full bg-gradient-to-r from-amber-400 to-red-500 w-0 transition-all duration-75"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom-Right: Clean Stacked Pill Buttons -->
+            <div class="interactive flex flex-col items-stretch gap-2.5 w-64 sm:w-68">
+                <button id="btn-blow-candle" class="ruby-gold-btn py-2.5 sm:py-3 px-6 rounded-full text-sm sm:text-base font-bold tracking-wide flex items-center justify-center gap-2.5">
+                    <i id="icon-blow-candle" class="fas fa-wind text-amber-200"></i>
+                    <span id="text-blow-candle">Thổi Nến Ước Nguyện</span>
+                </button>
+
+                <button id="btn-customize-wish" class="ruby-gold-btn py-2.5 sm:py-3 px-6 rounded-full text-sm sm:text-base font-bold tracking-wide flex items-center justify-center gap-2.5">
+                    <i class="fas fa-pen-nib text-amber-200"></i>
+                    <span>Tùy Chỉnh Lời Chúc</span>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="birthday-message" id="birthdayMessage">
-    <div class="birthday-card">
-      <h2>Chúc Mừng Sinh Nhật!</h2>
-      <p id="messageName"></p>
-      <p id="messageBirthdate"></p>
-      <p>Chúc bạn một ngày sinh nhật tràn ngập <span class="highlight">niềm vui</span>, <span class="highlight">hạnh phúc</span> và <span class="highlight">thành công</span> trong cuộc sống!</p>
-      <div class="cake">🎂</div>
-      <p>Mong rằng năm mới sẽ mang đến cho bạn nhiều <span class="highlight">cơ hội</span> và <span class="highlight">may mắn</span>!</p>
-      <div class="close-btn-container">
-        <button class="close-btn" onclick="hideMessage()">
-          <i class="fas fa-times"></i> Đóng
-        </button>
-      </div>
+    <!-- 4. FLOATING 3D CARD DETAIL MODAL (Cream & Gold Filigree Card View) -->
+    <div id="card-modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 interactive">
+        <div class="relative max-w-md w-full rounded-2xl p-1.5 bg-gradient-to-br from-[#FFF3B0] via-[#D4AF37] to-[#7A4E00] shadow-[0_0_60px_rgba(212,175,55,0.5)]">
+            <!-- Cream Filigree Inner Card -->
+            <div class="bg-gradient-to-b from-[#FFFDF7] via-[#FDF5E2] to-[#F5E4C3] text-[#3B2308] rounded-xl p-6 sm:p-8 text-center relative border-2 border-[#C59B27]">
+                <button id="close-card-modal" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#3B2308]/10 hover:bg-[#3B2308]/20 flex items-center justify-center text-[#5A380E] transition">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- Ornate Corner Flourishes -->
+                <div class="text-amber-700/70 text-xs tracking-[0.35em] uppercase font-bold mb-1">
+                    ✦ Thiệp Chúc Mừng Hoàng Gia ✦
+                </div>
+
+                <h3 id="card-modal-heading" class="font-serif-luxury text-2xl sm:text-3xl font-extrabold text-[#7B4B0A] mb-1">
+                    CHÚC MỪNG SINH NHẬT
+                </h3>
+
+                <div id="card-modal-recipient" class="font-script text-2xl sm:text-3xl text-[#B81D24] font-bold mb-4">
+                    Gửi Nguyễn Minh Anh
+                </div>
+
+                <div class="w-32 h-[2px] bg-gradient-to-r from-transparent via-[#C59B27] to-transparent mx-auto mb-5"></div>
+
+                <p id="card-modal-message" class="font-serif-luxury italic text-base sm:text-lg text-[#4A2E0B] leading-relaxed mb-6 px-2">
+                    "Chúc bạn tuổi mới luôn tràn đầy niềm vui, hạnh phúc viên mãn, sức khỏe dồi dào và tỏa sáng rực rỡ như ánh hào quang hoàng kim!"
+                </p>
+
+                <div class="text-right text-xs sm:text-sm font-semibold text-[#7B4B0A] italic mb-6 px-2">
+                    — Thân tặng từ: <span id="card-modal-sender" class="not-italic font-bold text-[#B81D24]">Những người yêu quý bạn</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-2.5">
+                    <button id="card-modal-celebrate" class="ruby-gold-btn w-full py-3 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-champagne-glasses text-amber-200"></i> Bắn Pháo Hoa Chúc Mừng
+                    </button>
+                    <button id="card-modal-relight" class="w-full sm:w-auto whitespace-nowrap px-5 py-3 rounded-full font-bold text-xs sm:text-sm bg-[#3B2308]/15 hover:bg-[#3B2308]/25 border border-[#C59B27] text-[#5A380E] flex items-center justify-center gap-2 transition">
+                        <i class="fas fa-fire text-amber-600"></i> Thắp Lại Nến ✨
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="custom-alert" id="customAlert">
-    <p id="alertMessage"></p>
-    <button onclick="closeCustomAlert()">OK</button>
-  </div>
+    <!-- 5. CUSTOMIZE WISH & RECIPIENT MODAL -->
+    <div id="customize-modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 interactive">
+        <div class="luxury-panel rounded-3xl max-w-lg w-full p-6 sm:p-8 relative max-h-[92vh] overflow-y-auto">
+            <button id="close-customize-modal" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-amber-200 transition">
+                <i class="fas fa-times"></i>
+            </button>
 
-  <audio id="birthdayAudio" src="n.mp3"></audio>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300">
+                    <i class="fas fa-crown text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-serif-luxury text-xl sm:text-2xl font-bold text-amber-200">Tùy Chỉnh Tên & Thiệp Sinh Nhật VIP</h2>
+                    <p class="text-xs text-amber-100/70">Cập nhật thời gian thực lên Tiêu đề 3D, Bảng Tên Vàng trên Bánh Kem & 4 Thiệp 3D</p>
+                </div>
+            </div>
 
-  <script>
-    // Tạo bóng bay với dây buộc
-    function createBalloons() {
-      const container = document.querySelector('.balloon-container');
-      
-      for (let i = 0; i < 15; i++) {
-        const balloon = document.createElement('div');
-        balloon.className = 'balloon';
-        
-        // Vị trí ngẫu nhiên
-        balloon.style.left = Math.random() * 100 + 'vw';
-        
-        // Thời gian và tốc độ bay ngẫu nhiên
-        const delay = Math.random() * 5;
-        const duration = Math.random() * 5 + 5;
-        balloon.style.animationDelay = delay + 's';
-        balloon.style.animationDuration = duration + 's';
-        
-        // Kích thước ngẫu nhiên
-        const size = Math.random() * 0.7 + 0.5;
-        balloon.style.transform = `scale(${size})`;
-        
-        // Độ trong suốt ngẫu nhiên
-        balloon.style.opacity = Math.random() * 0.5 + 0.5;
-        
-        // Thêm bóng bay vào container
-        container.appendChild(balloon);
-      }
-    }
+            <form id="customize-form" class="space-y-3.5">
+                <!-- Quick Name / Title Suggestion Chips -->
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-amber-300/90 font-semibold mb-1.5">
+                        Chọn Nhanh Tên / Danh Hiệu Phổ Biến
+                    </label>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" data-quick-name="VIP" data-quick-sub="Tuổi Mới Đẳng Cấp Hoàng Gia" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">👑 VIP</button>
+                        <button type="button" data-quick-name="Anh Trai VIP" data-quick-sub="Bản Lĩnh & Thành Đạt" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🦁 Anh Trai VIP</button>
+                        <button type="button" data-quick-name="Công Chúa" data-quick-sub="Tuổi Mới Ngọt Ngào & Tỏa Sáng" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">👸 Công Chúa</button>
+                        <button type="button" data-quick-name="Sếp Tổng" data-quick-sub="Sự Nghiệp Thăng Hoa Đỉnh Cao" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🥂 Sếp Tổng</button>
+                        <button type="button" data-quick-name="Bạn Thân" data-quick-sub="Tình Bạn Bền Vững Mãi Mãi" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🎉 Bạn Thân</button>
+                        <button type="button" data-quick-name="Người Thương" data-quick-sub="Trọn Đời Hạnh Phúc Bên Nhau" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">💖 Người Thương</button>
+                    </div>
+                </div>
 
-    // Hiệu ứng loading
-    window.addEventListener('load', function() {
-      document.body.classList.add('loading');
-      setTimeout(() => {
-        document.body.classList.remove('loading');
-      }, 1000);
-      createBalloons();
-    });
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                            Tên Người Nhận (Chữ 3D Vàng & Bánh Kem)
+                        </label>
+                        <input type="text" id="input-name" maxlength="28" placeholder="VD: Minh Anh, Tuấn Kiệt, VIP..."
+                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/50 text-amber-50 font-bold focus:outline-none focus:border-amber-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                            Dòng Phụ / Danh Hiệu / Tuổi Mới
+                        </label>
+                        <input type="text" id="input-subtitle" maxlength="42" placeholder="VD: Tuổi 25 Rực Rỡ • Happy Birthday"
+                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                    </div>
+                </div>
 
-    function chucMung() {
-      const ten = document.getElementById("ten").value.trim();
-      const ngay = document.getElementById("ngay").value;
-      const thang = document.getElementById("thang").value;
-      const nam = document.getElementById("nam").value;
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                            Dòng Tiêu Đề Chính Phía Trên
+                        </label>
+                        <input type="text" id="input-title" maxlength="32" placeholder="CHÚC MỪNG SINH NHẬT"
+                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                    </div>
+                    <div class="pt-4">
+                        <label class="flex items-center gap-2.5 cursor-pointer select-none px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-400/35 hover:bg-amber-500/20 transition">
+                            <input type="checkbox" id="input-show-plaque" checked class="w-4 h-4 accent-amber-400 rounded">
+                            <span class="text-xs font-semibold text-amber-200">Gắn Bảng Tên Vàng 3D Lên Bánh Kem</span>
+                        </label>
+                    </div>
+                </div>
 
-      if (!ten || !ngay || !thang || !nam) {
-        showCustomAlert("Vui lòng nhập đầy đủ thông tin!");
-        return;
-      }
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                        Mẫu Lời Chúc Hoàng Gia
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" data-preset="0" class="preset-btn text-xs px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-200 transition">
+                            👑 Hoàng Gia & Thành Đạt
+                        </button>
+                        <button type="button" data-preset="1" class="preset-btn text-xs px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-200 transition">
+                            💖 Ngọt Ngào & Hạnh Phúc
+                        </button>
+                        <button type="button" data-preset="2" class="preset-btn text-xs px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-200 transition">
+                            🥂 Tài Lộc & Thăng Hoa
+                        </button>
+                    </div>
+                </div>
 
-      const tuoi = new Date().getFullYear() - parseInt(nam);
-      document.getElementById("messageName").textContent = `Chúc mừng sinh nhật lần thứ ${tuoi} của ${ten}!`;
-      document.getElementById("messageBirthdate").textContent = `Sinh ngày: ${ngay}/${thang}/${nam}`;
-      
-      document.getElementById("birthdayMessage").classList.add("show");
-      
-      const audio = document.getElementById("birthdayAudio");
-      audio.volume = 0.3;
-      audio.play().catch(error => {
-        console.log("Không thể phát nhạc: ", error);
-      });
-      
-      createConfetti();
-      createFireworks();
-    }
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                        Lời Chúc Chi Tiết (Hiển thị trong Thiệp 3D)
+                    </label>
+                    <textarea id="input-wish" rows="2" maxlength="280"
+                        class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm leading-relaxed"></textarea>
+                </div>
 
-    function hideMessage() {
-      document.getElementById("birthdayMessage").classList.remove("show");
-      const audio = document.getElementById("birthdayAudio");
-      audio.pause();
-      audio.currentTime = 0;
-    }
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                        Người Gửi Lời Chúc
+                    </label>
+                    <input type="text" id="input-sender" maxlength="40" placeholder="VD: Gia đình & Những người bạn thân"
+                        class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                </div>
 
-    function showCustomAlert(message) {
-      const alertBox = document.getElementById("customAlert");
-      const alertMessage = document.getElementById("alertMessage");
-      alertMessage.textContent = message;
-      alertBox.classList.add("show");
-    }
+                <!-- Option to Enable Real Microphone Blow -->
+                <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                    <div class="text-xs text-amber-100/90 pr-3">
+                        <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                            <i class="fas fa-microphone"></i> Thổi Nến Thật Qua Microphone
+                        </div>
+                        <div class="text-[11px] text-amber-200/70 mt-0.5">Cho phép thổi hơi trực tiếp vào điện thoại/laptop để tắt nến</div>
+                    </div>
+                    <button type="button" id="modal-toggle-mic" class="px-3.5 py-2 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400 text-xs font-bold text-amber-200 whitespace-nowrap transition">
+                        Kích Hoạt Micro
+                    </button>
+                </div>
 
-    function closeCustomAlert() {
-      const alertBox = document.getElementById("customAlert");
-      alertBox.classList.remove("show");
-    }
+                <div class="pt-2 flex flex-wrap items-center justify-end gap-2.5">
+                    <button type="button" id="btn-share-link" class="px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-amber-400/40 text-xs sm:text-sm font-semibold text-amber-200 flex items-center gap-2 transition">
+                        <i class="fas fa-link"></i> Sao Chép Link Tặng Bạn Bè
+                    </button>
+                    <button type="submit" class="ruby-gold-btn px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
+                        <i class="fas fa-check"></i> Lưu & Đồng Bộ 3D
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    function createConfetti() {
-      const colors = ['#FF6B6B', '#FF8E8E', '#FFD166', '#06D6A0', '#118AB2', '#FFFFFF'];
-      for (let i = 0; i < 200; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.top = -10 + 'px';
-        confetti.style.width = Math.random() * 12 + 5 + 'px';
-        confetti.style.height = Math.random() * 12 + 5 + 'px';
-        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        document.body.appendChild(confetti);
+    <!-- 6. TOAST NOTIFICATION -->
+    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-3">
+        <div class="luxury-panel px-5 py-2.5 rounded-full border border-amber-400 text-amber-200 text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-2xl">
+            <i class="fas fa-sparkles text-amber-400"></i>
+            <span id="toast-text">Thông báo!</span>
+        </div>
+    </div>
 
-        const animationDuration = Math.random() * 3 + 2;
-        confetti.style.animation = `fall ${animationDuration}s linear forwards`;
+    <!-- ========================================================================= -->
+    <!-- MAIN APPLICATION SCRIPT: PROCEDURAL PBR, 3D CAKE, AUDIO & INTERACTION     -->
+    <!-- ========================================================================= -->
+    <script>
+        /*************************************************************************
+         * 1. STATE, LOCALSTORAGE & URL PERSONALIZATION (REAL-TIME SYNC)
+         *************************************************************************/
+        const WISH_PRESETS = [
+            "Chúc bạn tuổi mới luôn tràn đầy niềm vui, hạnh phúc viên mãn, sức khỏe dồi dào và tỏa sáng rực rỡ như ánh hào quang hoàng kim!",
+            "Chúc mừng sinh nhật người đặc biệt nhất! Mong mỗi khoảnh khắc trong tuổi mới của bạn đều ngọt ngào, ấm áp và ngập tràn yêu thương!",
+            "Tuổi mới chúc bạn: Vạn sự hanh thông, tài lộc rực rỡ, sự nghiệp thăng hoa đỉnh cao và mọi điều ước đêm nay đều trở thành hiện thực!"
+        ];
 
-        setTimeout(() => {
-          confetti.remove();
-        }, animationDuration * 1000);
-      }
-    }
+        const STORAGE_KEY = 'royal_birthday_3d_vip_v2';
 
-    function createFireworks() {
-      for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-          const firework = document.createElement('div');
-          firework.className = 'firework';
-          firework.style.left = Math.random() * 100 + 'vw';
-          firework.style.top = Math.random() * 40 + 'vh';
-          firework.style.color = ['#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#FFFFFF'][Math.floor(Math.random() * 5)];
-          document.body.appendChild(firework);
-          
-          setTimeout(() => {
-            firework.remove();
-          }, 1000);
-        }, i * 200);
-      }
-    }
-  </script>
+        const state = {
+            mainTitle: "CHÚC MỪNG SINH NHẬT",
+            recipientName: "Nguyễn Thanh Sang",
+            subtitleText: "Tuổi Mới Đẳng Cấp Hoàng Gia",
+            wishText: WISH_PRESETS[0],
+            senderName: "Những người yêu quý bạn",
+            showCakePlaque: true,
+            candlesLit: true,
+            autoRotate: true,
+            musicPlaying: false,
+            micActive: false,
+            cameraPreset: 0 // 0: Mockup Front View, 1: Close-up Candles, 2: Wide Banquet
+        };
+
+        function loadStateFromStorageAndURL() {
+            // 1. Load saved preferences from localStorage first
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const saved = JSON.parse(raw);
+                    if (saved.mainTitle) state.mainTitle = saved.mainTitle;
+                    if (saved.recipientName) state.recipientName = saved.recipientName;
+                    if (saved.subtitleText !== undefined) state.subtitleText = saved.subtitleText;
+                    if (saved.wishText) state.wishText = saved.wishText;
+                    if (saved.senderName) state.senderName = saved.senderName;
+                    if (typeof saved.showCakePlaque === 'boolean') state.showCakePlaque = saved.showCakePlaque;
+                }
+            } catch (e) {
+                // Ignore storage errors in restricted iframes
+            }
+
+            // 2. URL Query Parameters override localStorage (so shared links always display the friend's name)
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('name')) state.recipientName = params.get('name').slice(0, 28);
+            if (params.get('vip')) state.recipientName = params.get('vip').slice(0, 28);
+            if (params.get('title')) state.mainTitle = params.get('title').slice(0, 32);
+            if (params.get('sub')) state.subtitleText = params.get('sub').slice(0, 42);
+            if (params.get('msg') || params.get('wish')) {
+                state.wishText = (params.get('msg') || params.get('wish')).slice(0, 280);
+            }
+            if (params.get('sender')) state.senderName = params.get('sender').slice(0, 40);
+            if (params.get('plaque') === '0') state.showCakePlaque = false;
+
+            syncAllNameDisplays(false);
+        }
+
+        function saveStateToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    mainTitle: state.mainTitle,
+                    recipientName: state.recipientName,
+                    subtitleText: state.subtitleText,
+                    wishText: state.wishText,
+                    senderName: state.senderName,
+                    showCakePlaque: state.showCakePlaque
+                }));
+            } catch (e) {}
+        }
+
+        // Master real-time synchronization function across DOM Modals, 3D Cake Plaque, and 4 Floating 3D Cards
+        function syncAllNameDisplays(rebuild3DTextures = true) {
+            const displayName = state.recipientName || "VIP";
+            const displayTitle = state.mainTitle || "CHÚC MỪNG SINH NHẬT";
+            const displaySub = state.subtitleText || "Tuổi Mới Rực Rỡ & Hạnh Phúc";
+
+            // 1. Greeting Card Modal
+            document.getElementById('card-modal-heading').textContent = displayTitle;
+            document.getElementById('card-modal-recipient').textContent = `Gửi ${displayName} — ${displaySub}`;
+            document.getElementById('card-modal-message').textContent = `"${state.wishText}"`;
+            document.getElementById('card-modal-sender').textContent = state.senderName;
+
+            // 2. Menu Plaque Status
+            const plaqueStatus = document.getElementById('menu-status-plaque');
+            if (plaqueStatus) plaqueStatus.textContent = state.showCakePlaque ? 'Hiện' : 'Ẩn';
+
+            // 3. Update 3D Gold Cake Name Plaque & 4 Floating 3D Greeting Cards
+            if (rebuild3DTextures) {
+                update3DCakeNamePlaque();
+                updateCardsRecipientName();
+            }
+
+            saveStateToStorage();
+        }
+
+        function generateShareableUrl() {
+            const params = new URLSearchParams({
+                name: state.recipientName || "VIP",
+                sub: state.subtitleText || "",
+                title: state.mainTitle || "CHÚC MỪNG SINH NHẬT",
+                msg: state.wishText || "",
+                sender: state.senderName || ""
+            });
+            return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+        }
+
+        function copyShareableLinkToClipboard() {
+            const shareUrl = generateShareableUrl();
+            const temp = document.createElement('textarea');
+            temp.value = shareUrl;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast(`🔗 Đã sao chép link chúc mừng sinh nhật "${state.recipientName}"!`);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = msg;
+            toast.classList.remove('opacity-0', '-translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-3');
+            }, 3200);
+        }
+
+        /*************************************************************************
+         * 2. POLYPHONIC WEB AUDIO SYNTHESIZER + MICROPHONE BLOW DETECTOR
+         *************************************************************************/
+        class RoyalAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.isPlaying = false;
+                this.timer = null;
+                this.step = 0;
+
+                // Polyphonic Happy Birthday arrangement (Melody + Warm Chords)
+                this.score = [
+                    { m: 261.63, c: [130.81, 196.00], d: 0.7 },
+                    { m: 261.63, c: [], d: 0.3 },
+                    { m: 293.66, c: [130.81, 164.81, 196.00], d: 1.0 },
+                    { m: 261.63, c: [130.81, 196.00], d: 1.0 },
+                    { m: 349.23, c: [174.61, 220.00], d: 1.0 },
+                    { m: 329.63, c: [164.81, 196.00, 246.94], d: 2.0 },
+
+                    { m: 261.63, c: [130.81, 196.00], d: 0.7 },
+                    { m: 261.63, c: [], d: 0.3 },
+                    { m: 293.66, c: [146.83, 196.00, 246.94], d: 1.0 },
+                    { m: 261.63, c: [146.83, 196.00], d: 1.0 },
+                    { m: 392.00, c: [196.00, 246.94], d: 1.0 },
+                    { m: 349.23, c: [130.81, 164.81, 196.00], d: 2.0 },
+
+                    { m: 261.63, c: [130.81, 196.00], d: 0.7 },
+                    { m: 261.63, c: [], d: 0.3 },
+                    { m: 523.25, c: [130.81, 164.81, 261.63], d: 1.0 },
+                    { m: 440.00, c: [174.61, 220.00], d: 1.0 },
+                    { m: 349.23, c: [174.61, 220.00, 261.63], d: 1.0 },
+                    { m: 329.63, c: [164.81, 196.00], d: 1.0 },
+                    { m: 293.66, c: [146.83, 174.61, 220.00], d: 1.6 },
+
+                    { m: 466.16, c: [233.08, 293.66], d: 0.7 },
+                    { m: 466.16, c: [], d: 0.3 },
+                    { m: 440.00, c: [174.61, 220.00, 261.63], d: 1.0 },
+                    { m: 349.23, c: [196.00, 261.63], d: 1.0 },
+                    { m: 392.00, c: [146.83, 196.00, 246.94], d: 1.0 },
+                    { m: 349.23, c: [174.61, 220.00, 261.63], d: 2.6 }
+                ];
+            }
+
+            ensureContext() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playVoice(freq, duration, isMelody = true) {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const shimmer = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = isMelody ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+
+                shimmer.type = 'sine';
+                shimmer.frequency.setValueAtTime(freq * 2, now);
+
+                const peak = isMelody ? 0.16 : 0.055;
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.linearRampToValueAtTime(peak, now + 0.025);
+                gain.gain.exponentialRampToValueAtTime(0.0008, now + duration * 1.25);
+
+                const shimmerGain = this.ctx.createGain();
+                shimmerGain.gain.setValueAtTime(isMelody ? 0.045 : 0.01, now);
+                shimmerGain.gain.exponentialRampToValueAtTime(0.0005, now + duration * 0.8);
+
+                osc.connect(gain);
+                shimmer.connect(shimmerGain);
+                shimmerGain.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                shimmer.start(now);
+                osc.stop(now + duration * 1.3);
+                shimmer.stop(now + duration * 1.3);
+            }
+
+            startMusic() {
+                this.ensureContext();
+                if (this.isPlaying) return;
+                this.isPlaying = true;
+                this.step = 0;
+                this.tick();
+            }
+
+            tick() {
+                if (!this.isPlaying) return;
+                const item = this.score[this.step];
+                const beatSec = 0.48;
+                const dur = item.d * beatSec;
+
+                this.playVoice(item.m, dur, true);
+                item.c.forEach(chordFreq => this.playVoice(chordFreq, dur * 1.15, false));
+
+                this.step = (this.step + 1) % this.score.length;
+                const wait = this.step === 0 ? dur * 1450 : dur * 1000;
+                this.timer = setTimeout(() => this.tick(), wait);
+            }
+
+            stopMusic() {
+                this.isPlaying = false;
+                if (this.timer) clearTimeout(this.timer);
+            }
+
+            toggleMusic() {
+                if (this.isPlaying) {
+                    this.stopMusic();
+                    return false;
+                } else {
+                    this.startMusic();
+                    return true;
+                }
+            }
+
+            playBlowSound() {
+                this.ensureContext();
+                const now = this.ctx.currentTime;
+                const len = this.ctx.sampleRate * 0.75;
+                const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.sin((i / len) * Math.PI);
+                }
+                const src = this.ctx.createBufferSource();
+                src.buffer = buf;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(850, now);
+                filter.frequency.exponentialRampToValueAtTime(180, now + 0.75);
+
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.32, now);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.75);
+
+                src.connect(filter);
+                filter.connect(g);
+                g.connect(this.ctx.destination);
+                src.start(now);
+
+                // Royal golden harp glissando
+                [523.25, 659.25, 783.99, 987.77, 1046.5, 1318.5, 1567.98].forEach((f, i) => {
+                    setTimeout(() => this.playVoice(f, 0.75, true), 200 + i * 65);
+                });
+            }
+
+            playPopSound() {
+                this.ensureContext();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(420, now);
+                osc.frequency.exponentialRampToValueAtTime(55, now + 0.11);
+                g.gain.setValueAtTime(0.38, now);
+                g.gain.exponentialRampToValueAtTime(0.008, now + 0.11);
+                osc.connect(g);
+                g.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+
+            playFireworkSound() {
+                this.ensureContext();
+                const now = this.ctx.currentTime;
+                const len = this.ctx.sampleRate * 0.4;
+                const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.1));
+                }
+                const src = this.ctx.createBufferSource();
+                src.buffer = buf;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(750 + Math.random() * 500, now);
+
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.2, now);
+                g.gain.exponentialRampToValueAtTime(0.005, now + 0.38);
+
+                src.connect(filter);
+                filter.connect(g);
+                g.connect(this.ctx.destination);
+                src.start(now);
+            }
+        }
+
+        const sound = new RoyalAudioEngine();
+
+        // Microphone Blow Detection
+        let micStream = null;
+        let micAnalyser = null;
+        let micDataArray = null;
+
+        async function toggleMicrophoneBlowDetection() {
+            if (state.micActive) {
+                state.micActive = false;
+                if (micStream) micStream.getTracks().forEach(t => t.stop());
+                document.getElementById('mic-indicator').classList.add('hidden');
+                document.getElementById('mic-indicator').classList.remove('flex');
+                document.getElementById('menu-status-mic').textContent = 'Tắt';
+                document.getElementById('btn-blow-candle').classList.remove('mic-listening');
+                showToast("🎙️ Đã tắt chế độ thổi nến qua Microphone");
+                return;
+            }
+
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                sound.ensureContext();
+                const source = sound.ctx.createMediaStreamSource(micStream);
+                micAnalyser = sound.ctx.createAnalyser();
+                micAnalyser.fftSize = 256;
+                source.connect(micAnalyser);
+                micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
+
+                state.micActive = true;
+                document.getElementById('mic-indicator').classList.remove('hidden');
+                document.getElementById('mic-indicator').classList.add('flex');
+                document.getElementById('menu-status-mic').textContent = 'Đang nghe';
+                document.getElementById('btn-blow-candle').classList.add('mic-listening');
+                showToast("🎙️ Hãy thổi mạnh vào Microphone để tắt nến trên bánh!");
+            } catch (err) {
+                showToast("⚠️ Trình duyệt chưa cấp quyền Micro. Bạn vẫn có thể bấm nút để thổi nến!");
+            }
+        }
+
+        function checkMicrophoneBlowLevel() {
+            if (!state.micActive || !micAnalyser || !state.candlesLit || isBlowingOut) return;
+            micAnalyser.getByteFrequencyData(micDataArray);
+            // Low-frequency wind rumble average
+            let sum = 0;
+            for (let i = 0; i < 28; i++) sum += micDataArray[i];
+            const avg = sum / 28;
+            const percent = Math.min(100, Math.round((avg / 145) * 100));
+            document.getElementById('mic-level-bar').style.width = `${percent}%`;
+
+            if (avg > 125) {
+                triggerCandleToggle();
+            }
+        }
+
+        /*************************************************************************
+         * 3. 2D GOLDEN FOIL CONFETTI & ROYAL FIREWORKS OVERLAY
+         *************************************************************************/
+        const fxCanvas = document.getElementById('fx-canvas');
+        const fxCtx = fxCanvas.getContext('2d');
+        let rockets = [];
+        let sparks = [];
+        let foils = [];
+
+        function resizeFx() {
+            fxCanvas.width = window.innerWidth;
+            fxCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeFx);
+        resizeFx();
+
+        const GOLD_PALETTE = ['#FFF6CC', '#FFD700', '#F3C65F', '#D4AF37', '#FF9E2C', '#FF5E7E'];
+
+        function spawnGoldFoilConfetti(count = 65) {
+            for (let i = 0; i < count; i++) {
+                foils.push({
+                    x: Math.random() * fxCanvas.width,
+                    y: -20 - Math.random() * 140,
+                    vx: (Math.random() - 0.5) * 2.6,
+                    vy: 1.8 + Math.random() * 3.2,
+                    w: 8 + Math.random() * 7,
+                    h: 4 + Math.random() * 4,
+                    color: GOLD_PALETTE[Math.floor(Math.random() * GOLD_PALETTE.length)],
+                    angle: Math.random() * Math.PI * 2,
+                    spin: (Math.random() - 0.5) * 0.14,
+                    tilt: Math.random() * Math.PI
+                });
+            }
+        }
+
+        function launchFirework(targetX, targetY) {
+            const startX = fxCanvas.width * (0.25 + Math.random() * 0.5);
+            const startY = fxCanvas.height;
+            const tx = targetX || fxCanvas.width * (0.18 + Math.random() * 0.64);
+            const ty = targetY || fxCanvas.height * (0.14 + Math.random() * 0.35);
+            const ang = Math.atan2(ty - startY, tx - startX);
+            const spd = 11.5 + Math.random() * 3.5;
+
+            rockets.push({
+                x: startX,
+                y: startY,
+                tx,
+                ty,
+                vx: Math.cos(ang) * spd,
+                vy: Math.sin(ang) * spd,
+                color: GOLD_PALETTE[Math.floor(Math.random() * GOLD_PALETTE.length)],
+                trail: []
+            });
+        }
+
+        function explodeFirework(x, y, baseColor) {
+            sound.playFireworkSound();
+            const count = 64;
+            for (let i = 0; i < count; i++) {
+                const a = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.15;
+                const spd = 1.4 + Math.random() * 6.2;
+                sparks.push({
+                    x,
+                    y,
+                    vx: Math.cos(a) * spd,
+                    vy: Math.sin(a) * spd,
+                    color: i % 2 === 0 ? '#FFF3B0' : baseColor,
+                    alpha: 1,
+                    decay: 0.013 + Math.random() * 0.014,
+                    size: 1.8 + Math.random() * 2.4
+                });
+            }
+        }
+
+        function triggerRoyalCelebration(rocketCount = 5) {
+            spawnGoldFoilConfetti(75);
+            for (let i = 0; i < rocketCount; i++) {
+                setTimeout(() => launchFirework(), i * 240);
+            }
+        }
+
+        function render2DFX() {
+            fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+
+            // Rockets
+            for (let i = rockets.length - 1; i >= 0; i--) {
+                const r = rockets[i];
+                r.trail.push({ x: r.x, y: r.y });
+                if (r.trail.length > 7) r.trail.shift();
+                r.x += r.vx;
+                r.y += r.vy;
+                r.vy += 0.11;
+
+                fxCtx.save();
+                fxCtx.beginPath();
+                if (r.trail.length > 1) {
+                    fxCtx.moveTo(r.trail[0].x, r.trail[0].y);
+                    r.trail.forEach(p => fxCtx.lineTo(p.x, p.y));
+                }
+                fxCtx.strokeStyle = r.color;
+                fxCtx.lineWidth = 2.2;
+                fxCtx.stroke();
+                fxCtx.restore();
+
+                if (Math.hypot(r.tx - r.x, r.ty - r.y) < 18 || r.vy >= 0) {
+                    explodeFirework(r.x, r.y, r.color);
+                    rockets.splice(i, 1);
+                }
+            }
+
+            // Sparks
+            for (let i = sparks.length - 1; i >= 0; i--) {
+                const s = sparks[i];
+                s.x += s.vx;
+                s.y += s.vy;
+                s.vy += 0.055;
+                s.vx *= 0.982;
+                s.vy *= 0.982;
+                s.alpha -= s.decay;
+
+                if (s.alpha <= 0) {
+                    sparks.splice(i, 1);
+                    continue;
+                }
+
+                fxCtx.save();
+                fxCtx.globalAlpha = s.alpha;
+                fxCtx.fillStyle = s.color;
+                fxCtx.shadowColor = s.color;
+                fxCtx.shadowBlur = 10;
+                fxCtx.beginPath();
+                fxCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                fxCtx.fill();
+                fxCtx.restore();
+            }
+
+            // Shimmering Gold Foil Ribbons
+            for (let i = foils.length - 1; i >= 0; i--) {
+                const f = foils[i];
+                f.x += f.vx + Math.sin(f.y * 0.025) * 0.5;
+                f.y += f.vy;
+                f.angle += f.spin;
+                f.tilt += 0.08;
+
+                if (f.y > fxCanvas.height + 30) {
+                    foils.splice(i, 1);
+                    continue;
+                }
+
+                fxCtx.save();
+                fxCtx.translate(f.x, f.y);
+                fxCtx.rotate(f.angle);
+                fxCtx.scale(1, Math.cos(f.tilt));
+                fxCtx.fillStyle = f.color;
+                fxCtx.shadowColor = '#FFD700';
+                fxCtx.shadowBlur = 4;
+                fxCtx.fillRect(-f.w / 2, -f.h / 2, f.w, f.h);
+                fxCtx.restore();
+            }
+        }
+
+        /*************************************************************************
+         * 4. THREE.JS PHOTOREALISTIC SCENE & PROCEDURAL PBR ENVIRONMENT
+         *************************************************************************/
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 150);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.18;
+        container.appendChild(renderer.domElement);
+
+        // --- 4.1 Generate Procedural Studio Warm Gold HDR Environment Map (PMREM) ---
+        function createLuxuryEnvironmentMap() {
+            const pmremGenerator = new THREE.PMREMGenerator(renderer);
+            pmremGenerator.compileEquirectangularShader();
+
+            const envScene = new THREE.Scene();
+            envScene.background = new THREE.Color(0x160c04);
+
+            // Warm softbox panels in virtual studio for realistic metallic reflections
+            const panelGeo = new THREE.PlaneGeometry(20, 10);
+
+            const topLightMat = new THREE.MeshBasicMaterial({ color: 0xfff4d2, side: THREE.DoubleSide });
+            const topPanel = new THREE.Mesh(panelGeo, topLightMat);
+            topPanel.position.set(0, 15, 0);
+            topPanel.rotation.x = Math.PI / 2;
+            envScene.add(topPanel);
+
+            const frontPanelMat = new THREE.MeshBasicMaterial({ color: 0xffd27d, side: THREE.DoubleSide });
+            const frontPanel = new THREE.Mesh(panelGeo, frontPanelMat);
+            frontPanel.position.set(12, 5, 14);
+            frontPanel.lookAt(0, 0, 0);
+            envScene.add(frontPanel);
+
+            const leftPanelMat = new THREE.MeshBasicMaterial({ color: 0xffe6a3, side: THREE.DoubleSide });
+            const leftPanel = new THREE.Mesh(panelGeo, leftPanelMat);
+            leftPanel.position.set(-15, 6, 8);
+            leftPanel.lookAt(0, 0, 0);
+            envScene.add(leftPanel);
+
+            const rimPanelMat = new THREE.MeshBasicMaterial({ color: 0xffae42, side: THREE.DoubleSide });
+            const rimPanel = new THREE.Mesh(panelGeo, rimPanelMat);
+            rimPanel.position.set(0, 8, -16);
+            rimPanel.lookAt(0, 0, 0);
+            envScene.add(rimPanel);
+
+            const envRT = pmremGenerator.fromScene(envScene, 0.04);
+            scene.environment = envRT.texture;
+            pmremGenerator.dispose();
+        }
+        createLuxuryEnvironmentMap();
+
+        // --- 4.2 Studio & Warm Candle Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xfff0d4, 0.5);
+        scene.add(ambientLight);
+
+        const keySpotLight = new THREE.SpotLight(0xfff5e0, 2.2);
+        keySpotLight.position.set(9, 16, 13);
+        keySpotLight.angle = Math.PI / 3.2;
+        keySpotLight.penumbra = 0.65;
+        keySpotLight.castShadow = true;
+        keySpotLight.shadow.mapSize.width = 2048;
+        keySpotLight.shadow.mapSize.height = 2048;
+        keySpotLight.shadow.bias = -0.0005;
+        scene.add(keySpotLight);
+
+        const fillLightLeft = new THREE.PointLight(0xffd480, 1.1, 35);
+        fillLightLeft.position.set(-11, 6, 8);
+        scene.add(fillLightLeft);
+
+        const rimLightBack = new THREE.PointLight(0xffaa33, 1.5, 35);
+        rimLightBack.position.set(0, 8, -10);
+        scene.add(rimLightBack);
+
+        // Warm dynamic light emitted by the candles on top of the cake
+        const candleMasterLight = new THREE.PointLight(0xff9922, 2.2, 16);
+        candleMasterLight.position.set(0, 4.8, 0);
+        scene.add(candleMasterLight);
+
+        // --- 4.3 Procedural Subtle Fondant Bump Texture & Glow Sprite Texture ---
+        function createFondantBumpTexture() {
+            const c = document.createElement('canvas');
+            c.width = 256;
+            c.height = 256;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 4000; i++) {
+                const v = 118 + Math.floor(Math.random() * 20);
+                ctx.fillStyle = `rgb(${v},${v},${v})`;
+                ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+            }
+            const tex = new THREE.CanvasTexture(c);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(4, 2);
+            return tex;
+        }
+
+        function createSoftGlowTexture(innerColor = 'rgba(255,250,220,1)', midColor = 'rgba(255,180,50,0.55)') {
+            const c = document.createElement('canvas');
+            c.width = 128;
+            c.height = 128;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createRadialGradient(64, 64, 2, 64, 64, 62);
+            grad.addColorStop(0, innerColor);
+            grad.addColorStop(0.35, midColor);
+            grad.addColorStop(1, 'rgba(255,120,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 128, 128);
+            return new THREE.CanvasTexture(c);
+        }
+
+        const fondantBump = createFondantBumpTexture();
+        const warmGlowTex = createSoftGlowTexture();
+
+        // --- 4.4 Photorealistic PBR Materials ---
+        // Royal Cream Ivory Fondant (Soft matte-satin sheen with subtle bump)
+        const creamFondantMat = new THREE.MeshPhysicalMaterial({
+            color: 0xfff5e4,
+            roughness: 0.36,
+            metalness: 0.03,
+            bumpMap: fondantBump,
+            bumpScale: 0.008,
+            clearcoat: 0.22,
+            clearcoatRoughness: 0.35,
+            reflectivity: 0.5
+        });
+
+        // Brushed Metallic Royal Gold (For Draped Swags, Trim & Cake Plate)
+        const royalGoldMat = new THREE.MeshPhysicalMaterial({
+            color: 0xf5c453,
+            metalness: 0.92,
+            roughness: 0.19,
+            clearcoat: 0.35,
+            clearcoatRoughness: 0.15
+        });
+
+        // Satin Gold Swag Material (Slightly softer silk-gold look for the draped garlands)
+        const satinGoldSwagMat = new THREE.MeshPhysicalMaterial({
+            color: 0xe8b948,
+            metalness: 0.82,
+            roughness: 0.24,
+            clearcoat: 0.4,
+            clearcoatRoughness: 0.2
+        });
+
+        // Lustrous Cream-White Pearl Material
+        const creamPearlMat = new THREE.MeshPhysicalMaterial({
+            color: 0xfffaf0,
+            metalness: 0.18,
+            roughness: 0.08,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05
+        });
+
+        // Metallic Gold Pearl Material
+        const goldPearlMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffd86b,
+            metalness: 0.95,
+            roughness: 0.1,
+            clearcoat: 0.8
+        });
+
+        // Master Scene Groups
+        const worldGroup = new THREE.Group();
+        scene.add(worldGroup);
+
+        const cakeRoot = new THREE.Group();
+        cakeRoot.position.y = -0.55;
+        worldGroup.add(cakeRoot);
+
+        const bouquetsGroup = new THREE.Group();
+        worldGroup.add(bouquetsGroup);
+
+        const floatingCardsGroup = new THREE.Group();
+        worldGroup.add(floatingCardsGroup);
+
+        /*************************************************************************
+         * 5. BUILD PHOTOREALISTIC 3-TIER ROYAL GOLD & CREAM CAKE
+         *************************************************************************/
+        function buildRoyalCake() {
+            // 1. Brushed Gold Cake Turntable Plate
+            const plateGeo = new THREE.CylinderGeometry(4.05, 4.2, 0.22, 72);
+            const plateMesh = new THREE.Mesh(plateGeo, royalGoldMat);
+            plateMesh.position.y = -2.25;
+            plateMesh.receiveShadow = true;
+            cakeRoot.add(plateMesh);
+
+            const plateRimGeo = new THREE.TorusGeometry(4.12, 0.09, 20, 96);
+            const plateRim = new THREE.Mesh(plateRimGeo, royalGoldMat);
+            plateRim.rotation.x = Math.PI / 2;
+            plateRim.position.y = -2.16;
+            cakeRoot.add(plateRim);
+
+            // 3 Tiers Configuration matching reference proportions
+            const tiers = [
+                { radius: 3.35, height: 1.68, yCenter: -1.30, swagCount: 6, swagDrop: 0.62 },
+                { radius: 2.38, height: 1.48, yCenter:  0.28, swagCount: 6, swagDrop: 0.52 },
+                { radius: 1.54, height: 1.32, yCenter:  1.68, swagCount: 6, swagDrop: 0.42 }
+            ];
+
+            tiers.forEach((t, tierIdx) => {
+                // Main Cream Fondant Cylinder with subtle beveled top edge
+                const cylGeo = new THREE.CylinderGeometry(t.radius, t.radius, t.height, 72);
+                const cylMesh = new THREE.Mesh(cylGeo, creamFondantMat);
+                cylMesh.position.y = t.yCenter;
+                cylMesh.castShadow = true;
+                cylMesh.receiveShadow = true;
+                cakeRoot.add(cylMesh);
+
+                // Smooth rounded top shoulder torus for realistic fondant icing look
+                const topShoulderGeo = new THREE.TorusGeometry(t.radius - 0.04, 0.05, 16, 72);
+                const topShoulder = new THREE.Mesh(topShoulderGeo, creamFondantMat);
+                topShoulder.rotation.x = Math.PI / 2;
+                topShoulder.position.y = t.yCenter + t.height / 2 - 0.02;
+                cakeRoot.add(topShoulder);
+
+                // Thin Metallic Gold Collar Band near top edge of each tier
+                const topBandGeo = new THREE.TorusGeometry(t.radius + 0.01, 0.035, 14, 72);
+                const topBand = new THREE.Mesh(topBandGeo, royalGoldMat);
+                topBand.rotation.x = Math.PI / 2;
+                topBand.position.y = t.yCenter + t.height * 0.44;
+                cakeRoot.add(topBand);
+
+                // Base Pearl Ring (Alternating Large Lustrous Cream Pearls & Gold Pearls)
+                const basePearlCount = Math.floor(t.radius * 18);
+                const basePearlY = t.yCenter - t.height / 2 + 0.11;
+                addPearlBorderRing(t.radius + 0.08, basePearlY, basePearlCount, 0.115, true);
+
+                // Second delicate small gold bead ring right above the base pearls
+                addPearlBorderRing(t.radius + 0.05, basePearlY + 0.15, basePearlCount * 1.3, 0.048, false);
+
+                // Realistic Multi-Fold Golden Draped Swags (Garlands) around the tier
+                const swagStartY = t.yCenter + t.height * 0.36;
+                buildTierGoldSwags(t.radius, swagStartY, t.swagCount, t.swagDrop, tierIdx);
+            });
+        }
+
+        function addPearlBorderRing(radius, yPos, count, pearlSize, alternateGold = true) {
+            const countInt = Math.floor(count);
+            const geo = new THREE.SphereGeometry(pearlSize, 18, 18);
+            for (let i = 0; i < countInt; i++) {
+                const angle = (i / countInt) * Math.PI * 2;
+                const mat = (alternateGold && i % 3 === 0) ? goldPearlMat : creamPearlMat;
+                const pearl = new THREE.Mesh(geo, mat);
+                pearl.position.set(Math.cos(angle) * radius, yPos, Math.sin(angle) * radius);
+                pearl.castShadow = true;
+                cakeRoot.add(pearl);
+            }
+        }
+
+        // Creates the rich multi-layered golden swags/festoons draped around each tier
+        function buildTierGoldSwags(radius, topY, swagCount, maxDrop, tierIdx) {
+            const studGeo = new THREE.SphereGeometry(0.11, 20, 20);
+            const miniBeadGeo = new THREE.SphereGeometry(0.042, 12, 12);
+
+            for (let s = 0; s < swagCount; s++) {
+                const startAngle = (s / swagCount) * Math.PI * 2;
+                const endAngle = ((s + 1) / swagCount) * Math.PI * 2;
+
+                // Create 4 nested golden folds per swag for a plush, sculpted drapery effect
+                const foldCount = 4;
+                for (let f = 0; f < foldCount; f++) {
+                    const foldFactor = 0.55 + (f / (foldCount - 1)) * 0.55;
+                    const tubeRadius = 0.042 - f * 0.004;
+                    const points = [];
+                    const segments = 22;
+
+                    for (let i = 0; i <= segments; i++) {
+                        const u = i / segments;
+                        const ang = startAngle + u * (endAngle - startAngle);
+                        // Parabolic catenary drape curve
+                        const sag = Math.sin(u * Math.PI) * maxDrop * foldFactor;
+                        const rOut = radius + 0.03 + Math.sin(u * Math.PI) * (0.045 + f * 0.012);
+                        const y = topY - sag - f * 0.035;
+                        points.push(new THREE.Vector3(Math.cos(ang) * rOut, y, Math.sin(ang) * rOut));
+                    }
+
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    const tubeGeo = new THREE.TubeGeometry(curve, 24, tubeRadius, 10, false);
+                    const tubeMesh = new THREE.Mesh(tubeGeo, satinGoldSwagMat);
+                    tubeMesh.castShadow = true;
+                    cakeRoot.add(tubeMesh);
+                }
+
+                // Beaded pearl chain underneath the lowest fold of the swag
+                const beadSteps = 11;
+                for (let b = 1; b < beadSteps; b++) {
+                    const u = b / beadSteps;
+                    const ang = startAngle + u * (endAngle - startAngle);
+                    const sag = Math.sin(u * Math.PI) * maxDrop * 1.22;
+                    const rOut = radius + 0.06;
+                    const bead = new THREE.Mesh(miniBeadGeo, goldPearlMat);
+                    bead.position.set(Math.cos(ang) * rOut, topY - sag - 0.14, Math.sin(ang) * rOut);
+                    cakeRoot.add(bead);
+                }
+
+                // Large Lustrous Pearl Stud at each swag peak junction + one in the center hollow
+                // Skip front-facing pearls on middle tier (tierIdx === 1) where the 3D Gold Name Plaque is mounted
+                const peakZ = Math.sin(startAngle) * (radius + 0.08);
+                const isFrontMiddlePeak = (tierIdx === 1 && peakZ > radius * 0.72);
+                if (!isFrontMiddlePeak) {
+                    const peakPearl = new THREE.Mesh(studGeo, creamPearlMat);
+                    peakPearl.position.set(
+                        Math.cos(startAngle) * (radius + 0.08),
+                        topY - 0.04,
+                        peakZ
+                    );
+                    cakeRoot.add(peakPearl);
+                }
+
+                const midAngle = (startAngle + endAngle) / 2;
+                const centerZ = Math.sin(midAngle) * (radius + 0.07);
+                const isFrontMiddleCenter = (tierIdx === 1 && centerZ > radius * 0.65);
+                if (!isFrontMiddleCenter) {
+                    const centerPearl = new THREE.Mesh(studGeo, creamPearlMat);
+                    centerPearl.position.set(
+                        Math.cos(midAngle) * (radius + 0.07),
+                        topY - maxDrop * 0.32,
+                        centerZ
+                    );
+                    cakeRoot.add(centerPearl);
+                }
+            }
+        }
+
+        // --- 5.1B Build Redesigned Adaptive 3D Royal Gold Name Plaque on the Cake ---
+        let cakePlaqueGroup = null;
+        let cakePlaqueFaceMesh = null;
+        let cakePlaqueBackingMesh = null;
+        const cakePlaqueCornerPearls = [];
+        const BASE_PLAQUE_W = 2.38;
+        const BASE_PLAQUE_H = 1.08;
+
+        // Helper: Split a long name into 2 balanced lines if needed
+        function splitNameIntoBalancedLines(text) {
+            const words = text.trim().split(/\s+/);
+            if (words.length <= 1) return [text];
+            let bestIdx = 1;
+            let bestDiff = Infinity;
+            for (let i = 1; i < words.length; i++) {
+                const line1 = words.slice(0, i).join(' ');
+                const line2 = words.slice(i).join(' ');
+                const diff = Math.abs(line1.length - line2.length);
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    bestIdx = i;
+                }
+            }
+            return [
+                words.slice(0, bestIdx).join(' '),
+                words.slice(bestIdx).join(' ')
+            ];
+        }
+
+        function createCakePlaqueTexture(nameText, subText) {
+            const W = 1400;
+            const H = 680;
+            const c = document.createElement('canvas');
+            c.width = W;
+            c.height = H;
+            const ctx = c.getContext('2d');
+
+            // 1. Brushed Metallic Gold Outer Bevel Plate
+            const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+            bgGrad.addColorStop(0.0, '#FFF6C8');
+            bgGrad.addColorStop(0.22, '#E5B53D');
+            bgGrad.addColorStop(0.5, '#FFF0A6');
+            bgGrad.addColorStop(0.78, '#BD8415');
+            bgGrad.addColorStop(1.0, '#7E5002');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Subtle metallic sheen highlight
+            const sheenGrad = ctx.createLinearGradient(0, 0, 0, H);
+            sheenGrad.addColorStop(0, 'rgba(255,255,255,0.28)');
+            sheenGrad.addColorStop(0.5, 'rgba(255,255,255,0)');
+            sheenGrad.addColorStop(1, 'rgba(0,0,0,0.22)');
+            ctx.fillStyle = sheenGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // 2. Deep Royal Espresso / Mahogany Enamel Inner Plate
+            const insetMargin = 44;
+            const insetW = W - insetMargin * 2;
+            const insetH = H - insetMargin * 2;
+            const innerGrad = ctx.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * 0.58);
+            innerGrad.addColorStop(0, '#3D1C08');
+            innerGrad.addColorStop(0.65, '#251004');
+            innerGrad.addColorStop(1, '#140701');
+            ctx.fillStyle = innerGrad;
+            ctx.beginPath();
+            ctx.roundRect(insetMargin, insetMargin, insetW, insetH, 48);
+            ctx.fill();
+
+            // 3. Outer Thick Gold Rim & Inner Fine Filigree Rim
+            ctx.strokeStyle = '#FCE188';
+            ctx.lineWidth = 12;
+            ctx.beginPath();
+            ctx.roundRect(insetMargin + 14, insetMargin + 14, insetW - 28, insetH - 28, 38);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#C99222';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.roundRect(insetMargin + 34, insetMargin + 34, insetW - 68, insetH - 68, 28);
+            ctx.stroke();
+
+            // 4. Ornate Corner Filigree Flourishes inside the inner frame
+            const cornerOffsets = [
+                [insetMargin + 62, insetMargin + 62, 1, 1],
+                [W - insetMargin - 62, insetMargin + 62, -1, 1],
+                [insetMargin + 62, H - insetMargin - 62, 1, -1],
+                [W - insetMargin - 62, H - insetMargin - 62, -1, -1]
+            ];
+            ctx.strokeStyle = 'rgba(247, 208, 106, 0.65)';
+            ctx.lineWidth = 4.5;
+            cornerOffsets.forEach(([cx, cy, sx, sy]) => {
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(sx, sy);
+                ctx.beginPath();
+                ctx.arc(0, 0, 28, 0, Math.PI / 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, 38);
+                ctx.lineTo(38, 0);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Safe inner horizontal width for text (strictly inside double borders + corner flourishes)
+            const maxTextWidth = W - 260;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // 5. Top Royal Header ("✦ HAPPY BIRTHDAY ✦")
+            ctx.save();
+            ctx.font = '800 44px "Cinzel", "Montserrat", serif';
+            ctx.fillStyle = '#FFD978';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+            ctx.shadowOffsetY = 4;
+            ctx.shadowBlur = 6;
+            ctx.fillText('✦ HAPPY BIRTHDAY ✦', W / 2, 148);
+            ctx.restore();
+
+            // 6. Adaptive Auto-Fit & Multi-Line Wrapping for Recipient Name
+            const cleanName = (nameText || 'VIP').trim().toUpperCase();
+            let lines = [cleanName];
+            let fontSize = 118;
+
+            // Measure single-line fit first
+            ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+            while (ctx.measureText(cleanName).width > maxTextWidth && fontSize > 64) {
+                fontSize -= 3;
+                ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+            }
+
+            // If single-line font size had to shrink too much (< 70px) and name has multiple words, wrap into 2 balanced lines
+            if (fontSize < 70 && cleanName.includes(' ')) {
+                lines = splitNameIntoBalancedLines(cleanName);
+                fontSize = 86;
+                const longestLine = lines[0].length >= lines[1].length ? lines[0] : lines[1];
+                ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+                while (ctx.measureText(longestLine).width > maxTextWidth && fontSize > 48) {
+                    fontSize -= 2;
+                    ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+                }
+            }
+
+            // Draw 1-line or 2-line Engraved 3D Metallic Gold Name
+            if (lines.length === 1) {
+                const centerY = 335;
+                ctx.save();
+                ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+
+                // Crisp 3D dark extrusion shadow
+                ctx.fillStyle = '#2A1202';
+                ctx.fillText(lines[0], W / 2 + 4, centerY + 7);
+
+                // Controlled warm gold aura + sharp metallic fill
+                ctx.shadowColor = 'rgba(255, 195, 55, 0.55)';
+                ctx.shadowBlur = 18;
+                const nameGrad = ctx.createLinearGradient(0, centerY - fontSize * 0.55, 0, centerY + fontSize * 0.55);
+                nameGrad.addColorStop(0.0, '#FFFFFF');
+                nameGrad.addColorStop(0.28, '#FFF2B2');
+                nameGrad.addColorStop(0.55, '#F5C44E');
+                nameGrad.addColorStop(0.82, '#C88712');
+                nameGrad.addColorStop(1.0, '#FFE898');
+                ctx.fillStyle = nameGrad;
+                ctx.fillText(lines[0], W / 2, centerY);
+
+                // Subtle fine gold outline for crisp legibility
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'rgba(255, 248, 210, 0.35)';
+                ctx.lineWidth = 2;
+                ctx.strokeText(lines[0], W / 2, centerY);
+                ctx.restore();
+            } else {
+                const lineSpacing = fontSize * 1.12;
+                const startY = 330 - lineSpacing / 2;
+                lines.forEach((lineStr, idx) => {
+                    const yPos = startY + idx * lineSpacing;
+                    ctx.save();
+                    ctx.font = `900 ${fontSize}px "Montserrat", sans-serif`;
+
+                    ctx.fillStyle = '#2A1202';
+                    ctx.fillText(lineStr, W / 2 + 3, yPos + 6);
+
+                    ctx.shadowColor = 'rgba(255, 195, 55, 0.5)';
+                    ctx.shadowBlur = 15;
+                    const nameGrad = ctx.createLinearGradient(0, yPos - fontSize * 0.5, 0, yPos + fontSize * 0.5);
+                    nameGrad.addColorStop(0.0, '#FFFFFF');
+                    nameGrad.addColorStop(0.3, '#FFF2B2');
+                    nameGrad.addColorStop(0.6, '#F5C44E');
+                    nameGrad.addColorStop(1.0, '#CF8E18');
+                    ctx.fillStyle = nameGrad;
+                    ctx.fillText(lineStr, W / 2, yPos);
+                    ctx.restore();
+                });
+            }
+
+            // Decorative thin gold divider above subtitle
+            ctx.strokeStyle = 'rgba(247, 208, 106, 0.45)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(W * 0.25, 456);
+            ctx.lineTo(W * 0.75, 456);
+            ctx.stroke();
+
+            // 7. Auto-Fitting Bottom Subtitle
+            const cleanSub = (subText || 'Tuổi Mới Đẳng Cấp Hoàng Gia').trim();
+            let subFontSize = 52;
+            ctx.font = `italic 700 ${subFontSize}px "Playfair Display", serif`;
+            while (ctx.measureText(cleanSub).width > maxTextWidth && subFontSize > 30) {
+                subFontSize -= 2;
+                ctx.font = `italic 700 ${subFontSize}px "Playfair Display", serif`;
+            }
+
+            ctx.save();
+            ctx.font = `italic 700 ${subFontSize}px "Playfair Display", serif`;
+            ctx.fillStyle = '#FFE7A0';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            ctx.shadowOffsetY = 3;
+            ctx.shadowBlur = 6;
+            ctx.fillText(cleanSub, W / 2, 520);
+            ctx.restore();
+
+            const tex = new THREE.CanvasTexture(c);
+            tex.encoding = THREE.sRGBEncoding;
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        function updatePlaque3DProportions(nameText) {
+            if (!cakePlaqueGroup || !cakePlaqueFaceMesh || !cakePlaqueBackingMesh) return;
+            const len = (nameText || 'VIP').trim().length;
+            // Smoothly widen the 3D plaque up to 1.2x when displaying longer full names
+            const widthFactor = len <= 10 ? 1.0 : Math.min(1.2, 1.0 + (len - 10) * 0.016);
+
+            cakePlaqueFaceMesh.scale.set(widthFactor, 1, 1);
+            cakePlaqueBackingMesh.scale.set(widthFactor, 1, 1);
+
+            const halfW = (BASE_PLAQUE_W * widthFactor) / 2 + 0.04;
+            const halfH = BASE_PLAQUE_H / 2 + 0.04;
+            const cornerCoords = [
+                [-halfW,  halfH],
+                [ halfW,  halfH],
+                [-halfW, -halfH],
+                [ halfW, -halfH]
+            ];
+            cakePlaqueCornerPearls.forEach((p, idx) => {
+                p.position.set(cornerCoords[idx][0], cornerCoords[idx][1], 0.01);
+            });
+        }
+
+        function build3DCakeNamePlaque() {
+            cakePlaqueGroup = new THREE.Group();
+            // Positioned cleanly in front of the middle tier (z = 2.68) so no cake pearls or swags ever clip through
+            cakePlaqueGroup.position.set(0, 0.52, 2.68);
+            cakePlaqueGroup.rotation.x = -0.11;
+
+            // Golden Ornate Frame Backing
+            const backingGeo = new THREE.BoxGeometry(BASE_PLAQUE_W + 0.14, BASE_PLAQUE_H + 0.14, 0.09);
+            cakePlaqueBackingMesh = new THREE.Mesh(backingGeo, royalGoldMat);
+            cakePlaqueBackingMesh.position.z = -0.05;
+            cakePlaqueBackingMesh.castShadow = true;
+            cakePlaqueGroup.add(cakePlaqueBackingMesh);
+
+            // Two Gold Support Pins anchoring the plaque into the middle cake tier
+            const pinGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.38, 16);
+            pinGeo.rotateX(Math.PI / 2);
+            [-0.75, 0.75].forEach(px => {
+                const pin = new THREE.Mesh(pinGeo, royalGoldMat);
+                pin.position.set(px, 0, -0.22);
+                cakePlaqueGroup.add(pin);
+            });
+
+            // 4 Corner Gold Pearls around the plaque
+            const cornerPearlGeo = new THREE.SphereGeometry(0.095, 20, 20);
+            for (let i = 0; i < 4; i++) {
+                const p = new THREE.Mesh(cornerPearlGeo, goldPearlMat);
+                cakePlaqueCornerPearls.push(p);
+                cakePlaqueGroup.add(p);
+            }
+
+            // Engraved Front Face
+            const faceGeo = new THREE.PlaneGeometry(BASE_PLAQUE_W, BASE_PLAQUE_H);
+            const faceTex = createCakePlaqueTexture(state.recipientName, state.subtitleText);
+            const faceMat = new THREE.MeshPhysicalMaterial({
+                map: faceTex,
+                roughness: 0.22,
+                metalness: 0.32,
+                clearcoat: 0.85,
+                clearcoatRoughness: 0.1
+            });
+            cakePlaqueFaceMesh = new THREE.Mesh(faceGeo, faceMat);
+            cakePlaqueFaceMesh.userData = { isCakePlaque: true };
+            cakePlaqueGroup.add(cakePlaqueFaceMesh);
+
+            updatePlaque3DProportions(state.recipientName);
+            cakePlaqueGroup.visible = state.showCakePlaque;
+            cakeRoot.add(cakePlaqueGroup);
+        }
+
+        function update3DCakeNamePlaque() {
+            if (!cakePlaqueGroup || !cakePlaqueFaceMesh) return;
+            cakePlaqueGroup.visible = state.showCakePlaque;
+            updatePlaque3DProportions(state.recipientName);
+            if (cakePlaqueFaceMesh.material.map) {
+                cakePlaqueFaceMesh.material.map.dispose();
+            }
+            cakePlaqueFaceMesh.material.map = createCakePlaqueTexture(state.recipientName, state.subtitleText);
+            cakePlaqueFaceMesh.material.needsUpdate = true;
+        }
+
+        // --- 5.2 Build 10 Twisted Gold Spiral Candles in a 360-Degree Royal Circle on Top Tier ---
+        const candleFlames = [];
+        const smokePuffs = [];
+        let isBlowingOut = false;
+        let autoCardTimer = null;
+
+        function buildTwistedGoldCandles() {
+            const topSurfaceY = 2.34;
+            const candleCount = 10;
+            const circleRadius = 1.12;
+            const candleHeight = 1.22;
+
+            // Royal Golden Rosette & Crown Jewel Ornament in the very center of the candle ring
+            const centerOrnament = new THREE.Group();
+            centerOrnament.position.set(0, topSurfaceY, 0);
+
+            const pedGeo = new THREE.CylinderGeometry(0.32, 0.42, 0.12, 32);
+            const pedMesh = new THREE.Mesh(pedGeo, royalGoldMat);
+            pedMesh.position.y = 0.06;
+            centerOrnament.add(pedMesh);
+
+            const crownRingGeo = new THREE.TorusGeometry(0.28, 0.045, 16, 36);
+            const crownRing = new THREE.Mesh(crownRingGeo, goldPearlMat);
+            crownRing.rotation.x = Math.PI / 2;
+            crownRing.position.y = 0.12;
+            centerOrnament.add(crownRing);
+
+            const jewelGeo = new THREE.OctahedronGeometry(0.22, 2);
+            const jewelMesh = new THREE.Mesh(jewelGeo, goldPearlMat);
+            jewelMesh.scale.set(1, 1.35, 1);
+            jewelMesh.position.y = 0.32;
+            centerOrnament.add(jewelMesh);
+
+            cakeRoot.add(centerOrnament);
+
+            const wickGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8);
+            const wickMat = new THREE.MeshBasicMaterial({ color: 0x221100 });
+
+            // Arrange 10 candles evenly in a full 360-degree circle around the top tier rim
+            for (let idx = 0; idx < candleCount; idx++) {
+                const angle = (idx / candleCount) * Math.PI * 2;
+                const pos = {
+                    x: Math.cos(angle) * circleRadius,
+                    z: Math.sin(angle) * circleRadius
+                };
+
+                const cGroup = new THREE.Group();
+                cGroup.position.set(pos.x, topSurfaceY, pos.z);
+
+                // Gold candle holder base ring + pearl collar
+                const holderGeo = new THREE.CylinderGeometry(0.11, 0.135, 0.1, 20);
+                const holder = new THREE.Mesh(holderGeo, royalGoldMat);
+                holder.position.y = 0.05;
+                cGroup.add(holder);
+
+                const collarGeo = new THREE.TorusGeometry(0.105, 0.025, 12, 24);
+                const collar = new THREE.Mesh(collarGeo, creamPearlMat);
+                collar.rotation.x = Math.PI / 2;
+                collar.position.y = 0.1;
+                cGroup.add(collar);
+
+                // Core gold candle shaft
+                const shaftGeo = new THREE.CylinderGeometry(0.064, 0.072, candleHeight, 24);
+                const shaft = new THREE.Mesh(shaftGeo, royalGoldMat);
+                shaft.position.y = candleHeight / 2 + 0.05;
+                shaft.castShadow = true;
+                cGroup.add(shaft);
+
+                // Spiral twisted gold ridge around the candle shaft
+                const spiralPoints = [];
+                const turns = 4.5;
+                const steps = 40;
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const a = t * Math.PI * 2 * turns;
+                    const r = 0.069;
+                    spiralPoints.push(new THREE.Vector3(Math.cos(a) * r, 0.08 + t * (candleHeight - 0.06), Math.sin(a) * r));
+                }
+                const spiralCurve = new THREE.CatmullRomCurve3(spiralPoints);
+                const spiralGeo = new THREE.TubeGeometry(spiralCurve, 45, 0.017, 8, false);
+                const spiralMesh = new THREE.Mesh(spiralGeo, goldPearlMat);
+                cGroup.add(spiralMesh);
+
+                // Wick
+                const wick = new THREE.Mesh(wickGeo, wickMat);
+                wick.position.y = candleHeight + 0.1;
+                cGroup.add(wick);
+
+                // Multi-layered Realistic Flame Group
+                const flameGroup = new THREE.Group();
+                flameGroup.position.y = candleHeight + 0.26;
+
+                // Outer teardrop orange-gold flame
+                const outerFlameGeo = new THREE.ConeGeometry(0.09, 0.35, 20);
+                outerFlameGeo.translate(0, 0.08, 0);
+                const outerFlameMat = new THREE.MeshBasicMaterial({
+                    color: 0xffaa11,
+                    transparent: true,
+                    opacity: 0.92
+                });
+                const outerFlame = new THREE.Mesh(outerFlameGeo, outerFlameMat);
+                flameGroup.add(outerFlame);
+
+                // Inner bright white-yellow core
+                const innerFlameGeo = new THREE.ConeGeometry(0.048, 0.21, 16);
+                innerFlameGeo.translate(0, 0.05, 0);
+                const innerFlameMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const innerFlame = new THREE.Mesh(innerFlameGeo, innerFlameMat);
+                flameGroup.add(innerFlame);
+
+                // Volumetric Halo Glow Sprite around each flame
+                const haloMat = new THREE.SpriteMaterial({
+                    map: warmGlowTex,
+                    color: 0xffbb33,
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const haloSprite = new THREE.Sprite(haloMat);
+                haloSprite.scale.set(1.05, 1.25, 1);
+                haloSprite.position.y = 0.1;
+                flameGroup.add(haloSprite);
+
+                flameGroup.userData = {
+                    phase: idx * 0.95,
+                    isLit: true
+                };
+                cGroup.add(flameGroup);
+                candleFlames.push(flameGroup);
+
+                cakeRoot.add(cGroup);
+            }
+        }
+
+        function emitSingleCandleSmoke(flameGroup) {
+            const worldPos = new THREE.Vector3();
+            flameGroup.getWorldPosition(worldPos);
+            for (let i = 0; i < 6; i++) {
+                const puffGeo = new THREE.SphereGeometry(0.048 + Math.random() * 0.045, 10, 10);
+                const puffMat = new THREE.MeshBasicMaterial({
+                    color: 0xffeacc,
+                    transparent: true,
+                    opacity: 0.55
+                });
+                const puff = new THREE.Mesh(puffGeo, puffMat);
+                puff.position.copy(worldPos);
+                puff.userData = {
+                    vx: (Math.random() - 0.5) * 0.018,
+                    vy: 0.025 + Math.random() * 0.025,
+                    vz: (Math.random() - 0.5) * 0.018,
+                    life: 1.0
+                };
+                scene.add(puff);
+                smokePuffs.push(puff);
+            }
+        }
+
+        /*************************************************************************
+         * 6. TWO REALISTIC GLOSSY BALLOON BOUQUETS (LEFT & RIGHT FLANKING CAKE)
+         *************************************************************************/
+        const interactiveBalloons = [];
+
+        function buildBalloonBouquets() {
+            // Left and right bouquet anchor points matching the mockup composition
+            const leftAnchor = new THREE.Vector3(-4.6, -2.5, -1.2);
+            const rightAnchor = new THREE.Vector3(4.6, -2.5, -1.2);
+
+            const bouquetConfigs = [
+                // Left Bouquet (7 balloons in rose pink, lavender, pearl white, gold, sky blue, green, orange)
+                { anchor: leftAnchor, offset: new THREE.Vector3(-0.9, 5.8, -0.4), color: 0xd98cb3, metal: 0.25 }, // Rose Pink
+                { anchor: leftAnchor, offset: new THREE.Vector3( 0.2, 6.2, -0.6), color: 0xf4a2bd, metal: 0.30 }, // Soft Pink
+                { anchor: leftAnchor, offset: new THREE.Vector3(-0.3, 4.9,  0.1), color: 0x8e5ea2, metal: 0.35 }, // Lavender Purple
+                { anchor: leftAnchor, offset: new THREE.Vector3( 0.7, 4.7, -0.2), color: 0x4eb879, metal: 0.25 }, // Emerald Green
+                { anchor: leftAnchor, offset: new THREE.Vector3(-1.3, 4.5, -0.2), color: 0xe07a47, metal: 0.30 }, // Coral Orange
+                { anchor: leftAnchor, offset: new THREE.Vector3(-0.8, 3.8,  0.4), color: 0xdbe9ee, metal: 0.15 }, // Pearl White
+                { anchor: leftAnchor, offset: new THREE.Vector3( 0.3, 3.6,  0.5), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
+                { anchor: leftAnchor, offset: new THREE.Vector3(-1.5, 3.2,  0.5), color: 0x2a9df4, metal: 0.35 }, // Sky Blue
+
+                // Right Bouquet (Mirrored lush arrangement)
+                { anchor: rightAnchor, offset: new THREE.Vector3( 0.8, 6.1, -0.5), color: 0xe69ab8, metal: 0.25 }, // Rose Pink
+                { anchor: rightAnchor, offset: new THREE.Vector3(-0.4, 4.9, -0.2), color: 0x56b870, metal: 0.25 }, // Green
+                { anchor: rightAnchor, offset: new THREE.Vector3( 0.4, 4.8,  0.1), color: 0x8a56ac, metal: 0.35 }, // Purple
+                { anchor: rightAnchor, offset: new THREE.Vector3( 1.3, 4.6, -0.2), color: 0xe06d53, metal: 0.30 }, // Warm Red-Orange
+                { anchor: rightAnchor, offset: new THREE.Vector3(-0.2, 3.7,  0.4), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
+                { anchor: rightAnchor, offset: new THREE.Vector3( 0.6, 3.8,  0.5), color: 0xeef5f7, metal: 0.15 }, // Pearl White
+                { anchor: rightAnchor, offset: new THREE.Vector3( 1.6, 3.6,  0.2), color: 0xd94848, metal: 0.30 }, // Ruby Red
+                { anchor: rightAnchor, offset: new THREE.Vector3( 1.2, 2.9,  0.6), color: 0x2998e6, metal: 0.35 }  // Sky Blue
+            ];
+
+            const balloonGeo = new THREE.SphereGeometry(0.68, 32, 32);
+            balloonGeo.scale(1, 1.22, 1);
+            const knotGeo = new THREE.ConeGeometry(0.1, 0.16, 12);
+
+            bouquetConfigs.forEach((cfg, idx) => {
+                const bHolder = new THREE.Group();
+                const pos = cfg.anchor.clone().add(cfg.offset);
+                bHolder.position.copy(pos);
+
+                const bMat = new THREE.MeshPhysicalMaterial({
+                    color: cfg.color,
+                    metalness: cfg.metal,
+                    roughness: 0.14,
+                    clearcoat: 1.0,
+                    clearcoatRoughness: 0.06,
+                    reflectivity: 0.9
+                });
+
+                const mesh = new THREE.Mesh(balloonGeo, bMat);
+                mesh.castShadow = true;
+                bHolder.add(mesh);
+
+                const knot = new THREE.Mesh(knotGeo, bMat);
+                knot.position.y = -0.84;
+                bHolder.add(knot);
+
+                // Golden String curving down toward the bouquet anchor
+                const localBottom = new THREE.Vector3(0, -0.88, 0);
+                const localAnchor = cfg.anchor.clone().sub(pos);
+                const midCtrl = localBottom.clone().lerp(localAnchor, 0.5).add(new THREE.Vector3((Math.random() - 0.5) * 0.25, -0.3, 0));
+                const strCurve = new THREE.CatmullRomCurve3([localBottom, midCtrl, localAnchor]);
+                const strGeo = new THREE.TubeGeometry(strCurve, 16, 0.012, 6, false);
+                const strMesh = new THREE.Mesh(strGeo, royalGoldMat);
+                bHolder.add(strMesh);
+
+                bHolder.userData = {
+                    basePos: pos.clone(),
+                    phase: idx * 0.85,
+                    swaySpeed: 1.2 + (idx % 4) * 0.25
+                };
+
+                mesh.userData = {
+                    isBalloon: true,
+                    holder: bHolder
+                };
+
+                bouquetsGroup.add(bHolder);
+                interactiveBalloons.push(mesh);
+            });
+        }
+
+        /*************************************************************************
+         * 7. FLOATING TILTED 3D LUXURY GREETING CARDS (MATCHING MOCKUP)
+         *************************************************************************/
+        const interactiveCards = [];
+        const FLOATING_CARDS_CONFIG = [
+            {
+                pos: new THREE.Vector3(-6.2, -0.9, 1.3),
+                rot: new THREE.Euler(0.12, 0.42, 0.28),
+                scale: 1.15,
+                title: "CHÚC MỪNG\nSINH NHẬT",
+                sub: "Thiệp Hoàng Gia I",
+                customWish: "Chúc bạn một tuổi mới rực rỡ, ngập tràn niềm vui, may mắn và hạnh phúc viên mãn bên những người thân yêu!"
+            },
+            {
+                pos: new THREE.Vector3(-6.4, 2.75, -0.8),
+                rot: new THREE.Euler(0.18, 0.35, -0.32),
+                scale: 0.78,
+                title: "CHÚC MỪNG\nSINH NHẬT",
+                sub: "Thiệp Hoàng Gia II",
+                customWish: "Mong mọi ước nguyện bạn gửi gắm dưới ánh nến đêm nay đều sớm trở thành hiện thực lung linh nhất!"
+            },
+            {
+                pos: new THREE.Vector3(6.3, 1.95, -0.4),
+                rot: new THREE.Euler(0.1, -0.38, 0.25),
+                scale: 0.92,
+                title: "CHÚC MỪNG\nSINH NHẬT",
+                sub: "Thiệp Hoàng Gia III",
+                customWish: "Tuổi mới thăng hoa, tài lộc dồi dào, sức khỏe căng tràn và luôn giữ mãi nụ cười tỏa nắng!"
+            },
+            {
+                pos: new THREE.Vector3(5.85, -0.35, 1.45),
+                rot: new THREE.Euler(-0.08, -0.42, -0.34),
+                scale: 1.08,
+                title: "CHÚC MỪNG\nSINH NHẬT",
+                sub: "Thiệp Hoàng Gia IV",
+                customWish: "Chúc mừng sinh nhật đẳng cấp VIP! Chúc hành trình phía trước của bạn luôn trải đầy hoa hồng và ánh kim!"
+            }
+        ];
+
+        function createLuxuryCardTexture(titleLines, recipientName) {
+            const c = document.createElement('canvas');
+            c.width = 512;
+            c.height = 640;
+            const ctx = c.getContext('2d');
+
+            // Rich Cream & Warm Parchment Gradient
+            const grad = ctx.createLinearGradient(0, 0, 512, 640);
+            grad.addColorStop(0, '#FFFDF7');
+            grad.addColorStop(0.5, '#F9EED2');
+            grad.addColorStop(1, '#EDD6A4');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 512, 640);
+
+            // Outer Metallic Gold Frame
+            ctx.strokeStyle = '#C59222';
+            ctx.lineWidth = 22;
+            ctx.strokeRect(16, 16, 480, 608);
+
+            // Inner Fine Filigree Border
+            ctx.strokeStyle = '#8F620A';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(42, 42, 428, 556);
+
+            // Ornate Corner Filigree Flourishes
+            const corners = [
+                [56, 56, 1, 1],
+                [456, 56, -1, 1],
+                [56, 584, 1, -1],
+                [456, 584, -1, -1]
+            ];
+            ctx.strokeStyle = '#B88418';
+            ctx.lineWidth = 3.5;
+            corners.forEach(([cx, cy, sx, sy]) => {
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(sx, sy);
+                ctx.beginPath();
+                ctx.arc(0, 0, 34, 0, Math.PI / 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(12, 12, 18, 0, Math.PI);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Crown Icon at Top
+            ctx.fillStyle = '#9E6B0E';
+            ctx.font = 'bold 44px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('♛', 256, 145);
+
+            // Main Embossed Gold Text ("CHÚC MỪNG / SINH NHẬT")
+            ctx.fillStyle = '#784D06';
+            ctx.shadowColor = 'rgba(212, 175, 55, 0.55)';
+            ctx.shadowBlur = 8;
+            ctx.font = '800 44px "Montserrat", sans-serif';
+            const lines = titleLines.split('\n');
+            lines.forEach((line, idx) => {
+                ctx.fillText(line, 256, 240 + idx * 62);
+            });
+
+            // Decorative Divider
+            ctx.strokeStyle = '#B88418';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(110, 340);
+            ctx.lineTo(402, 340);
+            ctx.stroke();
+
+            // Recipient Name in Bold Cursive / Luxury Script (Auto-scaled)
+            const displayRecipient = recipientName || 'VIP';
+            let nameFontSize = 48;
+            if (displayRecipient.length > 12) nameFontSize = 40;
+            if (displayRecipient.length > 18) nameFontSize = 32;
+            ctx.fillStyle = '#A6191E';
+            ctx.font = `bold ${nameFontSize}px "Dancing Script", cursive`;
+            ctx.fillText(displayRecipient, 256, 405);
+
+            // Subtitle on Card
+            const subLine = (state.subtitleText || 'Tuổi Mới Rực Rỡ').slice(0, 28);
+            ctx.fillStyle = '#6E4608';
+            ctx.font = '600 21px "Montserrat", sans-serif';
+            ctx.fillText(subLine, 256, 452);
+
+            // Subtle Call-to-action
+            ctx.fillStyle = '#8C5F12';
+            ctx.font = 'italic 600 22px "Playfair Display", serif';
+            ctx.fillText('✦ Chạm để mở thiệp ✦', 256, 535);
+
+            const tex = new THREE.CanvasTexture(c);
+            tex.encoding = THREE.sRGBEncoding;
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        function buildFloatingGreetingCards() {
+            const cardW = 1.95;
+            const cardH = 2.45;
+            const frameGeo = new THREE.BoxGeometry(cardW + 0.08, cardH + 0.08, 0.05);
+            const faceGeo = new THREE.PlaneGeometry(cardW, cardH);
+
+            FLOATING_CARDS_CONFIG.forEach((cfg, idx) => {
+                const holder = new THREE.Group();
+                holder.position.copy(cfg.pos);
+                holder.rotation.copy(cfg.rot);
+                holder.scale.setScalar(cfg.scale);
+
+                // Gold metallic backing frame
+                const frameMesh = new THREE.Mesh(frameGeo, royalGoldMat);
+                frameMesh.position.z = -0.03;
+                frameMesh.castShadow = true;
+                holder.add(frameMesh);
+
+                // Cream & gold textured front face
+                const tex = createLuxuryCardTexture(cfg.title, state.recipientName);
+                const faceMat = new THREE.MeshPhysicalMaterial({
+                    map: tex,
+                    roughness: 0.25,
+                    metalness: 0.15,
+                    clearcoat: 0.5
+                });
+                const faceMesh = new THREE.Mesh(faceGeo, faceMat);
+                faceMesh.userData = {
+                    isCard: true,
+                    config: cfg,
+                    holder: holder
+                };
+                holder.add(faceMesh);
+
+                holder.userData = {
+                    baseY: cfg.pos.y,
+                    baseRotZ: cfg.rot.z,
+                    phase: idx * 1.6
+                };
+
+                floatingCardsGroup.add(holder);
+                interactiveCards.push(faceMesh);
+            });
+        }
+
+        function updateCardsRecipientName() {
+            interactiveCards.forEach(faceMesh => {
+                const cfg = faceMesh.userData.config;
+                if (faceMesh.material.map) {
+                    faceMesh.material.map.dispose();
+                }
+                faceMesh.material.map = createLuxuryCardTexture(cfg.title, state.recipientName);
+                faceMesh.material.needsUpdate = true;
+            });
+        }
+
+        /*************************************************************************
+         * 8. GOLDEN SPARKLE BOKEH DUST AROUND CAKE BASE & BACKGROUND
+         *************************************************************************/
+        let bokehParticles = null;
+        function buildGoldenSparkleField() {
+            const count = 420;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const speeds = new Float32Array(count);
+
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                // Concentrate 65% of sparkles in a glowing halo around the cake & bouquets
+                if (i < count * 0.65) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = 2.6 + Math.random() * 6.5;
+                    positions[i3] = Math.cos(angle) * radius;
+                    positions[i3 + 1] = -3.2 + Math.random() * 8.5;
+                    positions[i3 + 2] = Math.sin(angle) * radius - 1.0;
+                } else {
+                    positions[i3] = (Math.random() - 0.5) * 28;
+                    positions[i3 + 1] = -5 + Math.random() * 16;
+                    positions[i3 + 2] = -3 - Math.random() * 12;
+                }
+                speeds[i] = 0.006 + Math.random() * 0.016;
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geo.setAttribute('aSpeed', new THREE.BufferAttribute(speeds, 1));
+
+            const mat = new THREE.PointsMaterial({
+                map: warmGlowTex,
+                color: 0xffdf73,
+                size: 0.42,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            bokehParticles = new THREE.Points(geo, mat);
+            scene.add(bokehParticles);
+        }
+
+        // Assemble the entire 3D world
+        buildRoyalCake();
+        build3DCakeNamePlaque();
+        buildTwistedGoldCandles();
+        buildBalloonBouquets();
+        buildFloatingGreetingCards();
+        buildGoldenSparkleField();
+
+        /*************************************************************************
+         * 9. CAMERA ORBIT & RAYCAST INTERACTION
+         *************************************************************************/
+        let camAzimuth = 0.0;
+        let camElevation = 1.44; // Slightly looking straight/up at the majestic 3-tier cake
+        let camDistance = 12.8;
+        const lookTarget = new THREE.Vector3(0, 0.55, 0);
+
+        let isPointerDown = false;
+        let lastPointer = { x: 0, y: 0 };
+        let downPointer = { x: 0, y: 0 };
+
+        const raycaster = new THREE.Raycaster();
+        const pointerNDC = new THREE.Vector2();
+
+        function updateCamera() {
+            if (state.cameraPreset === 1) {
+                // Close-up on the Golden Spiral Candles
+                camDistance += (7.6 - camDistance) * 0.06;
+                camElevation += (1.28 - camElevation) * 0.06;
+                lookTarget.lerp(new THREE.Vector3(0, 2.1, 0), 0.07);
+            } else if (state.cameraPreset === 2) {
+                // Wide Royal Panorama
+                camDistance += (15.5 - camDistance) * 0.06;
+                camElevation += (1.35 - camElevation) * 0.06;
+                lookTarget.lerp(new THREE.Vector3(0, 0.6, 0), 0.07);
+            } else {
+                // Default Mockup Composition
+                lookTarget.lerp(new THREE.Vector3(0, 0.55, 0), 0.07);
+            }
+
+            const x = camDistance * Math.sin(camElevation) * Math.sin(camAzimuth);
+            const y = camDistance * Math.cos(camElevation) + 0.5;
+            const z = camDistance * Math.sin(camElevation) * Math.cos(camAzimuth);
+
+            camera.position.set(x, y, z);
+            camera.lookAt(lookTarget);
+        }
+
+        container.addEventListener('mousedown', e => {
+            isPointerDown = true;
+            lastPointer = { x: e.clientX, y: e.clientY };
+            downPointer = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (!isPointerDown) return;
+            const dx = e.clientX - lastPointer.x;
+            const dy = e.clientY - lastPointer.y;
+            lastPointer = { x: e.clientX, y: e.clientY };
+
+            camAzimuth -= dx * 0.0065;
+            camElevation = Math.max(0.75, Math.min(1.62, camElevation - dy * 0.0055));
+        });
+
+        window.addEventListener('mouseup', e => {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+            if (Math.hypot(e.clientX - downPointer.x, e.clientY - downPointer.y) < 6) {
+                handle3DClick(e.clientX, e.clientY);
+            }
+        });
+
+        container.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isPointerDown = true;
+                lastPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                downPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', e => {
+            if (!isPointerDown || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - lastPointer.x;
+            const dy = e.touches[0].clientY - lastPointer.y;
+            lastPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+            camAzimuth -= dx * 0.0065;
+            camElevation = Math.max(0.75, Math.min(1.62, camElevation - dy * 0.0055));
+        }, { passive: true });
+
+        window.addEventListener('touchend', e => {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+            if (e.changedTouches.length > 0) {
+                const t = e.changedTouches[0];
+                if (Math.hypot(t.clientX - downPointer.x, t.clientY - downPointer.y) < 10) {
+                    handle3DClick(t.clientX, t.clientY);
+                }
+            }
+        });
+
+        container.addEventListener('wheel', e => {
+            camDistance = Math.max(6.8, Math.min(20, camDistance + e.deltaY * 0.008));
+        }, { passive: true });
+
+        function handle3DClick(clientX, clientY) {
+            // Auto-start gentle music on first scene interaction if not started
+            if (!state.musicPlaying && sound.step === 0) {
+                startCelebrationAudioAndFX();
+            }
+
+            pointerNDC.x = (clientX / window.innerWidth) * 2 - 1;
+            pointerNDC.y = -(clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(pointerNDC, camera);
+
+            // 0. Check 3D Gold Name Plaque on Cake (Click to open customize modal!)
+            if (cakePlaqueFaceMesh && state.showCakePlaque) {
+                const plaqueHit = raycaster.intersectObject(cakePlaqueFaceMesh);
+                if (plaqueHit.length > 0) {
+                    openCustomizeModal();
+                    showToast("👑 Nhập tên mới để khắc lên Bảng Vàng 3D trên bánh kem!");
+                    return;
+                }
+            }
+
+            // 1. Check Floating 3D Greeting Cards
+            const cardHits = raycaster.intersectObjects(interactiveCards);
+            if (cardHits.length > 0) {
+                const cfg = cardHits[0].object.userData.config;
+                openGreetingCardModal(cfg);
+                return;
+            }
+
+            // 2. Check Glossy 3D Balloons (Pop + Confetti + Re-inflate animation)
+            const balloonHits = raycaster.intersectObjects(interactiveBalloons);
+            if (balloonHits.length > 0) {
+                const hitMesh = balloonHits[0].object;
+                const holder = hitMesh.userData.holder;
+                sound.playPopSound();
+                explodeFirework(clientX, clientY, '#FFD700');
+                spawnGoldFoilConfetti(28);
+
+                // Pop scale down & smoothly regrow
+                holder.scale.setScalar(0.01);
+                showToast("🎈 Bùm! Pháo hoa kim tuyến chúc mừng sinh nhật!");
+                return;
+            }
+        }
+
+        /*************************************************************************
+         * 10. UI EVENT HANDLERS
+         *************************************************************************/
+        function startCelebrationAudioAndFX() {
+            state.musicPlaying = true;
+            sound.startMusic();
+            updateMusicUI();
+            triggerRoyalCelebration(4);
+        }
+
+        function updateMusicUI() {
+            const topIcon = document.getElementById('top-right-icon');
+            const topLabel = document.getElementById('top-right-label');
+            const menuStatus = document.getElementById('menu-status-music');
+
+            if (state.musicPlaying) {
+                topIcon.className = 'fas fa-volume-up text-amber-300';
+                topLabel.textContent = 'Nhạc VIP: Đang Bật';
+                menuStatus.textContent = 'Đang bật';
+            } else {
+                topIcon.className = 'fas fa-volume-mute text-amber-200/70';
+                topLabel.textContent = 'Bật Nhạc & Pháo Hoa';
+                menuStatus.textContent = 'Đã tắt';
+            }
+        }
+
+        // Top-Right Pill Button
+        document.getElementById('btn-top-right').addEventListener('click', () => {
+            const playing = sound.toggleMusic();
+            state.musicPlaying = playing;
+            updateMusicUI();
+            if (playing) {
+                triggerRoyalCelebration(5);
+                showToast("🎶 Đang phát giai điệu Happy Birthday Hoàng Gia!");
+            } else {
+                showToast("🔇 Đã tạm dừng nhạc nền");
+            }
+        });
+
+        // Top-Left Quick Menu Dropdown
+        const quickMenu = document.getElementById('quick-menu');
+        document.getElementById('btn-menu-toggle').addEventListener('click', (e) => {
+            e.stopPropagation();
+            quickMenu.classList.toggle('hidden');
+        });
+        window.addEventListener('click', (e) => {
+            if (!quickMenu.contains(e.target)) {
+                quickMenu.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('menu-btn-music').addEventListener('click', () => {
+            state.musicPlaying = sound.toggleMusic();
+            updateMusicUI();
+        });
+
+        document.getElementById('menu-btn-mic').addEventListener('click', () => {
+            toggleMicrophoneBlowDetection();
+        });
+
+        const CAM_PRESET_NAMES = ["Chính diện", "Cận cảnh Nến", "Toàn cảnh"];
+        document.getElementById('menu-btn-camera').addEventListener('click', () => {
+            state.cameraPreset = (state.cameraPreset + 1) % 3;
+            document.getElementById('menu-status-cam').textContent = CAM_PRESET_NAMES[state.cameraPreset];
+            showToast(`🎥 Góc máy: ${CAM_PRESET_NAMES[state.cameraPreset]}`);
+        });
+
+        document.getElementById('menu-btn-rotate').addEventListener('click', () => {
+            state.autoRotate = !state.autoRotate;
+            document.getElementById('menu-status-rotate').textContent = state.autoRotate ? 'Đang bật' : 'Đã dừng';
+        });
+
+        document.getElementById('menu-btn-plaque').addEventListener('click', () => {
+            state.showCakePlaque = !state.showCakePlaque;
+            syncAllNameDisplays(true);
+            showToast(state.showCakePlaque ? "👑 Đã hiện Bảng Tên Vàng 3D trên bánh kem" : "👑 Đã ẩn Bảng Tên Vàng 3D trên bánh kem");
+        });
+
+        document.getElementById('menu-btn-fireworks').addEventListener('click', () => {
+            triggerRoyalCelebration(6);
+            quickMenu.classList.add('hidden');
+        });
+
+        // Bottom-Right Button 1: Blow Out Circular Candle Ring in a Wave & Auto-Open Greeting Card
+        function relightAllCandles() {
+            if (autoCardTimer) {
+                clearTimeout(autoCardTimer);
+                autoCardTimer = null;
+            }
+            isBlowingOut = false;
+            state.candlesLit = true;
+            candleFlames.forEach(fGroup => {
+                fGroup.userData.isLit = true;
+                fGroup.visible = true;
+            });
+
+            const btnText = document.getElementById('text-blow-candle');
+            const btnIcon = document.getElementById('icon-blow-candle');
+            btnText.textContent = 'Thổi Nến Ước Nguyện';
+            btnIcon.className = 'fas fa-wind text-amber-200';
+            showToast("🕯️ Đã thắp sáng lại vòng nến vương miện Hoàng Gia!");
+        }
+
+        function triggerCandleToggle() {
+            if (isBlowingOut) return;
+
+            const btnText = document.getElementById('text-blow-candle');
+            const btnIcon = document.getElementById('icon-blow-candle');
+
+            if (state.candlesLit) {
+                isBlowingOut = true;
+                sound.playBlowSound();
+
+                // Sequentially extinguish the 10 candles in a circular wave around the top tier
+                const stepDelay = 65;
+                candleFlames.forEach((fGroup, idx) => {
+                    setTimeout(() => {
+                        fGroup.userData.isLit = false;
+                        fGroup.visible = false;
+                        emitSingleCandleSmoke(fGroup);
+
+                        if (idx === candleFlames.length - 1) {
+                            state.candlesLit = false;
+                            isBlowingOut = false;
+                        }
+                    }, idx * stepDelay);
+                });
+
+                triggerRoyalCelebration(7);
+                if (!state.musicPlaying) {
+                    state.musicPlaying = true;
+                    sound.startMusic();
+                    updateMusicUI();
+                }
+
+                btnText.textContent = 'Thắp Lại Nến Vàng';
+                btnIcon.className = 'fas fa-fire text-amber-300';
+                showToast("🎂 Điều ước đã bay lên! Đang mở Thiệp Chúc Mừng Hoàng Gia...");
+
+                // Automatically open the Royal Greeting Card Modal after the circular candle wave finishes
+                if (autoCardTimer) clearTimeout(autoCardTimer);
+                autoCardTimer = setTimeout(() => {
+                    openGreetingCardModal(FLOATING_CARDS_CONFIG[0]);
+                    spawnGoldFoilConfetti(55);
+                }, 1200);
+            } else {
+                relightAllCandles();
+            }
+        }
+
+        document.getElementById('btn-blow-candle').addEventListener('click', triggerCandleToggle);
+
+        // Greeting Card Detail Modal
+        const cardModal = document.getElementById('card-modal');
+        function openGreetingCardModal(cfg) {
+            const safeCfg = cfg || FLOATING_CARDS_CONFIG[0];
+            document.getElementById('card-modal-heading').textContent = state.mainTitle || "CHÚC MỪNG SINH NHẬT";
+            document.getElementById('card-modal-recipient').textContent = `Gửi ${state.recipientName} — ${state.subtitleText}`;
+            document.getElementById('card-modal-message').textContent = `"${state.wishText || safeCfg.customWish}"`;
+            document.getElementById('card-modal-sender').textContent = state.senderName;
+            cardModal.classList.remove('hidden');
+            cardModal.classList.add('flex');
+        }
+
+        document.getElementById('close-card-modal').addEventListener('click', () => {
+            cardModal.classList.add('hidden');
+            cardModal.classList.remove('flex');
+        });
+
+        document.getElementById('card-modal-celebrate').addEventListener('click', () => {
+            cardModal.classList.add('hidden');
+            cardModal.classList.remove('flex');
+            triggerRoyalCelebration(6);
+        });
+
+        document.getElementById('card-modal-relight').addEventListener('click', () => {
+            cardModal.classList.add('hidden');
+            cardModal.classList.remove('flex');
+            relightAllCandles();
+            triggerRoyalCelebration(4);
+        });
+
+        // Full Customize Modal with Real-Time Preview & Chips
+        const customizeModal = document.getElementById('customize-modal');
+        const modalNameInput = document.getElementById('input-name');
+        const modalSubInput = document.getElementById('input-subtitle');
+        const modalTitleInput = document.getElementById('input-title');
+        const modalPlaqueCheckbox = document.getElementById('input-show-plaque');
+
+        function openCustomizeModal() {
+            modalNameInput.value = state.recipientName;
+            modalSubInput.value = state.subtitleText;
+            modalTitleInput.value = state.mainTitle;
+            modalPlaqueCheckbox.checked = state.showCakePlaque;
+            document.getElementById('input-wish').value = state.wishText;
+            document.getElementById('input-sender').value = state.senderName;
+            customizeModal.classList.remove('hidden');
+            customizeModal.classList.add('flex');
+        }
+
+        document.getElementById('btn-customize-wish').addEventListener('click', openCustomizeModal);
+
+        // Live sync while typing in the full modal
+        modalNameInput.addEventListener('input', (e) => {
+            state.recipientName = e.target.value.trim() || "VIP";
+            syncAllNameDisplays(true);
+        });
+        modalSubInput.addEventListener('input', (e) => {
+            state.subtitleText = e.target.value.trim() || "Tuổi Mới Rực Rỡ";
+            syncAllNameDisplays(true);
+        });
+        modalTitleInput.addEventListener('input', (e) => {
+            state.mainTitle = e.target.value.trim() || "CHÚC MỪNG SINH NHẬT";
+            syncAllNameDisplays(false);
+        });
+        modalPlaqueCheckbox.addEventListener('change', (e) => {
+            state.showCakePlaque = e.target.checked;
+            syncAllNameDisplays(true);
+        });
+
+        // Quick Name Chips inside Modal
+        document.querySelectorAll('.modal-name-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                state.recipientName = chip.getAttribute('data-quick-name');
+                state.subtitleText = chip.getAttribute('data-quick-sub');
+                modalNameInput.value = state.recipientName;
+                modalSubInput.value = state.subtitleText;
+                syncAllNameDisplays(true);
+            });
+        });
+
+        document.getElementById('close-customize-modal').addEventListener('click', () => {
+            customizeModal.classList.add('hidden');
+            customizeModal.classList.remove('flex');
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-preset'), 10);
+                document.getElementById('input-wish').value = WISH_PRESETS[idx];
+            });
+        });
+
+        document.getElementById('modal-toggle-mic').addEventListener('click', () => {
+            toggleMicrophoneBlowDetection();
+        });
+
+        document.getElementById('customize-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const newName = modalNameInput.value.trim();
+            const newSub = modalSubInput.value.trim();
+            const newTitle = modalTitleInput.value.trim();
+            const newWish = document.getElementById('input-wish').value.trim();
+            const newSender = document.getElementById('input-sender').value.trim();
+
+            if (newName) state.recipientName = newName;
+            if (newSub) state.subtitleText = newSub;
+            if (newTitle) state.mainTitle = newTitle;
+            if (newWish) state.wishText = newWish;
+            if (newSender) state.senderName = newSender;
+            state.showCakePlaque = modalPlaqueCheckbox.checked;
+
+            syncAllNameDisplays(true);
+
+            customizeModal.classList.add('hidden');
+            customizeModal.classList.remove('flex');
+            triggerRoyalCelebration(5);
+            showToast(`✨ Đã khắc tên "${state.recipientName}" & lời chúc lên Bánh Kem 3D!`);
+        });
+
+        document.getElementById('btn-share-link').addEventListener('click', () => {
+            // Sync current form values first before generating link
+            if (modalNameInput.value.trim()) state.recipientName = modalNameInput.value.trim();
+            if (modalSubInput.value.trim()) state.subtitleText = modalSubInput.value.trim();
+            if (modalTitleInput.value.trim()) state.mainTitle = modalTitleInput.value.trim();
+            if (document.getElementById('input-wish').value.trim()) state.wishText = document.getElementById('input-wish').value.trim();
+            if (document.getElementById('input-sender').value.trim()) state.senderName = document.getElementById('input-sender').value.trim();
+            syncAllNameDisplays(true);
+            copyShareableLinkToClipboard();
+        });
+
+        /*************************************************************************
+         * 11. RESPONSIVE RESIZE & MASTER ANIMATION LOOP
+         *************************************************************************/
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // 1. Slowly rotate the Royal 3-Tier Cake on its golden turntable
+            if (state.autoRotate) {
+                cakeRoot.rotation.y = t * 0.18;
+            }
+
+            // 2. Realistic Flickering 10 Circular Candle Flames & Dynamic PointLight
+            let litCount = 0;
+            candleFlames.forEach(fGroup => {
+                const isLit = fGroup.userData.isLit !== false && state.candlesLit;
+                fGroup.visible = isLit;
+                if (isLit) {
+                    litCount++;
+                    const p = fGroup.userData.phase;
+                    const sx = 0.92 + Math.sin(t * 16 + p) * 0.1 + Math.cos(t * 27 + p) * 0.06;
+                    const sy = 0.95 + Math.sin(t * 20 + p) * 0.15;
+                    fGroup.scale.set(sx, sy, sx);
+                    fGroup.rotation.z = Math.sin(t * 8 + p) * 0.08;
+                }
+            });
+
+            const litRatio = candleFlames.length > 0 ? (litCount / candleFlames.length) : 0;
+            candleMasterLight.intensity = litRatio > 0
+                ? (2.2 * litRatio + Math.sin(t * 15) * 0.32 * litRatio)
+                : 0.0;
+
+            // 3. Update Extinguished Candle Smoke Puffs
+            for (let i = smokePuffs.length - 1; i >= 0; i--) {
+                const puff = smokePuffs[i];
+                puff.position.x += puff.userData.vx;
+                puff.position.y += puff.userData.vy;
+                puff.position.z += puff.userData.vz;
+                puff.scale.multiplyScalar(1.022);
+                puff.userData.life -= 0.016;
+                puff.material.opacity = puff.userData.life * 0.5;
+                if (puff.userData.life <= 0) {
+                    scene.remove(puff);
+                    smokePuffs.splice(i, 1);
+                }
+            }
+
+            // 4. Gently Sway Left & Right Balloon Bouquets + Regrow Popped Balloons
+            bouquetsGroup.children.forEach(bHolder => {
+                const ud = bHolder.userData;
+                bHolder.position.x = ud.basePos.x + Math.sin(t * ud.swaySpeed + ud.phase) * 0.12;
+                bHolder.position.y = ud.basePos.y + Math.cos(t * ud.swaySpeed * 0.8 + ud.phase) * 0.09;
+                bHolder.rotation.z = Math.sin(t * ud.swaySpeed + ud.phase) * 0.04;
+
+                if (bHolder.scale.x < 0.99) {
+                    bHolder.scale.lerp(new THREE.Vector3(1, 1, 1), 0.04);
+                }
+            });
+
+            // 5. Gently Float Tilted 3D Luxury Greeting Cards
+            floatingCardsGroup.children.forEach(holder => {
+                const ud = holder.userData;
+                holder.position.y = ud.baseY + Math.sin(t * 1.4 + ud.phase) * 0.14;
+                holder.rotation.z = ud.baseRotZ + Math.cos(t * 1.1 + ud.phase) * 0.03;
+            });
+
+            // 6. Rising Golden Bokeh Sparkle Particles
+            if (bokehParticles) {
+                const posAttr = bokehParticles.geometry.attributes.position;
+                const spdAttr = bokehParticles.geometry.attributes.aSpeed;
+                for (let i = 0; i < posAttr.count; i++) {
+                    let y = posAttr.getY(i) + spdAttr.getX(i);
+                    if (y > 8.5) y = -3.5;
+                    posAttr.setY(i, y);
+                }
+                posAttr.needsUpdate = true;
+                bokehParticles.rotation.y = t * 0.04;
+            }
+
+            // 7. Check Microphone Blow Input
+            checkMicrophoneBlowLevel();
+
+            // 8. Camera & Render
+            updateCamera();
+            renderer.render(scene, camera);
+            render2DFX();
+        }
+
+        window.onload = () => {
+            loadStateFromStorageAndURL();
+            animate();
+            // Initial subtle golden confetti welcome
+            setTimeout(() => spawnGoldFoilConfetti(40), 400);
+        };
+    </script>
 </body>
 </html>
