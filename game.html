@@ -7,125 +7,162 @@
     <!-- Ngôn ngữ của trang này được tự động lấy từ localStorage.siteLang do trang chủ lưu. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="logos3.png">
     <style>
+        :root {
+            --bg-dark: #060913;
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(148, 163, 184, 0.14);
+            --accent-primary: #6366f1;
+            --accent-secondary: #a855f7;
+            --accent-pink: #ec4899;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f1f5f9;
             overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            selection-background-color: #6366f1;
         }
-        h1, h2 { font-family: 'Orbitron', sans-serif; }
 
+        h1, h2, .font-gaming {
+            font-family: 'Chakra Petch', sans-serif;
+        }
+
+        /* Nền lưới không gian & Ánh sáng động */
         .bg-animated {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 10% 20%, rgb(33, 21, 86) 0%, rgb(16, 23, 41) 90%);
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(79, 70, 229, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.14) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #0b1120 0%, #050811 100%);
         }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+            pointer-events: none;
+        }
+
         .blob {
-            position: absolute;
-            background: linear-gradient(180deg, rgba(79,70,229,.4) 0%, rgba(147,51,234,.4) 100%);
-            filter: blur(60px); border-radius: 50%;
-            animation: moveBlob 10s infinite alternate; z-index: -1;
+            position: fixed;
+            filter: blur(85px);
+            border-radius: 50%;
+            animation: moveBlob 14s infinite alternate ease-in-out;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.55;
         }
-        .blob-1 { top:10%; left:10%; width:300px; height:300px; }
-        .blob-2 { bottom:20%; right:10%; width:400px; height:400px; animation-duration:15s; background:linear-gradient(180deg,rgba(236,72,153,.4) 0%,rgba(239,68,68,.4) 100%); }
-        @keyframes moveBlob { 0%{transform:translate(0,0) scale(1);} 100%{transform:translate(20px,-20px) scale(1.1);} }
-
-        .game-card {
-            background: rgba(255,255,255,.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,.1);
-            transition: all .4s cubic-bezier(.175,.885,.32,1.275);
-            animation: fadeInUp .8s ease-out forwards;
-            opacity: 0; transform: translateY(30px);
+        .blob-1 {
+            top: 8%;
+            left: 8%;
+            width: 340px;
+            height: 340px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
         }
-        .game-card:nth-child(1){animation-delay:.1s} .game-card:nth-child(2){animation-delay:.15s}
-        .game-card:nth-child(3){animation-delay:.2s}  .game-card:nth-child(4){animation-delay:.25s}
-        .game-card:nth-child(5){animation-delay:.3s}  .game-card:nth-child(6){animation-delay:.35s}
-        .game-card:nth-child(7){animation-delay:.4s}  .game-card:nth-child(8){animation-delay:.45s}
-        .game-card:nth-child(9){animation-delay:.5s}  .game-card:nth-child(10){animation-delay:.55s}
-        .game-card:nth-child(11){animation-delay:.6s} .game-card:nth-child(12){animation-delay:.65s}
-        .game-card:nth-child(13){animation-delay:.7s} .game-card:nth-child(14){animation-delay:.75s}
-        .game-card:nth-child(15){animation-delay:.8s} .game-card:nth-child(16){animation-delay:.85s}
-        .game-card:nth-child(17){animation-delay:.9s} .game-card:nth-child(18){animation-delay:.95s}
-        .game-card:nth-child(19){animation-delay:1s} .game-card:nth-child(20){animation-delay:1.05s}
-        @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
-
-        .game-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(255,255,255,.1);
-            border-color: rgba(167,139,250,.5);
-            box-shadow: 0 20px 40px rgba(0,0,0,.4), 0 0 20px rgba(167,139,250,.2);
+        .blob-2 {
+            bottom: 12%;
+            right: 8%;
+            width: 420px;
+            height: 420px;
+            animation-duration: 18s;
+            background: linear-gradient(135deg, #db2777, #7e22ce);
         }
-        .game-card img { transition:transform .5s ease; mask-image:linear-gradient(to bottom,black 80%,transparent 100%); }
-        .game-card:hover img { transform:scale(1.1); }
-
-        .play-btn {
-            background: linear-gradient(90deg,#4f46e5,#9333ea);
-            transition: all .3s ease;
-            box-shadow: 0 4px 15px rgba(79,70,229,.4);
-        }
-        .play-btn:hover {
-            background: linear-gradient(90deg,#4338ca,#7e22ce);
-            box-shadow: 0 6px 20px rgba(147,51,234,.6);
-            transform: translateY(-2px);
+        @keyframes moveBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(35px, -30px) scale(1.12); }
         }
 
+        /* Header cố định */
+        .site-header {
+            background: rgba(6, 9, 19, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
 
-        /* Thanh tìm kiếm game */
+        /* Khung điều khiển & Tìm kiếm */
         .game-search-panel {
-            max-width: 860px;
-            margin: 0 auto 2.25rem;
-            padding: 1rem;
-            border: 1px solid rgba(255,255,255,.12);
-            border-radius: 1.25rem;
-            background: rgba(15,23,42,.72);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 18px 45px rgba(0,0,0,.28), 0 0 25px rgba(99,102,241,.12);
+            max-width: 920px;
+            margin: 0 auto 2.5rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
+
         .game-search-label {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: .75rem;
-            color: #dbeafe;
-            font-size: .82rem;
+            margin-bottom: 0.85rem;
+            color: #e2e8f0;
+            font-size: 0.82rem;
             font-weight: 600;
-            letter-spacing: .08em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
+
         .game-search-count {
-            color: #a5b4fc;
-            font-size: .75rem;
-            letter-spacing: .03em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #c7d2fe;
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
             text-transform: none;
             white-space: nowrap;
         }
+
         .game-search-box {
             display: flex;
             align-items: center;
-            gap: .8rem;
-            min-height: 54px;
-            padding: 0 .9rem 0 1rem;
-            border: 1px solid rgba(129,140,248,.26);
-            border-radius: 1rem;
-            background: rgba(2,6,23,.78);
-            transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+            gap: 0.85rem;
+            min-height: 56px;
+            padding: 0 0.85rem 0 1.2rem;
+            border: 1px solid rgba(129, 140, 248, 0.25);
+            border-radius: 1.1rem;
+            background: rgba(2, 6, 23, 0.85);
+            transition: all 0.25s ease;
         }
+
         .game-search-box:focus-within {
-            border-color: rgba(129,140,248,.72);
-            box-shadow: 0 0 0 4px rgba(99,102,241,.12), 0 0 30px rgba(139,92,246,.18);
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.16), 0 0 25px rgba(139, 92, 246, 0.22);
             transform: translateY(-1px);
         }
+
         .game-search-box > i {
             flex: 0 0 auto;
             color: #a78bfa;
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
+
         .game-search-input {
             width: 100%;
             min-width: 0;
@@ -134,47 +171,283 @@
             color: #f8fafc;
             background: transparent;
             font: inherit;
+            font-size: 0.95rem;
         }
         .game-search-input::placeholder { color: #64748b; }
+
+        .shortcut-hint {
+            flex: 0 0 auto;
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.45rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-family: monospace;
+            pointer-events: none;
+        }
+
         .game-search-clear {
             flex: 0 0 auto;
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: .8rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
             color: #cbd5e1;
-            background: rgba(255,255,255,.06);
+            background: rgba(255, 255, 255, 0.06);
             opacity: 0;
             visibility: hidden;
-            transform: scale(.88);
-            transition: opacity .2s ease, visibility .2s ease, transform .2s ease, background .2s ease;
+            transform: scale(0.85);
+            transition: all 0.2s ease;
         }
         .game-search-clear.is-visible {
             opacity: 1;
             visibility: visible;
             transform: scale(1);
         }
-        .game-search-clear:hover { color: white; background: rgba(239,68,68,.72); }
+        .game-search-clear:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.8);
+            border-color: rgba(239, 68, 68, 0.9);
+        }
+
+        /* Bộ lọc danh mục (Category Pills) */
+        .category-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scrollbar-width: none;
+        }
+        .category-tabs::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .cat-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(167, 139, 250, 0.3);
+        }
+        .cat-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.85), rgba(147, 51, 234, 0.85));
+            border-color: rgba(192, 132, 252, 0.6);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+        }
+
+        /* Thẻ Game (Game Card) */
+        .game-card {
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.35rem;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            animation: fadeInUp 0.65s ease-out forwards;
+            opacity: 0;
+            transform: translateY(24px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0), rgba(168, 85, 247, 0), rgba(236, 72, 153, 0));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            transition: background 0.4s ease;
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            background: rgba(30, 41, 59, 0.78);
+            border-color: rgba(167, 139, 250, 0.4);
+            box-shadow: 0 22px 45px -12px rgba(0, 0, 0, 0.7), 0 0 28px rgba(139, 92, 246, 0.22);
+        }
+
+        .game-card:hover::before {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.8));
+        }
+
+        .game-card:nth-child(1){animation-delay:.05s} .game-card:nth-child(2){animation-delay:.08s}
+        .game-card:nth-child(3){animation-delay:.11s} .game-card:nth-child(4){animation-delay:.14s}
+        .game-card:nth-child(5){animation-delay:.17s} .game-card:nth-child(6){animation-delay:.20s}
+        .game-card:nth-child(7){animation-delay:.23s} .game-card:nth-child(8){animation-delay:.26s}
+        .game-card:nth-child(9){animation-delay:.29s} .game-card:nth-child(10){animation-delay:.32s}
+        .game-card:nth-child(11){animation-delay:.35s} .game-card:nth-child(12){animation-delay:.38s}
+        .game-card:nth-child(13){animation-delay:.41s} .game-card:nth-child(14){animation-delay:.44s}
+        .game-card:nth-child(15){animation-delay:.47s} .game-card:nth-child(16){animation-delay:.50s}
+        .game-card:nth-child(17){animation-delay:.53s} .game-card:nth-child(18){animation-delay:.56s}
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* Khung ảnh của Card */
+        .card-media {
+            position: relative;
+            height: 185px;
+            overflow: hidden;
+            background: #090d16;
+        }
+
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+        }
+
+        .game-card:hover .card-media img {
+            transform: scale(1.09);
+            filter: brightness(1.08);
+        }
+
+        .card-media::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.2) 55%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Badge số thứ tự trên góc thẻ */
+        .card-badge {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            z-index: 10;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.6rem;
+            background: rgba(2, 6, 23, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #a5b4fc;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .card-hover-icon {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .game-card:hover .card-hover-icon { opacity: 1; }
+
+        .card-hover-icon span {
+            width: 50px;
+            height: 50px;
+            border-radius: 9999px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.7);
+            transform: scale(0.75);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .game-card:hover .card-hover-icon span { transform: scale(1); }
+
+        /* Nút Chơi Ngay */
+        .play-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+            color: #ffffff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 0.9rem;
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .play-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.6s ease;
+        }
+
+        .game-card:hover .play-btn::after {
+            left: 140%;
+        }
+
+        .play-btn:hover {
+            background: linear-gradient(90deg, #4338ca 0%, #6d28d9 50%, #7e22ce 100%);
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.55);
+            transform: translateY(-2px);
+        }
+
         .game-card.search-hidden { display: none !important; }
+
+        /* Trạng thái không tìm thấy kết quả */
         .game-no-results {
             display: none;
-            max-width: 720px;
-            margin: 0 auto 2rem;
-            padding: 1.5rem;
+            max-width: 640px;
+            margin: 1rem auto 2.5rem;
+            padding: 2.5rem 1.5rem;
             text-align: center;
-            border: 1px dashed rgba(167,139,250,.38);
-            border-radius: 1.25rem;
+            border: 1px dashed rgba(167, 139, 250, 0.35);
+            border-radius: 1.5rem;
             color: #cbd5e1;
-            background: rgba(15,23,42,.64);
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
         }
         .game-no-results.is-visible { display: block; }
         .game-no-results i {
-            display: block;
-            margin-bottom: .75rem;
+            display: inline-grid;
+            place-items: center;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+            background: rgba(139, 92, 246, 0.12);
             color: #a78bfa;
-            font-size: 2rem;
+            font-size: 1.85rem;
         }
 
         /* Thông báo khi người dùng thử mở mã nguồn / DevTools */
@@ -190,33 +463,33 @@
             transition: transform .32s cubic-bezier(.22,1,.36,1), opacity .25s ease;
         }
         .source-guard-toast.is-visible {
-            transform: translate(-50%, 0);
+            transform: translate(-50%, 12px);
             opacity: 1;
         }
         .source-guard-toast__message {
-            padding: 15px 20px;
+            padding: 14px 20px;
             text-align: center;
             color: #f8fafc;
-            font-size: clamp(.82rem, 2.7vw, 1rem);
-            font-weight: 700;
+            font-size: clamp(.82rem, 2.7vw, .95rem);
+            font-weight: 600;
             line-height: 1.45;
-            border: 1px solid rgba(255,255,255,.1);
-            border-top: 0;
-            border-radius: 0 0 14px 14px;
-            background: linear-gradient(100deg, #020617 0%, #07152e 55%, #13071f 100%);
-            box-shadow: 0 16px 38px rgba(0,0,0,.45), 0 0 24px rgba(79,70,229,.13);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 16px 38px rgba(0,0,0,.55), 0 0 24px rgba(239, 68, 68, 0.2);
         }
 
         @media (max-width: 640px) {
-            .game-search-panel { margin-bottom: 1.5rem; padding: .8rem; }
-            .game-search-label { align-items: flex-start; flex-direction: column; gap: .3rem; }
-            .source-guard-toast__message { padding: 13px 14px; }
+            .game-search-panel { margin-bottom: 1.75rem; padding: 1rem; border-radius: 1.2rem; }
+            .shortcut-hint { display: none; }
+            .card-media { height: 165px; }
         }
 
-        ::-webkit-scrollbar { width:8px; }
-        ::-webkit-scrollbar-track { background:#0f172a; }
-        ::-webkit-scrollbar-thumb { background:#4f46e5; border-radius:4px; }
-        ::-webkit-scrollbar-thumb:hover { background:#818cf8; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #060913; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
     </style>
 </head>
 <body>
@@ -226,27 +499,50 @@
             Thao tác xem mã nguồn hoặc công cụ nhà phát triển đã bị hạn chế trên trang này.
         </div>
     </div>
+
     <div class="bg-animated"></div>
+    <div class="bg-grid"></div>
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    <header class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/10 transition-all duration-300 shadow-lg">
-        <div class="container mx-auto px-4 py-4 relative flex justify-center items-center">
-            <a href="index.html" class="absolute left-4 bg-white/10 hover:bg-red-500/80 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 border border-white/10 hover:border-red-500 group">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+
+    <!-- Header -->
+    <header class="site-header fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3.5 relative flex justify-between items-center">
+            <a href="index.html" class="bg-white/5 hover:bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border border-white/10 hover:border-indigo-400 hover:shadow-lg hover:shadow-indigo-500/30 group" aria-label="Trang chủ">
+                <i class="fas fa-arrow-left group-hover:-translate-x-0.5 transition-transform"></i>
             </a>
-            <h1 class="text-2xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 drop-shadow-lg" data-i18n="page.heading">
-                DANH SÁCH GAME
-            </h1>
+
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline-flex w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_#34d399]"></span>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-wider text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400" data-i18n="page.heading">
+                    DANH SÁCH GAME
+                </h1>
+            </div>
+
+            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
+                <i class="fas fa-gamepad"></i>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-24 mt-8">
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 pt-24 pb-16 mt-4">
 
+        <!-- Search & Filter Panel -->
         <section class="game-search-panel" aria-labelledby="gameSearchLabel">
             <div class="game-search-label">
-                <label id="gameSearchLabel" for="gameSearch" data-i18n="search.label">Tìm kiếm game</label>
-                <span class="game-search-count"><strong id="visibleGameCount">20</strong>/<span id="totalGameCount">20</span> <span data-i18n="search.results">game</span></span>
+                <label id="gameSearchLabel" for="gameSearch" class="flex items-center gap-2">
+                    <i class="fas fa-compass text-indigo-400"></i>
+                    <span data-i18n="search.label">Tìm kiếm game</span>
+                </label>
+                <span class="game-search-count">
+                    <strong id="visibleGameCount" class="text-white">18</strong>
+                    <span class="opacity-60">/</span>
+                    <span id="totalGameCount">18</span>
+                    <span data-i18n="search.results">game</span>
+                </span>
             </div>
+
             <div class="game-search-box">
                 <i class="fas fa-search" aria-hidden="true"></i>
                 <input
@@ -259,284 +555,358 @@
                     data-i18n-placeholder="search.placeholder"
                     placeholder="Nhập tên game hoặc từ khóa..."
                 >
+                <span class="shortcut-hint" title="Nhấn / để tìm nhanh">/</span>
                 <button id="clearGameSearch" class="game-search-clear" type="button" data-i18n-aria-label="search.clear" aria-label="Xóa nội dung tìm kiếm">
                     <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
             </div>
+
+            <!-- Category Filter Pills -->
+            <div class="category-tabs" role="tablist" aria-label="Phân loại game">
+                <button type="button" class="cat-btn active" data-category="all">
+                    <i class="fas fa-border-all"></i>
+                    <span data-i18n="cat.all">Tất cả</span>
+                </button>
+                <button type="button" class="cat-btn" data-category="party">
+                    <i class="fas fa-dice"></i>
+                    <span data-i18n="cat.party">May rủi & Tiệc tùng</span>
+                </button>
+                <button type="button" class="cat-btn" data-category="brain">
+                    <i class="fas fa-brain"></i>
+                    <span data-i18n="cat.brain">Trí tuệ & Giải đố</span>
+                </button>
+                <button type="button" class="cat-btn" data-category="action">
+                    <i class="fas fa-bolt"></i>
+                    <span data-i18n="cat.action">Phản xạ & Đối kháng</span>
+                </button>
+            </div>
         </section>
 
+        <!-- Empty State -->
         <div id="gameNoResults" class="game-no-results" role="status" aria-live="polite">
             <i class="fas fa-gamepad" aria-hidden="true"></i>
-            <span data-i18n="search.empty">Không tìm thấy game phù hợp.</span>
+            <p class="text-base font-medium" data-i18n="search.empty">Không tìm thấy game phù hợp.</p>
         </div>
 
-        <div id="gameGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <!-- Game Cards Grid -->
+        <div id="gameGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-7">
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden group h-48">
-                    <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Xúc Xắc" class="w-full h-full object-cover" decoding="async" fetchpriority="high">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <i class="fas fa-gamepad text-3xl text-white"></i>
-                    </div>
+            <!-- 01. Xúc Xắc -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#01</span>
+                    <img src="dice-dices-vector-image-logo-260nw-2514727833.webp" alt="Xúc Xắc" decoding="async" fetchpriority="high">
+                    <div class="card-hover-icon"><span><i class="fas fa-dice"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.dice.title">Xúc Xắc</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow line-clamp-3" data-i18n="game.dice.desc">Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
-                    <div class="text-center mt-auto">
-                        <a href="xucxac.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.dice.title">Xúc Xắc</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.dice.desc">Trò chơi may rủi đầy kịch tính. Nơi người chơi chờ đợi kết quả bất ngờ.</p>
+                    <div class="mt-auto">
+                        <a href="xucxac.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="hinhquayten.png" alt="Quay Tên" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 02. Quay Tên -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#02</span>
+                    <img src="hinhquayten.png" alt="Quay Tên" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-dharmachakra"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.spin.title">Quay Tên</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.spin.desc">Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
-                    <div class="text-center mt-auto">
-                        <a href="quayten.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.spin.title">Quay Tên</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.spin.desc">Trò chơi may rủi thú vị. Gây phấn khích cho mọi người tham gia!</p>
+                    <div class="mt-auto">
+                        <a href="quayten.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="screenshot_1739700866.png" alt="Đua Xe Ngẫu Nhiên" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 03. Đua Xe Ngẫu Nhiên -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#03</span>
+                    <img src="screenshot_1739700866.png" alt="Đua Xe Ngẫu Nhiên" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-flag-checkered"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.race.title">Đua Xe Ngẫu Nhiên</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.race.desc">Game đua số mang đến trải nghiệm gay cấn và thú vị!</p>
-                    <div class="text-center mt-auto">
-                        <a href="dua.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.race.title">Đua Xe Ngẫu Nhiên</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.race.desc">Game đua số mang đến trải nghiệm gay cấn và thú vị!</p>
+                    <div class="mt-auto">
+                        <a href="dua.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="ttnthcp.jpg" alt="Thật Hay Thách" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 04. Thật Hay Thách -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#04</span>
+                    <img src="ttnthcp.jpg" alt="Thật Hay Thách" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-fire"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.tod.title">Thật Hay Thách</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.tod.desc">Thử thách, nói thật hay chịu phạt ngẫu nhiên cùng bạn bè.</p>
-                    <div class="text-center mt-auto">
-                        <a href="tthcp.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.tod.title">Thật Hay Thách</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.tod.desc">Thử thách, nói thật hay chịu phạt ngẫu nhiên cùng bạn bè.</p>
+                    <div class="mt-auto">
+                        <a href="tthcp.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="thi-dau-co-caro.jpg" alt="Cờ Caro" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 05. Cờ Caro -->
+            <div class="game-card flex flex-col h-full" data-category="action">
+                <div class="card-media">
+                    <span class="card-badge">#05</span>
+                    <img src="thi-dau-co-caro.jpg" alt="Cờ Caro" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-chess-board"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.caro.title">Cờ Caro</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.caro.desc">Hãy vừa tấn công để tạo chuỗi chiến thắng, vừa phòng thủ để ngăn chặn đối thủ.</p>
-                    <div class="text-center mt-auto">
-                        <a href="caro.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.caro.title">Cờ Caro</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.caro.desc">Hãy vừa tấn công để tạo chuỗi chiến thắng, vừa phòng thủ để ngăn chặn đối thủ.</p>
+                    <div class="mt-auto">
+                        <a href="caro.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="timkiemqua3so.png" alt="Tìm 3 Số Phép Tính" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 06. Tìm 3 Số Phép Tính -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#06</span>
+                    <img src="timkiemqua3so.png" alt="Tìm 3 Số Phép Tính" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-calculator"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.math.title">Tìm 3 Số Phép Tính</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.math.desc">Rèn luyện tư duy logic và tính toán nhanh.</p>
-                    <div class="text-center mt-auto">
-                        <a href="timketqua3so.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.math.title">Tìm 3 Số Phép Tính</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.math.desc">Rèn luyện tư duy logic và tính toán nhanh.</p>
+                    <div class="mt-auto">
+                        <a href="timketqua3so.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="solitaire-classic.jpg" alt="Đánh Bài" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 07. Đánh Bài -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#07</span>
+                    <img src="solitaire-classic.jpg" alt="Đánh Bài" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-diamond"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.cards.title">Đánh Bài</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.cards.desc">Sử dụng bộ bài Tây 52 lá để thử vận may và chiến thuật.</p>
-                    <div class="text-center mt-auto">
-                        <a href="danhbai.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.cards.title">Đánh Bài</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.cards.desc">Sử dụng bộ bài Tây 52 lá để thử vận may và chiến thuật.</p>
+                    <div class="mt-auto">
+                        <a href="danhbai.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="taixiu.png" alt="Tài Xỉu" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 08. Tài Xỉu -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#08</span>
+                    <img src="taixiu.png" alt="Tài Xỉu" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-dice-three"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.taixiu.title">Tài Xỉu</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.taixiu.desc">Trò chơi dự đoán kết quả xúc xắc kinh điển.</p>
-                    <div class="text-center mt-auto">
-                        <a href="taixiu.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.taixiu.title">Tài Xỉu</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.taixiu.desc">Trò chơi dự đoán kết quả xúc xắc kinh điển.</p>
+                    <div class="mt-auto">
+                        <a href="taixiu.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="dovui.jpg" alt="Đố Vui" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 09. Đố Vui -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#09</span>
+                    <img src="dovui.jpg" alt="Đố Vui" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-lightbulb"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.quiz.title">Đố Vui</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.quiz.desc">Rèn luyện tư duy logic, suy luận qua các câu hỏi thú vị.</p>
-                    <div class="text-center mt-auto">
-                        <a href="dovui.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.quiz.title">Đố Vui</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.quiz.desc">Rèn luyện tư duy logic, suy luận qua các câu hỏi thú vị.</p>
+                    <div class="mt-auto">
+                        <a href="dovui.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="mecung.jpg" alt="Mê Cung" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 10. Mê Cung -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#10</span>
+                    <img src="mecung.jpg" alt="Mê Cung" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-route"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.maze.title">Mê Cung</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.maze.desc">Tìm lối thoát khỏi mê cung phức tạp.</p>
-                    <div class="text-center mt-auto">
-                        <a href="mecung.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.maze.title">Mê Cung</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.maze.desc">Tìm lối thoát khỏi mê cung phức tạp.</p>
+                    <div class="mt-auto">
+                        <a href="mecung.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="MemoryCardGame1.jpg" alt="Memory Card" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 11. Memory Card -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#11</span>
+                    <img src="MemoryCardGame1.jpg" alt="Memory Card" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-clone"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.memory.title">Memory Card</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.memory.desc">Rèn luyện trí nhớ bằng cách tìm các cặp thẻ giống nhau.</p>
-                    <div class="text-center mt-auto">
-                        <a href="cardgame.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.memory.title">Memory Card</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.memory.desc">Rèn luyện trí nhớ bằng cách tìm các cặp thẻ giống nhau.</p>
+                    <div class="mt-auto">
+                        <a href="cardgame.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="dapchuota.png" alt="Đập Chuột" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 12. Đập Chuột -->
+            <div class="game-card flex flex-col h-full" data-category="action">
+                <div class="card-media">
+                    <span class="card-badge">#12</span>
+                    <img src="dapchuota.png" alt="Đập Chuột" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-gavel"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.mole.title">Đập Chuột</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.mole.desc">Thử thách phản xạ nhanh tay lẹ mắt.</p>
-                    <div class="text-center mt-auto">
-                        <a href="dapchuot.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.mole.title">Đập Chuột</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.mole.desc">Thử thách phản xạ nhanh tay lẹ mắt.</p>
+                    <div class="mt-auto">
+                        <a href="dapchuot.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="keobuabao.png" alt="Oẳn Tù Tì" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 13. Oẳn Tù Tì -->
+            <div class="game-card flex flex-col h-full" data-category="action">
+                <div class="card-media">
+                    <span class="card-badge">#13</span>
+                    <img src="keobuabao.png" alt="Oẳn Tù Tì" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-hand-scissors"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.rps.title">Oẳn Tù Tì</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.rps.desc">Trò chơi đối kháng cổ điển, đơn giản và vui nhộn.</p>
-                    <div class="text-center mt-auto">
-                        <a href="keobuabao.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.rps.title">Oẳn Tù Tì</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.rps.desc">Trò chơi đối kháng cổ điển, đơn giản và vui nhộn.</p>
+                    <div class="mt-auto">
+                        <a href="keobuabao.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="doanso.png" alt="Đoán Số" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 14. Đoán Số -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#14</span>
+                    <img src="doanso.png" alt="Đoán Số" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-hashtag"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.guess.title">Đoán Số</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.guess.desc">Cố gắng đoán đúng số bí mật máy chọn.</p>
-                    <div class="text-center mt-auto">
-                        <a href="doanso.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.guess.title">Đoán Số</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.guess.desc">Cố gắng đoán đúng số bí mật máy chọn.</p>
+                    <div class="mt-auto">
+                        <a href="doanso.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="trinhomausac.png" alt="Trí Nhớ Màu Sắc" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 15. Trí Nhớ Màu Sắc -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#15</span>
+                    <img src="trinhomausac.png" alt="Trí Nhớ Màu Sắc" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-palette"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.color.title">Trí Nhớ Màu Sắc</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.color.desc">Cải thiện trí nhớ ngắn hạn và sự tập trung.</p>
-                    <div class="text-center mt-auto">
-                        <a href="trinhomausac.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.color.title">Trí Nhớ Màu Sắc</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.color.desc">Cải thiện trí nhớ ngắn hạn và sự tập trung.</p>
+                    <div class="mt-auto">
+                        <a href="trinhomausac.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="nhamgiay.png" alt="Nhẩm Giây" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 16. Nhẩm Giây -->
+            <div class="game-card flex flex-col h-full" data-category="action">
+                <div class="card-media">
+                    <span class="card-badge">#16</span>
+                    <img src="nhamgiay.png" alt="Nhẩm Giây" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-stopwatch"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.timer.title">Nhẩm Giây</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.timer.desc">Rèn luyện khả năng cảm nhận và ước lượng thời gian.</p>
-                    <div class="text-center mt-auto">
-                        <a href="nhamgiay.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.timer.title">Nhẩm Giây</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.timer.desc">Rèn luyện khả năng cảm nhận và ước lượng thời gian.</p>
+                    <div class="mt-auto">
+                        <a href="nhamgiay.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="thamtumk.png" alt="Thám Tử Mật Khẩu" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 17. Thám Tử Mật Khẩu -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#17</span>
+                    <img src="thamtumk.png" alt="Thám Tử Mật Khẩu" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-user-secret"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.detective.title">Thám Tử Mật Khẩu</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.detective.desc">Vào vai thám tử phá giải mật khẩu bí ẩn.</p>
-                    <div class="text-center mt-auto">
-                        <a href="thamtumk.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.detective.title">Thám Tử Mật Khẩu</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.detective.desc">Vào vai thám tử phá giải mật khẩu bí ẩn.</p>
+                    <div class="mt-auto">
+                        <a href="thamtumk.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden h-48">
-                    <img src="goboom.png" alt="Giải Mã Gỡ Bom" class="w-full h-full object-cover" loading="lazy" decoding="async">
+            <!-- 18. Giải Mã Gỡ Bom -->
+            <div class="game-card flex flex-col h-full" data-category="action">
+                <div class="card-media">
+                    <span class="card-badge">#18</span>
+                    <img src="goboom.png" alt="Giải Mã Gỡ Bom" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-bomb"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.bomb.title">Giải Mã Gỡ Bom</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.bomb.desc">Gỡ bom hẹn giờ trước khi nó phát nổ cực căng thẳng.</p>
-                    <div class="text-center mt-auto">
-                        <a href="goboom.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.bomb.title">Giải Mã Gỡ Bom</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.bomb.desc">Gỡ bom hẹn giờ trước khi nó phát nổ cực căng thẳng.</p>
+                    <div class="mt-auto">
+                        <a href="goboom.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden group h-48">
-                    <img src="duoihinhbatchu.png" alt="Đuổi Hình Bắt Chữ" class="w-full h-full object-cover" loading="lazy" decoding="async">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <i class="fas fa-gamepad text-3xl text-white"></i>
-                    </div>
+            <!-- 19. Đuổi Hình Bắt Chữ -->
+            <div class="game-card flex flex-col h-full" data-category="brain">
+                <div class="card-media">
+                    <span class="card-badge">#19</span>
+                    <img src="duoihinhbatchu.png" alt="Đuổi Hình Bắt Chữ" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-images"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.catchphrase.title">Đuổi Hình Bắt Chữ</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.catchphrase.desc">Nhìn hình, đoán từ khóa và chinh phục những câu đố thú vị.</p>
-                    <div class="text-center mt-auto">
-                        <a href="duoihinhbatchu.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.catchphrase.title">Đuổi Hình Bắt Chữ</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.catchphrase.desc">Nhìn hình, đoán từ khóa và chinh phục những câu đố thú vị.</p>
+                    <div class="mt-auto">
+                        <a href="duoihinhbatchu.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
 
-            <div class="game-card rounded-2xl overflow-hidden flex flex-col h-full">
-                <div class="relative overflow-hidden group h-48">
-                    <img src="vongquaymayman.png" alt="Vòng Quay May Mắn" class="w-full h-full object-cover" loading="lazy" decoding="async">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <i class="fas fa-gamepad text-3xl text-white"></i>
-                    </div>
+            <!-- 20. Vòng Quay May Mắn -->
+            <div class="game-card flex flex-col h-full" data-category="party">
+                <div class="card-media">
+                    <span class="card-badge">#20</span>
+                    <img src="vongquaymayman.png" alt="Vòng Quay May Mắn" loading="lazy" decoding="async">
+                    <div class="card-hover-icon"><span><i class="fas fa-gift"></i></span></div>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h2 class="text-xl font-bold text-white mb-2 text-center tracking-wide" data-i18n="game.luckywheel.title">Vòng Quay May Mắn</h2>
-                    <p class="text-gray-400 text-sm mb-6 text-center flex-grow" data-i18n="game.luckywheel.desc">Quay vòng quay để nhận kết quả ngẫu nhiên đầy bất ngờ.</p>
-                    <div class="text-center mt-auto">
-                        <a href="vongquaymayman.html" class="play-btn inline-block text-white px-8 py-2.5 rounded-full text-sm font-semibold tracking-wider" data-i18n="btn.play">CHƠI NGAY</a>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h2 class="text-lg font-bold text-white mb-1.5 tracking-wide" data-i18n="game.luckywheel.title">Vòng Quay May Mắn</h2>
+                    <p class="text-slate-400 text-sm mb-5 flex-grow leading-relaxed line-clamp-2" data-i18n="game.luckywheel.desc">Quay vòng quay để nhận kết quả ngẫu nhiên đầy bất ngờ.</p>
+                    <div class="mt-auto">
+                        <a href="vongquaymayman.html" class="play-btn" data-i18n="btn.play">CHƠI NGAY</a>
                     </div>
                 </div>
             </div>
@@ -544,24 +914,25 @@
         </div>
     </main>
 
-    <footer class="bg-slate-900 border-t border-white/10 text-white py-10 mt-12">
+    <!-- Footer -->
+    <footer class="bg-slate-950/80 backdrop-blur-md border-t border-white/10 text-white py-10 mt-12">
         <div class="container mx-auto px-4">
-            <div class="flex justify-center space-x-8 mb-6">
-                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1">
-                    <i class="fab fa-facebook-f text-xl"></i>
+            <div class="flex justify-center space-x-5 mb-6">
+                <a href="https://www.facebook.com/nguyenthanhsang70" target="_blank" rel="noopener noreferrer" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-blue-600 hover:border-blue-400 hover:text-white transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-facebook-f text-lg"></i>
                 </a>
-                <a href="https://www.instagram.com/ngth.sang70/" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-pink-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1">
-                    <i class="fab fa-instagram text-xl"></i>
+                <a href="https://www.instagram.com/ngth.sang70/" target="_blank" rel="noopener noreferrer" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-pink-600 hover:border-pink-400 hover:text-white transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-instagram text-lg"></i>
                 </a>
-                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-black hover:text-white hover:border hover:border-white transition-all duration-300 transform hover:-translate-y-1">
-                    <i class="fab fa-tiktok text-xl"></i>
+                <a href="https://www.tiktok.com/@thanh.sang70" target="_blank" rel="noopener noreferrer" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-slate-800 hover:border-white/60 hover:text-white transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fab fa-tiktok text-lg"></i>
                 </a>
             </div>
             <div class="text-center">
-                <p class="text-gray-400 text-sm mb-2">© 2026 <span class="text-purple-400 font-bold">Novaris</span></p>
-                <p class="text-gray-500 text-xs">
-                  <span data-i18n="footer.prefix">Thiết kế bởi</span>
-                  <a href="profile.html" class="text-indigo-400 hover:text-indigo-300 transition-colors" data-i18n="footer.author">Nguyễn Thanh Sang</a>.
+                <p class="text-slate-400 text-sm mb-1.5">© 2026 <span class="text-purple-400 font-bold tracking-wide">Novaris</span></p>
+                <p class="text-slate-500 text-xs">
+                    <span data-i18n="footer.prefix">Thiết kế bởi</span>
+                    <a href="profile.html" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors" data-i18n="footer.author">Nguyễn Thanh Sang</a>.
                 </p>
             </div>
         </div>
@@ -1093,8 +1464,6 @@
       },
     };
 
-
-
     const UI_TRANSLATIONS = {
       vi: {
         'search.label':       'Tìm kiếm game',
@@ -1102,7 +1471,11 @@
         'search.results':     'game',
         'search.clear':       'Xóa nội dung tìm kiếm',
         'search.empty':       'Không tìm thấy game phù hợp.',
-        'security.notice':    'Thao tác xem mã nguồn hoặc công cụ nhà phát triển đã bị hạn chế trên trang này.'
+        'security.notice':    'Thao tác xem mã nguồn hoặc công cụ nhà phát triển đã bị hạn chế trên trang này.',
+        'cat.all':            'Tất cả',
+        'cat.party':          'May rủi & Tiệc tùng',
+        'cat.brain':          'Trí tuệ & Giải đố',
+        'cat.action':         'Phản xạ & Đối kháng'
       },
       en: {
         'search.label':       'Search games',
@@ -1110,7 +1483,11 @@
         'search.results':     'games',
         'search.clear':       'Clear search',
         'search.empty':       'No matching games were found.',
-        'security.notice':    'Viewing source code or developer tools has been restricted on this page.'
+        'security.notice':    'Viewing source code or developer tools has been restricted on this page.',
+        'cat.all':            'All Games',
+        'cat.party':          'Luck & Party',
+        'cat.brain':          'Brain & Puzzle',
+        'cat.action':         'Reflex & Versus'
       },
       ja: {
         'search.label':       'ゲームを検索',
@@ -1118,7 +1495,11 @@
         'search.results':     'ゲーム',
         'search.clear':       '検索をクリア',
         'search.empty':       '一致するゲームが見つかりません。',
-        'security.notice':    'このページではソース表示または開発者ツールの操作が制限されています。'
+        'security.notice':    'このページではソース表示または開発者ツールの操作が制限されています。',
+        'cat.all':            'すべて',
+        'cat.party':          '運試し・パーティー',
+        'cat.brain':          '頭脳・パズル',
+        'cat.action':         '反射神経・対戦'
       },
       zh: {
         'search.label':       '搜索游戏',
@@ -1126,7 +1507,11 @@
         'search.results':     '个游戏',
         'search.clear':       '清除搜索',
         'search.empty':       '未找到匹配的游戏。',
-        'security.notice':    '此页面已限制查看源代码或使用开发者工具。'
+        'security.notice':    '此页面已限制查看源代码或使用开发者工具。',
+        'cat.all':            '全部',
+        'cat.party':          '运气与派对',
+        'cat.brain':          '益智与解谜',
+        'cat.action':         '反应与对战'
       },
       ko: {
         'search.label':       '게임 검색',
@@ -1134,7 +1519,11 @@
         'search.results':     '게임',
         'search.clear':       '검색 지우기',
         'search.empty':       '일치하는 게임을 찾을 수 없습니다.',
-        'security.notice':    '이 페이지에서는 소스 보기 또는 개발자 도구 사용이 제한되어 있습니다.'
+        'security.notice':    '이 페이지에서는 소스 보기 또는 개발자 도구 사용이 제한되어 있습니다.',
+        'cat.all':            '전체',
+        'cat.party':          '운 & 파티',
+        'cat.brain':          '두뇌 & 퍼즐',
+        'cat.action':         '순발력 & 대결'
       },
       th: {
         'search.label':       'ค้นหาเกม',
@@ -1142,7 +1531,11 @@
         'search.results':     'เกม',
         'search.clear':       'ล้างการค้นหา',
         'search.empty':       'ไม่พบเกมที่ตรงกับการค้นหา',
-        'security.notice':    'การดูซอร์สโค้ดหรือใช้เครื่องมือนักพัฒนาถูกจำกัดบนหน้านี้'
+        'security.notice':    'การดูซอร์สโค้ดหรือใช้เครื่องมือนักพัฒนาถูกจำกัดบนหน้านี้',
+        'cat.all':            'ทั้งหมด',
+        'cat.party':          'เสี่ยงโชค & ปาร์ตี้',
+        'cat.brain':          'ฝึกสมอง & ปริศนา',
+        'cat.action':         'ความไว & ดวลกัน'
       },
       fr: {
         'search.label':       'Rechercher un jeu',
@@ -1150,7 +1543,11 @@
         'search.results':     'jeux',
         'search.clear':       'Effacer la recherche',
         'search.empty':       'Aucun jeu correspondant n’a été trouvé.',
-        'security.notice':    'L’affichage du code source ou l’accès aux outils de développement est limité sur cette page.'
+        'security.notice':    'L’affichage du code source ou l’accès aux outils de développement est limité sur cette page.',
+        'cat.all':            'Tous',
+        'cat.party':          'Chance & Soirée',
+        'cat.brain':          'Logique & Puzzle',
+        'cat.action':         'Réflexe & Duel'
       },
       de: {
         'search.label':       'Spiele suchen',
@@ -1158,7 +1555,11 @@
         'search.results':     'Spiele',
         'search.clear':       'Suche löschen',
         'search.empty':       'Keine passenden Spiele gefunden.',
-        'security.notice':    'Das Anzeigen des Quellcodes oder der Entwicklertools ist auf dieser Seite eingeschränkt.'
+        'security.notice':    'Das Anzeigen des Quellcodes oder der Entwicklertools ist auf dieser Seite eingeschränkt.',
+        'cat.all':            'Alle',
+        'cat.party':          'Glück & Party',
+        'cat.brain':          'Denken & Rätsel',
+        'cat.action':         'Reflexe & Duell'
       },
       es: {
         'search.label':       'Buscar juegos',
@@ -1166,7 +1567,11 @@
         'search.results':     'juegos',
         'search.clear':       'Borrar búsqueda',
         'search.empty':       'No se encontraron juegos coincidentes.',
-        'security.notice':    'La visualización del código fuente o el uso de herramientas de desarrollo está restringido en esta página.'
+        'security.notice':    'La visualización del código fuente o el uso de herramientas de desarrollo está restringido en esta página.',
+        'cat.all':            'Todos',
+        'cat.party':          'Azar y Fiesta',
+        'cat.brain':          'Ingenio y Puzles',
+        'cat.action':         'Reflejos y Duelo'
       },
       ru: {
         'search.label':       'Поиск игр',
@@ -1174,7 +1579,11 @@
         'search.results':     'игр',
         'search.clear':       'Очистить поиск',
         'search.empty':       'Подходящие игры не найдены.',
-        'security.notice':    'Просмотр исходного кода и использование инструментов разработчика на этой странице ограничены.'
+        'security.notice':    'Просмотр исходного кода и использование инструментов разработчика на этой странице ограничены.',
+        'cat.all':            'Все',
+        'cat.party':          'Удача и Вечеринка',
+        'cat.brain':          'Логика и Головоломки',
+        'cat.action':         'Реакция и Дуэль'
       },
       ar: {
         'search.label':       'البحث عن لعبة',
@@ -1182,7 +1591,11 @@
         'search.results':     'ألعاب',
         'search.clear':       'مسح البحث',
         'search.empty':       'لم يتم العثور على ألعاب مطابقة.',
-        'security.notice':    'تم تقييد عرض مصدر الصفحة أو استخدام أدوات المطور في هذه الصفحة.'
+        'security.notice':    'تم تقييد عرض مصدر الصفحة أو استخدام أدوات المطور في هذه الصفحة.',
+        'cat.all':            'الكل',
+        'cat.party':          'حظ وحفلات',
+        'cat.brain':          'ذكاء وألغاز',
+        'cat.action':         'سرعة ومواجهة'
       }
     };
 
@@ -1193,10 +1606,6 @@
 
     /* ================================================================
        SHARED LANGUAGE SYSTEM — chỉ nhận ngôn ngữ từ trang chủ
-       - Trang chủ lưu lựa chọn vào localStorage với khóa: siteLang
-       - Trang này KHÔNG có bộ chọn ngôn ngữ và KHÔNG ghi đè siteLang
-       - Hỗ trợ cả mã phổ biến (vi, en, ja...) và mã quốc gia (country-DE...)
-       - Dùng chung bộ nhớ đệm dịch: ntsTranslationCache
        ================================================================ */
     const LANGUAGE_STORAGE_KEY = 'siteLang';
     const LEGACY_LANGUAGE_STORAGE_KEY = 'nts-lang';
@@ -1207,7 +1616,6 @@
     const API_FAILURE_THRESHOLD = 3;
     const API_RETRY_DELAY_MS = 30000;
 
-    /* Được lấy trực tiếp từ cấu hình ngôn ngữ của trang chủ. */
     const POPULAR_LANGUAGE_TARGETS = Object.freeze({
       "vi":["vi",""], "zh":["zh-CN",""], "zh-TW":["zh-TW",""],
       "en":["en",""], "fr":["fr",""], "ko":["ko",""],
@@ -1216,7 +1624,6 @@
       "es":["es",""], "lo":["lo",""]
     });
 
-    /* Khóa country-XX của trang chủ được rút gọn thành XX ở đây. */
     const COUNTRY_LANGUAGE_TARGETS = Object.freeze({
       "AF":["fa","en"], "EG":["ar","en"], "AL":["sq","en"], "DZ":["ar","en"], "AD":["ca","en"],
       "AO":["pt","en"], "AI":["en",""], "AG":["en",""], "AR":["es","en"], "AM":["hy","en"],
@@ -1284,7 +1691,6 @@
       ar: 'ar'
     });
 
-    /* Bản hiển thị tức thời trong lúc chờ API cho các ngôn ngữ chưa có sẵn. */
     const IMMEDIATE_API_FALLBACK_MAP = Object.freeze({
       'zh-TW': 'zh',
       hi: 'en',
@@ -1414,11 +1820,9 @@
     }
 
     function getSavedLanguage() {
-      /* Luôn ưu tiên đúng lựa chọn mà trang chủ đã lưu. */
       const homeLanguage = safeStorage.get(LANGUAGE_STORAGE_KEY);
       if (homeLanguage) return normalizeLanguageSelection(homeLanguage);
 
-      /* Chỉ dùng khóa cũ khi siteLang chưa tồn tại; trang này không ghi ngược lại. */
       const legacyLanguage = safeStorage.get(LEGACY_LANGUAGE_STORAGE_KEY);
       return legacyLanguage ? normalizeLanguageSelection(legacyLanguage) : 'vi';
     }
@@ -1620,7 +2024,6 @@
       document.documentElement.dataset.languageApi = config.api;
       document.documentElement.setAttribute('aria-busy', 'true');
 
-      /* Hiển thị tức thì bằng bản dịch có sẵn/cache, sau đó mới gọi API nếu cần. */
       applyDictionary(getImmediateDictionary(config.selection));
       await translateMissingLanguage(config.selection, runId);
 
@@ -1637,17 +2040,14 @@
       if (savedLanguage !== currentLanguageSelection) applyLanguage(savedLanguage);
     }
 
-    /* Chỉ cho phép đọc/đồng bộ; trang game không cung cấp hàm đổi ngôn ngữ. */
     window.NTSLanguage = Object.freeze({
       getCurrentSelection: () => currentLanguageSelection,
       getCurrentLanguage: () => getLanguageConfig(currentLanguageSelection).api,
       sync: syncLanguageFromHome
     });
 
-    /* Lần đầu mở trang: đọc đúng siteLang mà trang chủ vừa lưu. */
     applyLanguage(getSavedLanguage());
 
-    /* Đồng bộ nếu trang chủ được đổi ngôn ngữ ở một tab khác. */
     window.addEventListener('storage', function handleStorageChange(event) {
       if (event.key === LANGUAGE_STORAGE_KEY) {
         applyLanguage(event.newValue || 'vi');
@@ -1664,7 +2064,6 @@
       }
     });
 
-    /* Đồng bộ khi quay lại bằng Back/Forward, chuyển tab hoặc lấy lại focus. */
     window.addEventListener('pageshow', syncLanguageFromHome);
     window.addEventListener('focus', syncLanguageFromHome);
     document.addEventListener('visibilitychange', function handleVisibilityChange() {
@@ -1672,7 +2071,7 @@
     });
 
     /* ================================================================
-       GAME SEARCH + SOURCE VIEW DETERRENCE
+       GAME SEARCH + CATEGORY FILTER + SOURCE VIEW DETERRENCE
        ================================================================ */
     document.addEventListener('DOMContentLoaded', function initializeGameTools() {
       const searchInput = document.getElementById('gameSearch');
@@ -1682,6 +2081,8 @@
       const totalCount = document.getElementById('totalGameCount');
       const sourceGuardToast = document.getElementById('sourceGuardToast');
       const gameCards = Array.from(document.querySelectorAll('#gameGrid .game-card'));
+      const categoryButtons = Array.from(document.querySelectorAll('.cat-btn'));
+      let currentCategory = 'all';
       let toastTimer = 0;
 
       function normalizeSearchText(value) {
@@ -1702,8 +2103,12 @@
           const description = card.querySelector('p')?.textContent || '';
           const imageAlternative = card.querySelector('img')?.alt || '';
           const destination = card.querySelector('a[href]')?.getAttribute('href') || '';
+          const cardCategory = card.dataset.category || 'all';
+
           const searchableText = normalizeSearchText(`${title} ${description} ${imageAlternative} ${destination}`);
-          const shouldShow = !query || searchableText.includes(query);
+          const matchesQuery = !query || searchableText.includes(query);
+          const matchesCategory = currentCategory === 'all' || cardCategory === currentCategory;
+          const shouldShow = matchesQuery && matchesCategory;
 
           card.classList.toggle('search-hidden', !shouldShow);
           if (shouldShow) visibleGames += 1;
@@ -1714,6 +2119,15 @@
         if (noResults) noResults.classList.toggle('is-visible', visibleGames === 0);
         if (clearButton) clearButton.classList.toggle('is-visible', Boolean(searchInput && searchInput.value));
       }
+
+      categoryButtons.forEach(function bindCategoryButton(btn) {
+        btn.addEventListener('click', function handleCategoryClick() {
+          categoryButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCategory = btn.dataset.category || 'all';
+          filterGames();
+        });
+      });
 
       function showSourceGuardNotice() {
         if (!sourceGuardToast) return;
@@ -1743,6 +2157,14 @@
       document.addEventListener('keydown', function blockCommonSourceShortcuts(event) {
         const key = String(event.key || '').toLowerCase();
         const ctrlOrMeta = event.ctrlKey || event.metaKey;
+
+        // Phím tắt "/" để focus nhanh vào thanh tìm kiếm
+        if (key === '/' && !ctrlOrMeta && document.activeElement !== searchInput) {
+          event.preventDefault();
+          searchInput?.focus();
+          return;
+        }
+
         const windowsDevToolsShortcut = event.ctrlKey && event.shiftKey && ['i', 'j', 'c', 'k'].includes(key);
         const macDevToolsShortcut = event.metaKey && event.altKey && ['i', 'j', 'c', 'u'].includes(key);
         const viewSourceShortcut = ctrlOrMeta && key === 'u';
@@ -1758,7 +2180,6 @@
       window.addEventListener('nts:languagechange', filterGames);
       filterGames();
     });
-
     </script>
 </body>
 </html>
