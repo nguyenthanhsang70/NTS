@@ -2,8 +2,12 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#140b03">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Chúc Mừng Sinh Nhật</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js r128 -->
@@ -27,11 +31,29 @@
             padding: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             overflow: hidden;
+            position: fixed;
+            inset: 0;
             background: radial-gradient(ellipse at 50% 42%, #2d1c0b 0%, #140b03 48%, #050301 100%);
             font-family: 'Montserrat', sans-serif;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+
+        /* Hide ugly default browser scrollbars while keeping smooth scroll if needed on tiny screens */
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
 
         /* 3D Embossed Metallic Gold Title */
@@ -70,6 +92,7 @@
             transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
+            touch-action: manipulation;
         }
 
         .ruby-gold-btn::after {
@@ -88,7 +111,7 @@
         }
 
         .ruby-gold-btn:hover {
-            transform: translateY(-2px) scale(1.03);
+            transform: translateY(-2px) scale(1.02);
             border-color: #FFF2B2;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75),
                         0 0 28px rgba(255, 210, 90, 0.75),
@@ -101,13 +124,34 @@
 
         /* Luxury Dark Gold Glass Panel */
         .luxury-panel {
-            background: linear-gradient(145deg, rgba(26, 16, 6, 0.9) 0%, rgba(12, 7, 2, 0.94) 100%);
+            background: linear-gradient(145deg, rgba(26, 16, 6, 0.94) 0%, rgba(12, 7, 2, 0.97) 100%);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1.5px solid rgba(243, 198, 95, 0.55);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85),
                         0 0 30px rgba(212, 175, 55, 0.25),
                         inset 0 0 20px rgba(243, 198, 95, 0.08);
+        }
+
+        /* Refined Input Fields inside Customize Modal (font-size 16px on mobile prevents iOS Safari auto-zoom) */
+        .luxury-input {
+            background: rgba(8, 4, 1, 0.75);
+            border: 1.5px solid rgba(243, 198, 95, 0.38);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65);
+            transition: all 0.2s ease;
+            user-select: text;
+            -webkit-user-select: text;
+            touch-action: manipulation;
+        }
+        @media (max-width: 640px) {
+            .luxury-input {
+                font-size: 16px !important;
+            }
+        }
+        .luxury-input:focus {
+            border-color: #F3C65F;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65), 0 0 12px rgba(243, 198, 95, 0.3);
+            outline: none;
         }
 
         #webgl-container {
@@ -117,6 +161,7 @@
             height: 100%;
             z-index: 1;
             cursor: grab;
+            touch-action: none;
         }
 
         #webgl-container:active {
@@ -132,6 +177,7 @@
             pointer-events: none;
         }
 
+        /* Safe-area padding for iOS notch / Dynamic Island & Android gesture bar */
         #ui-layer {
             position: absolute;
             inset: 0;
@@ -139,6 +185,18 @@
             height: 100%;
             z-index: 10;
             pointer-events: none;
+            padding-top: max(1rem, env(safe-area-inset-top));
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            padding-left: max(1rem, env(safe-area-inset-left));
+            padding-right: max(1rem, env(safe-area-inset-right));
+        }
+        @media (min-width: 640px) {
+            #ui-layer {
+                padding-top: max(1.75rem, env(safe-area-inset-top));
+                padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
+                padding-left: max(1.75rem, env(safe-area-inset-left));
+                padding-right: max(1.75rem, env(safe-area-inset-right));
+            }
         }
 
         .interactive {
@@ -189,8 +247,8 @@
     <!-- 2. 2D GOLDEN FOIL CONFETTI & FIREWORKS CANVAS -->
     <canvas id="fx-canvas"></canvas>
 
-    <!-- 3. UI LAYER MATCHING THE MOCKUP AESTHETIC -->
-    <div id="ui-layer" class="flex flex-col justify-between p-4 sm:p-7">
+    <!-- 3. UI LAYER MATCHING THE MOCKUP AESTHETIC (ADAPTIVE FOR ANDROID, IOS & PC) -->
+    <div id="ui-layer" class="flex flex-col justify-between">
 
         <!-- Top Navigation Row -->
         <div class="flex items-start justify-between w-full relative">
@@ -242,7 +300,7 @@
         </div>
 
         <!-- Bottom Row: Microphone Blow Meter + Bottom-Right Stacked Ruby-Gold Pill Buttons -->
-        <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full gap-4">
+        <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between w-full gap-3 sm:gap-4">
 
             <!-- Bottom-Left: Microphone Blow Meter (Only visible when mic is enabled) -->
             <div class="interactive flex flex-col items-center sm:items-start gap-2">
@@ -255,8 +313,8 @@
                 </div>
             </div>
 
-            <!-- Bottom-Right: Clean Stacked Pill Buttons -->
-            <div class="interactive flex flex-col items-stretch gap-2.5 w-64 sm:w-68">
+            <!-- Bottom-Right: Clean Stacked Pill Buttons (Centered on Mobile, Right-aligned on Desktop) -->
+            <div class="interactive flex flex-col items-stretch gap-2 sm:gap-2.5 w-full max-w-[260px] sm:w-68">
                 <button id="btn-blow-candle" class="ruby-gold-btn py-2.5 sm:py-3 px-6 rounded-full text-sm sm:text-base font-bold tracking-wide flex items-center justify-center gap-2.5">
                     <i id="icon-blow-candle" class="fas fa-wind text-amber-200"></i>
                     <span id="text-blow-candle">Thổi Nến Ước Nguyện</span>
@@ -270,168 +328,205 @@
         </div>
     </div>
 
-    <!-- 4. FLOATING 3D CARD DETAIL MODAL (Cream & Gold Filigree Card View) -->
+    <!-- 4. FLOATING 3D CARD DETAIL MODAL (Cream & Gold Filigree Card View - Polished Proportions) -->
     <div id="card-modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 interactive">
-        <div class="relative max-w-md w-full rounded-2xl p-1.5 bg-gradient-to-br from-[#FFF3B0] via-[#D4AF37] to-[#7A4E00] shadow-[0_0_60px_rgba(212,175,55,0.5)]">
+        <div class="relative max-w-[465px] w-full rounded-[24px] p-1.5 bg-gradient-to-br from-[#FFF3B0] via-[#D4AF37] to-[#7A4E00] shadow-[0_20px_70px_rgba(0,0,0,0.85),0_0_55px_rgba(212,175,55,0.45)]">
             <!-- Cream Filigree Inner Card -->
-            <div class="bg-gradient-to-b from-[#FFFDF7] via-[#FDF5E2] to-[#F5E4C3] text-[#3B2308] rounded-xl p-6 sm:p-8 text-center relative border-2 border-[#C59B27]">
-                <button id="close-card-modal" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#3B2308]/10 hover:bg-[#3B2308]/20 flex items-center justify-center text-[#5A380E] transition">
-                    <i class="fas fa-times"></i>
+            <div class="bg-gradient-to-b from-[#FFFDF8] via-[#FDF5E2] to-[#F4E1BA] text-[#3B2308] rounded-[19px] px-5 py-6 sm:px-8 sm:py-8 text-center relative border-2 border-[#C59B27] shadow-inner">
+                <!-- Subtle Inner Filigree Frame -->
+                <div class="pointer-events-none absolute inset-2.5 rounded-[13px] border border-[#C59B27]/40"></div>
+
+                <!-- Close Button -->
+                <button id="close-card-modal" class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-[#3B2308]/10 hover:bg-[#3B2308]/20 flex items-center justify-center text-[#5A380E] transition" title="Đóng thiệp">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
 
-                <!-- Ornate Corner Flourishes -->
-                <div class="text-amber-700/70 text-xs tracking-[0.35em] uppercase font-bold mb-1">
+                <!-- Ornate Top Subtitle -->
+                <div class="text-[#8B5A12] text-[10px] sm:text-xs tracking-[0.26em] uppercase font-bold mb-1.5">
                     ✦ Thiệp Chúc Mừng Hoàng Gia ✦
                 </div>
 
-                <h3 id="card-modal-heading" class="font-serif-luxury text-2xl sm:text-3xl font-extrabold text-[#7B4B0A] mb-1">
+                <!-- Main Heading -->
+                <h3 id="card-modal-heading" class="font-serif-luxury text-xl sm:text-[28px] leading-tight font-extrabold text-[#7B4B0A] tracking-wide mb-1.5">
                     CHÚC MỪNG SINH NHẬT
                 </h3>
 
-                <div id="card-modal-recipient" class="font-script text-2xl sm:text-3xl text-[#B81D24] font-bold mb-4">
-                    Gửi Nguyễn Minh Anh
+                <!-- Recipient Name (Dedicated Line) -->
+                <div id="card-modal-recipient" class="font-script text-3xl sm:text-[36px] leading-snug text-[#B81D24] font-bold px-2 break-words">
+                    Gửi Nguyễn Thanh Sang
                 </div>
 
-                <div class="w-32 h-[2px] bg-gradient-to-r from-transparent via-[#C59B27] to-transparent mx-auto mb-5"></div>
+                <!-- Subtitle Badge Pill -->
+                <div class="mt-1.5 mb-4 flex justify-center">
+                    <span id="card-modal-subtitle" class="inline-block px-4 py-0.5 rounded-full bg-[#C59B27]/18 border border-[#C59B27]/55 text-[#6E4206] font-serif-luxury italic font-semibold text-xs sm:text-sm">
+                        ✦ Tuổi Mới Đẳng Cấp Hoàng Gia ✦
+                    </span>
+                </div>
 
-                <p id="card-modal-message" class="font-serif-luxury italic text-base sm:text-lg text-[#4A2E0B] leading-relaxed mb-6 px-2">
+                <!-- Ornate Divider -->
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <div class="w-16 h-[1.5px] bg-gradient-to-r from-transparent to-[#C59B27]"></div>
+                    <span class="text-[#B88418] text-xs">❖</span>
+                    <div class="w-16 h-[1.5px] bg-gradient-to-l from-transparent to-[#C59B27]"></div>
+                </div>
+
+                <!-- Wish Message -->
+                <p id="card-modal-message" class="font-serif-luxury italic text-[15px] sm:text-[18px] text-[#4A2E0B] leading-relaxed mb-5 px-2">
                     "Chúc bạn tuổi mới luôn tràn đầy niềm vui, hạnh phúc viên mãn, sức khỏe dồi dào và tỏa sáng rực rỡ như ánh hào quang hoàng kim!"
                 </p>
 
-                <div class="text-right text-xs sm:text-sm font-semibold text-[#7B4B0A] italic mb-6 px-2">
+                <!-- Sender Signature -->
+                <div class="text-right text-xs sm:text-sm font-semibold text-[#7B4B0A] italic mb-5 sm:mb-6 px-2">
                     — Thân tặng từ: <span id="card-modal-sender" class="not-italic font-bold text-[#B81D24]">Những người yêu quý bạn</span>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-center gap-2.5">
-                    <button id="card-modal-celebrate" class="ruby-gold-btn w-full py-3 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2">
-                        <i class="fas fa-champagne-glasses text-amber-200"></i> Bắn Pháo Hoa Chúc Mừng
+                <!-- Symmetrical Single-Line Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-stretch">
+                    <button id="card-modal-celebrate" class="sm:col-span-7 ruby-gold-btn h-11 sm:h-12 px-4 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fas fa-champagne-glasses text-amber-200"></i>
+                        <span>Bắn Pháo Hoa Chúc Mừng</span>
                     </button>
-                    <button id="card-modal-relight" class="w-full sm:w-auto whitespace-nowrap px-5 py-3 rounded-full font-bold text-xs sm:text-sm bg-[#3B2308]/15 hover:bg-[#3B2308]/25 border border-[#C59B27] text-[#5A380E] flex items-center justify-center gap-2 transition">
-                        <i class="fas fa-fire text-amber-600"></i> Thắp Lại Nến ✨
+                    <button id="card-modal-relight" class="sm:col-span-5 h-11 sm:h-12 px-4 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap bg-[#3B2308]/12 hover:bg-[#3B2308]/22 border-2 border-[#C59B27] text-[#5A380E] flex items-center justify-center gap-1.5 transition shadow-sm">
+                        <i class="fas fa-fire text-amber-600"></i>
+                        <span>Thắp Lại Nến ✨</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 5. CUSTOMIZE WISH & RECIPIENT MODAL -->
-    <div id="customize-modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 interactive">
-        <div class="luxury-panel rounded-3xl max-w-lg w-full p-6 sm:p-8 relative max-h-[92vh] overflow-y-auto">
-            <button id="close-customize-modal" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-amber-200 transition">
+    <!-- 5. CUSTOMIZE WISH & RECIPIENT MODAL (Polished, Balanced & No Ugly White Scrollbar) -->
+    <div id="customize-modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 interactive">
+        <div class="luxury-panel no-scrollbar rounded-[26px] max-w-[540px] w-full p-5 sm:p-6 relative max-h-[94dvh] overflow-y-auto">
+            <!-- Close Button -->
+            <button id="close-customize-modal" class="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/40 flex items-center justify-center text-amber-200 transition" title="Đóng">
                 <i class="fas fa-times"></i>
             </button>
 
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300">
-                    <i class="fas fa-crown text-xl"></i>
+            <!-- Header with pr-12 so title never collides with Close Button -->
+            <div class="flex items-center gap-3.5 mb-4 pr-12">
+                <div class="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-amber-500/30 to-amber-700/20 border border-amber-400/60 flex items-center justify-center text-amber-300 shadow-inner">
+                    <i class="fas fa-crown text-lg"></i>
                 </div>
                 <div>
-                    <h2 class="font-serif-luxury text-xl sm:text-2xl font-bold text-amber-200">Tùy Chỉnh Tên & Thiệp Sinh Nhật VIP</h2>
-                    <p class="text-xs text-amber-100/70">Cập nhật thời gian thực lên Tiêu đề 3D, Bảng Tên Vàng trên Bánh Kem & 4 Thiệp 3D</p>
+                    <h2 class="font-serif-luxury text-lg sm:text-[21px] leading-snug font-bold text-amber-200">
+                        Tùy Chỉnh Tên &amp; Thiệp Sinh Nhật VIP
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-amber-100/70 mt-0.5">
+                        Cập nhật thời gian thực lên Bảng Tên Vàng trên Bánh Kem &amp; 4 Thiệp 3D
+                    </p>
                 </div>
             </div>
 
-            <form id="customize-form" class="space-y-3.5">
+            <form id="customize-form" class="space-y-3">
                 <!-- Quick Name / Title Suggestion Chips -->
                 <div>
-                    <label class="block text-[11px] uppercase tracking-wider text-amber-300/90 font-semibold mb-1.5">
+                    <label class="block text-[11px] uppercase tracking-wider text-amber-300/90 font-bold mb-1.5">
                         Chọn Nhanh Tên / Danh Hiệu Phổ Biến
                     </label>
                     <div class="flex flex-wrap gap-1.5">
-                        <button type="button" data-quick-name="VIP" data-quick-sub="Tuổi Mới Đẳng Cấp Hoàng Gia" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">👑 VIP</button>
-                        <button type="button" data-quick-name="Anh Trai VIP" data-quick-sub="Bản Lĩnh & Thành Đạt" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🦁 Anh Trai VIP</button>
-                        <button type="button" data-quick-name="Công Chúa" data-quick-sub="Tuổi Mới Ngọt Ngào & Tỏa Sáng" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">👸 Công Chúa</button>
-                        <button type="button" data-quick-name="Sếp Tổng" data-quick-sub="Sự Nghiệp Thăng Hoa Đỉnh Cao" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🥂 Sếp Tổng</button>
-                        <button type="button" data-quick-name="Bạn Thân" data-quick-sub="Tình Bạn Bền Vững Mãi Mãi" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">🎉 Bạn Thân</button>
-                        <button type="button" data-quick-name="Người Thương" data-quick-sub="Trọn Đời Hạnh Phúc Bên Nhau" class="modal-name-chip text-xs px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-200 transition">💖 Người Thương</button>
+                        <button type="button" data-quick-name="VIP" data-quick-sub="Tuổi Mới Đẳng Cấp Hoàng Gia" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">👑 VIP</button>
+                        <button type="button" data-quick-name="Anh Trai VIP" data-quick-sub="Bản Lĩnh & Thành Đạt" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">🦁 Anh Trai VIP</button>
+                        <button type="button" data-quick-name="Công Chúa" data-quick-sub="Tuổi Mới Ngọt Ngào & Tỏa Sáng" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">👸 Công Chúa</button>
+                        <button type="button" data-quick-name="Sếp Tổng" data-quick-sub="Sự Nghiệp Thăng Hoa Đỉnh Cao" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">🥂 Sếp Tổng</button>
+                        <button type="button" data-quick-name="Bạn Thân" data-quick-sub="Tình Bạn Bền Vững Mãi Mãi" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">🎉 Bạn Thân</button>
+                        <button type="button" data-quick-name="Người Thương" data-quick-sub="Trọn Đời Hạnh Phúc Bên Nhau" class="modal-name-chip text-xs px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/35 border border-amber-400/45 text-amber-100 font-medium transition">💖 Người Thương</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- 2-Column Aligned Inputs: Recipient Name & Subtitle -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
-                            Tên Người Nhận (Chữ 3D Vàng & Bánh Kem)
+                        <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
+                            Tên Người Nhận (Chữ 3D &amp; Bánh Kem)
                         </label>
-                        <input type="text" id="input-name" maxlength="28" placeholder="VD: Minh Anh, Tuấn Kiệt, VIP..."
-                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/50 text-amber-50 font-bold focus:outline-none focus:border-amber-300 text-sm">
+                        <input type="text" id="input-name" maxlength="28" placeholder="VD: Nguyễn Thanh Sang..."
+                            class="luxury-input w-full h-10 px-3.5 rounded-xl text-amber-50 font-bold text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                        <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
                             Dòng Phụ / Danh Hiệu / Tuổi Mới
                         </label>
-                        <input type="text" id="input-subtitle" maxlength="42" placeholder="VD: Tuổi 25 Rực Rỡ • Happy Birthday"
-                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                        <input type="text" id="input-subtitle" maxlength="42" placeholder="VD: Tuổi Mới Đẳng Cấp Hoàng Gia"
+                            class="luxury-input w-full h-10 px-3.5 rounded-xl text-amber-50 text-sm">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                <!-- 2-Column Aligned Inputs: Main Title & 3D Plaque Checkbox -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                        <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
                             Dòng Tiêu Đề Chính Phía Trên
                         </label>
                         <input type="text" id="input-title" maxlength="32" placeholder="CHÚC MỪNG SINH NHẬT"
-                            class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                            class="luxury-input w-full h-10 px-3.5 rounded-xl text-amber-50 text-sm">
                     </div>
-                    <div class="pt-4">
-                        <label class="flex items-center gap-2.5 cursor-pointer select-none px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-400/35 hover:bg-amber-500/20 transition">
-                            <input type="checkbox" id="input-show-plaque" checked class="w-4 h-4 accent-amber-400 rounded">
-                            <span class="text-xs font-semibold text-amber-200">Gắn Bảng Tên Vàng 3D Lên Bánh Kem</span>
+                    <div>
+                        <label class="flex items-center gap-2.5 cursor-pointer select-none h-10 px-3.5 rounded-xl bg-amber-500/12 border border-amber-400/40 hover:bg-amber-500/20 transition">
+                            <input type="checkbox" id="input-show-plaque" checked class="w-4 h-4 accent-amber-400 rounded shrink-0">
+                            <span class="text-xs font-semibold text-amber-200 leading-tight">Gắn Bảng Tên Vàng 3D Lên Bánh</span>
                         </label>
                     </div>
                 </div>
 
+                <!-- Royal Wish Presets -->
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                    <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
                         Mẫu Lời Chúc Hoàng Gia
                     </label>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" data-preset="0" class="preset-btn text-xs px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-200 transition">
-                            👑 Hoàng Gia & Thành Đạt
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" data-preset="0" class="preset-btn text-xs px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/45 text-amber-200 font-medium transition">
+                            👑 Hoàng Gia &amp; Thành Đạt
                         </button>
-                        <button type="button" data-preset="1" class="preset-btn text-xs px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-200 transition">
-                            💖 Ngọt Ngào & Hạnh Phúc
+                        <button type="button" data-preset="1" class="preset-btn text-xs px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/45 text-rose-200 font-medium transition">
+                            💖 Ngọt Ngào &amp; Hạnh Phúc
                         </button>
-                        <button type="button" data-preset="2" class="preset-btn text-xs px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-200 transition">
-                            🥂 Tài Lộc & Thăng Hoa
+                        <button type="button" data-preset="2" class="preset-btn text-xs px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/45 text-emerald-200 font-medium transition">
+                            🥂 Tài Lộc &amp; Thăng Hoa
                         </button>
                     </div>
                 </div>
 
+                <!-- Detailed Wish Textarea (Clean 3-row box without white scrollbar) -->
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                    <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
                         Lời Chúc Chi Tiết (Hiển thị trong Thiệp 3D)
                     </label>
-                    <textarea id="input-wish" rows="2" maxlength="280"
-                        class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm leading-relaxed"></textarea>
+                    <textarea id="input-wish" rows="3" maxlength="280"
+                        class="luxury-input no-scrollbar w-full px-3.5 py-2 rounded-xl text-amber-50 text-sm leading-relaxed resize-none"></textarea>
                 </div>
 
+                <!-- Sender Name -->
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-1">
+                    <label class="block text-[11px] uppercase tracking-wider text-amber-300 font-bold mb-1">
                         Người Gửi Lời Chúc
                     </label>
                     <input type="text" id="input-sender" maxlength="40" placeholder="VD: Gia đình & Những người bạn thân"
-                        class="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-amber-500/40 text-amber-50 focus:outline-none focus:border-amber-300 text-sm">
+                        class="luxury-input w-full h-10 px-3.5 rounded-xl text-amber-50 text-sm">
                 </div>
 
                 <!-- Option to Enable Real Microphone Blow -->
-                <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
-                    <div class="text-xs text-amber-100/90 pr-3">
+                <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/35 flex items-center justify-between gap-3">
+                    <div class="text-xs text-amber-100/90">
                         <div class="font-bold text-amber-300 flex items-center gap-1.5">
                             <i class="fas fa-microphone"></i> Thổi Nến Thật Qua Microphone
                         </div>
                         <div class="text-[11px] text-amber-200/70 mt-0.5">Cho phép thổi hơi trực tiếp vào điện thoại/laptop để tắt nến</div>
                     </div>
-                    <button type="button" id="modal-toggle-mic" class="px-3.5 py-2 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400 text-xs font-bold text-amber-200 whitespace-nowrap transition">
+                    <button type="button" id="modal-toggle-mic" class="px-3.5 py-2 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400 text-xs font-bold text-amber-200 whitespace-nowrap transition shrink-0">
                         Kích Hoạt Micro
                     </button>
                 </div>
 
-                <div class="pt-2 flex flex-wrap items-center justify-end gap-2.5">
-                    <button type="button" id="btn-share-link" class="px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-amber-400/40 text-xs sm:text-sm font-semibold text-amber-200 flex items-center gap-2 transition">
-                        <i class="fas fa-link"></i> Sao Chép Link Tặng Bạn Bè
+                <!-- Balanced Side-by-Side Action Buttons -->
+                <div class="pt-1.5 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-stretch">
+                    <button type="button" id="btn-share-link" class="sm:col-span-6 h-11 px-4 rounded-full bg-amber-500/12 hover:bg-amber-500/25 border border-amber-400/50 text-xs sm:text-sm font-semibold text-amber-200 whitespace-nowrap flex items-center justify-center gap-2 transition">
+                        <i class="fas fa-link text-amber-300"></i>
+                        <span>Sao Chép Link Tặng Bạn Bè</span>
                     </button>
-                    <button type="submit" class="ruby-gold-btn px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
-                        <i class="fas fa-check"></i> Lưu & Đồng Bộ 3D
+                    <button type="submit" class="sm:col-span-6 ruby-gold-btn h-11 px-5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2">
+                        <i class="fas fa-check"></i>
+                        <span>Lưu &amp; Đồng Bộ 3D</span>
                     </button>
                 </div>
             </form>
@@ -439,10 +534,10 @@
     </div>
 
     <!-- 6. TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-3">
-        <div class="luxury-panel px-5 py-2.5 rounded-full border border-amber-400 text-amber-200 text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-2xl">
-            <i class="fas fa-sparkles text-amber-400"></i>
-            <span id="toast-text">Thông báo!</span>
+    <div id="toast" class="fixed top-20 sm:top-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-3 w-max max-w-[92vw]">
+        <div class="luxury-panel px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-amber-400 text-amber-200 text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-2xl">
+            <i class="fas fa-sparkles text-amber-400 shrink-0"></i>
+            <span id="toast-text" class="truncate">Thông báo!</span>
         </div>
     </div>
 
@@ -474,6 +569,19 @@
             micActive: false,
             cameraPreset: 0 // 0: Mockup Front View, 1: Close-up Candles, 2: Wide Banquet
         };
+
+        // Helper: Format lowercase names into clean Title Case while preserving uppercase words like VIP
+        function formatDisplayRecipientName(rawName) {
+            const trimmed = (rawName || "VIP").trim();
+            if (!trimmed) return "VIP";
+            if (trimmed === trimmed.toLowerCase()) {
+                return trimmed
+                    .split(/\s+/)
+                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(' ');
+            }
+            return trimmed;
+        }
 
         function loadStateFromStorageAndURL() {
             // 1. Load saved preferences from localStorage first
@@ -522,13 +630,17 @@
 
         // Master real-time synchronization function across DOM Modals, 3D Cake Plaque, and 4 Floating 3D Cards
         function syncAllNameDisplays(rebuild3DTextures = true) {
-            const displayName = state.recipientName || "VIP";
+            const displayName = formatDisplayRecipientName(state.recipientName);
             const displayTitle = state.mainTitle || "CHÚC MỪNG SINH NHẬT";
-            const displaySub = state.subtitleText || "Tuổi Mới Rực Rỡ & Hạnh Phúc";
+            const displaySub = state.subtitleText || "Tuổi Mới Đẳng Cấp Hoàng Gia";
 
-            // 1. Greeting Card Modal
+            // 1. Greeting Card Modal (Cleanly separated Recipient & Subtitle Badge)
             document.getElementById('card-modal-heading').textContent = displayTitle;
-            document.getElementById('card-modal-recipient').textContent = `Gửi ${displayName} — ${displaySub}`;
+            document.getElementById('card-modal-recipient').textContent = `Gửi ${displayName}`;
+            const subBadge = document.getElementById('card-modal-subtitle');
+            if (subBadge) {
+                subBadge.textContent = `✦ ${displaySub} ✦`;
+            }
             document.getElementById('card-modal-message').textContent = `"${state.wishText}"`;
             document.getElementById('card-modal-sender').textContent = state.senderName;
 
@@ -547,7 +659,7 @@
 
         function generateShareableUrl() {
             const params = new URLSearchParams({
-                name: state.recipientName || "VIP",
+                name: formatDisplayRecipientName(state.recipientName),
                 sub: state.subtitleText || "",
                 title: state.mainTitle || "CHÚC MỪNG SINH NHẬT",
                 msg: state.wishText || "",
@@ -558,13 +670,26 @@
 
         function copyShareableLinkToClipboard() {
             const shareUrl = generateShareableUrl();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast(`🔗 Đã sao chép link chúc mừng sinh nhật "${formatDisplayRecipientName(state.recipientName)}"!`);
+                }).catch(() => fallbackCopyText(shareUrl));
+            } else {
+                fallbackCopyText(shareUrl);
+            }
+        }
+
+        function fallbackCopyText(text) {
             const temp = document.createElement('textarea');
-            temp.value = shareUrl;
+            temp.value = text;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
             document.body.appendChild(temp);
+            temp.focus();
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            showToast(`🔗 Đã sao chép link chúc mừng sinh nhật "${state.recipientName}"!`);
+            showToast(`🔗 Đã sao chép link chúc mừng sinh nhật "${formatDisplayRecipientName(state.recipientName)}"!`);
         }
 
         function showToast(msg) {
@@ -779,7 +904,7 @@
 
         const sound = new RoyalAudioEngine();
 
-        // Microphone Blow Detection
+        // Microphone Blow Detection (Compatible with Android Chrome, iOS Safari & Desktop)
         let micStream = null;
         let micAnalyser = null;
         let micDataArray = null;
@@ -797,7 +922,13 @@
             }
 
             try {
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
                 sound.ensureContext();
                 const source = sound.ctx.createMediaStreamSource(micStream);
                 micAnalyser = sound.ctx.createAnalyser();
@@ -810,23 +941,22 @@
                 document.getElementById('mic-indicator').classList.add('flex');
                 document.getElementById('menu-status-mic').textContent = 'Đang nghe';
                 document.getElementById('btn-blow-candle').classList.add('mic-listening');
-                showToast("🎙️ Hãy thổi mạnh vào Microphone để tắt nến trên bánh!");
+                showToast("🎙️ Hãy thổi mạnh vào Micro điện thoại/máy tính để tắt nến!");
             } catch (err) {
-                showToast("⚠️ Trình duyệt chưa cấp quyền Micro. Bạn vẫn có thể bấm nút để thổi nến!");
+                showToast("⚠️ Chưa cấp quyền Micro. Bạn vẫn có thể bấm nút để thổi nến!");
             }
         }
 
         function checkMicrophoneBlowLevel() {
             if (!state.micActive || !micAnalyser || !state.candlesLit || isBlowingOut) return;
             micAnalyser.getByteFrequencyData(micDataArray);
-            // Low-frequency wind rumble average
             let sum = 0;
             for (let i = 0; i < 28; i++) sum += micDataArray[i];
             const avg = sum / 28;
-            const percent = Math.min(100, Math.round((avg / 145) * 100));
+            const percent = Math.min(100, Math.round((avg / 135) * 100));
             document.getElementById('mic-level-bar').style.width = `${percent}%`;
 
-            if (avg > 125) {
+            if (avg > 118) {
                 triggerCandleToggle();
             }
         }
@@ -1001,7 +1131,7 @@
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 150);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.outputEncoding = THREE.sRGBEncoding;
@@ -1073,11 +1203,16 @@
         scene.add(rimLightBack);
 
         // Warm dynamic light emitted by the candles on top of the cake
-        const candleMasterLight = new THREE.PointLight(0xff9922, 2.2, 16);
+        const candleMasterLight = new THREE.PointLight(0xff9922, 2.5, 18);
         candleMasterLight.position.set(0, 4.8, 0);
         scene.add(candleMasterLight);
 
-        // --- 4.3 Procedural Subtle Fondant Bump Texture & Glow Sprite Texture ---
+        // Secondary subtle fill light right above the top tier frosting for realistic wax & icing subsurface glow
+        const candleSubsurfaceLight = new THREE.PointLight(0xff7711, 1.3, 6.5);
+        candleSubsurfaceLight.position.set(0, 3.3, 0);
+        scene.add(candleSubsurfaceLight);
+
+        // --- 4.3 Procedural Subtle Fondant Bump Texture & Realistic Flame Textures ---
         function createFondantBumpTexture() {
             const c = document.createElement('canvas');
             c.width = 256;
@@ -1097,22 +1232,68 @@
             return tex;
         }
 
-        function createSoftGlowTexture(innerColor = 'rgba(255,250,220,1)', midColor = 'rgba(255,180,50,0.55)') {
+        function createSoftGlowTexture(innerColor = 'rgba(255,250,220,1)', midColor = 'rgba(255,175,45,0.55)') {
             const c = document.createElement('canvas');
             c.width = 128;
             c.height = 128;
             const ctx = c.getContext('2d');
             const grad = ctx.createRadialGradient(64, 64, 2, 64, 64, 62);
             grad.addColorStop(0, innerColor);
-            grad.addColorStop(0.35, midColor);
-            grad.addColorStop(1, 'rgba(255,120,0,0)');
+            grad.addColorStop(0.28, 'rgba(255,220,110,0.82)');
+            grad.addColorStop(0.58, midColor);
+            grad.addColorStop(1, 'rgba(255,90,0,0)');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 128, 128);
             return new THREE.CanvasTexture(c);
         }
 
+        // Vertical Thermal Gradient Texture for Realistic Outer Teardrop Flame
+        function createRealisticFlameGradientTexture() {
+            const c = document.createElement('canvas');
+            c.width = 64;
+            c.height = 256;
+            const ctx = c.getContext('2d');
+            // Bottom (y=256) to Top Tip (y=0)
+            const grad = ctx.createLinearGradient(0, 256, 0, 0);
+            grad.addColorStop(0.00, 'rgba(40, 120, 255, 0.78)');   // Translucent blue-violet base near wick
+            grad.addColorStop(0.14, 'rgba(255, 252, 235, 0.98)');  // Intense white-hot combustion zone
+            grad.addColorStop(0.45, 'rgba(255, 215, 75, 0.96)');   // Luminous golden-yellow body
+            grad.addColorStop(0.76, 'rgba(255, 115, 15, 0.88)');   // Rich amber-orange upper body
+            grad.addColorStop(0.94, 'rgba(215, 30, 5, 0.45)');     // Soft crimson-red flickering tip
+            grad.addColorStop(1.00, 'rgba(120, 10, 0, 0.0)');      // Feathered transparent tip
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 256);
+            const tex = new THREE.CanvasTexture(c);
+            tex.encoding = THREE.sRGBEncoding;
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        // Sculpted Organic Teardrop LatheGeometry for Realistic Candle Flame
+        function createSculptedTeardropGeometry(radius = 0.088, height = 0.42) {
+            const profilePoints = [];
+            const steps = 28;
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps; // 0 at base, 1 at top tip
+                let r;
+                if (t < 0.25) {
+                    // Rounded bulb at bottom of flame
+                    r = radius * Math.sin((t / 0.25) * (Math.PI / 2));
+                } else {
+                    // Graceful tapered teardrop point toward the top
+                    const u = (t - 0.25) / 0.75;
+                    r = radius * Math.pow(1 - u, 1.55) * (1 + 0.18 * Math.sin(u * Math.PI));
+                }
+                profilePoints.push(new THREE.Vector2(Math.max(0.0005, r), t * height));
+            }
+            const geo = new THREE.LatheGeometry(profilePoints, 28);
+            geo.computeVertexNormals();
+            return geo;
+        }
+
         const fondantBump = createFondantBumpTexture();
         const warmGlowTex = createSoftGlowTexture();
+        const realisticFlameTex = createRealisticFlameGradientTexture();
 
         // --- 4.4 Photorealistic PBR Materials ---
         // Royal Cream Ivory Fondant (Soft matte-satin sheen with subtle bump)
@@ -1635,7 +1816,7 @@
             cakePlaqueFaceMesh.material.needsUpdate = true;
         }
 
-        // --- 5.2 Build 10 Twisted Gold Spiral Candles in a 360-Degree Royal Circle on Top Tier ---
+        // --- 5.2 Build 10 Twisted Gold Spiral Candles with Photorealistic 4-Layer Teardrop Flames ---
         const candleFlames = [];
         const smokePuffs = [];
         let isBlowingOut = false;
@@ -1670,8 +1851,41 @@
 
             cakeRoot.add(centerOrnament);
 
-            const wickGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8);
-            const wickMat = new THREE.MeshBasicMaterial({ color: 0x221100 });
+            const wickGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.15, 10);
+            const wickMat = new THREE.MeshBasicMaterial({ color: 0x1a0d00 });
+
+            // Shared Realistic Teardrop Geometries
+            const outerTeardropGeo = createSculptedTeardropGeometry(0.088, 0.43);
+            const innerCoreGeo = createSculptedTeardropGeometry(0.044, 0.25);
+            const blueBaseGeo = new THREE.SphereGeometry(0.046, 16, 12);
+            blueBaseGeo.scale(1, 0.85, 1);
+            const emberGeo = new THREE.SphereGeometry(0.017, 10, 10);
+
+            // Shared Materials for Realistic Flame Layers
+            const outerFlameMat = new THREE.MeshBasicMaterial({
+                map: realisticFlameTex,
+                transparent: true,
+                opacity: 0.96,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+
+            const innerCoreMat = new THREE.MeshBasicMaterial({
+                color: 0xfffff4,
+                transparent: true,
+                opacity: 0.98,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const blueBaseMat = new THREE.MeshBasicMaterial({
+                color: 0x3b82f6,
+                transparent: true,
+                opacity: 0.52,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
 
             // Arrange 10 candles evenly in a full 360-degree circle around the top tier rim
             for (let idx = 0; idx < candleCount; idx++) {
@@ -1703,6 +1917,19 @@
                 shaft.castShadow = true;
                 cGroup.add(shaft);
 
+                // Melted warm wax pool cup at the top of each candle
+                const waxPoolGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.025, 20);
+                const waxPoolMat = new THREE.MeshPhysicalMaterial({
+                    color: 0xfff3d1,
+                    roughness: 0.18,
+                    transmission: 0.25,
+                    transparent: true,
+                    opacity: 0.92
+                });
+                const waxPool = new THREE.Mesh(waxPoolGeo, waxPoolMat);
+                waxPool.position.y = candleHeight + 0.05;
+                cGroup.add(waxPool);
+
                 // Spiral twisted gold ridge around the candle shaft
                 const spiralPoints = [];
                 const turns = 4.5;
@@ -1718,50 +1945,73 @@
                 const spiralMesh = new THREE.Mesh(spiralGeo, goldPearlMat);
                 cGroup.add(spiralMesh);
 
-                // Wick
+                // Wick + Glowing Red-Orange Wick Ember Tip
                 const wick = new THREE.Mesh(wickGeo, wickMat);
-                wick.position.y = candleHeight + 0.1;
+                wick.position.y = candleHeight + 0.10;
                 cGroup.add(wick);
 
-                // Multi-layered Realistic Flame Group
-                const flameGroup = new THREE.Group();
-                flameGroup.position.y = candleHeight + 0.26;
+                const emberMat = new THREE.MeshBasicMaterial({ color: 0xff5500 });
+                const emberMesh = new THREE.Mesh(emberGeo, emberMat);
+                emberMesh.position.y = candleHeight + 0.165;
+                cGroup.add(emberMesh);
 
-                // Outer teardrop orange-gold flame
-                const outerFlameGeo = new THREE.ConeGeometry(0.09, 0.35, 20);
-                outerFlameGeo.translate(0, 0.08, 0);
-                const outerFlameMat = new THREE.MeshBasicMaterial({
-                    color: 0xffaa11,
-                    transparent: true,
-                    opacity: 0.92
-                });
-                const outerFlame = new THREE.Mesh(outerFlameGeo, outerFlameMat);
+                // Photorealistic 4-Layer Flame Group anchored at the wick tip
+                const flameGroup = new THREE.Group();
+                flameGroup.position.y = candleHeight + 0.16;
+
+                // Layer 1: Translucent Blue-Violet Oxygen-Rich Base
+                const blueBase = new THREE.Mesh(blueBaseGeo, blueBaseMat);
+                blueBase.position.y = 0.028;
+                flameGroup.add(blueBase);
+
+                // Layer 2: Sculpted Teardrop Outer Thermal Envelope (Blue -> White -> Gold -> Orange -> Crimson)
+                const outerFlame = new THREE.Mesh(outerTeardropGeo, outerFlameMat);
+                outerFlame.position.y = 0.01;
                 flameGroup.add(outerFlame);
 
-                // Inner bright white-yellow core
-                const innerFlameGeo = new THREE.ConeGeometry(0.048, 0.21, 16);
-                innerFlameGeo.translate(0, 0.05, 0);
-                const innerFlameMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const innerFlame = new THREE.Mesh(innerFlameGeo, innerFlameMat);
+                // Layer 3: Brilliant White-Hot Inner Core
+                const innerFlame = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+                innerFlame.position.y = 0.032;
                 flameGroup.add(innerFlame);
 
-                // Volumetric Halo Glow Sprite around each flame
+                // Layer 4A: Tight Intense Core Bloom Sprite
+                const coreGlowMat = new THREE.SpriteMaterial({
+                    map: warmGlowTex,
+                    color: 0xffe898,
+                    transparent: true,
+                    opacity: 0.9,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const coreGlowSprite = new THREE.Sprite(coreGlowMat);
+                coreGlowSprite.scale.set(0.52, 0.68, 1);
+                coreGlowSprite.position.y = 0.16;
+                flameGroup.add(coreGlowSprite);
+
+                // Layer 4B: Soft Atmospheric Warm Halo Sprite
                 const haloMat = new THREE.SpriteMaterial({
                     map: warmGlowTex,
-                    color: 0xffbb33,
+                    color: 0xff9d2e,
                     transparent: true,
-                    opacity: 0.85,
+                    opacity: 0.65,
                     blending: THREE.AdditiveBlending,
                     depthWrite: false
                 });
                 const haloSprite = new THREE.Sprite(haloMat);
-                haloSprite.scale.set(1.05, 1.25, 1);
-                haloSprite.position.y = 0.1;
+                haloSprite.scale.set(1.25, 1.48, 1);
+                haloSprite.position.y = 0.20;
                 flameGroup.add(haloSprite);
 
                 flameGroup.userData = {
-                    phase: idx * 0.95,
-                    isLit: true
+                    phase: idx * 1.17 + Math.random() * 0.5,
+                    speed: 1.0 + (idx % 3) * 0.12,
+                    isLit: true,
+                    outerFlame,
+                    innerFlame,
+                    blueBase,
+                    coreGlowSprite,
+                    haloSprite,
+                    emberMesh
                 };
                 cGroup.add(flameGroup);
                 candleFlames.push(flameGroup);
@@ -1773,8 +2023,8 @@
         function emitSingleCandleSmoke(flameGroup) {
             const worldPos = new THREE.Vector3();
             flameGroup.getWorldPosition(worldPos);
-            for (let i = 0; i < 6; i++) {
-                const puffGeo = new THREE.SphereGeometry(0.048 + Math.random() * 0.045, 10, 10);
+            for (let i = 0; i < 7; i++) {
+                const puffGeo = new THREE.SphereGeometry(0.042 + Math.random() * 0.045, 10, 10);
                 const puffMat = new THREE.MeshBasicMaterial({
                     color: 0xffeacc,
                     transparent: true,
@@ -1804,25 +2054,25 @@
             const rightAnchor = new THREE.Vector3(4.6, -2.5, -1.2);
 
             const bouquetConfigs = [
-                // Left Bouquet (7 balloons in rose pink, lavender, pearl white, gold, sky blue, green, orange)
-                { anchor: leftAnchor, offset: new THREE.Vector3(-0.9, 5.8, -0.4), color: 0xd98cb3, metal: 0.25 }, // Rose Pink
-                { anchor: leftAnchor, offset: new THREE.Vector3( 0.2, 6.2, -0.6), color: 0xf4a2bd, metal: 0.30 }, // Soft Pink
-                { anchor: leftAnchor, offset: new THREE.Vector3(-0.3, 4.9,  0.1), color: 0x8e5ea2, metal: 0.35 }, // Lavender Purple
-                { anchor: leftAnchor, offset: new THREE.Vector3( 0.7, 4.7, -0.2), color: 0x4eb879, metal: 0.25 }, // Emerald Green
-                { anchor: leftAnchor, offset: new THREE.Vector3(-1.3, 4.5, -0.2), color: 0xe07a47, metal: 0.30 }, // Coral Orange
-                { anchor: leftAnchor, offset: new THREE.Vector3(-0.8, 3.8,  0.4), color: 0xdbe9ee, metal: 0.15 }, // Pearl White
-                { anchor: leftAnchor, offset: new THREE.Vector3( 0.3, 3.6,  0.5), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
-                { anchor: leftAnchor, offset: new THREE.Vector3(-1.5, 3.2,  0.5), color: 0x2a9df4, metal: 0.35 }, // Sky Blue
+                // Left Bouquet
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3(-0.9, 5.8, -0.4), color: 0xd98cb3, metal: 0.25 }, // Rose Pink
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3( 0.2, 6.2, -0.6), color: 0xf4a2bd, metal: 0.30 }, // Soft Pink
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3(-0.3, 4.9,  0.1), color: 0x8e5ea2, metal: 0.35 }, // Lavender Purple
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3( 0.7, 4.7, -0.2), color: 0x4eb879, metal: 0.25 }, // Emerald Green
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3(-1.3, 4.5, -0.2), color: 0xe07a47, metal: 0.30 }, // Coral Orange
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3(-0.8, 3.8,  0.4), color: 0xdbe9ee, metal: 0.15 }, // Pearl White
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3( 0.3, 3.6,  0.5), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
+                { side: -1, anchor: leftAnchor, offset: new THREE.Vector3(-1.5, 3.2,  0.5), color: 0x2a9df4, metal: 0.35 }, // Sky Blue
 
-                // Right Bouquet (Mirrored lush arrangement)
-                { anchor: rightAnchor, offset: new THREE.Vector3( 0.8, 6.1, -0.5), color: 0xe69ab8, metal: 0.25 }, // Rose Pink
-                { anchor: rightAnchor, offset: new THREE.Vector3(-0.4, 4.9, -0.2), color: 0x56b870, metal: 0.25 }, // Green
-                { anchor: rightAnchor, offset: new THREE.Vector3( 0.4, 4.8,  0.1), color: 0x8a56ac, metal: 0.35 }, // Purple
-                { anchor: rightAnchor, offset: new THREE.Vector3( 1.3, 4.6, -0.2), color: 0xe06d53, metal: 0.30 }, // Warm Red-Orange
-                { anchor: rightAnchor, offset: new THREE.Vector3(-0.2, 3.7,  0.4), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
-                { anchor: rightAnchor, offset: new THREE.Vector3( 0.6, 3.8,  0.5), color: 0xeef5f7, metal: 0.15 }, // Pearl White
-                { anchor: rightAnchor, offset: new THREE.Vector3( 1.6, 3.6,  0.2), color: 0xd94848, metal: 0.30 }, // Ruby Red
-                { anchor: rightAnchor, offset: new THREE.Vector3( 1.2, 2.9,  0.6), color: 0x2998e6, metal: 0.35 }  // Sky Blue
+                // Right Bouquet
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 0.8, 6.1, -0.5), color: 0xe69ab8, metal: 0.25 }, // Rose Pink
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3(-0.4, 4.9, -0.2), color: 0x56b870, metal: 0.25 }, // Green
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 0.4, 4.8,  0.1), color: 0x8a56ac, metal: 0.35 }, // Purple
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 1.3, 4.6, -0.2), color: 0xe06d53, metal: 0.30 }, // Warm Red-Orange
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3(-0.2, 3.7,  0.4), color: 0xf2b735, metal: 0.75 }, // Metallic Gold
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 0.6, 3.8,  0.5), color: 0xeef5f7, metal: 0.15 }, // Pearl White
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 1.6, 3.6,  0.2), color: 0xd94848, metal: 0.30 }, // Ruby Red
+                { side:  1, anchor: rightAnchor, offset: new THREE.Vector3( 1.2, 2.9,  0.6), color: 0x2998e6, metal: 0.35 }  // Sky Blue
             ];
 
             const balloonGeo = new THREE.SphereGeometry(0.68, 32, 32);
@@ -1861,7 +2111,9 @@
                 bHolder.add(strMesh);
 
                 bHolder.userData = {
+                    desktopBasePos: pos.clone(),
                     basePos: pos.clone(),
+                    side: cfg.side,
                     phase: idx * 0.85,
                     swaySpeed: 1.2 + (idx % 4) * 0.25
                 };
@@ -1986,7 +2238,7 @@
             ctx.stroke();
 
             // Recipient Name in Bold Cursive / Luxury Script (Auto-scaled)
-            const displayRecipient = recipientName || 'VIP';
+            const displayRecipient = formatDisplayRecipientName(recipientName);
             let nameFontSize = 48;
             if (displayRecipient.length > 12) nameFontSize = 40;
             if (displayRecipient.length > 18) nameFontSize = 32;
@@ -2046,6 +2298,8 @@
                 holder.add(faceMesh);
 
                 holder.userData = {
+                    desktopBasePos: cfg.pos.clone(),
+                    desktopScale: cfg.scale,
                     baseY: cfg.pos.y,
                     baseRotZ: cfg.rot.z,
                     phase: idx * 1.6
@@ -2120,14 +2374,81 @@
         buildGoldenSparkleField();
 
         /*************************************************************************
-         * 9. CAMERA ORBIT & RAYCAST INTERACTION
+         * 9. MULTI-DEVICE ADAPTIVE CAMERA (ANDROID, IOS & PC) + TOUCH PINCH-ZOOM
          *************************************************************************/
         let camAzimuth = 0.0;
-        let camElevation = 1.44; // Slightly looking straight/up at the majestic 3-tier cake
+        let camElevation = 1.44;
+        let defaultCamDistance = 12.8;
         let camDistance = 12.8;
         const lookTarget = new THREE.Vector3(0, 0.55, 0);
 
+        // Adapt 3D Scene Layout & Camera Distance for Portrait Smartphones (Android/iOS), Tablets & Desktop PC
+        function adaptSceneForDeviceViewport() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const aspect = w / Math.max(1, h);
+
+            camera.aspect = aspect;
+
+            if (aspect < 0.65) {
+                // Portrait Smartphone (iPhone / Android Portrait)
+                camera.fov = 45;
+                defaultCamDistance = 16.2;
+                // Pull balloon bouquets and floating cards inward so they frame the cake on narrow screens
+                bouquetsGroup.children.forEach(bHolder => {
+                    const orig = bHolder.userData.desktopBasePos;
+                    bHolder.userData.basePos.set(orig.x * 0.66, orig.y + 0.35, orig.z - 0.5);
+                });
+                floatingCardsGroup.children.forEach((holder, idx) => {
+                    const orig = holder.userData.desktopBasePos;
+                    holder.position.x = orig.x * 0.56;
+                    holder.position.z = orig.z - 0.35;
+                    holder.userData.baseY = orig.y + (idx % 2 === 0 ? -0.2 : 0.45);
+                    holder.scale.setScalar(holder.userData.desktopScale * 0.78);
+                });
+            } else if (aspect < 1.0) {
+                // Tablet Portrait / Foldable Phone
+                camera.fov = 42;
+                defaultCamDistance = 14.5;
+                bouquetsGroup.children.forEach(bHolder => {
+                    const orig = bHolder.userData.desktopBasePos;
+                    bHolder.userData.basePos.set(orig.x * 0.80, orig.y + 0.15, orig.z - 0.2);
+                });
+                floatingCardsGroup.children.forEach(holder => {
+                    const orig = holder.userData.desktopBasePos;
+                    holder.position.x = orig.x * 0.74;
+                    holder.position.z = orig.z;
+                    holder.userData.baseY = orig.y;
+                    holder.scale.setScalar(holder.userData.desktopScale * 0.88);
+                });
+            } else {
+                // Desktop PC / Laptop / Landscape Mobile
+                camera.fov = 40;
+                defaultCamDistance = 12.8;
+                bouquetsGroup.children.forEach(bHolder => {
+                    bHolder.userData.basePos.copy(bHolder.userData.desktopBasePos);
+                });
+                floatingCardsGroup.children.forEach(holder => {
+                    const orig = holder.userData.desktopBasePos;
+                    holder.position.x = orig.x;
+                    holder.position.z = orig.z;
+                    holder.userData.baseY = orig.y;
+                    holder.scale.setScalar(holder.userData.desktopScale);
+                });
+            }
+
+            if (state.cameraPreset === 0) {
+                camDistance = defaultCamDistance;
+            }
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        }
+
         let isPointerDown = false;
+        let isPinching = false;
+        let initialPinchDist = 0;
+        let initialCamDist = 12.8;
         let lastPointer = { x: 0, y: 0 };
         let downPointer = { x: 0, y: 0 };
 
@@ -2135,19 +2456,22 @@
         const pointerNDC = new THREE.Vector2();
 
         function updateCamera() {
+            const isPortrait = window.innerWidth < window.innerHeight;
             if (state.cameraPreset === 1) {
                 // Close-up on the Golden Spiral Candles
-                camDistance += (7.6 - camDistance) * 0.06;
+                const targetClose = isPortrait ? 9.6 : 7.6;
+                camDistance += (targetClose - camDistance) * 0.06;
                 camElevation += (1.28 - camElevation) * 0.06;
-                lookTarget.lerp(new THREE.Vector3(0, 2.1, 0), 0.07);
+                lookTarget.lerp(new THREE.Vector3(0, 2.15, 0), 0.07);
             } else if (state.cameraPreset === 2) {
                 // Wide Royal Panorama
-                camDistance += (15.5 - camDistance) * 0.06;
+                const targetWide = isPortrait ? 19.2 : 15.5;
+                camDistance += (targetWide - camDistance) * 0.06;
                 camElevation += (1.35 - camElevation) * 0.06;
                 lookTarget.lerp(new THREE.Vector3(0, 0.6, 0), 0.07);
             } else {
                 // Default Mockup Composition
-                lookTarget.lerp(new THREE.Vector3(0, 0.55, 0), 0.07);
+                lookTarget.lerp(new THREE.Vector3(0, isPortrait ? 0.35 : 0.55, 0), 0.07);
             }
 
             const x = camDistance * Math.sin(camElevation) * Math.sin(camAzimuth);
@@ -2158,6 +2482,7 @@
             camera.lookAt(lookTarget);
         }
 
+        // Desktop Mouse Orbit & Click
         container.addEventListener('mousedown', e => {
             isPointerDown = true;
             lastPointer = { x: e.clientX, y: e.clientY };
@@ -2182,15 +2507,38 @@
             }
         });
 
+        // Mobile Touch (1-Finger Orbit + Tap & 2-Finger Pinch-to-Zoom for Android/iOS)
         container.addEventListener('touchstart', e => {
+            sound.ensureContext();
             if (e.touches.length === 1) {
                 isPointerDown = true;
+                isPinching = false;
                 lastPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
                 downPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                isPointerDown = false;
+                isPinching = true;
+                initialPinchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialCamDist = camDistance;
             }
         }, { passive: true });
 
         window.addEventListener('touchmove', e => {
+            if (isPinching && e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (initialPinchDist > 0) {
+                    const scale = initialPinchDist / dist;
+                    state.cameraPreset = 0;
+                    camDistance = Math.max(6.8, Math.min(22, initialCamDist * scale));
+                }
+                return;
+            }
             if (!isPointerDown || e.touches.length !== 1) return;
             const dx = e.touches[0].clientX - lastPointer.x;
             const dy = e.touches[0].clientY - lastPointer.y;
@@ -2201,18 +2549,23 @@
         }, { passive: true });
 
         window.addEventListener('touchend', e => {
+            if (isPinching && e.touches.length < 2) {
+                isPinching = false;
+                return;
+            }
             if (!isPointerDown) return;
             isPointerDown = false;
             if (e.changedTouches.length > 0) {
                 const t = e.changedTouches[0];
-                if (Math.hypot(t.clientX - downPointer.x, t.clientY - downPointer.y) < 10) {
+                if (Math.hypot(t.clientX - downPointer.x, t.clientY - downPointer.y) < 12) {
                     handle3DClick(t.clientX, t.clientY);
                 }
             }
         });
 
         container.addEventListener('wheel', e => {
-            camDistance = Math.max(6.8, Math.min(20, camDistance + e.deltaY * 0.008));
+            state.cameraPreset = 0;
+            camDistance = Math.max(6.8, Math.min(22, camDistance + e.deltaY * 0.008));
         }, { passive: true });
 
         function handle3DClick(clientX, clientY) {
@@ -2322,6 +2675,7 @@
         const CAM_PRESET_NAMES = ["Chính diện", "Cận cảnh Nến", "Toàn cảnh"];
         document.getElementById('menu-btn-camera').addEventListener('click', () => {
             state.cameraPreset = (state.cameraPreset + 1) % 3;
+            if (state.cameraPreset === 0) camDistance = defaultCamDistance;
             document.getElementById('menu-status-cam').textContent = CAM_PRESET_NAMES[state.cameraPreset];
             showToast(`🎥 Góc máy: ${CAM_PRESET_NAMES[state.cameraPreset]}`);
         });
@@ -2353,6 +2707,9 @@
             candleFlames.forEach(fGroup => {
                 fGroup.userData.isLit = true;
                 fGroup.visible = true;
+                if (fGroup.userData.emberMesh) {
+                    fGroup.userData.emberMesh.material.color.setHex(0xff5500);
+                }
             });
 
             const btnText = document.getElementById('text-blow-candle');
@@ -2378,6 +2735,9 @@
                     setTimeout(() => {
                         fGroup.userData.isLit = false;
                         fGroup.visible = false;
+                        if (fGroup.userData.emberMesh) {
+                            fGroup.userData.emberMesh.material.color.setHex(0x3a1800);
+                        }
                         emitSingleCandleSmoke(fGroup);
 
                         if (idx === candleFlames.length - 1) {
@@ -2415,8 +2775,15 @@
         const cardModal = document.getElementById('card-modal');
         function openGreetingCardModal(cfg) {
             const safeCfg = cfg || FLOATING_CARDS_CONFIG[0];
+            const cleanRecipient = formatDisplayRecipientName(state.recipientName);
+            const cleanSub = state.subtitleText || "Tuổi Mới Đẳng Cấp Hoàng Gia";
+
             document.getElementById('card-modal-heading').textContent = state.mainTitle || "CHÚC MỪNG SINH NHẬT";
-            document.getElementById('card-modal-recipient').textContent = `Gửi ${state.recipientName} — ${state.subtitleText}`;
+            document.getElementById('card-modal-recipient').textContent = `Gửi ${cleanRecipient}`;
+            const subBadge = document.getElementById('card-modal-subtitle');
+            if (subBadge) {
+                subBadge.textContent = `✦ ${cleanSub} ✦`;
+            }
             document.getElementById('card-modal-message').textContent = `"${state.wishText || safeCfg.customWish}"`;
             document.getElementById('card-modal-sender').textContent = state.senderName;
             cardModal.classList.remove('hidden');
@@ -2449,7 +2816,7 @@
         const modalPlaqueCheckbox = document.getElementById('input-show-plaque');
 
         function openCustomizeModal() {
-            modalNameInput.value = state.recipientName;
+            modalNameInput.value = formatDisplayRecipientName(state.recipientName);
             modalSubInput.value = state.subtitleText;
             modalTitleInput.value = state.mainTitle;
             modalPlaqueCheckbox.checked = state.showCakePlaque;
@@ -2514,7 +2881,7 @@
             const newWish = document.getElementById('input-wish').value.trim();
             const newSender = document.getElementById('input-sender').value.trim();
 
-            if (newName) state.recipientName = newName;
+            if (newName) state.recipientName = formatDisplayRecipientName(newName);
             if (newSub) state.subtitleText = newSub;
             if (newTitle) state.mainTitle = newTitle;
             if (newWish) state.wishText = newWish;
@@ -2526,12 +2893,12 @@
             customizeModal.classList.add('hidden');
             customizeModal.classList.remove('flex');
             triggerRoyalCelebration(5);
-            showToast(`✨ Đã khắc tên "${state.recipientName}" & lời chúc lên Bánh Kem 3D!`);
+            showToast(`✨ Đã khắc tên "${formatDisplayRecipientName(state.recipientName)}" & lời chúc lên Bánh Kem 3D!`);
         });
 
         document.getElementById('btn-share-link').addEventListener('click', () => {
             // Sync current form values first before generating link
-            if (modalNameInput.value.trim()) state.recipientName = modalNameInput.value.trim();
+            if (modalNameInput.value.trim()) state.recipientName = formatDisplayRecipientName(modalNameInput.value.trim());
             if (modalSubInput.value.trim()) state.subtitleText = modalSubInput.value.trim();
             if (modalTitleInput.value.trim()) state.mainTitle = modalTitleInput.value.trim();
             if (document.getElementById('input-wish').value.trim()) state.wishText = document.getElementById('input-wish').value.trim();
@@ -2543,10 +2910,9 @@
         /*************************************************************************
          * 11. RESPONSIVE RESIZE & MASTER ANIMATION LOOP
          *************************************************************************/
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener('resize', adaptSceneForDeviceViewport);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adaptSceneForDeviceViewport, 120);
         });
 
         const clock = new THREE.Clock();
@@ -2560,34 +2926,59 @@
                 cakeRoot.rotation.y = t * 0.18;
             }
 
-            // 2. Realistic Flickering 10 Circular Candle Flames & Dynamic PointLight
+            // 2. Photorealistic Multi-Frequency Flickering for the 10 Circular Candle Flames
             let litCount = 0;
             candleFlames.forEach(fGroup => {
-                const isLit = fGroup.userData.isLit !== false && state.candlesLit;
+                const ud = fGroup.userData;
+                const isLit = ud.isLit !== false && state.candlesLit;
                 fGroup.visible = isLit;
                 if (isLit) {
                     litCount++;
-                    const p = fGroup.userData.phase;
-                    const sx = 0.92 + Math.sin(t * 16 + p) * 0.1 + Math.cos(t * 27 + p) * 0.06;
-                    const sy = 0.95 + Math.sin(t * 20 + p) * 0.15;
-                    fGroup.scale.set(sx, sy, sx);
-                    fGroup.rotation.z = Math.sin(t * 8 + p) * 0.08;
+                    const p = ud.phase;
+                    const spd = ud.speed;
+
+                    // Organic multi-sine wind & thermal draft turbulence
+                    const draftX = Math.sin(t * 11.5 * spd + p) * 0.09 + Math.cos(t * 23.0 + p * 1.7) * 0.04;
+                    const draftZ = Math.cos(t * 10.2 * spd + p * 1.3) * 0.08 + Math.sin(t * 19.5 + p) * 0.035;
+                    const stretchY = 1.0 + Math.sin(t * 18.0 * spd + p) * 0.13 + Math.cos(t * 29.0 + p) * 0.05;
+                    const breatheXZ = 1.0 - (stretchY - 1.0) * 0.42;
+
+                    fGroup.scale.set(breatheXZ, stretchY, breatheXZ);
+                    // Subtle trailing tilt when turntable rotates + natural air draft
+                    fGroup.rotation.z = draftX + (state.autoRotate ? 0.045 : 0);
+                    fGroup.rotation.x = draftZ;
+
+                    // Inner core micro-jitter for lifelike plasma intensity
+                    if (ud.innerFlame) {
+                        const corePulse = 0.94 + Math.sin(t * 26.0 + p) * 0.10;
+                        ud.innerFlame.scale.set(corePulse, 2.0 - corePulse, corePulse);
+                    }
+                    // Halo glow breathing
+                    if (ud.haloSprite) {
+                        const glowScale = 1.22 + Math.sin(t * 16.0 + p) * 0.14;
+                        ud.haloSprite.scale.set(glowScale, glowScale * 1.18, 1);
+                        ud.haloSprite.material.opacity = 0.58 + Math.sin(t * 21.0 + p) * 0.12;
+                    }
                 }
             });
 
             const litRatio = candleFlames.length > 0 ? (litCount / candleFlames.length) : 0;
+            const flickerWave = Math.sin(t * 14.0) * 0.18 + Math.cos(t * 23.0) * 0.10;
             candleMasterLight.intensity = litRatio > 0
-                ? (2.2 * litRatio + Math.sin(t * 15) * 0.32 * litRatio)
+                ? (2.45 * litRatio + flickerWave * litRatio)
+                : 0.0;
+            candleSubsurfaceLight.intensity = litRatio > 0
+                ? (1.25 * litRatio + flickerWave * 0.5 * litRatio)
                 : 0.0;
 
             // 3. Update Extinguished Candle Smoke Puffs
             for (let i = smokePuffs.length - 1; i >= 0; i--) {
                 const puff = smokePuffs[i];
-                puff.position.x += puff.userData.vx;
+                puff.position.x += puff.userData.vx + Math.sin(t * 3 + i) * 0.002;
                 puff.position.y += puff.userData.vy;
                 puff.position.z += puff.userData.vz;
-                puff.scale.multiplyScalar(1.022);
-                puff.userData.life -= 0.016;
+                puff.scale.multiplyScalar(1.024);
+                puff.userData.life -= 0.015;
                 puff.material.opacity = puff.userData.life * 0.5;
                 if (puff.userData.life <= 0) {
                     scene.remove(puff);
@@ -2600,6 +2991,7 @@
                 const ud = bHolder.userData;
                 bHolder.position.x = ud.basePos.x + Math.sin(t * ud.swaySpeed + ud.phase) * 0.12;
                 bHolder.position.y = ud.basePos.y + Math.cos(t * ud.swaySpeed * 0.8 + ud.phase) * 0.09;
+                bHolder.position.z = ud.basePos.z;
                 bHolder.rotation.z = Math.sin(t * ud.swaySpeed + ud.phase) * 0.04;
 
                 if (bHolder.scale.x < 0.99) {
@@ -2638,6 +3030,7 @@
 
         window.onload = () => {
             loadStateFromStorageAndURL();
+            adaptSceneForDeviceViewport();
             animate();
             // Initial subtle golden confetti welcome
             setTimeout(() => spawnGoldFoilConfetti(40), 400);
