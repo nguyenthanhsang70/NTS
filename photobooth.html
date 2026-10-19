@@ -1,0 +1,4810 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PHOTOBOOTH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Quicksand:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous" async></script>
+  <style>
+    :root {
+      --primary: #ff3e81;
+      --primary-dark: #d81b60;
+      --primary-soft: #ffeef4;
+      --accent: #7c4dff;
+      --border-soft: #f0d4e1;
+      --text-main: #1d1524;
+      --text-sub: #6c5d77;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Quicksand', sans-serif;
+      background: radial-gradient(circle at 15% 15%, #fce4ef 0%, #ebe2ff 48%, #f8e8f1 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 14px;
+    }
+
+    .kiosk-cabinet {
+      width: 100%;
+      max-width: 1560px;
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 22px 55px rgba(40, 18, 55, 0.16), 0 0 0 3px #ffffff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOPBAR */
+    .kiosk-topbar {
+      padding: 10px 22px;
+      background: linear-gradient(90deg, #181320 0%, #281e36 50%, #181320 100%);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .lens-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #555, #111 70%);
+      border: 2.5px solid #ff79a8;
+      box-shadow: 0 0 12px rgba(255, 62, 129, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .brand-titles h1 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #ffb8d1;
+    }
+
+    .brand-titles p {
+      font-size: 0.7rem;
+      color: #cbbcd8;
+      font-weight: 600;
+    }
+
+    .workflow-steps {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .step-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: #d7cae3;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .step-btn .badge-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    .step-btn.active {
+      background: linear-gradient(135deg, var(--primary), #ff6ea3);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(255, 62, 129, 0.45);
+    }
+
+    .step-btn.active .badge-num {
+      background: #fff;
+      color: var(--primary);
+    }
+
+    .hardware-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ai-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      color: #e2d8ec;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .ai-pill.ready {
+      background: rgba(22, 163, 74, 0.25);
+      border-color: #4ade80;
+      color: #86efac;
+    }
+
+    .cam-picker {
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.73rem;
+      font-weight: 600;
+      outline: none;
+      max-width: 155px;
+      cursor: pointer;
+    }
+
+    .cam-picker option {
+      color: #1f1726;
+      background: #fff;
+    }
+
+    .btn-cam-reconnect {
+      padding: 6px 13px;
+      border-radius: 999px;
+      border: 1.5px solid #ff8ab5;
+      background: rgba(255, 62, 129, 0.25);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cam-reconnect:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .studio-view {
+      display: none;
+      padding: 16px 20px;
+    }
+
+    .studio-view.active {
+      display: block;
+    }
+
+    /* ============================================================
+       BƯỚC 1: BUỒNG CHỤP CAMERA & DOCK ĐIỀU KHIỂN ĐƯỢC THIẾT KẾ LẠI
+       ============================================================ */
+    .booth-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.82fr) minmax(390px, 0.98fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .booth-grid.cinema-expanded {
+      grid-template-columns: 1fr;
+    }
+
+    .booth-grid.cinema-expanded .booth-sidebar {
+      display: none;
+    }
+
+    .camera-housing {
+      background: linear-gradient(180deg, #1b1526 0%, #14101d 100%);
+      border-radius: 22px;
+      padding: 16px;
+      border: 2px solid #332947;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6), 0 12px 28px rgba(25, 15, 35, 0.14);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .viewfinder-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      max-height: 580px;
+      background: #0d0b12;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 4px solid rgba(255, 255, 255, 0.22);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewfinder-frame.ratio-4-3 {
+      aspect-ratio: 4 / 3;
+    }
+
+    .viewfinder-frame.ringlight-on {
+      border-color: #fff6fa;
+      box-shadow: 0 0 0 3px rgba(255, 230, 242, 0.85), 0 0 35px rgba(255, 210, 235, 0.8);
+    }
+
+    #rawVideo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    #liveCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #liveCanvas:active {
+      cursor: grabbing;
+    }
+
+    .dslr-hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 16px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .dslr-gridlines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 33.333% 33.333%;
+      pointer-events: none;
+    }
+
+    .hud-top, .hud-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hud-rec-box {
+      background: rgba(15, 12, 22, 0.74);
+      backdrop-filter: blur(6px);
+      padding: 5px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff2e55;
+      box-shadow: 0 0 8px #ff2e55;
+      animation: recBlink 1.1s infinite;
+    }
+
+    @keyframes recBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    .hud-right-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .hud-tool-btn {
+      background: rgba(15, 12, 22, 0.74);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.71rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .hud-tool-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .hud-specs {
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 12, 22, 0.68);
+      padding: 5px 10px;
+      border-radius: 8px;
+      color: #a5f3fc;
+      font-size: 0.73rem;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .hud-DragTip {
+      pointer-events: auto;
+      background: rgba(15, 12, 22, 0.76);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-hud-reset {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .hud-shot-counter {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 999px;
+    }
+
+    .cam-offline-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(18, 14, 26, 0.9);
+      z-index: 9;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      color: #fff;
+      gap: 12px;
+    }
+
+    .cam-offline-overlay.show {
+      display: flex;
+    }
+
+    .countdown-big {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.75);
+      transition: all 0.18s ease;
+    }
+
+    .countdown-big.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .countdown-num {
+      font-size: 6.8rem;
+      font-weight: 800;
+      line-height: 1;
+      text-shadow: 0 10px 35px rgba(255, 62, 129, 0.95);
+    }
+
+    .countdown-pose-tip {
+      margin-top: 8px;
+      background: rgba(255, 62, 129, 0.92);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .shutter-blades {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 11;
+      transition: opacity 0.05s ease;
+    }
+    .shutter-blades.close { opacity: 0.85; }
+
+    .studio-strobe-flash {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 12;
+      transition: opacity 0.16s ease-out;
+    }
+    .studio-strobe-flash.fire { opacity: 1; }
+
+    /* ============================================================
+       DOCK ĐIỀU KHIỂN DƯỚI CAMERA ĐƯỢC DESIGN LẠI CỰC ĐẸP & CÂN ĐỐI
+       ============================================================ */
+    .camera-bottom-dock {
+      width: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+      background: linear-gradient(135deg, #251d33 0%, #1d1629 100%);
+      padding: 14px 18px;
+      border-radius: 18px;
+      border: 1.5px solid #413458;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+    }
+
+    .booth-console {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding-right: 16px;
+      border-right: 1.5px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .console-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      color: #e5d9f2;
+      background: none;
+      border: none;
+      font-family: inherit;
+      min-width: 68px;
+      transition: transform 0.18s ease;
+    }
+
+    .console-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .console-orb {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #2f2540;
+      border: 2px solid #52436b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.08), 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .console-orb svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .console-btn:hover .console-orb {
+      border-color: #ff79a8;
+      color: #ffb8d1;
+    }
+
+    .console-btn.active .console-orb {
+      background: linear-gradient(135deg, rgba(255, 62, 129, 0.35), rgba(124, 77, 255, 0.35));
+      border-color: #ff79a8;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 62, 129, 0.45);
+    }
+
+    .console-btn.shutter-main .console-orb {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #ff5c97 0%, #ff2a74 100%);
+      border: 4px solid #ffd6e5;
+      color: #fff;
+      box-shadow: 0 0 22px rgba(255, 62, 129, 0.65);
+    }
+
+    .console-btn.shutter-main .console-orb svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .console-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+
+    .console-sub {
+      font-size: 0.65rem;
+      color: #b9a8cc;
+      font-weight: 600;
+      max-width: 88px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* KHAY FILM BÊN PHẢI CONSOLE ĐƯỢC BỐ CỤC LẠI SANG TRỌNG */
+    .film-strip-tray {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      overflow: hidden;
+      background: rgba(15, 11, 22, 0.45);
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tray-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tray-title-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #e5d8f4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tray-actions-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-tray-pill {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn-tray-pill:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-tray-go {
+      background: linear-gradient(135deg, var(--primary) 0%, #c81e5b 100%);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.73rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 62, 129, 0.4);
+      transition: all 0.18s ease;
+    }
+
+    .btn-tray-go:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 62, 129, 0.55);
+    }
+
+    .tray-slots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: #ff6ea3 #171320;
+    }
+
+    .tray-thumb {
+      flex: 0 0 64px;
+      width: 64px;
+      height: 48px;
+      border-radius: 9px;
+      border: 1.5px dashed #63537d;
+      background: #15111e;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #9e8cb8;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.18s ease;
+    }
+
+    .tray-thumb:hover {
+      border-color: #ff79a8;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .tray-thumb.filled {
+      border-style: solid;
+      border-color: #ff79a8;
+      box-shadow: 0 3px 10px rgba(255, 62, 129, 0.25);
+    }
+
+    .tray-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tray-thumb .retake-badge {
+      position: absolute;
+      inset: 0;
+      background: rgba(24, 15, 35, 0.76);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      text-align: center;
+      padding: 2px;
+    }
+
+    .tray-thumb:hover .retake-badge {
+      opacity: 1;
+    }
+
+    /* ============================================================
+       CỘT PHẢI Ở BƯỚC 1: HỆ THỐNG TAB GỌN GÀNG
+       ============================================================ */
+    .booth-sidebar {
+      background: #fff;
+      border-radius: 20px;
+      padding: 15px 16px;
+      border: 1.5px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .upload-banner {
+      background: linear-gradient(135deg, #fff3f8 0%, #f3eeff 100%);
+      border: 1.5px dashed #e5b2c9;
+      border-radius: 12px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .btn-upload-solid {
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sidebar-nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: #f6eff4;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .s-nav-btn {
+      padding: 8px 6px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 0.73rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+
+    .s-nav-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 3px 10px rgba(255, 62, 129, 0.15);
+    }
+
+    .sidebar-tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .sidebar-tab-pane.active {
+      display: flex;
+    }
+
+    .panel-heading {
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .opt-pill {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1.5px solid #e9d6e0;
+      background: #faf6f9;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      text-align: center;
+    }
+
+    .opt-pill:hover {
+      border-color: var(--primary);
+      background: #fff4f8;
+    }
+
+    .opt-pill.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: #b81450;
+    }
+
+    .catalog-box {
+      border: 1.5px solid #eed8e3;
+      border-radius: 14px;
+      background: #fcf9fb;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .catalog-toolbar {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .catalog-search {
+      flex: 1;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid #e3c8d6;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 600;
+      outline: none;
+      background: #fff;
+    }
+
+    .catalog-search:focus {
+      border-color: var(--primary);
+    }
+
+    .cat-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      scrollbar-width: none;
+    }
+
+    .cat-tab {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #e6d2dd;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cat-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .catalog-scroll-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+      gap: 6px;
+      max-height: 330px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #e3a6c0 #f9f2f6;
+    }
+
+    .lut-item-btn, .ar-trend-btn {
+      background: #fff;
+      border: 1.5px solid #ead8e2;
+      border-radius: 10px;
+      padding: 6px 7px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .lut-item-btn:hover, .ar-trend-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .lut-item-btn.active, .ar-trend-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(255, 62, 129, 0.18);
+    }
+
+    .lut-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(0,0,0,0.12);
+    }
+
+    .item-meta {
+      overflow: hidden;
+    }
+
+    .item-code {
+      font-size: 0.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+    }
+
+    .item-name {
+      font-size: 0.69rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .slider-group {
+      margin-bottom: 6px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #eedae4;
+      border-radius: 999px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3.5px solid var(--primary);
+      cursor: pointer;
+    }
+
+    /* ============================================================
+       BƯỚC 2: PHÒNG CHỈNH SỬA ĐƯỢC CÂN BẰNG LẠI HOÀN HẢO (50% - 50%)
+       KÈM PHÓNG TO ẢNH, XOAY/LẬT STICKER & CHỌN Ô CHỤP LẠI
+       ============================================================ */
+    .editor-grid {
+      display: grid;
+      grid-template-columns: minmax(420px, 0.95fr) minmax(480px, 1.05fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    /* CỘT TRÁI: BUỒNG MÁY IN CÓ THANH PHÓNG TO (ZOOM PREVIEW) */
+    .printer-dispenser-stage {
+      background: linear-gradient(160deg, #1f192b 0%, #302442 100%);
+      border-radius: 22px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 650px;
+      max-height: 760px;
+      border: 2px solid #483863;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage-zoom-toolbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 11, 22, 0.65);
+      backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      z-index: 6;
+      color: #fff;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-zoom-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-zoom-icon:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .printer-viewport-scroll {
+      width: 100%;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 14px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #ff6ea3 #1f192b;
+    }
+
+    .printer-slot-lip {
+      width: 82%;
+      max-width: 390px;
+      height: 16px;
+      background: linear-gradient(180deg, #0d0a12 0%, #251d33 100%);
+      border-radius: 999px;
+      border: 2px solid #53436e;
+      position: relative;
+      z-index: 4;
+      margin-bottom: -5px;
+      flex-shrink: 0;
+    }
+
+    .printer-led-status {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .printed-paper-holder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.55));
+      transform-origin: top center;
+      transition: transform 0.2s ease;
+    }
+
+    .printed-paper-holder.printing-anim {
+      animation: printSlideOut 1.0s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes printSlideOut {
+      0% { transform: translateY(-85%) scale(0.96); opacity: 0.3; }
+      75% { transform: translateY(6px) scale(1); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    #stripCanvas {
+      max-height: 500px;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      border-radius: 4px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #stripCanvas:active {
+      cursor: grabbing;
+    }
+
+    .dispenser-caption {
+      width: 100%;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #e4d7f5;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 7px 12px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* CỘT PHẢI BƯỚC 2: BẢNG CÔNG CỤ CHIA 4 TAB CÂN BẰNG CHIỀU CAO */
+    .editor-panel {
+      background: #fff;
+      border-radius: 22px;
+      padding: 18px 20px;
+      border: 1.5px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 650px;
+      max-height: 760px;
+    }
+
+    .editor-top-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fdf3f7;
+      padding: 10px 14px;
+      border-radius: 13px;
+      border: 1px solid #f4cde0;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .editor-nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #f6eff4;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .e-nav-btn {
+      padding: 8px 6px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+
+    .e-nav-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 3px 10px rgba(255, 62, 129, 0.15);
+    }
+
+    .editor-tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .editor-tab-pane.active {
+      display: flex;
+    }
+
+    /* QUẢN LÝ TỪNG Ô ẢNH: CHỌN CHỤP LẠI, THAY ẢNH LẺ, PHÓNG TO ẢNH TRONG Ô */
+    .slot-manager-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px;
+      border: 1px solid #eed8e3;
+      border-radius: 12px;
+      background: #fcf9fb;
+    }
+
+    .slot-card {
+      background: #fff;
+      border: 2px solid #ead8e2;
+      border-radius: 11px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .slot-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      box-shadow: 0 4px 12px rgba(255, 62, 129, 0.18);
+    }
+
+    .slot-card-thumb {
+      width: 100%;
+      height: 64px;
+      border-radius: 7px;
+      background: #f0e6ec;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-sub);
+    }
+
+    .slot-card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slot-card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-slot-mini {
+      flex: 1;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid #e2c5d4;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .btn-slot-mini.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* HỘP ĐIỀU KHIỂN STICKER ĐANG CHỌN (TO NHỎ, XOAY, LẬT NGANG, LẬT DỌC) */
+    .sticker-inspector-box {
+      background: linear-gradient(135deg, #fff5f9 0%, #f6f0ff 100%);
+      border: 1.5px solid #f2bdd4;
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .inspector-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .inspector-actions {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .btn-inspect {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid #e0bad0;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-inspect:hover, .btn-inspect.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn-inspect.danger {
+      background: #ffe3ec;
+      color: #c81e5b;
+      border-color: #f7b6cc;
+    }
+
+    .btn-inspect.danger:hover {
+      background: #e01e5a;
+      color: #fff;
+    }
+
+    .frame-scroll-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+      gap: 7px;
+      max-height: 290px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #e3a6c0 #f9f2f6;
+    }
+
+    .frame-swatch-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 4px;
+      border-radius: 10px;
+      border: 1.5px solid #eee1e8;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .swatch-preview {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(0,0,0,0.1);
+    }
+
+    .frame-swatch-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-1px);
+    }
+
+    .swatch-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .sticker-scroll-tray {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+      gap: 6px;
+      max-height: 175px;
+      overflow-y: auto;
+      padding: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #e3a6c0 #f9f2f6;
+    }
+
+    .sticker-item-btn {
+      min-height: 40px;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1.5px solid #ead7e1;
+      background: #fff;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      cursor: pointer;
+      transition: all 0.14s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .sticker-item-btn.badge-type {
+      font-size: 0.65rem;
+      background: #fff5f9;
+      border-color: #f6b8ce;
+      padding: 3px 5px;
+    }
+
+    .sticker-item-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: scale(1.08);
+    }
+
+    .paper-effects-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #faf6f9;
+      border-radius: 11px;
+      border: 1px solid #ead8e2;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .paper-effects-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .stamp-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .stamp-input {
+      padding: 9px 13px;
+      border-radius: 10px;
+      border: 1.5px solid #e4cada;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .editor-cta-row {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 10px;
+      padding-top: 6px;
+      border-top: 1px solid #f1dce7;
+    }
+
+    .btn-download-pro {
+      padding: 13px 18px;
+      border-radius: 15px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary) 0%, #c81e5b 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(255, 62, 129, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-retake-pro {
+      padding: 13px 18px;
+      border-radius: 15px;
+      border: 2px solid #e2b8cb;
+      background: #fff5f9;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* MODAL PHÓNG TO ẢNH TOÀN MÀN HÌNH (LIGHTBOX) */
+    .lightbox-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 9, 18, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 14px;
+    }
+
+    .lightbox-modal.show {
+      display: flex;
+    }
+
+    .lightbox-modal img {
+      max-height: 84vh;
+      max-width: 92vw;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      border: 3px solid #fff;
+    }
+
+    @media (max-width: 1120px) {
+      .booth-grid,
+      .editor-grid,
+      .camera-bottom-dock {
+        grid-template-columns: 1fr;
+      }
+      .booth-console {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-right: 0;
+        padding-bottom: 12px;
+      }
+      .editor-panel, .printer-dispenser-stage {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="kiosk-cabinet">
+    <!-- TOPBAR STUDIO -->
+    <header class="kiosk-topbar">
+      <div class="brand-left">
+        <div class="lens-badge">📷</div>
+        <div class="brand-titles">
+          <h1>PHOTOBOOTH STUDIO MASTER</h1>
+        </div>
+      </div>
+
+      <!-- STEPPER 2 BƯỚC -->
+      <div class="workflow-steps">
+        <button type="button" class="step-btn active" id="tabStepCapture">
+          <span class="badge-num">1</span>
+          <span>Buồng Chụp ảnh</span>
+        </button>
+        <button type="button" class="step-btn" id="tabStepEditor">
+          <span class="badge-num">2</span>
+          <span>Phòng Chỉnh Sửa & Máy In</span>
+        </button>
+      </div>
+
+      <!-- KẾT NỐI CAMERA & AI STATUS -->
+      <div class="hardware-bar">
+        <span class="ai-pill" id="faceStatusBadge">✨ Sẵn sàng chụp</span>
+        <select id="cameraDeviceSelect" class="cam-picker" title="Chọn thiết bị Camera">
+          <option value="">Mặc định (Webcam)</option>
+        </select>
+        <button type="button" class="btn-cam-reconnect" id="btnReconnectCamera">
+          🔄 Kết nối lại Camera
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         BƯỚC 1: BUỒNG CHỤP CAMERA & DOCK ĐIỀU KHIỂN MỚI
+         ============================================================ -->
+    <main class="studio-view active" id="viewCapture">
+      <div class="booth-grid" id="boothMainGrid">
+        <!-- CỘT TRÁI: MÀN HÌNH CAMERA RỘNG + DOCK CÂN ĐỐI -->
+        <div class="camera-housing">
+          <div class="viewfinder-frame ringlight-on" id="viewfinderFrame">
+            <div class="dslr-gridlines"></div>
+
+            <!-- DSLR HUD OVERLAY -->
+            <div class="dslr-hud">
+              <div class="hud-top">
+                <div class="hud-rec-box">
+                  <span class="rec-dot"></span>
+                  <span id="camStatusText">WIDE LIVE • 60FPS</span>
+                </div>
+
+                <div class="hud-right-tools">
+                  <div class="hud-specs">
+                    <span id="hudActiveLut">LUT #001</span>
+                    <span id="hudActiveAr">AR #001</span>
+                  </div>
+                  <button type="button" class="hud-tool-btn" id="btnToggleAspectRatio">
+                    📐 Khung: Rộng 16:10
+                  </button>
+                  <button type="button" class="hud-tool-btn" id="btnToggleCinemaMode">
+                    ⛶ Phóng rộng Camera
+                  </button>
+                </div>
+              </div>
+
+              <div class="hud-bottom">
+                <div class="hud-DragTip">
+                  <span>✨ Kéo để dịch chuyển AR</span>
+                  <button type="button" class="btn-hud-reset" id="resetOffsetBtn">Canh giữa lại</button>
+                </div>
+                <div class="hud-shot-counter" id="shotCounterBadge">Đã chụp: 0 / 4</div>
+              </div>
+            </div>
+
+            <!-- MODAL KHI CAMERA CHƯA BẬT -->
+            <div class="cam-offline-overlay" id="cameraErrorModal">
+              <div style="font-size: 2.3rem;">📷⚡</div>
+              <h3 style="font-size: 1.1rem;">Chưa tìm thấy tín hiệu Webcam</h3>
+              <p style="font-size: 0.8rem; max-width: 420px; opacity: 0.88; line-height: 1.4;">
+                Bấm <b>Kết nối lại Camera</b>, <b>Tải ảnh từ máy lên</b>, hoặc dùng <b>Chế độ Studio Ảo</b> để thử nghiệm ngay !
+              </p>
+              <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; justify-content:center;">
+                <button type="button" class="btn-cam-reconnect" id="btnModalReconnect">🔄 Kết nối lại Camera</button>
+                <button type="button" class="btn-upload-solid" id="btnModalUpload">📁 Tải ảnh từ máy</button>
+                <button type="button" class="opt-pill" id="btnUseDemoAvatar" style="background:#fff; color:#1f1726;">✨ Dùng Studio Ảo chụp thử</button>
+              </div>
+            </div>
+
+            <!-- ĐẾM NGƯỢC -->
+            <div class="countdown-big" id="countdownOverlay">
+              <div class="countdown-num" id="countdownNum">3</div>
+              <div class="countdown-pose-tip" id="countdownPoseTip">✨ Tạo dáng thật xinh nhé!</div>
+            </div>
+
+            <div class="shutter-blades" id="shutterBlades"></div>
+            <div class="studio-strobe-flash" id="flashOverlay"></div>
+
+            <video id="rawVideo" playsinline autoplay muted></video>
+            <canvas id="liveCanvas" width="1152" height="720"></canvas>
+          </div>
+
+          <!-- DOCK ĐIỀU KHIỂN DƯỚI CAMERA ĐÃ ĐƯỢC DESIGN LẠI BẰNG ICON SVG SẮC NÉT -->
+          <div class="camera-bottom-dock">
+            <div class="booth-console">
+              <button type="button" class="console-btn" id="btnCycleFilter">
+                <div class="console-orb">
+                  <svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+                </div>
+                <div class="console-title">Màu Lens</div>
+                <div class="console-sub" id="quickFilterSub">(#001 Photoism)</div>
+              </button>
+
+              <button type="button" class="console-btn active" id="btnToggleRingLight">
+                <div class="console-orb">
+                  <svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                </div>
+                <div class="console-title">RingLight</div>
+                <div class="console-sub" id="quickRingSub">(Đang bật)</div>
+              </button>
+
+              <button type="button" class="console-btn shutter-main" id="btnStartCapture">
+                <div class="console-orb">
+                  <svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                </div>
+                <div class="console-title" style="color:#ff8ab5;" id="shutterMainLabel">BẤM CHỤP</div>
+                <div class="console-sub" id="shutterSubLabel">Tự động in</div>
+              </button>
+
+              <button type="button" class="console-btn" id="btnCycleTimer">
+                <div class="console-orb">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M10 2h4"/></svg>
+                </div>
+                <div class="console-title">Hẹn giờ</div>
+                <div class="console-sub" id="quickTimerSub">(3 giây)</div>
+              </button>
+
+              <button type="button" class="console-btn active" id="btnToggleMirror">
+                <div class="console-orb">
+                  <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="m8 7-5 5 5 5V7z"/><path d="m16 7 5 5-5 5V7z"/></svg>
+                </div>
+                <div class="console-title">Lật gương</div>
+                <div class="console-sub" id="quickMirrorSub">(Đang bật)</div>
+              </button>
+            </div>
+
+            <!-- KHAY FILM NẰM BÊN PHẢI SANG TRỌNG -->
+            <div class="film-strip-tray">
+              <div class="tray-header-row">
+                <div class="tray-title-badge">
+                  <span>🎞️ CUỘN FILM ĐÃ CHỤP (Bấm vào ô bất kỳ để chụp lại lẻ tấm đó):</span>
+                </div>
+                <div class="tray-actions-group">
+                  <button type="button" class="btn-tray-pill" id="btnCloneFillAll" title="Sao chép các ảnh đã chụp lấp đầy toàn bộ lưới">
+                    ⚡ Nhân bản lấp đầy
+                  </button>
+                  <button type="button" class="btn-tray-go" id="btnGoToEditorNow">
+                    🖨️ Sang phòng in ➔
+                  </button>
+                </div>
+              </div>
+              <div class="tray-slots" id="miniThumbsContainer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: SIDEBAR 3 TAB GỌN GÀNG -->
+        <aside class="booth-sidebar">
+          <div>
+            <div class="upload-banner">
+              <div>
+                <div style="font-size:0.79rem; font-weight:800;">📁 Tải ảnh từ máy lên</div>
+                <div style="font-size:0.68rem; color:var(--text-sub); font-weight:600;">
+                  Tự động lấp đầy khổ giấy & chuyển sang phòng in!
+                </div>
+              </div>
+              <button type="button" class="btn-upload-solid" id="btnUploadPhoto">Chọn ảnh</button>
+              <input type="file" id="fileUploadInput" accept="image/*" multiple style="display:none" />
+            </div>
+
+            <div class="sidebar-nav-tabs" style="margin-top:10px;">
+              <button type="button" class="s-nav-btn active" data-stab="tabLayoutBeauty">📐 Khổ Giấy & Da</button>
+              <button type="button" class="s-nav-btn" data-stab="tabLens400">🎞️ Màu Lens</button>
+              <button type="button" class="s-nav-btn" data-stab="tabAr400">✨ Filter AR</button>
+            </div>
+          </div>
+
+          <!-- TAB 1: KHỔ GIẤY & DA -->
+          <div class="sidebar-tab-pane active" id="tabLayoutBeauty">
+            <div>
+              <div class="panel-heading">
+                <span>1. Chọn khổ giấy in (8 Layouts)</span>
+                <label style="font-size:0.68rem; color:var(--primary); cursor:pointer; display:flex; align-items:center; gap:4px; text-transform:none;">
+                  <input type="checkbox" id="chkFastGridMode" checked /> Chụp 4 ảnh tự nhân bản
+                </label>
+              </div>
+              <div class="pill-wrap" id="layoutGroup">
+                <button type="button" class="opt-pill active" data-layout="1x4">Dải 1x4 (4 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="1x3">Dải 1x3 (3 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="2x2">Lưới 2x2 (4 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="2x3">Khổ 2x3 (6 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="3x3">Khổ 3x3 (9 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="4x4">Khổ 4x4 (16 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="6x6">Khổ 6x6 (36 ảnh)</button>
+                <button type="button" class="opt-pill" data-layout="polaroid">Polaroid (1 ảnh)</button>
+              </div>
+            </div>
+
+            <div style="background:#fcf8fa; padding:12px; border-radius:14px; border:1px solid #f0d8e4; margin-top:4px;">
+              <div class="panel-heading" style="margin-bottom:10px;">
+                <span>2. Tinh chỉnh Da & Cỡ phụ kiện AR</span>
+                <label style="font-size:0.69rem; color:var(--text-sub); cursor:pointer; text-transform:none;">
+                  <input type="checkbox" id="chkRotateFollow" checked /> Nghiêng theo đầu 
+                </label>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-top"><span>Độ trắng sáng Hàn Quốc (Tone-up)</span><span id="beautifyVal">60%</span></div>
+                <input type="range" id="beautifySlider" min="0" max="100" value="60" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-top"><span>Độ mịn da tự nhiên (Zalo/TikTok Smooth)</span><span id="smoothVal">65%</span></div>
+                <input type="range" id="smoothSlider" min="0" max="100" value="65" />
+              </div>
+
+              <div class="slider-group" style="margin-bottom:0;">
+                <div class="slider-top"><span>Kích cỡ phụ kiện AR trên mặt (Scale)</span><span id="arScaleVal">100%</span></div>
+                <input type="range" id="arScaleSlider" min="65" max="145" value="100" />
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: 400 MÀU ỐNG KÍNH -->
+          <div class="sidebar-tab-pane" id="tabLens400">
+            <div class="panel-heading">
+              <span>Màu Ống Kính Studio</span>
+              <span style="font-size:0.68rem; color:var(--primary); text-transform:none;" id="selectedLutLabel">#001 Photoism Pure</span>
+            </div>
+            <div class="catalog-box">
+              <div class="catalog-toolbar">
+                <input type="text" id="lutSearchInput" class="catalog-search" placeholder="🔍 Tìm trong 400 màu (VD: TikTok, Zalo, Đào, Film...)" />
+              </div>
+              <div class="cat-tabs" id="lutCategoryTabs">
+                <button type="button" class="cat-tab active" data-cat="all">Tất cả (400)</button>
+                <button type="button" class="cat-tab" data-cat="kstudio">Hàn Quốc (50)</button>
+                <button type="button" class="cat-tab" data-cat="peach">Đào & Hồng (50)</button>
+                <button type="button" class="cat-tab" data-cat="film">Film Cổ Điển (50)</button>
+                <button type="button" class="cat-tab" data-cat="cool">Trong Trẻo (50)</button>
+                <button type="button" class="cat-tab" data-cat="cinema">Điện Ảnh (50)</button>
+                <button type="button" class="cat-tab" data-cat="tiktoklut">TikTok Douyin (50)</button>
+                <button type="button" class="cat-tab" data-cat="zalolut">Zalo & Mess (50)</button>
+                <button type="button" class="cat-tab" data-cat="ulzzang">Ulzzang (50)</button>
+              </div>
+              <div class="catalog-scroll-grid" id="lutGridContainer"></div>
+            </div>
+          </div>
+
+          <!-- TAB 3: 400 FILTER TIKTOK, MESS, ZALO -->
+          <div class="sidebar-tab-pane" id="tabAr400">
+            <div class="panel-heading">
+              <span>Filter TikTok, Mess & Zalo</span>
+              <span style="font-size:0.68rem; color:var(--accent); text-transform:none;" id="selectedArLabel">#001 Má Hồng Say Rượu</span>
+            </div>
+            <div class="catalog-box">
+              <div class="catalog-toolbar">
+                <input type="text" id="arSearchInput" class="catalog-search" placeholder="🔍 Tìm trong 400 Filter (VD: Douyin, Tai mèo, Kính...)" />
+                <button type="button" class="cat-tab" id="btnTurnOffAR" style="background:#ffe0ec;color:#c81e5b;border-color:#f5b8ce;">🚫 Mặt mộc</button>
+              </div>
+              <div class="cat-tabs" id="arCategoryTabs">
+                <button type="button" class="cat-tab active" data-cat="all">Tất cả (400)</button>
+                <button type="button" class="cat-tab" data-cat="tiktok">🎵 TikTok (140)</button>
+                <button type="button" class="cat-tab" data-cat="mess">💬 Messenger (130)</button>
+                <button type="button" class="cat-tab" data-cat="zalo">💙 Zalo Call (130)</button>
+              </div>
+              <div class="catalog-scroll-grid" id="arGridContainer"></div>
+            </div>
+          </div>
+
+          <div style="background:#faf4f8; padding:8px 12px; border-radius:10px; font-size:0.71rem; font-weight:700; color:var(--text-sub); display:flex; justify-content:space-between; align-items:center;">
+            <span>💡 Chuyển Tab phía trên để chọn Màu & Filter</span>
+            <span id="liveClockSidebar" style="color:var(--primary); font-family:'Share Tech Mono',monospace;"></span>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- ============================================================
+         BƯỚC 2: PHÒNG CHỈNH SỬA CÂN ĐỐI + XOAY/LẬT STICKER + PHÓNG TO + CHỌN Ô CHỤP LẠI
+         ============================================================ -->
+    <main class="studio-view" id="viewEditor">
+      <div class="editor-grid">
+        <!-- CỘT TRÁI: BUỒNG TRẢ ẢNH CÓ THANH PHÓNG TO (ZOOM PREVIEW) & LIGHTBOX -->
+        <div class="printer-dispenser-stage">
+          <div class="stage-zoom-toolbar">
+            <span style="font-size:0.74rem; font-weight:800; color:#ffb8d1;">🔍 Phóng to bản in:</span>
+            <div class="zoom-controls">
+              <button type="button" class="btn-zoom-icon" id="btnZoomOut" title="Thu nhỏ">-</button>
+              <input type="range" id="previewZoomSlider" min="60" max="180" value="100" style="width:95px;" />
+              <button type="button" class="btn-zoom-icon" id="btnZoomIn" title="Phóng to">+</button>
+              <span id="previewZoomVal" style="font-size:0.72rem; font-weight:800; min-width:38px;">100%</span>
+              <button type="button" class="btn-tray-pill" id="btnResetZoom" style="padding:3px 8px;">100%</button>
+              <button type="button" class="btn-tray-go" id="btnOpenLightbox" style="padding:4px 10px; font-size:0.7rem;">⛶ Xem toàn màn hình</button>
+            </div>
+          </div>
+
+          <div class="printer-viewport-scroll">
+            <div class="printer-slot-lip">
+              <span class="printer-led-status"></span>
+            </div>
+            <div class="printed-paper-holder" id="printedPaperHolder">
+              <canvas id="stripCanvas" width="430" height="1290"></canvas>
+            </div>
+          </div>
+
+          <div class="dispenser-caption">
+            💡 Bấm vào <b>Sticker trên ảnh</b> để chỉnh To/Nhỏ/Xoay/Lật • Bấm vào <b>từng ô ảnh</b> để chọn chụp lại hoặc phóng to ảnh đó
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: HỆ THỐNG 4 TAB CÂN BẰNG CHIỀU CAO HOÀN HẢO -->
+        <div class="editor-panel">
+          <div>
+            <div class="editor-top-card">
+              <div>
+                <h2 style="font-size:1.0rem; font-weight:800;">🖨️ Phòng Chỉnh Sửa Bản In Chuyên Nghiệp</h2>
+                <p style="font-size:0.71rem; color:var(--text-sub); font-weight:600;">
+                  Chọn từng ô để chụp lại • Xoay & Lật Sticker 
+                </p>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="opt-pill" id="btnCloneFillEditor" style="padding:6px 10px; font-size:0.71rem;">⚡ Lấp đầy ô trống</button>
+                <button type="button" class="opt-pill" id="btnAddMorePhotoEditor" style="padding:6px 10px; font-size:0.71rem;">📁 Tải nhiều ảnh</button>
+              </div>
+            </div>
+
+            <!-- 4 TAB CHUYỂN ĐỔI GỌN GÀNG Ở BƯỚC 2 -->
+            <div class="editor-nav-tabs" style="margin-top:10px;">
+              <button type="button" class="e-nav-btn active" data-etab="etabSlots">🖼️ Chọn Ô & Chụp Lại</button>
+              <button type="button" class="e-nav-btn" data-etab="etabFrames">🎨 Màu Khung</button>
+              <button type="button" class="e-nav-btn" data-etab="etabStickers">✨ Sticker & Xoay</button>
+              <button type="button" class="e-nav-btn" data-etab="etabStamp">🏷️ Tem Chữ & Ngày Giờ</button>
+            </div>
+          </div>
+
+          <!-- EDITOR TAB 1: CHỌN Ô ẢNH ĐỂ CHỤP LẠI, THAY ẢNH LẺ, PHÓNG TO ẢNH TRONG Ô & ĐỔI KHỔ GIẤY -->
+          <div class="editor-tab-pane active" id="etabSlots">
+            <div>
+              <div class="panel-heading">1. Đổi khổ giấy in (8 Layouts)</div>
+              <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px;" id="editorLayoutGroup">
+                <button type="button" class="opt-pill active" data-layout="1x4">Dải 1x4 (4)</button>
+                <button type="button" class="opt-pill" data-layout="1x3">Dải 1x3 (3)</button>
+                <button type="button" class="opt-pill" data-layout="2x2">Lưới 2x2 (4)</button>
+                <button type="button" class="opt-pill" data-layout="2x3">Khổ 2x3 (6)</button>
+                <button type="button" class="opt-pill" data-layout="3x3">Khổ 3x3 (9)</button>
+                <button type="button" class="opt-pill" data-layout="4x4">Khổ 4x4 (16)</button>
+                <button type="button" class="opt-pill" data-layout="6x6">Khổ 6x6 (36)</button>
+                <button type="button" class="opt-pill" data-layout="polaroid">Polaroid (1)</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="panel-heading">
+                <span>2. Chọn ô ảnh tùy chỉnh để Chụp lại hoặc Phóng to</span>
+                <span style="font-size:0.68rem; color:var(--primary); text-transform:none;" id="selectedSlotStatus">Đang chọn: Ô ảnh #1</span>
+              </div>
+              <div class="slot-manager-grid" id="slotManagerGrid"></div>
+              <input type="file" id="singleSlotUploadInput" accept="image/*" style="display:none" />
+            </div>
+
+            <!-- THANH CÔNG CỤ PHÓNG TO & DỊCH CHUYỂN CHO Ô ẢNH ĐANG CHỌN -->
+            <div class="sticker-inspector-box">
+              <div class="inspector-top">
+                <span style="font-size:0.75rem; font-weight:800; color:var(--primary-dark);" id="slotCropTitle">
+                  🔍 Chỉnh riêng Ô ảnh #1:
+                </span>
+                <div class="inspector-actions">
+                  <button type="button" class="btn-inspect active" id="btnRetakeSelectedSlot">📸 Chụp lại ô này</button>
+                  <button type="button" class="btn-inspect" id="btnReplaceSelectedSlot">📁 Thay ảnh từ máy</button>
+                  <button type="button" class="btn-inspect" id="btnFlipSlotH">↔️ Lật ngang ảnh</button>
+                  <button type="button" class="btn-inspect" id="btnResetSlotZoom">↺ Mặc định</button>
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                <div class="slider-group" style="margin:0;">
+                  <div class="slider-top"><span>Phóng to ảnh (Zoom)</span><span id="slotZoomVal">100%</span></div>
+                  <input type="range" id="slotZoomSlider" min="100" max="250" value="100" />
+                </div>
+                <div class="slider-group" style="margin:0;">
+                  <div class="slider-top"><span>Dịch ngang (Pan X)</span><span id="slotPanXVal">0</span></div>
+                  <input type="range" id="slotPanXSlider" min="-100" max="100" value="0" />
+                </div>
+                <div class="slider-group" style="margin:0;">
+                  <div class="slider-top"><span>Dịch dọc (Pan Y)</span><span id="slotPanYVal">0</span></div>
+                  <input type="range" id="slotPanYSlider" min="-100" max="100" value="0" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDITOR TAB 2: 400 MÀU GIẤY & CHẤT LIỆU KHUNG -->
+          <div class="editor-tab-pane" id="etabFrames">
+            <div class="panel-heading">
+              <span>Chọn trong Màu Giấy & Chất Liệu Khung</span>
+              <span style="font-size:0.68rem; color:var(--primary); text-transform:none;" id="selectedFrameLabel">#001 Hồng Phấn Seoul</span>
+            </div>
+            <div class="catalog-box">
+              <div class="catalog-toolbar">
+                <input type="text" id="frameSearchInput" class="catalog-search" placeholder="🔍 Tìm trong 400 khung giấy (VD: Pastel, Holo, Caro, Chấm bi, Denim, Film...)" />
+              </div>
+              <div class="cat-tabs" id="frameCategoryTabs">
+                <button type="button" class="cat-tab active" data-cat="all">Tất cả (400)</button>
+                <button type="button" class="cat-tab" data-cat="pastel">Màu Pastel (60)</button>
+                <button type="button" class="cat-tab" data-cat="gradient">Gradient & Holo (60)</button>
+                <button type="button" class="cat-tab" data-cat="caro">Caro Gingham (50)</button>
+                <button type="button" class="cat-tab" data-cat="polka">Chấm Bi & Tim (50)</button>
+                <button type="button" class="cat-tab" data-cat="stripes">Sọc & Kẻ Ô (50)</button>
+                <button type="button" class="cat-tab" data-cat="texture">Lụa, Denim & Terrazzo (60)</button>
+                <button type="button" class="cat-tab" data-cat="special">Cuộn Film & Studio (70)</button>
+              </div>
+              <div class="frame-scroll-grid" id="frameSwatchesContainer"></div>
+            </div>
+          </div>
+
+          <!-- EDITOR TAB 3: 400 STICKER + CHỈNH ĐỘ TO NHỎ, XOAY GÓC, LẬT NGANG/DỌC STICKER -->
+          <div class="editor-tab-pane" id="etabStickers">
+            <!-- BẢNG CHỈNH ĐỘ TO NHỎ & XOAY NGANG / XOAY DỌC STICKER -->
+            <div class="sticker-inspector-box">
+              <div class="inspector-top">
+                <span style="font-size:0.75rem; font-weight:800; color:var(--primary-dark);" id="selectedStickerLabel">
+                  ✨ Sticker đang chọn: #1 (🎀)
+                </span>
+                <div class="inspector-actions">
+                  <button type="button" class="btn-inspect" id="btnStickerRotateLeft" title="Xoay trái 15 độ">↺ -15°</button>
+                  <button type="button" class="btn-inspect" id="btnStickerRotateRight" title="Xoay phải 15 độ">↻ +15°</button>
+                  <button type="button" class="btn-inspect" id="btnStickerFlipH" title="Lật ngang Sticker">↔️ Lật ngang</button>
+                  <button type="button" class="btn-inspect" id="btnStickerFlipV" title="Lật dọc Sticker">↕️ Lật dọc</button>
+                  <button type="button" class="btn-inspect danger" id="btnDeleteSelectedSticker" title="Xoá Sticker đang chọn">🗑️ Xoá</button>
+                  <button type="button" class="btn-inspect danger" id="btnClearFrameStickers">Xoá hết</button>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="slider-group" style="margin:0;">
+                  <div class="slider-top">
+                    <span>Độ to nhỏ Sticker (Size)</span>
+                    <span id="stickerSizeVal">38px</span>
+                  </div>
+                  <input type="range" id="stickerSizeSlider" min="14" max="130" value="38" />
+                </div>
+                <div class="slider-group" style="margin:0;">
+                  <div class="slider-top">
+                    <span>Góc xoay Sticker (Rotate)</span>
+                    <span id="stickerRotVal">0°</span>
+                  </div>
+                  <input type="range" id="stickerRotSlider" min="-180" max="180" value="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- KHO 400 STICKER ĐÃ SỬA LỖI KÝ TỰ Ô VUÔNG -->
+            <div class="catalog-box">
+              <div class="catalog-toolbar">
+                <input type="text" id="stickerSearchInput" class="catalog-search" placeholder="🔍 Tìm trong 400 Sticker (VD: Nơ, Mèo, LOVE, XINH, Y2K, Sinh nhật, K-Pop...)" />
+              </div>
+              <div class="cat-tabs" id="stickerCategoryTabs">
+                <button type="button" class="cat-tab active" data-cat="all">Tất cả (400)</button>
+                <button type="button" class="cat-tab" data-cat="coquette">Nơ & Coquette (50)</button>
+                <button type="button" class="cat-tab" data-cat="pets">Thú Cưng Cute (50)</button>
+                <button type="button" class="cat-tab" data-cat="sweets">Bánh & Trà Sữa (50)</button>
+                <button type="button" class="cat-tab" data-cat="sparkle">Lấp Lánh & Y2K (50)</button>
+                <button type="button" class="cat-tab" data-cat="nature">Hoa & Biểu Cảm (50)</button>
+                <button type="button" class="cat-tab" data-cat="kpop">K-Pop & Party (50)</button>
+                <button type="button" class="cat-tab" data-cat="word">Tem Chữ Photobooth (100)</button>
+              </div>
+              <div class="sticker-scroll-tray" id="frameStickerPalette"></div>
+            </div>
+          </div>
+
+          <!-- EDITOR TAB 4: TEM CHỮ, HIỆU ỨNG GIẤY & NGÀY GIỜ -->
+          <div class="editor-tab-pane" id="etabStamp">
+            <div>
+              <div class="panel-heading">1. Tiêu đề thương hiệu in trên khung ảnh</div>
+              <div class="stamp-row">
+                <input type="text" id="customStampInput" class="stamp-input" value="PHOTOISM • SEOUL STUDIO" placeholder="Nhập tiêu đề in trên ảnh..." />
+                <button type="button" class="opt-pill" id="btnPresetStamp">Đổi mẫu thương hiệu</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="panel-heading">2. Hiệu ứng giấy in Studio & Định dạng Ngày Giờ</div>
+              <div class="paper-effects-row">
+                <label><input type="checkbox" id="chkPaperGrain" checked /> Vân giấy lụa bóng</label>
+                <label><input type="checkbox" id="chkBarcode" checked /> Mã vạch Barcode & Số Serial</label>
+                <label><input type="checkbox" id="chkShowDate" checked /> In Ngày & Giờ </label>
+              </div>
+            </div>
+
+            <div style="background:#fdf3f7; padding:12px 14px; border-radius:12px; border:1px solid #f4cde0; font-size:0.76rem; line-height:1.5;">
+              <div>📅 <b>Thời gian ghi nhận trên bản in:</b> <span id="liveClockPreview" style="color:var(--primary); font-family:'Share Tech Mono',monospace; font-weight:800;"></span></div>
+              <div style="color:var(--text-sub); margin-top:4px;">💡 Khi tải ảnh về máy, khung chọn màu nét đứt quanh Sticker sẽ tự động ẩn đi để bức ảnh xuất ra đẹp hoàn hảo.</div>
+            </div>
+          </div>
+
+          <!-- NÚT TẢI ẢNH PNG & CHỤP LẠI LUÔN CỐ ĐỊNH Ở ĐÁY -->
+          <div class="editor-cta-row">
+            <button type="button" class="btn-download-pro" id="btnDownload">
+              <span>⬇ TẢI ẢNH BẢN IN NÉT CAO</span>
+            </button>
+            <button type="button" class="btn-retake-pro" id="btnBackToCapture">
+              <span>📸 Vào buồng chụp lại</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL XEM ẢNH PHÓNG TO TOÀN MÀN HÌNH (LIGHTBOX) -->
+  <div class="lightbox-modal" id="lightboxModal">
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:600px; color:#fff;">
+      <span style="font-weight:800; font-size:0.95rem;">🔍 Xem chi tiết bản in độ phân giải cao</span>
+      <button type="button" class="btn-tray-go" id="btnCloseLightbox">✕ Đóng lại</button>
+    </div>
+    <img id="lightboxImg" src="" alt="Preview Full" />
+  </div>
+
+  <script>
+    /**************************************************************
+     * ĐỊNH DẠNG NGÀY (NGÀY-THÁNG-NĂM) & GIỜ (GIỜ-PHÚT-GIÂY)
+     **************************************************************/
+    function getFormattedDateAndTime(dateObj = new Date()) {
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+
+      const hh = String(dateObj.getHours()).padStart(2, '0');
+      const min = String(dateObj.getMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getSeconds()).padStart(2, '0');
+
+      return {
+        dateStr: `${dd}-${mm}-${yyyy}`,
+        timeStr: `${hh}-${min}-${ss}`,
+        fullStr: `Ngày ${dd}-${mm}-${yyyy} • Giờ ${hh}-${min}-${ss}`
+      };
+    }
+
+    /**************************************************************
+     * SỰ KIỆN CHUYỂN TAB Ở BƯỚC 1 & BƯỚC 2
+     **************************************************************/
+    document.querySelectorAll('.s-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sidebar-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.stab).classList.add('active');
+      });
+    });
+
+    function switchEditorSubTab(tabId) {
+      document.querySelectorAll('.e-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.etab === tabId));
+      document.querySelectorAll('.editor-tab-pane').forEach(p => p.classList.toggle('active', p.id === tabId));
+    }
+
+    document.querySelectorAll('.e-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchEditorSubTab(btn.dataset.etab));
+    });
+
+    // Đổi tỉ lệ khung ngắm Rộng 16:10 <-> Chuẩn 4:3
+    let isWideAspect = true;
+    document.getElementById('btnToggleAspectRatio').addEventListener('click', function () {
+      isWideAspect = !isWideAspect;
+      const vf = document.getElementById('viewfinderFrame');
+      vf.classList.toggle('ratio-4-3', !isWideAspect);
+      liveCanvas.width = isWideAspect ? 1152 : 960;
+      liveCanvas.height = 720;
+      this.textContent = isWideAspect ? '📐 Khung: Rộng 16:10' : '📐 Khung: Chuẩn 4:3';
+    });
+
+    // Phóng rộng toàn bộ Camera
+    let isCinemaMode = false;
+    document.getElementById('btnToggleCinemaMode').addEventListener('click', function () {
+      isCinemaMode = !isCinemaMode;
+      document.getElementById('boothMainGrid').classList.toggle('cinema-expanded', isCinemaMode);
+      this.textContent = isCinemaMode ? '🗗 Hiện bảng công cụ' : '⛶ Phóng rộng Camera';
+    });
+
+    /**************************************************************
+     * 1. KHỞI TẠO ĐẠI THƯ VIỆN (400 LUTs, 400 AR, 400 KHUNG, 400 STICKER)
+     *    ĐÃ LOẠI BỎ HOÀN TOÀN CÁC KÝ TỰ EMOJI MỚI GÂY LỖI Ô VUÔNG TRÊN WINDOWS
+     **************************************************************/
+    const LENS_LUTS_400 = [];
+    (function build400LensLUTs() {
+      const catConfigs = [
+        {
+          cat: 'kstudio',
+          names: [
+            'Photoism Pure', 'Haru Soft Blue', 'Seoul Milk', 'Gangnam Glow', 'Hongdae Indie',
+            'Idol Stage', 'Porcelain Skin', 'K-Drama Snow', 'Busan Breeze', 'Jeju Tangerine',
+            'Itaewon Night', 'Myeongdong Pink', 'Hannam Cream', 'Seongsu Loft', 'Apgujeong Chic',
+            'Bukchon Hanok', 'Namsan Sunset', 'Han River Mist', 'Incheon Sky', 'Daegu Peach',
+            'Gwangju Lilac', 'Suwon Velvet', 'Mapo Pastel', 'Sinsa Dewy', 'Yeonnam Cozy',
+            'Euljiro Retro', 'Jamsil Star', 'Kondae Youth', 'Mangwon Warm', 'Hapjeong Film',
+            'Samcheong Clear', 'Garosugil Air', 'Cheongdam Luxe', 'Gwanak Fresh', 'Nowon Candy',
+            'Songpa Cotton', 'Seocho Ivory', 'Dongjak Pearl', 'Yongsan Cyber', 'Jongno Classic',
+            'Mono Mansion', 'Life4Cuts Clear', 'DontLxxkUp Dark', 'Photomatic Warm', 'Selfix Cream',
+            'Broom Studio', 'Plan B Soft', 'Pixx Pastel', 'Wink Booth', 'Seoul Signature'
+          ],
+          baseSat: 1.06, baseBri: 1.07, baseCon: 0.98, tint: [255, 215, 232]
+        },
+        {
+          cat: 'peach',
+          names: [
+            'Đào Sữa Mọng', 'Hồng Phấn Baby', 'Dâu Tây Kem', 'Cam Đào Hoàng Hôn', 'Trà Sữa Hồng',
+            'Mận Chín Mọng', 'Hoa Anh Đào', 'Hồng Đất Tây', 'San Hô Nắng', 'Mơ Ngâm Đường',
+            'Kẹo Bông Gòn', 'Thạch Đào Trong', 'Rượu Vang Hồng', 'Hồng Khói Chiều', 'Đào Tiên Tử',
+            'Lựu Đỏ Mọng', 'Vải Thiều Sương', 'Hồng Nhung Cổ', 'Cam Sữa Dịu', 'Dưa Hấu Ngọt',
+            'Phấn Má Đào', 'Son Tint Hồng', 'Cánh Hồng Khô', 'Kem Dâu Đà Lạt', 'Trà Đào Cam Sả',
+            'Sữa Chua Dâu', 'Bánh Macaron Hồng', 'Mứt Dâu Rừng', 'Nắng Hồng Mai', 'Mây Hồng Trôi',
+            'Bơ Đào Mịn', 'Quả Mâm Xôi', 'Hồng Trà Sữa', 'Đào Phai Xuân', 'Phấn Nước Glow',
+            'Kẹo Dẻo Gấu', 'Sô-cô-la Dâu', 'Hồng Hạc Bay', 'Đào Sương Sớm', 'Ngọc Trai Hồng',
+            'Môi Đào Căng', 'Sữa Dâu Hàn', 'Hồng Thạch Anh', 'Cam Hồng Nắng', 'Đào Mật Ong',
+            'Kem Đào Lạnh', 'Hồng Phấn Nhung', 'Dâu Rừng Mọng', 'Hồng Búp Bê', 'Đào Ngọt Ngào'
+          ],
+          baseSat: 1.18, baseBri: 1.06, baseCon: 0.97, tint: [255, 175, 195]
+        },
+        {
+          cat: 'film',
+          names: [
+            'Fuji Pro 400H', 'Kodak Portra 400', 'Kodak Gold 200', 'Ilford HP5 B&W', 'Agfa Vista 200',
+            'Cinestill 800T', 'Polaroid 600', 'Fuji Superia', 'Kodak ColorPlus', 'Leica Mono',
+            'Retro 1998', 'Vintage Sepia', 'Grainy Diary', 'Old Bookstore', 'Vinyl Record',
+            'Coffee Stain', 'Autumn Analog', 'Tokyo 1985', 'Parisian Cafe', 'Hanoi Old Quarter',
+            'Dalat Foggy', 'Saigon Retro', 'Cassette Tape', 'Warm Nostalgia', 'Faded Postcard',
+            'Classic Noir', 'Silver Gelatin', 'Velvia 50', 'Ektar 100', 'Tri-X 400',
+            'Lomo Chrome', 'Expired Film', 'Disposable Cam', 'VHS Camcorder', '90s Yearbook',
+            'Sunburn Film', 'Dusty Amber', 'Monochrome Pro', 'Soft Charcoal', 'Golden Hour 70s',
+            'Contax T2 Warm', 'Olympus Mju', 'Ricoh GR Street', 'Rollei Retro', 'Hasselblad Soft',
+            'Yashica Electro', 'Pentax 67', 'Mamiya RB67', 'Canon AE-1', 'Nikon FM2 Analog'
+          ],
+          baseSat: 0.92, baseBri: 1.02, baseCon: 1.06, tint: [245, 210, 165]
+        },
+        {
+          cat: 'cool',
+          names: [
+            'Băng Tuyết Trong', 'Sương Sớm Lạnh', 'Trà Xanh Matcha', 'Xanh Bạc Hà', 'Mây Trắng Bay',
+            'Biển Xanh Sâu', 'Hồ Thuỷ Tinh', 'Ánh Trăng Bạc', 'Cực Quang Xanh', 'Rừng Thông Mưa',
+            'Soda Việt Quất', 'Kem Bạc Hà', 'Sương Mù Bắc Âu', 'Thuỷ Tinh Trong', 'Nước Suối Nguồn',
+            'Gió Biển Mát', 'Lá Sen Sớm', 'Bầu Trời Thu', 'Tuyết Đầu Mùa', 'Xanh Lam Ngọc',
+            'Đá Bào Chanh', 'Trà Hoa Đậu Biếc', 'Sương Mai Tinh', 'Bạch Kim Lạnh', 'Xanh Hồ Thủy',
+            'Mắt Biếc Trong', 'Lụa Trắng Mềm', 'Ánh Sao Đêm', 'Khói Sương Lam', 'Ngọc Lục Bảo',
+            'Cơn Mưa Rào', 'Gió Đông Bắc', 'Pha Lê Tuyết', 'Xanh Da Trời', 'Hương Thảo Mộc',
+            'Trà Nhài Thanh', 'Bóng Râm Mát', 'Sóng Biển Nhẹ', 'Hạt Mưa Trong', 'Tia Sáng Xanh',
+            'Mây Băng Sơn', 'Giọt Sương Lạnh', 'Xanh Ngọc Bích', 'Bầu Trời Trong', 'Gió Mùa Thu',
+            'Tuyết Hokkaido', 'Biển Jeju Xanh', 'Nước Mát Lành', 'Ánh Bạc Sớm', 'Tinh Khiết 100%'
+          ],
+          baseSat: 1.04, baseBri: 1.06, baseCon: 1.00, tint: [185, 228, 255]
+        },
+        {
+          cat: 'cinema',
+          names: [
+            'Cyberpunk Neon', 'La La Land Purple', 'Wong Kar Wai', 'Sunset Boulevard', 'Velvet Midnight',
+            'Golden Oscar', 'Euphoria Glitter', 'Blade Runner', 'Amelie Warm Green', 'Grand Budapest',
+            'Moonlight Blue', 'Dune Amber', 'Matrix Tint', 'Dreamy Haze', 'Starlight Gala',
+            'Royal Gold', 'Deep Emerald', 'Crimson Velvet', 'Twilight Saga', 'Neon Tokyo',
+            'Indie A24', 'French New Wave', 'Noir Detective', 'Warm Candlelight', 'Ethereal Fairy',
+            'Pastel Wes', 'Moody Rain', 'Champagne Glow', 'Obsidian Dark', 'Rose Gold Luxe',
+            'Bronze Goddess', 'Sapphire Night', 'Violet Dream', 'Copper Autumn', 'Honey Glaze',
+            'Caramel Latte', 'Mocha Mousse', 'Truffle Cream', 'Silk Ribbon', 'Diamond Dust',
+            'Hollywood Glam', 'Gotham Shadow', 'Riviera Sun', 'Venice Gondola', 'Prague Autumn',
+            'Vienna Waltz', 'Kyoto Lantern', 'Santorini Blue', 'Maldives Sunset', 'Aurora Borealis'
+          ],
+          baseSat: 1.14, baseBri: 1.01, baseCon: 1.08, tint: [215, 185, 255]
+        },
+        {
+          cat: 'tiktoklut',
+          names: [
+            'Douyin Trắng Lạnh', 'TikTok Glow Skin', 'Tỷ Tỷ Douyin', 'Flash Đêm TikTok', 'Hoàng Hôn Tím',
+            'Cam Cháy TikTok', 'Hồng Bạch Kim', 'Nắng Chiều Viral', 'Mịn Da Căng Bóng', 'Lạnh Lùng Girl',
+            'Búp Bê Sứ Douyin', 'Kem Sữa Trắng', 'Tone Hàn Xẻng', 'Tím Khói Douyin', 'Đỏ Rượu Quyến Rũ',
+            'Xanh Băng Giá', 'Nâu Tây Cá Tính', 'Hồng Đào Viral', 'Ánh Đèn Led Tím', 'Sương Mờ Ảo Diệu',
+            'Trắng Hồng Tự Nhiên', 'Tone Tây Âu', 'Nắng Vàng Rực', 'Môi Đỏ Má Hồng', 'Trong Veo Như Nước',
+            'Cổ Điển Hồng Kông', 'Phố Đêm Thượng Hải', 'Trà Chiều Bắc Kinh', 'Tuyết Rơi Douyin', 'Mùa Thu Hà Nội',
+            'Vàng Bơ TikTok', 'Xanh Rêu Trendy', 'Hồng Đất Douyin', 'Cam Đất Thời Thượng', 'Trắng Sáng Bật Tone',
+            'Hào Quang Idol', 'Gương Mặt Điện Ảnh', 'Tương Phản Ngầu', 'Mềm Mại Coquette', 'Ngọt Ngào Kẹo Bông',
+            'Đêm Nhạc Neon', 'Bình Minh Trên Biển', 'Chiều Tà Lãng Mạn', 'Ánh Nến Lung Linh', 'Mưa Phùn Dịu Êm',
+            'Tia Nắng Xuyên Lá', 'Bầu Trời Sao Đêm', 'Khói Chiều Mộng Mơ', 'Tinh Khôi Học Đường', 'Nữ Thần TikTok'
+          ],
+          baseSat: 1.15, baseBri: 1.08, baseCon: 0.99, tint: [255, 200, 225]
+        },
+        {
+          cat: 'zalolut',
+          names: [
+            'Zalo HD Sáng Hồng', 'Mess Cam Trong Trẻo', 'Gọi Video Lung Linh', 'Da Mịn Tự Nhiên', 'Sáng Mặt Tức Thì',
+            'Zalo Hồng Đào', 'Messenger Tươi Tắn', 'Nắng Sớm Ban Mai', 'Phòng Khách Ấm Áp', 'Quán Cafe Đèn Vàng',
+            'Zalo Trắng Sứ', 'Mess Cam Ngọt Ngào', 'Không Tì Vết', 'Tươi Rạng Rỡ', 'Dịu Dàng Nữ Tính',
+            'Zalo Trong Veo', 'Mess Hồng Phấn', 'Ánh Sáng Cửa Sổ', 'Tự Nhiên Như Thật', 'Hồng Hào Sức Sống',
+            'Zalo Mát Lạnh', 'Mess Ấm Nồng', 'Chiều Công Viên', 'Dạo Phố Cuối Tuần', 'Hẹn Hò Lãng Mạn',
+            'Zalo Chống Ngược Sáng', 'Mess Ban Đêm Sáng', 'Đèn Ngủ Dịu Nhẹ', 'Trà Sữa Cùng Bạn', 'Sinh Nhật Vui Vẻ',
+            'Zalo Thanh Lịch', 'Mess Năng Động', 'Tươi Mát Mùa Hè', 'Ấm Áp Mùa Đông', 'Dịu Mát Mùa Thu',
+            'Zalo Xuân Hồng', 'Mess Tinh Khôi', 'Góc Học Tập Sáng', 'Văn Phòng Thanh Lịch', 'Du Lịch Biển Xanh',
+            'Zalo Núi Đồi', 'Mess Cánh Đồng', 'Hoa Nở Rực Rỡ', 'Bầu Trời Xanh Ngắt', 'Mây Trắng Bồng Bềnh',
+            'Zalo Sương Sớm', 'Mess Hoàng Hôn', 'Đêm Trăng Thanh', 'Sao Khuê Lấp Lánh', 'Zalo Ultra Clear'
+          ],
+          baseSat: 1.09, baseBri: 1.09, baseCon: 0.97, tint: [240, 220, 255]
+        },
+        {
+          cat: 'ulzzang',
+          names: [
+            'Ulzzang Kem Bơ', 'Indie Hồng Nâu', 'Y2K Bạc Ánh Kim', 'Soft Girl Pastel', 'Acubi Xám Khói',
+            'Balletcore Hồng Nhạt', 'Coquette Lụa Đào', 'Clean Girl Tự Nhiên', 'Dark Academia Nâu', 'Cottagecore Nắng Ấm',
+            'Fairycore Xanh Tím', 'Cyber Y2K Xanh', 'Grunge 90s Bụi', 'Matcha Latte Ấm', 'Oat Milk Dịu',
+            'Vanilla Bean', 'Cinnamon Roll', 'Blueberry Muffin', 'Strawberry Shortcake', 'Lemon Tart Tươi',
+            'Tiramisu Nâu Kem', 'Macaron Tím', 'Croissant Bơ Vàng', 'Panna Cotta Mịn', 'Gelato Ý Mát',
+            'Seoul Streetwear', 'Hongdae Cafe', 'Tokyo Harajuku', 'Shibuya Crossing', 'Osaka Neon',
+            'Taipei Night Market', 'Bangkok Summer', 'Singapore Garden', 'London Fog', 'Parisian Chic',
+            'Milan Fashion', 'New York Soho', 'Los Angeles Sun', 'Berlin Techno', 'Amsterdam Canal',
+            'Stockholm Minimal', 'Copenhagen Pastel', 'Zurich Snow', 'Santorini White', 'Bali Tropical',
+            'Phuket Sunset', 'Danang Beach', 'Hoi An Lantern', 'Sapa Cloud', 'Phu Quoc Pearl'
+          ],
+          baseSat: 1.05, baseBri: 1.05, baseCon: 1.01, tint: [255, 225, 205]
+        }
+      ];
+
+      let idCounter = 1;
+      catConfigs.forEach((grp) => {
+        grp.names.forEach((name, idx) => {
+          const code = `#${String(idCounter).padStart(3, '0')}`;
+          const isBW = name.includes('B&W') || name.includes('Mono') || name.includes('Noir') || name.includes('Charcoal') || name.includes('HP5') || name.includes('Tri-X');
+          const bri = +(grp.baseBri + ((idx % 7) - 3) * 0.016).toFixed(2);
+          const con = +(grp.baseCon + ((idx % 5) - 2) * 0.02).toFixed(2);
+          const sat = isBW ? 0 : +(grp.baseSat + ((idx % 9) - 4) * 0.032).toFixed(2);
+          const sep = grp.cat === 'film' ? +((idx % 6) * 0.055).toFixed(2) : (grp.cat === 'peach' ? 0.05 : 0);
+          const hue = ((idx % 11) - 5) * (grp.cat === 'cinema' ? 4 : 2);
+
+          const r = Math.min(255, Math.max(115, grp.tint[0] + ((idx * 13) % 44) - 22));
+          const g = Math.min(255, Math.max(115, grp.tint[1] + ((idx * 17) % 44) - 22));
+          const b = Math.min(255, Math.max(115, grp.tint[2] + ((idx * 23) % 44) - 22));
+          const alpha = isBW ? 0 : +(0.045 + (idx % 5) * 0.016).toFixed(2);
+
+          LENS_LUTS_400.push({
+            id: idCounter,
+            code,
+            name,
+            cat: grp.cat,
+            isBW,
+            css: `${isBW ? 'grayscale(1) ' : ''}brightness(${bri}) contrast(${con}) saturate(${sat}) sepia(${sep}) hue-rotate(${hue}deg)`,
+            overlayRGBA: `rgba(${r}, ${g}, ${b}, ${alpha})`,
+            dotColor: isBW ? 'linear-gradient(135deg,#333,#bbb)' : `rgb(${r}, ${g}, ${b})`
+          });
+          idCounter++;
+        });
+      });
+    })();
+
+    const SOCIAL_AR_400 = [];
+    (function build400SocialAR() {
+      const earTypes = ['cat', 'bunny', 'bear', 'puppy', 'devil', 'angel', 'ribbon', 'sprout', 'headphones', 'crown', 'bandage', 'tiara'];
+      const blushTypes = ['pink', 'peach', 'igari', 'sunburn', 'heartCheek', 'starCheek', 'plum', 'rose', 'butterflyCheek', 'cherryCheek'];
+      const glassTypes = ['none', 'gentle', 'y2kRimless', 'heartGlass', 'pixelGlass', 'roundGeek', 'starGlass'];
+      const auraTypes = ['none', 'hearts', 'sparkles', 'butterflies', 'cherries', 'stars', 'bows', 'notes', 'clouds'];
+
+      const tiktokBaseNames = [
+        'Má Hồng Say Rượu Douyin', 'Mèo Đen Coquette', 'Bướm Xanh Y2K', 'Tàn Nhang Dâu Tây', 'Hào Quang Thiên Thần',
+        'Kính Không Gọng Bayonetta', 'Má Hồng Trái Tim Đôi', 'Thỏ Tuyết Mùa Đông', 'Mắt To Búp Bê Douyin', 'Vương Miện Pha Lê',
+        'Tai Nghe Cyber Y2K', 'Băng Cá Nhân Sống Mũi', 'Má Đào Cháy Nắng', 'Nơ Lụa Hồng Phấn', 'Tiểu Quỷ Ngây Thơ',
+        'Lấp Lánh Kira Kira', 'Kính Trái Tim Ngọt Ngào', 'Gấu Dâu Lotso Cute', 'Cún Con Tai Cụp', 'Mầm Cây Trên Đầu',
+        'Tỷ Tỷ Khí Chất', 'Nàng Thơ Ánh Trăng', 'Búp Bê Sứ Trắng Hồng', 'Má Hồng Ánh Sao', 'Cánh Bướm Trên Sống Mũi',
+        'Khóc Nhè Lấp Lánh', 'Mèo Chuông Vàng', 'Thỏ Kẹo Bông Gòn', 'Kính Đen Gentle Ngầu', 'Hồng Đào Căng Bóng',
+        'Tàn Nhang Nắng Hè', 'Nữ Hoàng Băng Giá', 'Công Chúa Hoa Hồng', 'Nơ Nhung Đỏ Rượu', 'Tai Mèo Trắng Tinh'
+      ];
+
+      const messBaseNames = [
+        'Cún Shiba Thè Lưỡi', 'Mèo Pusheen Đáng Yêu', 'Kính Pixel Thug Life', 'Vòng Hoa Cúc Trắng', 'Mưa Tim Hồng Bay',
+        'Thỏ Hồng Nháy Mắt', 'Gấu Nâu Mật Ong', 'Kính Tròn Tri Thức', 'Sao Vàng Lấp Lánh', 'Vương Miện Vàng 24K',
+        'Mèo Tam Thể Tinh Nghịch', 'Cún Corgi Mông To', 'Kính Ngôi Sao Dạ Tiệc', 'Nơ Đôi Tinh Khôi', 'Sừng Tiểu Quỷ Đỏ',
+        'Vòng Hào Quang Sáng', 'Trái Anh Đào Trên Má', 'Tàn Nhang Tinh Nghịch', 'Tai Nghe DJ Phát Sáng', 'Gấu Bắc Cực Lạnh',
+        'Mèo Mun Mắt Biếc', 'Thỏ Trắng Cung Trăng', 'Kính Mát Mùa Hè', 'Bươm Bướm Quanh Đầu', 'Ngôi Sao May Mắn',
+        'Đám Mây Nhỏ Trên Đầu', 'Nốt Nhạc Vui Nhộn', 'Má Hồng Phấn Đào', 'Cún Poodle Xù', 'Mèo Quý Tộc Nơ'
+      ];
+
+      const zaloBaseNames = [
+        'Da Sứ Trắng Hồng Zalo', 'Môi Đỏ Tươi Tắn', 'Tự Nhiên Trong Veo', 'Má Đào Dịu Dàng', 'Mắt Sáng Long Lanh',
+        'Hồng Hào Rạng Rỡ', 'Thanh Lịch Công Sở', 'Nắng Sớm Tinh Khôi', 'Nơ Hồng Nhỏ Xinh', 'Tai Thỏ Dịu Nhẹ',
+        'Kính Gọng Mảnh Hàn', 'Vương Miện Nhỏ Xinh', 'Hoa Anh Đào Bay', 'Ánh Sao Dịu Dàng', 'Trắng Sáng Không Tì Vết',
+        'Son Bóng Hồng Đào', 'Má Hồng Cam Sữa', 'Tươi Tắn Gọi Video', 'Dịu Mát Mùa Thu', 'Ấm Áp Mùa Đông',
+        'Mèo Con Ngoan Ngoãn', 'Gấu Bông Nhỏ Nhắn', 'Tim Hồng Nhẹ Nhàng', 'Nốt Nhạc Trong Suốt', 'Lấp Lánh Sương Mai',
+        'Nàng Thơ Hà Nội', 'Ngọt Ngào Sài Gòn', 'Sương Mù Đà Lạt', 'Gió Biển Nha Trang', 'Hoàng Hôn Phú Quốc'
+      ];
+
+      let idCounter = 1;
+      for (let i = 0; i < 140; i++) {
+        const base = tiktokBaseNames[i % tiktokBaseNames.length];
+        const ver = Math.floor(i / tiktokBaseNames.length) + 1;
+        const name = `[TikTok] ${base}${ver > 1 ? ' v' + ver : ''}`;
+        const code = `#${String(idCounter).padStart(3, '0')}`;
+        SOCIAL_AR_400.push({
+          id: idCounter++,
+          code,
+          name,
+          cat: 'tiktok',
+          emoji: ['🎵', '🦋', '🎀', '🐱', '✨', '💖', '👑'][i % 7],
+          ears: i % 5 === 4 ? null : earTypes[i % earTypes.length],
+          blush: blushTypes[i % blushTypes.length],
+          freckles: i % 2 === 0,
+          noseBandage: i % 7 === 0,
+          glasses: i % 4 === 0 ? glassTypes[(i % 6) + 1] : 'none',
+          aura: auraTypes[(i % 8) + 1],
+          lipGloss: true,
+          primaryColor: `hsl(${(i * 33) % 360}, 88%, 74%)`
+        });
+      }
+
+      for (let i = 0; i < 130; i++) {
+        const base = messBaseNames[i % messBaseNames.length];
+        const ver = Math.floor(i / messBaseNames.length) + 1;
+        const name = `[Mess] ${base}${ver > 1 ? ' #' + ver : ''}`;
+        const code = `#${String(idCounter).padStart(3, '0')}`;
+        SOCIAL_AR_400.push({
+          id: idCounter++,
+          code,
+          name,
+          cat: 'mess',
+          emoji: ['💬', '🐶', '🕶️', '🐰', '🌈', '🧸', '⭐'][i % 7],
+          ears: earTypes[(i + 2) % earTypes.length],
+          blush: blushTypes[(i + 3) % blushTypes.length],
+          freckles: i % 3 === 0,
+          noseBandage: i % 9 === 0,
+          glasses: i % 3 === 0 ? glassTypes[(i % 6) + 1] : 'none',
+          aura: auraTypes[(i % 8) + 1],
+          lipGloss: true,
+          primaryColor: `hsl(${(i * 41 + 180) % 360}, 85%, 72%)`
+        });
+      }
+
+      for (let i = 0; i < 130; i++) {
+        const base = zaloBaseNames[i % zaloBaseNames.length];
+        const ver = Math.floor(i / zaloBaseNames.length) + 1;
+        const name = `[Zalo] ${base}${ver > 1 ? ' Plus ' + ver : ''}`;
+        const code = `#${String(idCounter).padStart(3, '0')}`;
+        SOCIAL_AR_400.push({
+          id: idCounter++,
+          code,
+          name,
+          cat: 'zalo',
+          emoji: ['💙', '🌸', '✨', '💄', '🎀', '🐰', '🌷'][i % 7],
+          ears: i % 2 === 0 ? earTypes[i % 8] : null,
+          blush: blushTypes[i % 6],
+          freckles: i % 4 === 0,
+          noseBandage: false,
+          glasses: i % 5 === 0 ? 'roundGeek' : 'none',
+          aura: i % 2 === 0 ? auraTypes[(i % 6) + 1] : 'sparkles',
+          lipGloss: true,
+          primaryColor: `hsl(${(i * 29 + 300) % 360}, 82%, 76%)`
+        });
+      }
+    })();
+
+    const FRAMES_400 = [];
+    (function build400Frames() {
+      let idCounter = 1;
+      const basePastels = [
+        ['Hồng Phấn Seoul', '#f6b8ce'], ['Trắng Tinh Khôi', '#fcfbfa'], ['Đen Studio Nhám', '#151319'],
+        ['Tím Lavender', '#cdb4db'], ['Vàng Bơ Pháp', '#fff1b8'], ['Xanh Mây Trời', '#bde0fe'],
+        ['Xanh Matcha Sữa', '#cce3de'], ['Hồng Đào Sữa', '#ffcad4'], ['Kem Vani Ấm', '#faedcd'],
+        ['Tím Khoai Môn', '#e0c3fc'], ['Xanh Bạc Hà', '#b8f2e6'], ['Cam San Hô Nhạt', '#fbc4ab'],
+        ['Hồng Dâu Kem', '#ff8fab'], ['Xanh Denim Nhạt', '#a2d2ff'], ['Vàng Chanh Sữa', '#fdffb6'],
+        ['Hồng Đất Rose', '#e5989b'], ['Xám Khói Hàn', '#dee2e6'], ['Xanh Lá Mạ', '#d8f3dc'],
+        ['Tím Lilac Mộng', '#dec9e9'], ['Hồng Baby Cute', '#ffc8dd'], ['Nâu Trà Sữa', '#ddb892'],
+        ['Xanh Băng Tuyết', '#caf0f8'], ['Cam Đào Mọng', '#ffdab9'], ['Đỏ Rượu Vang', '#800f2f'],
+        ['Xanh Rêu Cổ', '#6b705c'], ['Tím Đêm Sao', '#240046'], ['Hồng Sen Nhạt', '#f4acb7'],
+        ['Vàng Mật Ong', '#ffea00'], ['Xanh Navy Hàn', '#1d3557'], ['Nâu Cà Phê Sữa', '#b08968']
+      ];
+      basePastels.forEach(([name, hex]) => {
+        FRAMES_400.push({ id: idCounter++, name, cat: 'pastel', type: 'solid', color1: hex, previewCSS: hex });
+      });
+      for (let i = 1; i <= 30; i++) {
+        const h = (i * 12) % 360;
+        const hex = `hsl(${h}, 72%, 86%)`;
+        FRAMES_400.push({ id: idCounter++, name: `Pastel Macaron #${i}`, cat: 'pastel', type: 'solid', color1: hex, previewCSS: hex });
+      }
+
+      for (let i = 1; i <= 60; i++) {
+        const h1 = (i * 19) % 360;
+        const h2 = (h1 + 65) % 360;
+        const h3 = (h2 + 65) % 360;
+        const c1 = `hsl(${h1}, 88%, 82%)`;
+        const c2 = `hsl(${h2}, 84%, 78%)`;
+        const c3 = `hsl(${h3}, 86%, 84%)`;
+        FRAMES_400.push({
+          id: idCounter++,
+          name: i <= 30 ? `K-Gradient #${i}` : `Hologram Pearl #${i - 30}`,
+          cat: 'gradient',
+          type: 'gradient3',
+          color1: c1,
+          color2: c2,
+          color3: c3,
+          previewCSS: `linear-gradient(135deg, ${c1}, ${c2}, ${c3})`
+        });
+      }
+
+      for (let i = 1; i <= 50; i++) {
+        const h = (i * 23) % 360;
+        const c1 = `hsl(${h}, 80%, 83%)`;
+        const c2 = i % 2 === 0 ? '#ffffff' : `hsl(${(h + 20) % 360}, 90%, 95%)`;
+        FRAMES_400.push({
+          id: idCounter++,
+          name: `Caro Gingham #${i}`,
+          cat: 'caro',
+          type: 'caro',
+          color1: c1,
+          color2: c2,
+          previewCSS: `repeating-conic-gradient(${c1} 0% 25%, ${c2} 0% 50%) 50% / 12px 12px`
+        });
+      }
+
+      for (let i = 1; i <= 50; i++) {
+        const h = (i * 27) % 360;
+        const bg = `hsl(${h}, 78%, 91%)`;
+        const dot = `hsl(${h}, 75%, 62%)`;
+        const isHeart = i > 25;
+        FRAMES_400.push({
+          id: idCounter++,
+          name: isHeart ? `Tim Nhí Cute #${i - 25}` : `Chấm Bi Cute #${i}`,
+          cat: 'polka',
+          type: isHeart ? 'minihearts' : 'polka',
+          color1: bg,
+          color2: dot,
+          previewCSS: `radial-gradient(${dot} 22%, transparent 23%) 0 0 / 12px 12px, ${bg}`
+        });
+      }
+
+      for (let i = 1; i <= 50; i++) {
+        const h = (i * 31) % 360;
+        const c1 = `hsl(${h}, 82%, 87%)`;
+        const c2 = '#ffffff';
+        const isGrid = i > 25;
+        FRAMES_400.push({
+          id: idCounter++,
+          name: isGrid ? `Ô Vở Hàn Quốc #${i - 25}` : `Sọc Kẹo Ngọt #${i}`,
+          cat: 'stripes',
+          type: isGrid ? 'gridline' : 'stripes',
+          color1: isGrid ? '#fff9fb' : c1,
+          color2: isGrid ? `hsl(${h}, 70%, 75%)` : c2,
+          previewCSS: isGrid ? '#fff9fb' : `repeating-linear-gradient(45deg,${c1} 0 6px,${c2} 6px 12px)`
+        });
+      }
+
+      for (let i = 1; i <= 60; i++) {
+        const h = (i * 18) % 360;
+        if (i <= 20) {
+          const bg = `hsl(${h}, 45%, 86%)`;
+          const sp = `hsl(${h}, 35%, 52%)`;
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Họa Tiết Y2K Terrazzo #${i}`,
+            cat: 'texture',
+            type: 'terrazzo',
+            color1: bg,
+            color2: sp,
+            previewCSS: bg
+          });
+        } else if (i <= 40) {
+          const bg = `hsl(${200 + (i % 40)}, 45%, ${35 + (i % 35)}%)`;
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Vải Jean Denim #${i - 20}`,
+            cat: 'texture',
+            type: 'denim',
+            color1: bg,
+            color2: 'rgba(255,255,255,0.14)',
+            previewCSS: bg
+          });
+        } else {
+          const bg = `hsl(${30 + (i % 25)}, 55%, ${75 + (i % 15)}%)`;
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Giấy Mỹ Thuật Kraft #${i - 40}`,
+            cat: 'texture',
+            type: 'kraft',
+            color1: bg,
+            color2: 'rgba(120,80,40,0.12)',
+            previewCSS: bg
+          });
+        }
+      }
+
+      for (let i = 1; i <= 70; i++) {
+        const h = (i * 21) % 360;
+        if (i <= 25) {
+          const bg = i === 1 ? '#121016' : `hsl(${h}, 55%, 24%)`;
+          const hole = '#f8f0fc';
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Cuộn Film 35mm #${i}`,
+            cat: 'special',
+            type: 'filmstrip',
+            color1: bg,
+            color2: hole,
+            previewCSS: bg
+          });
+        } else if (i <= 50) {
+          const bg = `hsl(${h}, 85%, 92%)`;
+          const acc = `hsl(${h}, 80%, 58%)`;
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Viền Tim Studio #${i - 25}`,
+            cat: 'special',
+            type: 'heartborder',
+            color1: bg,
+            color2: acc,
+            previewCSS: bg
+          });
+        } else {
+          const bg = `hsl(${h}, 75%, 88%)`;
+          const acc = `hsl(${(h + 180) % 360}, 80%, 60%)`;
+          FRAMES_400.push({
+            id: idCounter++,
+            name: `Khung Neon Idol #${i - 50}`,
+            cat: 'special',
+            type: 'neonborder',
+            color1: bg,
+            color2: acc,
+            previewCSS: bg
+          });
+        }
+      }
+    })();
+
+    // --- D. 400 STICKER ĐÃ SỬA SẠCH CÁC EMOJI LỖI FONT Ô VUÔNG TRÊN WINDOWS ---
+    const STICKERS_400 = [];
+    (function build400Stickers() {
+      const iconGroups = {
+        coquette: [
+          '🎀','💖','💗','💓','💞','💕','💌','💘','💝','💟','❣️','❤️','🧡','💛','💚','💙','💜','🤍','🧸','👑',
+          '💎','💍','💄','👛','👗','👠','👒','🌂','🌷','🌹','🥀','🌺','🌸','🌼','🎠','🎡','🏰','🥂','🍾','🍸',
+          '🎻','🎹','🎼','📖','✉️','🖋️','🕰️','🗝️','🎁','🎈'
+        ],
+        pets: [
+          '🐱','🐰','🐶','🐼','🐨','🦊','🐹','🐻','🐥','🐣','🐧','🦄','🦋','🐝','🐞','🐢','🐬','🐳','🐙','🐾',
+          '🐈','🐇','🐕','🐩','🦌','🐿️','🦔','🦩','🦚','🦜','🦢','🕊️','🦉','🐸','🐵','🦁','🐯','🐮','🐷','🐽',
+          '🐠','🐟','🐡','🦀','🐚','🐌','🐛','🐜','🦎','🐍'
+        ],
+        sweets: [
+          '🍓','🍒','🍑','🍎','🍉','🍊','🍋','🍇','🥝','🍍','🍰','🧁','🎂','🍩','🍪','🍬','🍭','🍮','🍦','🍨',
+          '🧋','🥛','☕','🥐','🥞','🧇','🥯','🥨','🧀','🍔','🍟','🍕','🌭','🥪','🌮','🍙','🍘','🍥','🍡','🍢',
+          '🍣','🍤','🍱','🍜','🍝','🍫','🍿','🍯','🍹','🧃'
+        ],
+        sparkle: [
+          '✨','⭐','🌟','💫','⚡','🔥','🌈','☁️','🌙','☀️','❄️','💧','🎧','📸','🎞️','💿','🎮','👾','🛸','🚀',
+          '🎸','🎵','🎶','🔮','🧿','🎇','🎆','🌌','🌠','💥','💢','💦','💨','🕶️','👑','🏆','🥇','🎖️','🎗️','🎫',
+          '🎟️','🎪','🎭','🎨','🎬','🎤','🎯','🎳','🎰','🎲'
+        ],
+        nature: [
+          '🌸','🌷','🌹','🌺','🌻','🌼','🍀','🌱','🍄','🐚','🥰','😍','🤩','😘','😜','🥳','😎','🥺','😊','😉',
+          '😋','😛','🤪','😝','🤗','🤭','🤫','🤔','😏','😌','😴','🤤','😻','😽','😹','😺','😼','✌️','🤟','👍',
+          '👏','🙌','👐','🤲','🤝','🙏','💪','👼','👸','🧚'
+        ],
+        kpop: [
+          '🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🎻','🎬','🏹','🎯','🎳','🎮','🎰','🎲','🧩','🧸','🎁','🎈',
+          '🎏','🎀','🎊','🎉','🎎','🏮','🎐','🧧','✉️','📩','📨','🏷️','👑','💎','💄','💋','💅','💍','💐','🌹',
+          '🥂','🍰','🎂','🍭','🍬','🍫','🍿','🍩','🍪','🍦'
+        ]
+      };
+
+      Object.keys(iconGroups).forEach(cat => {
+        iconGroups[cat].forEach(emo => {
+          STICKERS_400.push({
+            id: STICKERS_400.length + 1,
+            text: emo,
+            cat,
+            isBadge: false
+          });
+        });
+      });
+
+      const wordBadges = [
+        'CUTE OVERLOAD', 'BESTIES 4EVER', 'SEOUL VIBE', 'SWEET MOMENT', 'Y2K GIRL',
+        'XINH XỈU 💖', 'NGOAN XINH YÊU', 'HAPPY BIRTHDAY', 'LOVE YOU 3000', 'PHOTOISM 2026',
+        'HARU FILM ✨', 'LIFE4CUTS', 'MY SUNSHINE', 'GOOD VIBES ONLY', 'STAY CUTE 🎀',
+        'BẠN THÂN MÃI ĐỈNH', 'KỶ NIỆM ĐẸP', 'THANH XUÂN 🌸', 'SLAY QUEEN 👑', '10 ĐIỂM KHÔNG NHƯNG',
+        'ĐÁNG YÊU QUÁ', 'MÃI BÊN NHAU', 'HẸN HÒ CUỐI TUẦN', 'CHỤP ẢNH HÀN QUỐC', 'CƯỜI LÊN NÀO 😊',
+        'BLING BLING ✨', 'ANGEL BABY 👼', 'CHERRY BOMB 🍒', 'PEACHY GIRL 🍑', 'STARLIGHT ⭐',
+        'SWEET 18 🎂', 'FOREVER YOUNG', 'SO PRETTY 💕', 'MY BOO 🧸', 'K-POP IDOL 🎤',
+        'DREAM BIG 🌙', 'PURE LOVE 🤍', 'COQUETTE 🎀', 'BALLETCORE 🦢', 'CYBER Y2K 💿',
+        'NO BAD DAYS', 'SMILE MORE', 'BE HAPPY 🍀', 'LUCKY ME ✨', 'SUPER STAR 🌟',
+        'HONEY BUNNY 🐰', 'KITTY CAT 🐱', 'TEDDY BEAR 🧸', 'SWEETHEART 💘', 'FIRST DATE 💌',
+        'ANNIVERSARY 💍', 'GRADUATION 🎓', 'CLASS OF 2026', 'SUMMER VIBE 🏖️', 'WINTER SNOW ❄️',
+        'SPRING FLOWER 🌸', 'AUTUMN LEAF 🍁', 'COFFEE TIME ☕', 'BOBA LOVER 🧋', 'FOODIE 🍰',
+        'NIGHT OUT ✨', 'PARTY TIME 🎉', 'SELFIE QUEEN 📸', 'VLOG DAY 🎞️', 'AESTHETIC ✨',
+        'SOFT GIRL 🌷', 'COOL KID 🕶️', 'BOSS BABY 🔥', 'DARLING 💖', 'PRINCESS 👑',
+        'XOXO 💋', 'OMG SO CUTE', 'BEST DAY EVER', 'MEMORY LANE', 'TRUE LOVE 💕',
+        'SOULMATE 💞', 'TWINNING 👯‍♀️', 'SQUAD GOALS', 'SISTERS 4EVER', 'COUPLE GOALS ❤️',
+        'HẠNH PHÚC NHÉ', 'YÊU ĐỜI 🌈', 'XINH LUNG LINH', 'CÔNG CHÚA NHỎ', 'EM BÉ NGOAN 🍼',
+        'MÈO CON 🐾', 'THỎ TRẮNG 🥕', 'DÂU TÂY 🍓', 'KẸO NGỌT 🍬', 'TRÀ SỮA FULL TOPPING',
+        'ĐỈNH NÓC KỊCH TRẦN', 'BAY PHẤP PHỚI', 'XINH TUYỆT ĐỐI', 'HẾT NƯỚC CHẤM', 'Cưng Xỉu Luôn 🥰',
+        'Mãi Keo Nhé 💅', 'Tình Yêu To Bự 💗', 'Gặp Nhau Là Cười', 'Lưu Giữ Kỷ Niệm', 'Seoul 18-10-2026'
+      ];
+
+      wordBadges.forEach(txt => {
+        STICKERS_400.push({
+          id: STICKERS_400.length + 1,
+          text: txt,
+          cat: 'word',
+          isBadge: true
+        });
+      });
+    })();
+
+    /**************************************************************
+     * 2. TRẠNG THÁI HỆ THỐNG (STATE)
+     *    BỔ SUNG: XOAY/LẬT STICKER, ZOOM TỪNG Ô ẢNH & CHỌN Ô CHỤP LẠI
+     **************************************************************/
+    const LAYOUT_SPECS = {
+      '1x4':      { cols: 1, rows: 4, total: 4,  W: 430,  H: 1290 },
+      '1x3':      { cols: 1, rows: 3, total: 3,  W: 430,  H: 1010 },
+      '2x2':      { cols: 2, rows: 2, total: 4,  W: 780,  H: 740  },
+      '2x3':      { cols: 2, rows: 3, total: 6,  W: 780,  H: 1060 },
+      '3x3':      { cols: 3, rows: 3, total: 9,  W: 960,  H: 930  },
+      '4x4':      { cols: 4, rows: 4, total: 16, W: 1120, H: 1090 },
+      '6x6':      { cols: 6, rows: 6, total: 36, W: 1360, H: 1330 },
+      'polaroid': { cols: 1, rows: 1, total: 1,  W: 540,  H: 630  }
+    };
+
+    const state = {
+      currentStep: 'capture',
+      stream: null,
+      demoMode: false,
+
+      layout: '1x4',
+      maxShots: 4,
+      fastGridMode: true,
+      shots: [],
+      slotTransforms: [], // Lưu { zoom: 1, panX: 0, panY: 0, flipX: false } cho từng ô ảnh
+      selectedSlotIdx: 0, // Ô ảnh đang được chọn để phóng to hoặc chụp lại
+
+      isMirrored: true,
+      ringLight: true,
+      timerSeconds: 3,
+      isCapturing: false,
+      lastCapturedDate: new Date(),
+
+      activeLut: LENS_LUTS_400[0],
+      activeArPreset: SOCIAL_AR_400[0],
+      arEnabled: true,
+
+      beautify: 60,
+      skinSmooth: 65,
+      arScale: 1.0,
+      rotateFollowHead: true,
+
+      activeFrame: FRAMES_400[0],
+      stampText: 'PHOTOISM • SEOUL STUDIO',
+      showDate: true,
+      showPaperGrain: true,
+      showBarcode: true,
+      previewZoom: 100,
+
+      // Mỗi Sticker có thêm rot (góc xoay độ), flipX (lật ngang), flipY (lật dọc)
+      frameStickers: [
+        { text: '🎀', isBadge: false, x: 58, y: 52, size: 38, rot: 0, flipX: false, flipY: false },
+        { text: 'XINH XỈU 💖', isBadge: true, x: 320, y: 1185, size: 15, rot: 0, flipX: false, flipY: false }
+      ],
+      selectedStickerIdx: 0,
+      draggingStickerIdx: -1,
+
+      faceDetected: false,
+      lastFaceTime: 0,
+      faceData: {
+        eyeMidX: 576,
+        eyeMidY: 315,
+        leftEye:  { x: 520, y: 315 },
+        rightEye: { x: 630, y: 315 },
+        noseTip:  { x: 576, y: 375 },
+        upperLip: [],
+        lowerLip: [],
+        faceWidthPx: 245,
+        rollAngle: 0
+      },
+
+      userOffset: { x: 0, y: 0 },
+      isDraggingAR: false,
+      dragStart: { x: 0, y: 0 },
+      cropInfo: { sx: 0, sy: 0, sw: 640, sh: 480 }
+    };
+
+    function getSlotTransform(idx) {
+      if (!state.slotTransforms[idx]) {
+        state.slotTransforms[idx] = { zoom: 1, panX: 0, panY: 0, flipX: false };
+      }
+      return state.slotTransforms[idx];
+    }
+
+    const UPPER_LIP_INDICES = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78];
+    const LOWER_LIP_INDICES = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78];
+
+    const rawVideo = document.getElementById('rawVideo');
+    const liveCanvas = document.getElementById('liveCanvas');
+    const liveCtx = liveCanvas.getContext('2d');
+    const stripCanvas = document.getElementById('stripCanvas');
+    const stripCtx = stripCanvas.getContext('2d');
+    const faceStatusBadge = document.getElementById('faceStatusBadge');
+    const cameraErrorModal = document.getElementById('cameraErrorModal');
+    const cameraDeviceSelect = document.getElementById('cameraDeviceSelect');
+
+    const smoothCanvas = document.createElement('canvas');
+    smoothCanvas.width = 480;
+    smoothCanvas.height = 360;
+    const smoothCtx = smoothCanvas.getContext('2d');
+
+    setInterval(() => {
+      const dt = getFormattedDateAndTime(new Date());
+      const str = `${dt.dateStr} | ${dt.timeStr}`;
+      const el1 = document.getElementById('liveClockPreview');
+      const el2 = document.getElementById('liveClockSidebar');
+      if (el1) el1.textContent = str;
+      if (el2) el2.textContent = str;
+    }, 1000);
+
+    /**************************************************************
+     * 3. QUẢN LÝ PHÓNG TO BẢN IN (ZOOM PREVIEW) & LIGHTBOX
+     **************************************************************/
+    function updatePreviewZoom(val) {
+      state.previewZoom = Math.max(60, Math.min(180, Number(val)));
+      document.getElementById('previewZoomSlider').value = state.previewZoom;
+      document.getElementById('previewZoomVal').textContent = state.previewZoom + '%';
+      const holder = document.getElementById('printedPaperHolder');
+      holder.style.transform = `scale(${state.previewZoom / 100})`;
+    }
+
+    document.getElementById('previewZoomSlider').addEventListener('input', (e) => updatePreviewZoom(e.target.value));
+    document.getElementById('btnZoomIn').addEventListener('click', () => updatePreviewZoom(state.previewZoom + 15));
+    document.getElementById('btnZoomOut').addEventListener('click', () => updatePreviewZoom(state.previewZoom - 15));
+    document.getElementById('btnResetZoom').addEventListener('click', () => updatePreviewZoom(100));
+
+    document.getElementById('btnOpenLightbox').addEventListener('click', () => {
+      renderPhotoboothStrip(true); // Render ẩn viền chọn
+      document.getElementById('lightboxImg').src = stripCanvas.toDataURL('image/png');
+      document.getElementById('lightboxModal').classList.add('show');
+      renderPhotoboothStrip(false);
+    });
+
+    document.getElementById('btnCloseLightbox').addEventListener('click', () => {
+      document.getElementById('lightboxModal').classList.remove('show');
+    });
+
+    document.getElementById('lightboxModal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightboxModal') {
+        document.getElementById('lightboxModal').classList.remove('show');
+      }
+    });
+
+    /**************************************************************
+     * 4. QUẢN LÝ CHỈNH SỬA STICKER (TO NHỎ, XOAY, LẬT NGANG/DỌC)
+     **************************************************************/
+    function syncStickerInspectorUI() {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      const labelEl = document.getElementById('selectedStickerLabel');
+      const sizeSlider = document.getElementById('stickerSizeSlider');
+      const sizeVal = document.getElementById('stickerSizeVal');
+      const rotSlider = document.getElementById('stickerRotSlider');
+      const rotVal = document.getElementById('stickerRotVal');
+      const btnFlipH = document.getElementById('btnStickerFlipH');
+      const btnFlipV = document.getElementById('btnStickerFlipV');
+
+      if (!st) {
+        labelEl.textContent = '✨ Chưa chọn Sticker nào (Bấm vào Sticker để chỉnh)';
+        return;
+      }
+
+      labelEl.textContent = `✨ Đang chỉnh Sticker #${state.selectedStickerIdx + 1}: ${st.text}`;
+      sizeSlider.value = st.size;
+      sizeVal.textContent = `${st.size}px`;
+      rotSlider.value = st.rot || 0;
+      rotVal.textContent = `${st.rot || 0}°`;
+      btnFlipH.classList.toggle('active', Boolean(st.flipX));
+      btnFlipV.classList.toggle('active', Boolean(st.flipY));
+    }
+
+    document.getElementById('stickerSizeSlider').addEventListener('input', (e) => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.size = Number(e.target.value);
+      document.getElementById('stickerSizeVal').textContent = `${st.size}px`;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('stickerRotSlider').addEventListener('input', (e) => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.rot = Number(e.target.value);
+      document.getElementById('stickerRotVal').textContent = `${st.rot}°`;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnStickerRotateLeft').addEventListener('click', () => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.rot = ((st.rot || 0) - 15);
+      if (st.rot < -180) st.rot += 360;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnStickerRotateRight').addEventListener('click', () => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.rot = ((st.rot || 0) + 15);
+      if (st.rot > 180) st.rot -= 360;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnStickerFlipH').addEventListener('click', () => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.flipX = !st.flipX;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnStickerFlipV').addEventListener('click', () => {
+      const st = state.frameStickers[state.selectedStickerIdx];
+      if (!st) return;
+      st.flipY = !st.flipY;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnDeleteSelectedSticker').addEventListener('click', () => {
+      if (state.selectedStickerIdx < 0 || state.selectedStickerIdx >= state.frameStickers.length) return;
+      state.frameStickers.splice(state.selectedStickerIdx, 1);
+      state.selectedStickerIdx = state.frameStickers.length - 1;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    /**************************************************************
+     * 5. QUẢN LÝ TỪNG Ô ẢNH (CHỌN Ô ĐỂ CHỤP LẠI, THAY ẢNH, ZOOM TRONG Ô)
+     **************************************************************/
+    function selectSlotForEdit(idx) {
+      state.selectedSlotIdx = Math.max(0, Math.min(state.maxShots - 1, idx));
+      const tf = getSlotTransform(state.selectedSlotIdx);
+
+      document.getElementById('selectedSlotStatus').textContent = `Đang chọn: Ô ảnh #${state.selectedSlotIdx + 1}`;
+      document.getElementById('slotCropTitle').textContent = `🔍 Chỉnh riêng Ô ảnh #${state.selectedSlotIdx + 1}:`;
+
+      document.getElementById('slotZoomSlider').value = Math.round(tf.zoom * 100);
+      document.getElementById('slotZoomVal').textContent = `${Math.round(tf.zoom * 100)}%`;
+
+      document.getElementById('slotPanXSlider').value = tf.panX;
+      document.getElementById('slotPanXVal').textContent = tf.panX;
+
+      document.getElementById('slotPanYSlider').value = tf.panY;
+      document.getElementById('slotPanYVal').textContent = tf.panY;
+
+      document.getElementById('btnFlipSlotH').classList.toggle('active', Boolean(tf.flipX));
+
+      renderSlotManagerGrid();
+      renderPhotoboothStrip();
+    }
+
+    function renderSlotManagerGrid() {
+      const container = document.getElementById('slotManagerGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 0; i < state.maxShots; i++) {
+        const card = document.createElement('div');
+        card.className = 'slot-card' + (state.selectedSlotIdx === i ? ' selected' : '');
+        const hasImg = Boolean(state.shots[i]);
+
+        const thumb = document.createElement('div');
+        thumb.className = 'slot-card-thumb';
+        if (hasImg) {
+          const img = document.createElement('img');
+          img.src = state.shots[i].toDataURL('image/jpeg', 0.75);
+          thumb.appendChild(img);
+        } else {
+          thumb.textContent = `Ô trống #${i + 1}`;
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'slot-card-actions';
+
+        const lbl = document.createElement('span');
+        lbl.style.fontSize = '0.68rem';
+        lbl.style.fontWeight = '800';
+        lbl.textContent = `Ô #${i + 1}`;
+
+        const btnShoot = document.createElement('button');
+        btnShoot.type = 'button';
+        btnShoot.className = 'btn-slot-mini primary';
+        btnShoot.textContent = '📸 Chụp lại';
+        btnShoot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          startPhotoSession(i);
+        });
+
+        actions.appendChild(lbl);
+        actions.appendChild(btnShoot);
+
+        card.appendChild(thumb);
+        card.appendChild(actions);
+
+        card.addEventListener('click', () => selectSlotForEdit(i));
+        container.appendChild(card);
+      }
+    }
+
+    document.getElementById('btnRetakeSelectedSlot').addEventListener('click', () => {
+      startPhotoSession(state.selectedSlotIdx);
+    });
+
+    const singleSlotUploadInput = document.getElementById('singleSlotUploadInput');
+    document.getElementById('btnReplaceSelectedSlot').addEventListener('click', () => {
+      singleSlotUploadInput.click();
+    });
+
+    singleSlotUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 960;
+          c.height = 720;
+          const ctx = c.getContext('2d');
+          try { ctx.filter = getCombinedFilterCSS(); } catch (err) {}
+          const targetRatio = c.width / c.height;
+          const imgRatio = img.width / img.height;
+          let sx = 0, sy = 0, sw = img.width, sh = img.height;
+          if (imgRatio > targetRatio) {
+            sw = img.height * targetRatio;
+            sx = (img.width - sw) / 2;
+          } else {
+            sh = img.width / targetRatio;
+            sy = (img.height - sh) / 2;
+          }
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+          ctx.filter = 'none';
+
+          state.shots[state.selectedSlotIdx] = c;
+          state.lastCapturedDate = new Date();
+          updateCaptureProgressUI();
+          renderSlotManagerGrid();
+          renderPhotoboothStrip();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+      singleSlotUploadInput.value = '';
+    });
+
+    document.getElementById('slotZoomSlider').addEventListener('input', (e) => {
+      const tf = getSlotTransform(state.selectedSlotIdx);
+      tf.zoom = Number(e.target.value) / 100;
+      document.getElementById('slotZoomVal').textContent = `${e.target.value}%`;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('slotPanXSlider').addEventListener('input', (e) => {
+      const tf = getSlotTransform(state.selectedSlotIdx);
+      tf.panX = Number(e.target.value);
+      document.getElementById('slotPanXVal').textContent = tf.panX;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('slotPanYSlider').addEventListener('input', (e) => {
+      const tf = getSlotTransform(state.selectedSlotIdx);
+      tf.panY = Number(e.target.value);
+      document.getElementById('slotPanYVal').textContent = tf.panY;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnFlipSlotH').addEventListener('click', () => {
+      const tf = getSlotTransform(state.selectedSlotIdx);
+      tf.flipX = !tf.flipX;
+      selectSlotForEdit(state.selectedSlotIdx);
+    });
+
+    document.getElementById('btnResetSlotZoom').addEventListener('click', () => {
+      state.slotTransforms[state.selectedSlotIdx] = { zoom: 1, panX: 0, panY: 0, flipX: false };
+      selectSlotForEdit(state.selectedSlotIdx);
+    });
+
+    /**************************************************************
+     * 6. RENDER UI CHO 400 LUTs, 400 AR FILTERS, 400 FRAMES, 400 STICKERS
+     **************************************************************/
+    let currentLutCat = 'all';
+    let currentArCat = 'all';
+    let currentFrameCat = 'all';
+    let currentStickerCat = 'all';
+
+    function renderLutCatalog() {
+      const container = document.getElementById('lutGridContainer');
+      const query = document.getElementById('lutSearchInput').value.trim().toLowerCase();
+      container.innerHTML = '';
+
+      const frag = document.createDocumentFragment();
+      LENS_LUTS_400.forEach(item => {
+        const matchCat = currentLutCat === 'all' || item.cat === currentLutCat;
+        const matchQuery = !query || item.name.toLowerCase().includes(query) || item.code.toLowerCase().includes(query);
+        if (!matchCat || !matchQuery) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'lut-item-btn' + (state.activeLut.id === item.id ? ' active' : '');
+        btn.innerHTML = `
+          <span class="lut-dot" style="background:${item.dotColor};"></span>
+          <span class="item-meta">
+            <span class="item-code">${item.code}</span>
+            <span class="item-name">${item.name}</span>
+          </span>
+        `;
+        btn.addEventListener('click', () => {
+          state.activeLut = item;
+          document.getElementById('selectedLutLabel').textContent = `${item.code} ${item.name}`;
+          document.getElementById('quickFilterSub').textContent = `(${item.code} ${item.name})`;
+          document.getElementById('hudActiveLut').textContent = `LUT ${item.code}`;
+          renderLutCatalog();
+        });
+        frag.appendChild(btn);
+      });
+      container.appendChild(frag);
+    }
+
+    function renderArCatalog() {
+      const container = document.getElementById('arGridContainer');
+      const query = document.getElementById('arSearchInput').value.trim().toLowerCase();
+      container.innerHTML = '';
+
+      const frag = document.createDocumentFragment();
+      SOCIAL_AR_400.forEach(item => {
+        const matchCat = currentArCat === 'all' || item.cat === currentArCat;
+        const matchQuery = !query || item.name.toLowerCase().includes(query) || item.code.toLowerCase().includes(query);
+        if (!matchCat || !matchQuery) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isActive = state.arEnabled && state.activeArPreset.id === item.id;
+        btn.className = 'ar-trend-btn' + (isActive ? ' active' : '');
+        btn.innerHTML = `
+          <span style="font-size:1.18rem;">${item.emoji}</span>
+          <span class="item-meta">
+            <span class="item-code">${item.code}</span>
+            <span class="item-name">${item.name}</span>
+          </span>
+        `;
+        btn.addEventListener('click', () => {
+          state.arEnabled = true;
+          state.activeArPreset = item;
+          document.getElementById('selectedArLabel').textContent = `${item.code} ${item.name}`;
+          document.getElementById('hudActiveAr').textContent = `AR ${item.code}`;
+          renderArCatalog();
+        });
+        frag.appendChild(btn);
+      });
+      container.appendChild(frag);
+    }
+
+    function renderFrameCatalog() {
+      const container = document.getElementById('frameSwatchesContainer');
+      const query = document.getElementById('frameSearchInput').value.trim().toLowerCase();
+      container.innerHTML = '';
+
+      const frag = document.createDocumentFragment();
+      FRAMES_400.forEach(item => {
+        const matchCat = currentFrameCat === 'all' || item.cat === currentFrameCat;
+        const matchQuery = !query || item.name.toLowerCase().includes(query) || String(item.id).includes(query);
+        if (!matchCat || !matchQuery) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'frame-swatch-btn' + (state.activeFrame.id === item.id ? ' active' : '');
+        btn.innerHTML = `
+          <div class="swatch-preview" style="background:${item.previewCSS};"></div>
+          <span class="swatch-title">#${item.id} ${item.name}</span>
+        `;
+        btn.addEventListener('click', () => {
+          state.activeFrame = item;
+          document.getElementById('selectedFrameLabel').textContent = `Đang chọn: #${item.id} ${item.name}`;
+          renderFrameCatalog();
+          renderPhotoboothStrip();
+        });
+        frag.appendChild(btn);
+      });
+      container.appendChild(frag);
+    }
+
+    function renderStickerCatalog() {
+      const container = document.getElementById('frameStickerPalette');
+      const query = document.getElementById('stickerSearchInput').value.trim().toLowerCase();
+      container.innerHTML = '';
+
+      const frag = document.createDocumentFragment();
+      STICKERS_400.forEach(item => {
+        const matchCat = currentStickerCat === 'all' || item.cat === currentStickerCat;
+        const matchQuery = !query || item.text.toLowerCase().includes(query);
+        if (!matchCat || !matchQuery) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sticker-item-btn' + (item.isBadge ? ' badge-type' : '');
+        btn.textContent = item.text;
+        btn.title = `Bấm để dán "${item.text}" lên khung ảnh`;
+        btn.addEventListener('click', () => {
+          state.frameStickers.push({
+            text: item.text,
+            isBadge: item.isBadge,
+            x: stripCanvas.width / 2 + (Math.random() * 140 - 70),
+            y: stripCanvas.height / 2 + (Math.random() * 180 - 90),
+            size: item.isBadge ? Math.max(15, Math.round(stripCanvas.width * 0.032)) : Math.max(38, Math.round(stripCanvas.width * 0.075)),
+            rot: 0,
+            flipX: false,
+            flipY: false
+          });
+          state.selectedStickerIdx = state.frameStickers.length - 1;
+          syncStickerInspectorUI();
+          renderPhotoboothStrip();
+        });
+        frag.appendChild(btn);
+      });
+      container.appendChild(frag);
+    }
+
+    document.getElementById('lutSearchInput').addEventListener('input', renderLutCatalog);
+    document.getElementById('arSearchInput').addEventListener('input', renderArCatalog);
+    document.getElementById('frameSearchInput').addEventListener('input', renderFrameCatalog);
+    document.getElementById('stickerSearchInput').addEventListener('input', renderStickerCatalog);
+
+    document.getElementById('btnTurnOffAR').addEventListener('click', () => {
+      state.arEnabled = false;
+      document.getElementById('selectedArLabel').textContent = 'Mặt mộc (Đã tắt AR)';
+      document.getElementById('hudActiveAr').textContent = 'AR OFF';
+      renderArCatalog();
+    });
+
+    document.querySelectorAll('#lutCategoryTabs .cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#lutCategoryTabs .cat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentLutCat = tab.dataset.cat;
+        renderLutCatalog();
+      });
+    });
+
+    document.querySelectorAll('#arCategoryTabs .cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#arCategoryTabs .cat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentArCat = tab.dataset.cat;
+        renderArCatalog();
+      });
+    });
+
+    document.querySelectorAll('#frameCategoryTabs .cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#frameCategoryTabs .cat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFrameCat = tab.dataset.cat;
+        renderFrameCatalog();
+      });
+    });
+
+    document.querySelectorAll('#stickerCategoryTabs .cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#stickerCategoryTabs .cat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentStickerCat = tab.dataset.cat;
+        renderStickerCatalog();
+      });
+    });
+
+    /**************************************************************
+     * 7. ÂM THANH KHỞI TẠO AN TOÀN
+     **************************************************************/
+    let audioCtx = null;
+    function getAudioCtx() {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
+      return audioCtx;
+    }
+
+    function playFocusBeep(freq = 920, duration = 0.08) {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playRealisticDSLRShutter() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        [0, 0.055].forEach((offset, idx) => {
+          const len = Math.floor(ctx.sampleRate * 0.045);
+          const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < len; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.012));
+          }
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = idx === 0 ? 1200 : 1850;
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.5, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.045);
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          src.start(now + offset);
+        });
+      } catch (e) {}
+    }
+
+    function playPrinterMotorSound() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(145, now);
+        osc.frequency.linearRampToValueAtTime(175, now + 0.6);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.65);
+      } catch (e) {}
+    }
+
+    /**************************************************************
+     * 8. CHUYỂN ĐỔI BƯỚC 1 <-> BƯỚC 2
+     **************************************************************/
+    function switchStep(stepName, withPrintAnim = false) {
+      state.currentStep = stepName;
+      const isCapture = stepName === 'capture';
+
+      document.getElementById('tabStepCapture').classList.toggle('active', isCapture);
+      document.getElementById('tabStepEditor').classList.toggle('active', !isCapture);
+
+      document.getElementById('viewCapture').classList.toggle('active', isCapture);
+      document.getElementById('viewEditor').classList.toggle('active', !isCapture);
+
+      if (!isCapture) {
+        renderSlotManagerGrid();
+        syncStickerInspectorUI();
+        renderPhotoboothStrip();
+        if (withPrintAnim) {
+          playPrinterMotorSound();
+          const holder = document.getElementById('printedPaperHolder');
+          holder.classList.remove('printing-anim');
+          void holder.offsetWidth;
+          holder.classList.add('printing-anim');
+        }
+      }
+    }
+
+    document.getElementById('tabStepCapture').addEventListener('click', () => switchStep('capture'));
+    document.getElementById('tabStepEditor').addEventListener('click', () => switchStep('editor', true));
+    document.getElementById('btnGoToEditorNow').addEventListener('click', () => switchStep('editor', true));
+    document.getElementById('btnBackToCapture').addEventListener('click', () => switchStep('capture'));
+
+    /**************************************************************
+     * 9. KẾT NỐI CAMERA & MEDIAPIPE FACEMESH
+     **************************************************************/
+    async function loadCameraDevices() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const currentVal = cameraDeviceSelect.value;
+        cameraDeviceSelect.innerHTML = '';
+
+        if (!videoDevices.length) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'Mặc định (Webcam)';
+          cameraDeviceSelect.appendChild(opt);
+          return;
+        }
+
+        videoDevices.forEach((dev, idx) => {
+          const opt = document.createElement('option');
+          opt.value = dev.deviceId;
+          opt.textContent = dev.label || `Camera #${idx + 1}`;
+          cameraDeviceSelect.appendChild(opt);
+        });
+
+        if (currentVal && videoDevices.some(d => d.deviceId === currentVal)) {
+          cameraDeviceSelect.value = currentVal;
+        }
+      } catch (e) {}
+    }
+
+    async function connectCamera(deviceId = '') {
+      if (state.stream) {
+        state.stream.getTracks().forEach(t => t.stop());
+        state.stream = null;
+      }
+
+      faceStatusBadge.className = 'ai-pill';
+      faceStatusBadge.textContent = '🔄 Đang kết nối Camera...';
+      document.getElementById('camStatusText').textContent = 'CONNECTING...';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        enableDemoStudioMode();
+        return;
+      }
+
+      const primaryConstraints = deviceId
+        ? { video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }
+        : { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
+
+      try {
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(primaryConstraints);
+        } catch (firstErr) {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+
+        state.stream = stream;
+        state.demoMode = false;
+        rawVideo.srcObject = stream;
+        await rawVideo.play();
+
+        cameraErrorModal.classList.remove('show');
+        document.getElementById('camStatusText').textContent = 'WIDE LIVE • 60FPS';
+        faceStatusBadge.className = 'ai-pill ready';
+        faceStatusBadge.textContent = '✅ Camera đã sẵn sàng';
+        await loadCameraDevices();
+        tryInitFaceMesh();
+      } catch (err) {
+        cameraErrorModal.classList.add('show');
+        document.getElementById('camStatusText').textContent = 'STUDIO STANDBY';
+        faceStatusBadge.className = 'ai-pill';
+        faceStatusBadge.textContent = '✨ Chế độ Studio / Tải ảnh';
+      }
+    }
+
+    function enableDemoStudioMode() {
+      state.demoMode = true;
+      cameraErrorModal.classList.remove('show');
+      document.getElementById('camStatusText').textContent = 'VIRTUAL STUDIO';
+      faceStatusBadge.className = 'ai-pill ready';
+      faceStatusBadge.textContent = '✨ Đang bật Studio Ảo';
+    }
+
+    document.getElementById('btnReconnectCamera').addEventListener('click', () => connectCamera(cameraDeviceSelect.value));
+    document.getElementById('btnModalReconnect').addEventListener('click', () => connectCamera(cameraDeviceSelect.value));
+    document.getElementById('btnUseDemoAvatar').addEventListener('click', () => enableDemoStudioMode());
+    cameraDeviceSelect.addEventListener('change', (e) => connectCamera(e.target.value));
+
+    function mapLandmarkToCanvas(landmark) {
+      const vw = rawVideo.videoWidth || 640;
+      const vh = rawVideo.videoHeight || 480;
+      const cw = liveCanvas.width;
+      const ch = liveCanvas.height;
+      const { sx, sy, sw, sh } = state.cropInfo;
+
+      let normX = (landmark.x * vw - sx) / sw;
+      let normY = (landmark.y * vh - sy) / sh;
+
+      if (state.isMirrored) normX = 1.0 - normX;
+      return { x: normX * cw, y: normY * ch };
+    }
+
+    let faceMeshInstance = null;
+    function tryInitFaceMesh() {
+      if (faceMeshInstance) return;
+      if (typeof window.FaceMesh === 'undefined') {
+        setTimeout(tryInitFaceMesh, 800);
+        return;
+      }
+
+      try {
+        faceMeshInstance = new window.FaceMesh({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+
+        faceMeshInstance.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        faceMeshInstance.onResults((results) => {
+          if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+            const lm = results.multiFaceLandmarks[0];
+            const pNoseBridge = mapLandmarkToCanvas(lm[168]);
+            const pNoseTip    = mapLandmarkToCanvas(lm[1]);
+            const pEyeA       = mapLandmarkToCanvas(lm[33]);
+            const pEyeB       = mapLandmarkToCanvas(lm[263]);
+            const pIrisA      = lm[468] ? mapLandmarkToCanvas(lm[468]) : mapLandmarkToCanvas(lm[159]);
+            const pIrisB      = lm[473] ? mapLandmarkToCanvas(lm[473]) : mapLandmarkToCanvas(lm[386]);
+            const pCheekA     = mapLandmarkToCanvas(lm[234]);
+            const pCheekB     = mapLandmarkToCanvas(lm[454]);
+
+            const leftScreenEye = pEyeA.x < pEyeB.x ? pEyeA : pEyeB;
+            const rightScreenEye = pEyeA.x < pEyeB.x ? pEyeB : pEyeA;
+
+            let rawRoll = Math.atan2(
+              rightScreenEye.y - leftScreenEye.y,
+              Math.max(1, rightScreenEye.x - leftScreenEye.x)
+            );
+            rawRoll = Math.max(-0.65, Math.min(0.65, rawRoll));
+
+            const targetWidth = Math.hypot(pCheekB.x - pCheekA.x, pCheekB.y - pCheekA.y);
+            const lerp = (a, b, t) => a + (b - a) * t;
+            const s = 0.48;
+
+            state.faceData.eyeMidX     = lerp(state.faceData.eyeMidX, pNoseBridge.x, s);
+            state.faceData.eyeMidY     = lerp(state.faceData.eyeMidY, pNoseBridge.y, s);
+            state.faceData.leftEye     = pIrisA;
+            state.faceData.rightEye    = pIrisB;
+            state.faceData.noseTip     = pNoseTip;
+            state.faceData.faceWidthPx = lerp(state.faceData.faceWidthPx, targetWidth, s);
+            state.faceData.rollAngle   = lerp(state.faceData.rollAngle, rawRoll, s);
+
+            state.faceData.upperLip = UPPER_LIP_INDICES.map(idx => mapLandmarkToCanvas(lm[idx]));
+            state.faceData.lowerLip = LOWER_LIP_INDICES.map(idx => mapLandmarkToCanvas(lm[idx]));
+
+            state.faceDetected = true;
+            state.lastFaceTime = performance.now();
+            faceStatusBadge.className = 'ai-pill ready';
+            faceStatusBadge.textContent = '✨ Đã khóa nét khuôn mặt';
+          } else if (performance.now() - state.lastFaceTime > 1200) {
+            state.faceDetected = false;
+            state.faceData.rollAngle *= 0.85;
+          }
+        });
+
+        async function detectLoop() {
+          if (rawVideo.readyState >= 2 && !rawVideo.paused && state.currentStep === 'capture' && state.stream) {
+            try {
+              await faceMeshInstance.send({ image: rawVideo });
+            } catch (e) {}
+          }
+          setTimeout(detectLoop, 50);
+        }
+        detectLoop();
+      } catch (err) {}
+    }
+
+    /**************************************************************
+     * 10. VẼ CAMERA LIVE MÀN HÌNH RỘNG
+     **************************************************************/
+    function getCombinedFilterCSS() {
+      const b = state.beautify / 100;
+      const ringBoost = state.ringLight ? 0.05 : 0;
+      const extraBright = (1 + b * 0.12 + ringBoost).toFixed(2);
+      return `${state.activeLut.css} brightness(${extraBright})`;
+    }
+
+    function renderLiveLoop() {
+      const cw = liveCanvas.width;
+      const ch = liveCanvas.height;
+
+      liveCtx.save();
+      liveCtx.clearRect(0, 0, cw, ch);
+
+      if (rawVideo.readyState >= 2 && state.stream) {
+        const vw = rawVideo.videoWidth || 640;
+        const vh = rawVideo.videoHeight || 480;
+        const targetRatio = cw / ch;
+        const videoRatio = vw / vh;
+
+        let sx = 0, sy = 0, sw = vw, sh = vh;
+        if (videoRatio > targetRatio) {
+          sw = vh * targetRatio;
+          sx = (vw - sw) / 2;
+        } else {
+          sh = vw / targetRatio;
+          sy = (vh - sh) / 2;
+        }
+        state.cropInfo = { sx, sy, sw, sh };
+
+        liveCtx.save();
+        if (state.isMirrored) {
+          liveCtx.translate(cw, 0);
+          liveCtx.scale(-1, 1);
+        }
+
+        try { liveCtx.filter = getCombinedFilterCSS(); } catch (e) {}
+        liveCtx.drawImage(rawVideo, sx, sy, sw, sh, 0, 0, cw, ch);
+        liveCtx.filter = 'none';
+
+        if (state.skinSmooth > 0) {
+          try {
+            smoothCtx.clearRect(0, 0, smoothCanvas.width, smoothCanvas.height);
+            smoothCtx.filter = `blur(${Math.max(2, (state.skinSmooth / 100) * 7)}px) brightness(1.03)`;
+            smoothCtx.drawImage(rawVideo, sx, sy, sw, sh, 0, 0, smoothCanvas.width, smoothCanvas.height);
+            smoothCtx.filter = 'none';
+
+            liveCtx.globalAlpha = (state.skinSmooth / 100) * 0.35;
+            liveCtx.globalCompositeOperation = 'lighten';
+            liveCtx.drawImage(smoothCanvas, 0, 0, cw, ch);
+            liveCtx.globalCompositeOperation = 'source-over';
+            liveCtx.globalAlpha = 1;
+          } catch (e) {}
+        }
+
+        if (!state.activeLut.isBW && state.activeLut.overlayRGBA) {
+          liveCtx.fillStyle = state.activeLut.overlayRGBA;
+          liveCtx.fillRect(0, 0, cw, ch);
+        }
+
+        liveCtx.restore();
+      } else {
+        if (!state.faceDetected) {
+          state.faceData.eyeMidX = cw / 2;
+          state.faceData.eyeMidY = ch * 0.44;
+        }
+        drawVirtualStudioModel(liveCtx, cw, ch);
+      }
+
+      if (state.arEnabled && state.activeArPreset) {
+        drawYouthARFilter(liveCtx, state.activeArPreset);
+      }
+
+      const vig = liveCtx.createRadialGradient(cw / 2, ch / 2, cw * 0.36, cw / 2, ch / 2, cw * 0.68);
+      vig.addColorStop(0, 'rgba(0,0,0,0)');
+      vig.addColorStop(1, 'rgba(12, 8, 18, 0.20)');
+      liveCtx.fillStyle = vig;
+      liveCtx.fillRect(0, 0, cw, ch);
+
+      liveCtx.restore();
+      requestAnimationFrame(renderLiveLoop);
+    }
+
+    function drawVirtualStudioModel(ctx, cw, ch) {
+      ctx.save();
+      try { ctx.filter = getCombinedFilterCSS(); } catch (e) {}
+
+      const bgGrad = ctx.createLinearGradient(0, 0, cw, ch);
+      bgGrad.addColorStop(0, '#f3d5e4');
+      bgGrad.addColorStop(1, '#dcd2f2');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, cw, ch);
+
+      const cx = state.faceData.eyeMidX + state.userOffset.x;
+      const cy = state.faceData.eyeMidY + state.userOffset.y;
+
+      ctx.fillStyle = '#fff9fb';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 285, 185, 135, 0, Math.PI, 0);
+      ctx.fill();
+
+      ctx.fillStyle = '#251c24';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 35, 145, 185, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffe9e3';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 25, 110, 134, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#251c24';
+      ctx.beginPath();
+      ctx.arc(cx, cy - 10, 114, Math.PI * 1.08, Math.PI * 1.92);
+      ctx.fill();
+
+      [-52, 52].forEach(dx => {
+        ctx.fillStyle = '#231820';
+        ctx.beginPath();
+        ctx.ellipse(cx + dx, cy, 14, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx + dx - 4, cy - 3, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = '#eb5e8d';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 78, 22, 0.1, Math.PI - 0.1);
+      ctx.fill();
+
+      ctx.filter = 'none';
+      if (!state.activeLut.isBW && state.activeLut.overlayRGBA) {
+        ctx.fillStyle = state.activeLut.overlayRGBA;
+        ctx.fillRect(0, 0, cw, ch);
+      }
+      ctx.restore();
+    }
+
+    function drawYouthARFilter(ctx, preset) {
+      const fd = state.faceData;
+      const anchorX = fd.eyeMidX + state.userOffset.x;
+      const anchorY = fd.eyeMidY + state.userOffset.y;
+      const fw = fd.faceWidthPx * state.arScale;
+      const angle = state.rotateFollowHead ? fd.rollAngle : 0;
+
+      if (preset.lipGloss && state.faceDetected && !state.activeLut.isBW) {
+        ctx.save();
+        if (fd.upperLip && fd.upperLip.length > 3 && fd.lowerLip && fd.lowerLip.length > 3) {
+          ctx.globalCompositeOperation = 'multiply';
+          ctx.fillStyle = 'rgba(235, 75, 120, 0.26)';
+          [fd.upperLip, fd.lowerLip].forEach(lipPoly => {
+            ctx.beginPath();
+            lipPoly.forEach((pt, i) => (i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)));
+            ctx.closePath();
+            ctx.fill();
+          });
+          ctx.globalCompositeOperation = 'source-over';
+        }
+        [fd.leftEye, fd.rightEye].forEach(eye => {
+          if (!eye) return;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.arc(eye.x - 2, eye.y - 2, 4.2, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.translate(anchorX, anchorY);
+      ctx.rotate(angle);
+
+      if (preset.blush && !state.activeLut.isBW) {
+        ctx.save();
+        const cheekX = fw * 0.33;
+        const cheekY = preset.blush === 'igari' ? fw * 0.14 : fw * 0.23;
+        const radius = fw * 0.23;
+
+        const blushColorMap = {
+          pink: 'rgba(255, 105, 150, 0.38)',
+          peach: 'rgba(255, 140, 105, 0.38)',
+          igari: 'rgba(255, 95, 135, 0.42)',
+          sunburn: 'rgba(240, 110, 95, 0.38)',
+          heartCheek: 'rgba(255, 105, 155, 0.36)',
+          starCheek: 'rgba(255, 120, 170, 0.34)',
+          plum: 'rgba(195, 80, 140, 0.35)',
+          rose: 'rgba(235, 95, 125, 0.36)',
+          butterflyCheek: 'rgba(255, 115, 165, 0.36)',
+          cherryCheek: 'rgba(255, 95, 135, 0.38)'
+        };
+        const cStr = blushColorMap[preset.blush] || blushColorMap.pink;
+
+        if (preset.blush === 'sunburn') {
+          const sunGrad = ctx.createRadialGradient(0, cheekY - 10, 5, 0, cheekY - 10, fw * 0.48);
+          sunGrad.addColorStop(0, cStr);
+          sunGrad.addColorStop(1, 'rgba(255,140,120,0)');
+          ctx.fillStyle = sunGrad;
+          ctx.beginPath();
+          ctx.ellipse(0, cheekY - 10, fw * 0.48, radius * 0.72, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          [-1, 1].forEach(side => {
+            const bx = side * cheekX;
+            const by = cheekY;
+            const grad = ctx.createRadialGradient(bx, by, 2, bx, by, radius);
+            grad.addColorStop(0, cStr);
+            grad.addColorStop(1, 'rgba(255, 160, 190, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.ellipse(bx, by, radius * 1.2, radius * 0.85, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (preset.blush === 'heartCheek') {
+              ctx.fillStyle = 'rgba(255, 75, 130, 0.78)';
+              drawHeartPath(ctx, bx, by - 8, 9);
+              ctx.fill();
+            } else if (preset.blush === 'starCheek') {
+              ctx.font = '15px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('✨', bx, by + 4);
+            } else if (preset.blush === 'butterflyCheek') {
+              ctx.font = '15px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('🦋', bx, by + 4);
+            } else if (preset.blush === 'cherryCheek') {
+              ctx.font = '15px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('🍒', bx, by + 4);
+            }
+          });
+        }
+        ctx.restore();
+      }
+
+      if (preset.noseBandage || preset.ears === 'bandage') {
+        ctx.save();
+        ctx.translate(0, fw * 0.14);
+        ctx.fillStyle = '#ffd6e0';
+        ctx.strokeStyle = '#ff8fab';
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, -fw * 0.14, -7, fw * 0.28, 14, 5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#ff4d6d';
+        drawHeartPath(ctx, 0, -4, 4.5);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if (preset.freckles) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(155, 85, 70, 0.42)';
+        const dots = [
+          [-0.33, 0.21], [-0.27, 0.25], [-0.22, 0.19], [-0.15, 0.23],
+          [-0.07, 0.18], [0.0, 0.19], [0.08, 0.18],
+          [0.16, 0.22], [0.23, 0.19], [0.28, 0.24], [0.34, 0.21]
+        ];
+        dots.forEach(([dx, dy]) => {
+          ctx.beginPath();
+          ctx.arc(dx * fw, dy * fw, 2.1, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      if (preset.ears === 'cat') {
+        const earBaseY = -fw * 0.48;
+        const earSpreadX = fw * 0.41;
+        const earSize = fw * 0.36;
+        [-1, 1].forEach(side => {
+          ctx.save();
+          ctx.translate(side * earSpreadX, earBaseY);
+          ctx.rotate(side * 0.22);
+          ctx.shadowColor = 'rgba(20, 10, 25, 0.35)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(-earSize * 0.55, 4);
+          ctx.quadraticCurveTo(-earSize * 0.42, -earSize * 0.85, 0, -earSize * 1.05);
+          ctx.quadraticCurveTo(earSize * 0.42, -earSize * 0.85, earSize * 0.55, 4);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = preset.primaryColor || '#ff85ad';
+          ctx.beginPath();
+          ctx.moveTo(-earSize * 0.32, 0);
+          ctx.quadraticCurveTo(-earSize * 0.22, -earSize * 0.6, 0, -earSize * 0.72);
+          ctx.quadraticCurveTo(earSize * 0.22, -earSize * 0.6, earSize * 0.32, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        });
+      } else if (preset.ears === 'bunny') {
+        const earBaseY = -fw * 0.50;
+        const earSpreadX = fw * 0.27;
+        const earW = fw * 0.16;
+        const earH = fw * 0.46;
+        [-1, 1].forEach(side => {
+          ctx.save();
+          ctx.translate(side * earSpreadX, earBaseY);
+          ctx.rotate(side * 0.13);
+          ctx.shadowColor = 'rgba(20, 10, 25, 0.32)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.ellipse(0, -earH * 0.65, earW, earH, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#ffa8c5';
+          ctx.beginPath();
+          ctx.ellipse(0, -earH * 0.62, earW * 0.5, earH * 0.7, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      } else if (preset.ears === 'bear') {
+        const earBaseY = -fw * 0.50;
+        const earSpreadX = fw * 0.42;
+        [-1, 1].forEach(side => {
+          ctx.save();
+          ctx.translate(side * earSpreadX, earBaseY);
+          ctx.fillStyle = '#c68b59';
+          ctx.beginPath();
+          ctx.arc(0, 0, fw * 0.17, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#f5cbb0';
+          ctx.beginPath();
+          ctx.arc(0, 2, fw * 0.09, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      } else if (preset.ears === 'puppy') {
+        const earBaseY = -fw * 0.42;
+        const earSpreadX = fw * 0.48;
+        [-1, 1].forEach(side => {
+          ctx.save();
+          ctx.translate(side * earSpreadX, earBaseY);
+          ctx.rotate(side * 0.45);
+          ctx.fillStyle = '#e6ccb2';
+          ctx.beginPath();
+          ctx.ellipse(0, fw * 0.12, fw * 0.14, fw * 0.28, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      } else if (preset.ears === 'devil') {
+        const earBaseY = -fw * 0.52;
+        const earSpreadX = fw * 0.34;
+        [-1, 1].forEach(side => {
+          ctx.save();
+          ctx.translate(side * earSpreadX, earBaseY);
+          ctx.rotate(side * 0.25);
+          ctx.fillStyle = '#e03131';
+          ctx.beginPath();
+          ctx.moveTo(-18, 0);
+          ctx.quadraticCurveTo(-8, -45, side * 14, -55);
+          ctx.quadraticCurveTo(16, -25, 18, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        });
+      } else if (preset.ears === 'angel') {
+        ctx.save();
+        ctx.translate(0, -fw * 0.68);
+        ctx.strokeStyle = '#ffe066';
+        ctx.lineWidth = 6;
+        ctx.shadowColor = '#ffd43b';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, fw * 0.36, fw * 0.08, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (preset.ears === 'ribbon') {
+        ctx.save();
+        ctx.font = `${Math.round(fw * 0.24)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText('🎀', -fw * 0.38, -fw * 0.46);
+        ctx.fillText('🎀', fw * 0.38, -fw * 0.46);
+        ctx.restore();
+      } else if (preset.ears === 'sprout') {
+        ctx.save();
+        ctx.font = `${Math.round(fw * 0.28)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText('🌱', 0, -fw * 0.58);
+        ctx.restore();
+      } else if (preset.ears === 'headphones') {
+        ctx.save();
+        ctx.strokeStyle = '#e9ecef';
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.arc(0, 0, fw * 0.58, Math.PI * 1.05, Math.PI * 1.95);
+        ctx.stroke();
+        [-1, 1].forEach(side => {
+          ctx.fillStyle = '#ff6ea3';
+          ctx.beginPath();
+          ctx.ellipse(side * fw * 0.58, fw * 0.04, 16, 34, 0, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      } else if (preset.ears === 'crown' || preset.ears === 'tiara') {
+        ctx.save();
+        ctx.translate(0, -fw * 0.55);
+        const cwCrown = fw * 0.50;
+        const chCrown = fw * 0.28;
+        ctx.fillStyle = preset.ears === 'tiara' ? '#e5dbff' : '#fcc419';
+        ctx.strokeStyle = '#fff9db';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-cwCrown / 2, 0);
+        ctx.lineTo(-cwCrown * 0.55, -chCrown * 0.85);
+        ctx.lineTo(-cwCrown * 0.22, -chCrown * 0.35);
+        ctx.lineTo(0, -chCrown * 1.12);
+        ctx.lineTo(cwCrown * 0.22, -chCrown * 0.35);
+        ctx.lineTo(cwCrown * 0.55, -chCrown * 0.85);
+        ctx.lineTo(cwCrown / 2, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      if (preset.glasses && preset.glasses !== 'none') {
+        ctx.save();
+        ctx.translate(0, fw * 0.02);
+        const lensW = fw * 0.36;
+        const lensH = fw * 0.22;
+        const gap = fw * 0.055;
+
+        if (preset.glasses === 'heartGlass') {
+          ctx.fillStyle = 'rgba(255, 62, 129, 0.48)';
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 3.5;
+          [-gap - lensW / 2, gap + lensW / 2].forEach(cx => {
+            drawHeartPath(ctx, cx, -lensH * 0.55, lensW * 0.52);
+            ctx.fill();
+            ctx.stroke();
+          });
+        } else {
+          ctx.fillStyle = preset.glasses === 'y2kRimless' ? 'rgba(160, 215, 255, 0.32)' : 'rgba(30, 20, 38, 0.62)';
+          ctx.strokeStyle = preset.glasses === 'y2kRimless' ? '#ffffff' : '#1f1924';
+          ctx.lineWidth = preset.glasses === 'y2kRimless' ? 2.5 : 4.5;
+
+          const r = preset.glasses === 'roundGeek' ? lensH / 2 : 12;
+          roundRect(ctx, -gap - lensW, -lensH / 2, lensW, lensH, r);
+          ctx.fill();
+          ctx.stroke();
+
+          roundRect(ctx, gap, -lensH / 2, lensW, lensH, r);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(-gap, -2);
+          ctx.lineTo(gap, -2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      if (preset.aura && preset.aura !== 'none') {
+        const auraMap = {
+          hearts: '💖',
+          sparkles: '✨',
+          butterflies: '🦋',
+          cherries: '🍒',
+          stars: '⭐',
+          bows: '🎀',
+          notes: '🎵',
+          clouds: '☁️'
+        };
+        const sym = auraMap[preset.aura] || '✨';
+        const t = performance.now() * 0.0028;
+        const pts = [
+          [-0.56, -0.32, 0], [0.56, -0.28, 1.4],
+          [-0.46, -0.62, 2.8], [0.46, -0.58, 4.1],
+          [-0.58, 0.08, 5.2], [0.58, 0.10, 6.0]
+        ];
+        ctx.save();
+        ctx.font = `${Math.round(fw * 0.13)}px sans-serif`;
+        ctx.textAlign = 'center';
+        pts.forEach(([px, py, ph]) => {
+          const dy = Math.sin(t + ph) * 7;
+          ctx.fillText(sym, px * fw, py * fw + dy);
+        });
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    function drawHeartPath(ctx, x, y, size) {
+      ctx.beginPath();
+      ctx.moveTo(x, y + size * 0.3);
+      ctx.bezierCurveTo(x, y, x - size, y, x - size, y + size * 0.45);
+      ctx.bezierCurveTo(x - size, y + size * 0.9, x, y + size * 1.15, x, y + size * 1.4);
+      ctx.bezierCurveTo(x, y + size * 1.15, x + size, y + size * 0.9, x + size, y + size * 0.45);
+      ctx.bezierCurveTo(x + size, y, x, y, x, y + size * 0.3);
+      ctx.closePath();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    /**************************************************************
+     * 11. KÉO THẢ VỊ TRÍ AR TRÊN MÀN HÌNH
+     **************************************************************/
+    liveCanvas.addEventListener('pointerdown', (e) => {
+      state.isDraggingAR = true;
+      const rect = liveCanvas.getBoundingClientRect();
+      state.dragStart.x = (e.clientX - rect.left) * (liveCanvas.width / rect.width) - state.userOffset.x;
+      state.dragStart.y = (e.clientY - rect.top) * (liveCanvas.height / rect.height) - state.userOffset.y;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!state.isDraggingAR) return;
+      const rect = liveCanvas.getBoundingClientRect();
+      state.userOffset.x = (e.clientX - rect.left) * (liveCanvas.width / rect.width) - state.dragStart.x;
+      state.userOffset.y = (e.clientY - rect.top) * (liveCanvas.height / rect.height) - state.dragStart.y;
+    });
+
+    window.addEventListener('pointerup', () => {
+      state.isDraggingAR = false;
+      state.draggingStickerIdx = -1;
+    });
+
+    document.getElementById('resetOffsetBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.userOffset = { x: 0, y: 0 };
+      state.arScale = 1.0;
+      document.getElementById('arScaleSlider').value = 100;
+      document.getElementById('arScaleVal').textContent = '100%';
+    });
+
+    /**************************************************************
+     * 12. CHỤP ẢNH & CHỤP LẠI TỪNG Ô TÙY CHỈNH
+     **************************************************************/
+    const countdownOverlay = document.getElementById('countdownOverlay');
+    const countdownNum = document.getElementById('countdownNum');
+    const countdownPoseTip = document.getElementById('countdownPoseTip');
+    const shutterBlades = document.getElementById('shutterBlades');
+    const flashOverlay = document.getElementById('flashOverlay');
+    const shotCounterBadge = document.getElementById('shotCounterBadge');
+    const miniThumbsContainer = document.getElementById('miniThumbsContainer');
+
+    const POSE_SUGGESTIONS = [
+      '✌️ Tạo dáng chữ V sát má nhé!',
+      '🫶 Thả tim trên đầu hoặc áp má nào!',
+      '😉 Nháy mắt tinh nghịch nhìn vào ống kính!',
+      '🐱 Làm dáng mèo con dễ thương chốt hạ!'
+    ];
+
+    function cloneFillAllSlots() {
+      const validShots = state.shots.filter(Boolean);
+      if (!validShots.length) return;
+      for (let i = 0; i < state.maxShots; i++) {
+        if (!state.shots[i]) {
+          state.shots[i] = validShots[i % validShots.length];
+        }
+      }
+      updateCaptureProgressUI();
+      renderSlotManagerGrid();
+      renderPhotoboothStrip();
+    }
+
+    document.getElementById('btnCloneFillAll').addEventListener('click', () => {
+      cloneFillAllSlots();
+      switchStep('editor', true);
+    });
+
+    document.getElementById('btnCloneFillEditor').addEventListener('click', () => {
+      cloneFillAllSlots();
+    });
+
+    function updateCaptureProgressUI() {
+      const filled = state.shots.filter(Boolean).length;
+      shotCounterBadge.textContent = `Đã chụp: ${filled} / ${state.maxShots}`;
+
+      miniThumbsContainer.innerHTML = '';
+      for (let i = 0; i < state.maxShots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'tray-thumb' + (state.shots[i] ? ' filled' : '');
+        slot.title = `Bấm để chụp lại riêng tấm #${i + 1}`;
+        if (state.shots[i]) {
+          const img = document.createElement('img');
+          img.src = state.shots[i].toDataURL('image/jpeg', 0.8);
+          slot.appendChild(img);
+        } else {
+          slot.textContent = `#${i + 1}`;
+        }
+        const badge = document.createElement('div');
+        badge.className = 'retake-badge';
+        badge.textContent = `📸 Chụp lại #${i + 1}`;
+        slot.appendChild(badge);
+
+        slot.addEventListener('click', () => startPhotoSession(i));
+        miniThumbsContainer.appendChild(slot);
+      }
+    }
+
+    async function startPhotoSession(targetIndex = null) {
+      if (state.isCapturing) return;
+      cameraErrorModal.classList.remove('show');
+      switchStep('capture');
+      state.isCapturing = true;
+
+      if (targetIndex === null && state.shots.filter(Boolean).length >= state.maxShots) {
+        state.shots = [];
+        updateCaptureProgressUI();
+      }
+
+      const isLargeGrid = state.maxShots > 4;
+      const maxBatchCount = (targetIndex === null && isLargeGrid && state.fastGridMode) ? 4 : state.maxShots;
+
+      const slotsToShoot = targetIndex !== null ? [targetIndex] : [];
+      if (targetIndex === null) {
+        for (let i = 0; i < state.maxShots && slotsToShoot.length < maxBatchCount; i++) {
+          if (!state.shots[i]) slotsToShoot.push(i);
+        }
+      }
+
+      for (const slotIdx of slotsToShoot) {
+        if (targetIndex !== null) {
+          countdownPoseTip.textContent = `📸 Đang chụp lại riêng Ô ảnh #${slotIdx + 1}`;
+        } else {
+          countdownPoseTip.textContent = POSE_SUGGESTIONS[slotIdx % POSE_SUGGESTIONS.length];
+        }
+
+        for (let sec = state.timerSeconds; sec >= 1; sec--) {
+          countdownNum.textContent = sec;
+          countdownOverlay.classList.add('active');
+          playFocusBeep(sec === 1 ? 1180 : 880, 0.08);
+          await new Promise(r => setTimeout(r, 880));
+        }
+        countdownOverlay.classList.remove('active');
+
+        shutterBlades.classList.add('close');
+        playRealisticDSLRShutter();
+        await new Promise(r => setTimeout(r, 60));
+        shutterBlades.classList.remove('close');
+
+        flashOverlay.classList.add('fire');
+        setTimeout(() => flashOverlay.classList.remove('fire'), 190);
+
+        const snapCanvas = document.createElement('canvas');
+        snapCanvas.width = liveCanvas.width;
+        snapCanvas.height = liveCanvas.height;
+        snapCanvas.getContext('2d').drawImage(liveCanvas, 0, 0);
+
+        state.shots[slotIdx] = snapCanvas;
+        state.lastCapturedDate = new Date();
+        updateCaptureProgressUI();
+        renderPhotoboothStrip();
+
+        await new Promise(r => setTimeout(r, 480));
+      }
+
+      if (targetIndex === null && isLargeGrid && state.fastGridMode) {
+        cloneFillAllSlots();
+      }
+
+      state.isCapturing = false;
+
+      // Nếu chụp lại lẻ 1 tấm hoặc đã chụp đủ bộ -> chuyển sang Phòng Chỉnh Sửa
+      if (targetIndex !== null || state.shots.filter(Boolean).length >= state.maxShots) {
+        if (targetIndex !== null) state.selectedSlotIdx = targetIndex;
+        setTimeout(() => {
+          switchStep('editor', true);
+        }, 260);
+      }
+    }
+
+    /**************************************************************
+     * 13. KẾT XUẤT TỜ ẢNH IN VẬT LÝ (CÓ ZOOM TỪNG Ô & XOAY/LẬT STICKER)
+     **************************************************************/
+    let slotHitboxes = [];
+
+    function renderPhotoboothStrip(isExportClean = false) {
+      slotHitboxes = [];
+      const spec = LAYOUT_SPECS[state.layout] || LAYOUT_SPECS['1x4'];
+      const { cols, rows, W, H } = spec;
+
+      let padX = cols >= 4 ? 26 : 30;
+      let topHeader = 72;
+      let bottomFooter = 115;
+      let gap = cols >= 6 ? 10 : (cols >= 3 ? 14 : 18);
+
+      if (state.layout === 'polaroid') {
+        bottomFooter = 135;
+      }
+
+      if (state.activeFrame.type === 'filmstrip' && cols === 1) {
+        padX = 44;
+      }
+
+      stripCanvas.width = W;
+      stripCanvas.height = H;
+
+      drawFrameBackground400(stripCtx, W, H, state.activeFrame);
+
+      const isDark = ['#151319', '#121016', '#240046', '#1d3557', '#1b162a', '#800f2f', '#4a3525'].includes(state.activeFrame.color1) ||
+                     (state.activeFrame.type === 'filmstrip');
+      const textColor = isDark ? '#ffffff' : '#2b1d28';
+
+      stripCtx.save();
+      stripCtx.fillStyle = textColor;
+      const headerFontSize = Math.max(18, Math.round(W * 0.036));
+      stripCtx.font = `800 ${headerFontSize}px "Plus Jakarta Sans", sans-serif`;
+      stripCtx.textAlign = 'center';
+      stripCtx.fillText(state.stampText.toUpperCase(), W / 2, 46);
+      stripCtx.restore();
+
+      const availW = W - padX * 2 - gap * (cols - 1);
+      const availH = H - topHeader - bottomFooter - gap * (rows - 1);
+      const cellW = availW / cols;
+      const cellH = availH / rows;
+      const cornerRadius = cols >= 4 ? 4 : 6;
+
+      let idx = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = padX + c * (cellW + gap);
+          const y = topHeader + r * (cellH + gap);
+          slotHitboxes.push({ idx, x, y, w: cellW, h: cellH });
+
+          stripCtx.save();
+          roundRect(stripCtx, x, y, cellW, cellH, cornerRadius);
+          stripCtx.clip();
+
+          if (state.shots[idx]) {
+            const img = state.shots[idx];
+            const tf = getSlotTransform(idx);
+            const imgRatio = img.width / img.height;
+            const cellRatio = cellW / cellH;
+            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+            if (imgRatio > cellRatio) {
+              sw = img.height * cellRatio;
+              sx = (img.width - sw) / 2;
+            } else {
+              sh = img.width / cellRatio;
+              sy = (img.height - sh) / 2;
+            }
+
+            stripCtx.save();
+            const centerX = x + cellW / 2 + (tf.panX / 100) * (cellW * 0.45);
+            const centerY = y + cellH / 2 + (tf.panY / 100) * (cellH * 0.45);
+            stripCtx.translate(centerX, centerY);
+            stripCtx.scale(tf.zoom * (tf.flipX ? -1 : 1), tf.zoom);
+            stripCtx.drawImage(img, sx, sy, sw, sh, -cellW / 2, -cellH / 2, cellW, cellH);
+            stripCtx.restore();
+          } else {
+            stripCtx.fillStyle = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255, 255, 255, 0.78)';
+            stripCtx.fillRect(x, y, cellW, cellH);
+            stripCtx.fillStyle = isDark ? '#cbbcd8' : '#9e7b8c';
+            const fontSz = cols >= 6 ? 12 : 15;
+            stripCtx.font = `700 ${fontSz}px Quicksand, sans-serif`;
+            stripCtx.textAlign = 'center';
+            stripCtx.fillText(`#${idx + 1}`, x + cellW / 2, y + cellH / 2 + 5);
+          }
+
+          stripCtx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+          stripCtx.lineWidth = 2;
+          stripCtx.strokeRect(x + 1, y + 1, cellW - 2, cellH - 2);
+          stripCtx.restore();
+
+          // Viền sáng cho ô đang chọn khi ở màn hình chỉnh sửa
+          if (!isExportClean && state.currentStep === 'editor' && state.selectedSlotIdx === idx) {
+            stripCtx.strokeStyle = '#ff3e81';
+            stripCtx.lineWidth = 3;
+            roundRect(stripCtx, x, y, cellW, cellH, cornerRadius);
+            stripCtx.stroke();
+          } else {
+            stripCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+            stripCtx.lineWidth = 1.5;
+            roundRect(stripCtx, x, y, cellW, cellH, cornerRadius);
+            stripCtx.stroke();
+          }
+
+          idx++;
+        }
+      }
+
+      const footerTopY = H - bottomFooter + 30;
+      const dt = getFormattedDateAndTime(state.lastCapturedDate);
+
+      stripCtx.save();
+      stripCtx.fillStyle = textColor;
+
+      if (state.showBarcode) {
+        stripCtx.textAlign = 'left';
+        stripCtx.font = `800 ${Math.max(15, Math.round(W * 0.03))}px "Plus Jakarta Sans", sans-serif`;
+        stripCtx.fillText(state.stampText, padX, footerTopY + 5);
+
+        if (state.showDate) {
+          stripCtx.font = `700 ${Math.max(11, Math.round(W * 0.022))}px "Share Tech Mono", monospace`;
+          stripCtx.globalAlpha = 0.88;
+          stripCtx.fillText(`Ngày: ${dt.dateStr} | Giờ: ${dt.timeStr}`, padX, footerTopY + 26);
+          stripCtx.globalAlpha = 1;
+        }
+
+        const bcWidth = 115;
+        const bcX = W - padX - bcWidth;
+        const bcY = footerTopY - 12;
+        const bars = [3, 1, 2, 1, 4, 1, 1, 2, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 4, 1, 2];
+        let curX = bcX;
+        bars.forEach((bw, i) => {
+          if (i % 2 === 0) stripCtx.fillRect(curX, bcY, bw * 1.7, 26);
+          curX += bw * 1.7;
+        });
+        stripCtx.font = '400 9.5px "Share Tech Mono", monospace';
+        stripCtx.textAlign = 'center';
+        stripCtx.fillText(`${dt.dateStr}`, bcX + bcWidth / 2, bcY + 38);
+      } else {
+        stripCtx.textAlign = 'center';
+        stripCtx.font = '800 18px "Plus Jakarta Sans", sans-serif';
+        stripCtx.fillText(state.stampText, W / 2, footerTopY + 10);
+        if (state.showDate) {
+          stripCtx.font = '700 12.5px "Share Tech Mono", monospace';
+          stripCtx.globalAlpha = 0.88;
+          stripCtx.fillText(`Ngày: ${dt.dateStr} • Giờ: ${dt.timeStr}`, W / 2, footerTopY + 32);
+        }
+      }
+      stripCtx.restore();
+
+      // Vẽ Sticker hỗ trợ Xoay góc (rot), Lật ngang (flipX), Lật dọc (flipY) và Độ to nhỏ (size)
+      state.frameStickers.forEach((st, sIdx) => {
+        stripCtx.save();
+        stripCtx.translate(st.x, st.y);
+        stripCtx.rotate(((st.rot || 0) * Math.PI) / 180);
+        stripCtx.scale(st.flipX ? -1 : 1, st.flipY ? -1 : 1);
+
+        stripCtx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+        stripCtx.shadowBlur = 6;
+        stripCtx.shadowOffsetY = 3;
+
+        let boxW = st.size * 1.3;
+        let boxH = st.size * 1.3;
+
+        if (st.isBadge) {
+          stripCtx.font = `800 ${st.size}px "Plus Jakarta Sans", sans-serif`;
+          const metrics = stripCtx.measureText(st.text);
+          const bw = metrics.width + 22;
+          const bh = st.size + 14;
+          boxW = bw + 8;
+          boxH = bh + 8;
+
+          stripCtx.fillStyle = '#ffffff';
+          stripCtx.strokeStyle = '#ff3e81';
+          stripCtx.lineWidth = 2.5;
+          roundRect(stripCtx, -bw / 2, -bh / 2, bw, bh, bh / 2);
+          stripCtx.fill();
+          stripCtx.stroke();
+
+          stripCtx.shadowBlur = 0;
+          stripCtx.shadowOffsetY = 0;
+          stripCtx.fillStyle = '#d81b60';
+          stripCtx.textAlign = 'center';
+          stripCtx.textBaseline = 'middle';
+          stripCtx.fillText(st.text, 0, 1);
+        } else {
+          stripCtx.font = `${st.size}px sans-serif`;
+          stripCtx.textAlign = 'center';
+          stripCtx.textBaseline = 'middle';
+          stripCtx.fillText(st.text, 0, 0);
+        }
+
+        // Vẽ khung nét đứt báo hiệu Sticker đang được chọn (ẩn khi xuất ảnh PNG)
+        if (!isExportClean && sIdx === state.selectedStickerIdx) {
+          stripCtx.shadowBlur = 0;
+          stripCtx.shadowOffsetY = 0;
+          stripCtx.strokeStyle = '#ff3e81';
+          stripCtx.lineWidth = 2;
+          stripCtx.setLineDash([5, 4]);
+          stripCtx.strokeRect(-boxW / 2, -boxH / 2, boxW, boxH);
+        }
+
+        stripCtx.restore();
+      });
+
+      if (state.showPaperGrain) {
+        stripCtx.save();
+        const sheen = stripCtx.createLinearGradient(0, 0, W, H * 0.65);
+        sheen.addColorStop(0, 'rgba(255, 255, 255, 0.08)');
+        sheen.addColorStop(0.5, 'rgba(255, 255, 255, 0.10)');
+        sheen.addColorStop(1, 'rgba(0, 0, 0, 0.04)');
+        stripCtx.fillStyle = sheen;
+        stripCtx.fillRect(0, 0, W, H);
+        stripCtx.restore();
+      }
+    }
+
+    function drawFrameBackground400(ctx, W, H, frame) {
+      if (frame.type === 'solid') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+      } else if (frame.type === 'gradient3') {
+        const g = ctx.createLinearGradient(0, 0, W, H);
+        g.addColorStop(0, frame.color1);
+        g.addColorStop(0.5, frame.color2);
+        g.addColorStop(1, frame.color3 || frame.color1);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      } else if (frame.type === 'caro') {
+        const size = 26;
+        for (let y = 0; y < H; y += size) {
+          for (let x = 0; x < W; x += size) {
+            ctx.fillStyle = ((Math.floor(x / size) + Math.floor(y / size)) % 2 === 0) ? frame.color1 : frame.color2;
+            ctx.fillRect(x, y, size, size);
+          }
+        }
+      } else if (frame.type === 'polka' || frame.type === 'minihearts') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = frame.color2;
+        const step = 34;
+        for (let y = 16; y < H; y += step) {
+          for (let x = 16; x < W; x += step) {
+            const offset = (Math.floor(y / step) % 2) * (step / 2);
+            if (frame.type === 'minihearts') {
+              ctx.font = '12px sans-serif';
+              ctx.fillText('♥', x + offset, y);
+            } else {
+              ctx.beginPath();
+              ctx.arc(x + offset, y, 5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+      } else if (frame.type === 'stripes') {
+        const stripeW = 20;
+        for (let x = 0; x < W; x += stripeW) {
+          ctx.fillStyle = (Math.floor(x / stripeW) % 2 === 0) ? frame.color1 : frame.color2;
+          ctx.fillRect(x, 0, stripeW, H);
+        }
+      } else if (frame.type === 'gridline') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = frame.color2;
+        ctx.lineWidth = 1;
+        const step = 24;
+        ctx.beginPath();
+        for (let x = 0; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+        for (let y = 0; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+        ctx.stroke();
+      } else if (frame.type === 'terrazzo') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = frame.color2;
+        for (let i = 0; i < 140; i++) {
+          const rx = ((i * 73) % W);
+          const ry = ((i * 137) % H);
+          ctx.beginPath();
+          ctx.ellipse(rx, ry, 6 + (i % 5), 3 + (i % 4), (i % 6) * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (frame.type === 'denim' || frame.type === 'kraft') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = frame.color2;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let y = 0; y < H; y += 6) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y + (frame.type === 'denim' ? 6 : 0));
+        }
+        ctx.stroke();
+      } else if (frame.type === 'heartborder' || frame.type === 'neonborder') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = frame.color2;
+        ctx.strokeStyle = frame.color2;
+        if (frame.type === 'neonborder') {
+          ctx.lineWidth = 6;
+          ctx.strokeRect(10, 10, W - 20, H - 20);
+        } else {
+          ctx.font = '16px sans-serif';
+          ctx.textAlign = 'center';
+          for (let y = 20; y < H - 10; y += 36) {
+            ctx.fillText('♥', 14, y);
+            ctx.fillText('♥', W - 14, y);
+          }
+        }
+      } else if (frame.type === 'filmstrip') {
+        ctx.fillStyle = frame.color1;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = frame.color2;
+        for (let y = 24; y < H - 24; y += 34) {
+          roundRect(ctx, 12, y, 16, 20, 3);
+          ctx.fill();
+          roundRect(ctx, W - 28, y, 16, 20, 3);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Khi bấm lên tờ ảnh: Ưu tiên chọn & kéo Sticker, nếu bấm vào ô ảnh thì chọn ô ảnh đó để phóng to hoặc chụp lại
+    stripCanvas.addEventListener('pointerdown', (e) => {
+      const rect = stripCanvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (stripCanvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (stripCanvas.height / rect.height);
+
+      for (let i = state.frameStickers.length - 1; i >= 0; i--) {
+        const st = state.frameStickers[i];
+        const hitRadius = st.isBadge ? Math.max(55, st.size * 2.2) : Math.max(32, st.size * 0.8);
+        if (Math.hypot(x - st.x, y - st.y) <= hitRadius) {
+          state.selectedStickerIdx = i;
+          state.draggingStickerIdx = i;
+          syncStickerInspectorUI();
+          switchEditorSubTab('etabStickers');
+          renderPhotoboothStrip();
+          return;
+        }
+      }
+
+      for (const box of slotHitboxes) {
+        if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
+          selectSlotForEdit(box.idx);
+          switchEditorSubTab('etabSlots');
+          break;
+        }
+      }
+    });
+
+    stripCanvas.addEventListener('pointermove', (e) => {
+      if (state.draggingStickerIdx === -1) return;
+      const rect = stripCanvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (stripCanvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (stripCanvas.height / rect.height);
+      state.frameStickers[state.draggingStickerIdx].x = x;
+      state.frameStickers[state.draggingStickerIdx].y = y;
+      renderPhotoboothStrip();
+    });
+
+    /**************************************************************
+     * 14. TẢI ẢNH TỪ MÁY LÊN
+     **************************************************************/
+    const fileUploadInput = document.getElementById('fileUploadInput');
+    document.getElementById('btnUploadPhoto').addEventListener('click', () => fileUploadInput.click());
+    document.getElementById('btnModalUpload').addEventListener('click', () => fileUploadInput.click());
+    document.getElementById('btnAddMorePhotoEditor').addEventListener('click', () => fileUploadInput.click());
+
+    fileUploadInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      let loadedCount = 0;
+      const targetFiles = files.slice(0, state.maxShots);
+
+      targetFiles.forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = 960;
+            c.height = 720;
+            const ctx = c.getContext('2d');
+            try { ctx.filter = getCombinedFilterCSS(); } catch (err) {}
+
+            const targetRatio = c.width / c.height;
+            const imgRatio = img.width / img.height;
+            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+            if (imgRatio > targetRatio) {
+              sw = img.height * targetRatio;
+              sx = (img.width - sw) / 2;
+            } else {
+              sh = img.width / targetRatio;
+              sy = (img.height - sh) / 2;
+            }
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+            ctx.filter = 'none';
+
+            state.shots[i] = c;
+            state.lastCapturedDate = new Date();
+            loadedCount++;
+
+            if (loadedCount === targetFiles.length) {
+              cloneFillAllSlots();
+              switchStep('editor', true);
+            }
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      fileUploadInput.value = '';
+    });
+
+    /**************************************************************
+     * 15. SỰ KIỆN NÚT BẤM ĐIỀU KHIỂN
+     **************************************************************/
+    document.getElementById('btnStartCapture').addEventListener('click', () => startPhotoSession());
+
+    document.getElementById('btnCycleFilter').addEventListener('click', () => {
+      const nextIdx = (LENS_LUTS_400.findIndex(l => l.id === state.activeLut.id) + 1) % LENS_LUTS_400.length;
+      state.activeLut = LENS_LUTS_400[nextIdx];
+      document.getElementById('selectedLutLabel').textContent = `${state.activeLut.code} ${state.activeLut.name}`;
+      document.getElementById('quickFilterSub').textContent = `(${state.activeLut.code} ${state.activeLut.name})`;
+      document.getElementById('hudActiveLut').textContent = `LUT ${state.activeLut.code}`;
+      renderLutCatalog();
+    });
+
+    document.getElementById('btnToggleRingLight').addEventListener('click', function () {
+      state.ringLight = !state.ringLight;
+      this.classList.toggle('active', state.ringLight);
+      document.getElementById('viewfinderFrame').classList.toggle('ringlight-on', state.ringLight);
+      document.getElementById('quickRingSub').textContent = state.ringLight ? '(Đang bật)' : '(Đã tắt)';
+    });
+
+    const timers = [3, 5, 10];
+    document.getElementById('btnCycleTimer').addEventListener('click', () => {
+      state.timerSeconds = timers[(timers.indexOf(state.timerSeconds) + 1) % timers.length];
+      document.getElementById('quickTimerSub').textContent = `(${state.timerSeconds} giây)`;
+    });
+
+    document.getElementById('btnToggleMirror').addEventListener('click', function () {
+      state.isMirrored = !state.isMirrored;
+      this.classList.toggle('active', state.isMirrored);
+      document.getElementById('quickMirrorSub').textContent = state.isMirrored ? '(Đang bật)' : '(Đang tắt)';
+    });
+
+    document.getElementById('chkRotateFollow').addEventListener('change', (e) => {
+      state.rotateFollowHead = e.target.checked;
+    });
+
+    document.getElementById('chkFastGridMode').addEventListener('change', (e) => {
+      state.fastGridMode = e.target.checked;
+    });
+
+    function setLayout(newLayout) {
+      state.layout = newLayout;
+      const spec = LAYOUT_SPECS[newLayout] || LAYOUT_SPECS['1x4'];
+      state.maxShots = spec.total;
+      if (state.selectedSlotIdx >= state.maxShots) state.selectedSlotIdx = 0;
+
+      document.querySelectorAll('#layoutGroup .opt-pill, #editorLayoutGroup .opt-pill').forEach(b => {
+        b.classList.toggle('active', b.dataset.layout === newLayout);
+      });
+
+      if (state.shots.filter(Boolean).length > 0 && state.shots.filter(Boolean).length < state.maxShots) {
+        cloneFillAllSlots();
+      } else {
+        updateCaptureProgressUI();
+        renderSlotManagerGrid();
+        renderPhotoboothStrip();
+      }
+    }
+
+    document.querySelectorAll('#layoutGroup .opt-pill, #editorLayoutGroup .opt-pill').forEach(btn => {
+      btn.addEventListener('click', () => setLayout(btn.dataset.layout));
+    });
+
+    document.getElementById('beautifySlider').addEventListener('input', (e) => {
+      state.beautify = Number(e.target.value);
+      document.getElementById('beautifyVal').textContent = state.beautify + '%';
+    });
+
+    document.getElementById('smoothSlider').addEventListener('input', (e) => {
+      state.skinSmooth = Number(e.target.value);
+      document.getElementById('smoothVal').textContent = state.skinSmooth + '%';
+    });
+
+    document.getElementById('arScaleSlider').addEventListener('input', (e) => {
+      state.arScale = Number(e.target.value) / 100;
+      document.getElementById('arScaleVal').textContent = e.target.value + '%';
+    });
+
+    document.getElementById('btnClearFrameStickers').addEventListener('click', () => {
+      state.frameStickers = [];
+      state.selectedStickerIdx = -1;
+      syncStickerInspectorUI();
+      renderPhotoboothStrip();
+    });
+
+    const customStampInput = document.getElementById('customStampInput');
+    customStampInput.addEventListener('input', (e) => {
+      state.stampText = e.target.value || 'PHOTOISM • NOVARIS STUDIO';
+      renderPhotoboothStrip();
+    });
+
+    const stamps = [
+      'PHOTOISM • NOVARIS STUDIO'
+      
+    ];
+    document.getElementById('btnPresetStamp').addEventListener('click', () => {
+      const next = stamps[(stamps.indexOf(state.stampText) + 1) % stamps.length];
+      state.stampText = next;
+      customStampInput.value = next;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('chkPaperGrain').addEventListener('change', (e) => {
+      state.showPaperGrain = e.target.checked;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('chkBarcode').addEventListener('change', (e) => {
+      state.showBarcode = e.target.checked;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('chkShowDate').addEventListener('change', (e) => {
+      state.showDate = e.target.checked;
+      renderPhotoboothStrip();
+    });
+
+    document.getElementById('btnDownload').addEventListener('click', () => {
+      renderPhotoboothStrip(true); // Xuất ảnh sạch không có khung viền chọn
+      const dt = getFormattedDateAndTime(state.lastCapturedDate);
+      const link = document.createElement('a');
+      link.download = `K-Booth-${state.layout}_${dt.dateStr}_${dt.timeStr}.png`;
+      link.href = stripCanvas.toDataURL('image/png');
+      link.click();
+      renderPhotoboothStrip(false);
+    });
+
+    // Khởi chạy
+    renderLutCatalog();
+    renderArCatalog();
+    renderFrameCatalog();
+    renderStickerCatalog();
+    updateCaptureProgressUI();
+    selectSlotForEdit(0);
+    syncStickerInspectorUI();
+    renderPhotoboothStrip();
+    requestAnimationFrame(renderLiveLoop);
+    connectCamera();
+  </script>
+</body>
+</html>
