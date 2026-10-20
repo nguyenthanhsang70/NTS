@@ -1493,19 +1493,22 @@
 
     .stamp-row {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr;
       gap: 8px;
     }
 
     .stamp-input {
+      width: 100%;
       padding: 9px 13px;
       border-radius: 10px;
       border: 1.5px solid #e4cada;
+      background: #f6eff4;
       font-family: inherit;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--text-main);
+      color: var(--text-sub);
       outline: none;
+      cursor: not-allowed;
     }
 
     .editor-cta-row {
@@ -1549,11 +1552,11 @@
       gap: 8px;
     }
 
-    /* MODAL PHÓNG TO ẢNH TOÀN MÀN HÌNH (LIGHTBOX) */
+    /* MODAL PHÓNG TO ẢNH TOÀN MÀN HÌNH (LIGHTBOX HỖ TRỢ LĂN CHUỘT ZOOM & KÉO) */
     .lightbox-modal {
       position: fixed;
       inset: 0;
-      background: rgba(12, 9, 18, 0.88);
+      background: rgba(12, 9, 18, 0.9);
       backdrop-filter: blur(10px);
       z-index: 999;
       display: none;
@@ -1562,18 +1565,43 @@
       justify-content: center;
       padding: 20px;
       gap: 14px;
+      overflow: hidden;
     }
 
     .lightbox-modal.show {
       display: flex;
     }
 
+    .lightbox-viewport {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
     .lightbox-modal img {
-      max-height: 84vh;
+      max-height: 82vh;
       max-width: 92vw;
       border-radius: 10px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65);
       border: 3px solid #fff;
+      transform-origin: center center;
+      transition: transform 0.08s ease-out;
+      cursor: zoom-in;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .lightbox-modal img.is-zoomed {
+      cursor: grab;
+    }
+
+    .lightbox-modal img.is-dragging {
+      cursor: grabbing;
+      transition: none;
     }
 
     @media (max-width: 1120px) {
@@ -2080,8 +2108,7 @@
             <div>
               <div class="panel-heading">1. Tiêu đề thương hiệu in trên khung ảnh</div>
               <div class="stamp-row">
-                <input type="text" id="customStampInput" class="stamp-input" value="PHOTOISM • SEOUL STUDIO" placeholder="Nhập tiêu đề in trên ảnh..." />
-                <button type="button" class="opt-pill" id="btnPresetStamp">Đổi mẫu thương hiệu</button>
+                <input type="text" id="customStampInput" class="stamp-input" value="PHOTOISM • NOVARIS STUDIO" readonly />
               </div>
             </div>
 
@@ -2114,13 +2141,20 @@
     </main>
   </div>
 
-  <!-- MODAL XEM ẢNH PHÓNG TO TOÀN MÀN HÌNH (LIGHTBOX) -->
+  <!-- MODAL XEM ẢNH PHÓNG TO TOÀN MÀN HÌNH (HỖ TRỢ LĂN CHUỘT PHÓNG TO / THU NHỎ & KÉO ẢNH) -->
   <div class="lightbox-modal" id="lightboxModal">
-    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:600px; color:#fff;">
-      <span style="font-weight:800; font-size:0.95rem;">🔍 Xem chi tiết bản in độ phân giải cao</span>
-      <button type="button" class="btn-tray-go" id="btnCloseLightbox">✕ Đóng lại</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:780px; color:#fff; z-index:5; gap:10px; flex-wrap:wrap;">
+      <span style="font-weight:800; font-size:0.9rem;">
+        🔍 Lăn chuột để Phóng to / Thu nhỏ (<span id="lightboxZoomBadge" style="color:#ff8ab5;">100%</span>) • Kéo chuột để di chuyển
+      </span>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button type="button" class="btn-tray-pill" id="btnResetLightboxZoom">↺ Đặt lại 100%</button>
+        <button type="button" class="btn-tray-go" id="btnCloseLightbox">✕ Đóng lại</button>
+      </div>
     </div>
-    <img id="lightboxImg" src="" alt="Preview Full" />
+    <div class="lightbox-viewport" id="lightboxViewport">
+      <img id="lightboxImg" src="" alt="Preview Full" />
+    </div>
   </div>
 
   <script>
@@ -2185,7 +2219,6 @@
 
     /**************************************************************
      * 1. KHỞI TẠO ĐẠI THƯ VIỆN (400 LUTs, 400 AR, 400 KHUNG, 400 STICKER)
-     *    ĐÃ LOẠI BỎ HOÀN TOÀN CÁC KÝ TỰ EMOJI MỚI GÂY LỖI Ô VUÔNG TRÊN WINDOWS
      **************************************************************/
     const LENS_LUTS_400 = [];
     (function build400LensLUTs() {
@@ -2748,7 +2781,7 @@
       rotateFollowHead: true,
 
       activeFrame: FRAMES_400[0],
-      stampText: 'PHOTOISM • SEOUL STUDIO',
+      stampText: 'PHOTOISM • NOVARIS STUDIO',
       showDate: true,
       showPaperGrain: true,
       showBarcode: true,
@@ -2816,7 +2849,7 @@
     }, 1000);
 
     /**************************************************************
-     * 3. QUẢN LÝ PHÓNG TO BẢN IN (ZOOM PREVIEW) & LIGHTBOX
+     * 3. QUẢN LÝ PHÓNG TO BẢN IN (ZOOM PREVIEW) & LIGHTBOX LĂN CHUỘT
      **************************************************************/
     function updatePreviewZoom(val) {
       state.previewZoom = Math.max(60, Math.min(180, Number(val)));
@@ -2831,20 +2864,102 @@
     document.getElementById('btnZoomOut').addEventListener('click', () => updatePreviewZoom(state.previewZoom - 15));
     document.getElementById('btnResetZoom').addEventListener('click', () => updatePreviewZoom(100));
 
+    // Trạng thái phóng to & kéo ảnh trong Lightbox toàn màn hình
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxZoomBadge = document.getElementById('lightboxZoomBadge');
+
+    let lbScale = 1;
+    let lbPanX = 0;
+    let lbPanY = 0;
+    let isLbDragging = false;
+    let lbStartX = 0;
+    let lbStartY = 0;
+
+    function applyLightboxTransform() {
+      lightboxImg.style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbScale})`;
+      lightboxImg.classList.toggle('is-zoomed', lbScale > 1);
+      if (lightboxZoomBadge) {
+        lightboxZoomBadge.textContent = `${Math.round(lbScale * 100)}%`;
+      }
+    }
+
+    function resetLightboxView() {
+      lbScale = 1;
+      lbPanX = 0;
+      lbPanY = 0;
+      applyLightboxTransform();
+    }
+
     document.getElementById('btnOpenLightbox').addEventListener('click', () => {
       renderPhotoboothStrip(true); // Render ẩn viền chọn
-      document.getElementById('lightboxImg').src = stripCanvas.toDataURL('image/png');
-      document.getElementById('lightboxModal').classList.add('show');
+      lightboxImg.src = stripCanvas.toDataURL('image/png');
+      resetLightboxView();
+      lightboxModal.classList.add('show');
       renderPhotoboothStrip(false);
     });
 
-    document.getElementById('btnCloseLightbox').addEventListener('click', () => {
-      document.getElementById('lightboxModal').classList.remove('show');
+    document.getElementById('btnResetLightboxZoom').addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetLightboxView();
     });
 
-    document.getElementById('lightboxModal').addEventListener('click', (e) => {
-      if (e.target.id === 'lightboxModal') {
-        document.getElementById('lightboxModal').classList.remove('show');
+    document.getElementById('btnCloseLightbox').addEventListener('click', () => {
+      lightboxModal.classList.remove('show');
+    });
+
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal || e.target.id === 'lightboxViewport') {
+        lightboxModal.classList.remove('show');
+      }
+    });
+
+    // Lăn chuột để phóng to / thu nhỏ ảnh khi xem toàn màn hình
+    lightboxModal.addEventListener('wheel', (e) => {
+      if (!lightboxModal.classList.contains('show')) return;
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.16 : -0.16;
+      const nextScale = Math.max(0.5, Math.min(4.0, +(lbScale + delta).toFixed(2)));
+      lbScale = nextScale;
+      if (lbScale <= 1) {
+        lbPanX = 0;
+        lbPanY = 0;
+      }
+      applyLightboxTransform();
+    }, { passive: false });
+
+    // Nhấp đúp vào ảnh để reset 100% hoặc phóng nhanh 200%
+    lightboxImg.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      if (lbScale !== 1) {
+        resetLightboxView();
+      } else {
+        lbScale = 2;
+        applyLightboxTransform();
+      }
+    });
+
+    // Kéo chuột để xem các góc khi ảnh đang phóng to
+    lightboxImg.addEventListener('pointerdown', (e) => {
+      if (lbScale <= 1) return;
+      e.preventDefault();
+      isLbDragging = true;
+      lbStartX = e.clientX - lbPanX;
+      lbStartY = e.clientY - lbPanY;
+      lightboxImg.classList.add('is-dragging');
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isLbDragging) return;
+      lbPanX = e.clientX - lbStartX;
+      lbPanY = e.clientY - lbStartY;
+      applyLightboxTransform();
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (isLbDragging) {
+        isLbDragging = false;
+        lightboxImg.classList.remove('is-dragging');
       }
     });
 
@@ -4749,23 +4864,6 @@
       state.frameStickers = [];
       state.selectedStickerIdx = -1;
       syncStickerInspectorUI();
-      renderPhotoboothStrip();
-    });
-
-    const customStampInput = document.getElementById('customStampInput');
-    customStampInput.addEventListener('input', (e) => {
-      state.stampText = e.target.value || 'PHOTOISM • NOVARIS STUDIO';
-      renderPhotoboothStrip();
-    });
-
-    const stamps = [
-      'PHOTOISM • NOVARIS STUDIO'
-      
-    ];
-    document.getElementById('btnPresetStamp').addEventListener('click', () => {
-      const next = stamps[(stamps.indexOf(state.stampText) + 1) % stamps.length];
-      state.stampText = next;
-      customStampInput.value = next;
       renderPhotoboothStrip();
     });
 
