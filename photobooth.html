@@ -2178,6 +2178,34 @@
     }
 
     /**************************************************************
+     * BỘ ĐẾM TÊN FILE CHỐNG TRÙNG LẶP:
+     * PhotoBooth-[Khổ giấy]-[Ngày tháng năm], [Thời gian]
+     * Nếu trùng tên sẽ tự động thêm (1), (2), (3),...
+     **************************************************************/
+    const downloadNameRegistry = (function () {
+      try {
+        return JSON.parse(localStorage.getItem('pb_filename_registry_v1') || '{}');
+      } catch (e) {
+        return {};
+      }
+    })();
+
+    function getUniquePhotoBoothFilename(layout, dateStr, timeStr) {
+      const baseName = `PhotoBooth-${layout}-${dateStr}, ${timeStr}`;
+      const count = downloadNameRegistry[baseName] || 0;
+      downloadNameRegistry[baseName] = count + 1;
+
+      try {
+        localStorage.setItem('pb_filename_registry_v1', JSON.stringify(downloadNameRegistry));
+      } catch (e) {}
+
+      if (count === 0) {
+        return `${baseName}.png`;
+      }
+      return `${baseName} (${count}).png`;
+    }
+
+    /**************************************************************
      * SỰ KIỆN CHUYỂN TAB Ở BƯỚC 1 & BƯỚC 2
      **************************************************************/
     document.querySelectorAll('.s-nav-btn').forEach(btn => {
@@ -4886,7 +4914,7 @@
       renderPhotoboothStrip(true); // Xuất ảnh sạch không có khung viền chọn
       const dt = getFormattedDateAndTime(state.lastCapturedDate);
       const link = document.createElement('a');
-      link.download = `K-Booth-${state.layout}_${dt.dateStr}_${dt.timeStr}.png`;
+      link.download = getUniquePhotoBoothFilename(state.layout, dt.dateStr, dt.timeStr);
       link.href = stripCanvas.toDataURL('image/png');
       link.click();
       renderPhotoboothStrip(false);
