@@ -1122,7 +1122,7 @@
         @keyframes bubbleRise { 0% { transform: translateY(40px) scale(0.6); opacity: 0; } 40% { opacity: 0.85; } 100% { transform: translateY(-55px) scale(1.15); opacity: 0; } }
 
         /* ==========================================================================
-           3D RING CAROUSEL VIEW MODE — CÂN CHỈNH CHUẨN XÁC VÀ BỔ SUNG VÒNG LỐC 3D
+           3D RING CAROUSEL VIEW MODE (ĐÃ BỎ THANH NÚT ĐIỀU KHIỂN, GIỮ TỰ ĐỘNG XOAY)
            ========================================================================== */
         .carousel-3d-stage {
             display: none;
@@ -1130,9 +1130,8 @@
             width: 100%;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            gap: 4.5rem;
-            padding: 3rem 0 2rem;
+            justify-content: center;
+            padding: 3rem 0 2.5rem;
         }
         .carousel-3d-stage.active {
             display: flex;
@@ -1248,38 +1247,6 @@
             opacity: 0.08;
             filter: blur(2px) brightness(0.35);
             pointer-events: none;
-        }
-
-        .carousel-controls-bar {
-            position: relative;
-            z-index: 30;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.85rem 1.5rem;
-            border-radius: 999px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
-        }
-
-        .carousel-progress-track {
-            width: 140px;
-            height: 4px;
-            border-radius: 999px;
-            background: rgba(148, 163, 184, 0.25);
-            overflow: hidden;
-            position: relative;
-        }
-        .carousel-progress-bar {
-            height: 100%;
-            width: 0%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-violet));
-            box-shadow: 0 0 10px var(--neon-cyan);
-            transition: width 0.1s linear;
         }
 
         /* --- FLOATING MUSIC PLAYER DOCK (NÚT ICON TRÒN) --- */
@@ -1993,44 +1960,14 @@
 
             </div>
 
-            <!-- MODE 2: INTERACTIVE 3D RING CAROUSEL -->
+            <!-- MODE 2: INTERACTIVE 3D RING CAROUSEL (TỰ ĐỘNG XOAY, ĐÃ XÓA BỘ ĐIỀU KHIỂN) -->
             <div id="carouselStage" class="carousel-3d-stage">
-                <!-- Khung 3D riêng biệt ở trên -->
                 <div class="carousel-3d-viewport">
                     <!-- 3 Vòng Gió Xoáy Neon 3D tự động kích hoạt ở Giao diện 6 -->
                     <div class="carousel-vortex-rings" aria-hidden="true">
                         <i></i><i></i><i></i>
                     </div>
                     <div id="carouselWheel" class="carousel-3d-wheel"></div>
-                </div>
-
-                <!-- Bộ điều khiển Vòng Xoay nằm tách biệt hoàn toàn bên dưới -->
-                <div class="carousel-controls-bar">
-                    <div class="flex items-center gap-3">
-                        <button type="button" id="carouselPrev" class="px-4 py-2 rounded-full bg-white/10 hover:bg-teal-400 hover:text-slate-950 border border-white/15 font-sans text-xs font-extrabold uppercase tracking-wider transition-all" data-vi="← Trước" data-en="← Prev" data-zh="← 上一个">
-                            ← Trước
-                        </button>
-
-                        <button type="button" id="carouselToggleAuto" class="w-9 h-9 rounded-full bg-teal-400/15 hover:bg-teal-400 text-teal-300 hover:text-slate-950 border border-teal-400/35 grid place-items-center transition-all" aria-label="Tạm dừng hoặc Tiếp tục tự xoay" title="Bật / Tắt tự động xoay">
-                            <svg class="icon text-xs"><use id="carouselAutoIcon" href="#icon-pause"></use></svg>
-                        </button>
-
-                        <span id="carouselIndexText" class="font-mono text-xs text-teal-300 font-bold min-w-[58px] text-center">01 / 07</span>
-
-                        <button type="button" id="carouselNext" class="px-4 py-2 rounded-full bg-white/10 hover:bg-teal-400 hover:text-slate-950 border border-white/15 font-sans text-xs font-extrabold uppercase tracking-wider transition-all" data-vi="Tiếp →" data-en="Next →" data-zh="下一个 →">
-                            Tiếp →
-                        </button>
-                    </div>
-
-                    <!-- Thanh đếm nhịp tự động xoay + trạng thái -->
-                    <div class="flex items-center gap-2.5">
-                        <div class="carousel-progress-track">
-                            <div id="carouselProgressBar" class="carousel-progress-bar"></div>
-                        </div>
-                        <span id="carouselModeBadge" class="font-mono text-[10px] text-teal-300 uppercase tracking-wider">
-                            Orbit: Ring 3D
-                        </span>
-                    </div>
                 </div>
             </div>
 
@@ -2571,7 +2508,7 @@
         }
 
         /* ==========================================================================
-           3. VÒNG XOAY 3D 6 HIỆU ỨNG CÂN BẰNG TỌA ĐỘ
+           3. VÒNG XOAY 3D TỰ ĐỘNG XOAY (ĐÃ XÓA BỘ NÚT ĐIỀU KHIỂN DƯỚI)
            ========================================================================== */
         function init3DCarouselMode() {
             const btnBento = document.getElementById('btnViewBento');
@@ -2579,13 +2516,6 @@
             const bentoGrid = document.getElementById('bentoGridContainer');
             const carouselStage = document.getElementById('carouselStage');
             const carouselWheel = document.getElementById('carouselWheel');
-            const prevBtn = document.getElementById('carouselPrev');
-            const nextBtn = document.getElementById('carouselNext');
-            const toggleAutoBtn = document.getElementById('carouselToggleAuto');
-            const autoIconUse = document.getElementById('carouselAutoIcon');
-            const progressBar = document.getElementById('carouselProgressBar');
-            const indexText = document.getElementById('carouselIndexText');
-            const carouselModeBadge = document.getElementById('carouselModeBadge');
 
             if (!btnBento || !btnCarousel || !bentoGrid || !carouselStage || !carouselWheel) return;
 
@@ -2597,19 +2527,9 @@
 
             const AUTO_DELAY_MS = 3800;
             let isCarouselActive = false;
-            let autoRotateEnabled = true;
             let isHoveringOrTouching = false;
             let elapsedMs = 0;
             let lastTick = performance.now();
-
-            const orbitLabels = {
-                quantum:   'Orbit: Horizontal Ring 3D',
-                cyberpunk: 'Orbit: Vertical Ferris 3D',
-                emerald:   'Orbit: Helix Spiral 3D',
-                viper:     'Orbit: Serpentine Snake Wave 3D',
-                vinyl:     'Orbit: Vinyl Jukebox Coverflow 3D',
-                vortex:    'Orbit: Eye of Cyclone Vortex 3D'
-            };
 
             function buildCarouselItems() {
                 if (built) return;
@@ -2664,10 +2584,6 @@
             function layoutCarouselCardsByWorld() {
                 const radius = window.innerWidth < 640 ? 255 : 385;
                 const currentMod = ((activeIndex % total) + total) % total;
-
-                if (carouselModeBadge) {
-                    carouselModeBadge.textContent = orbitLabels[active3DWorldMode] || orbitLabels.quantum;
-                }
 
                 wheelCards.forEach((c, idx) => {
                     const stepAngle = (360 / total) * idx;
@@ -2727,7 +2643,6 @@
                 }
 
                 const currentMod = ((activeIndex % total) + total) % total;
-                if (indexText) indexText.textContent = `0${currentMod + 1} / 0${total}`;
 
                 wheelCards.forEach((c, idx) => {
                     let diff = Math.abs(idx - currentMod);
@@ -2747,11 +2662,8 @@
                 const dt = now - lastTick;
                 lastTick = now;
 
-                if (isCarouselActive && autoRotateEnabled && !isHoveringOrTouching && !document.hidden) {
+                if (isCarouselActive && !isHoveringOrTouching && !document.hidden) {
                     elapsedMs += dt;
-                    const pct = Math.min(100, (elapsedMs / AUTO_DELAY_MS) * 100);
-                    if (progressBar) progressBar.style.width = `${pct}%`;
-
                     if (elapsedMs >= AUTO_DELAY_MS) {
                         elapsedMs = 0;
                         activeIndex++;
@@ -2768,13 +2680,6 @@
             carouselWheel.addEventListener('touchend', () => {
                 setTimeout(() => { isHoveringOrTouching = false; }, 1200);
             }, { passive: true });
-
-            toggleAutoBtn?.addEventListener('click', () => {
-                autoRotateEnabled = !autoRotateEnabled;
-                elapsedMs = 0;
-                if (progressBar) progressBar.style.width = '0%';
-                autoIconUse?.setAttribute('href', autoRotateEnabled ? '#icon-pause' : '#icon-play');
-            });
 
             btnCarousel.addEventListener('click', () => {
                 buildCarouselItems();
@@ -2794,19 +2699,6 @@
                 bentoGrid.classList.remove('hidden');
                 btnBento.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all bg-gradient-to-r from-teal-400 to-cyan-400 text-slate-950 shadow-lg';
                 btnCarousel.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all text-slate-300 hover:text-white';
-            });
-
-            prevBtn?.addEventListener('click', () => {
-                activeIndex--;
-                elapsedMs = 0;
-                if (progressBar) progressBar.style.width = '0%';
-                rotateCarousel();
-            });
-            nextBtn?.addEventListener('click', () => {
-                activeIndex++;
-                elapsedMs = 0;
-                if (progressBar) progressBar.style.width = '0%';
-                rotateCarousel();
             });
         }
 
@@ -2892,7 +2784,6 @@
             const volSlider = document.getElementById('musicVolume');
             const volLabel = document.getElementById('musicVolumeLabel');
 
-            // Danh sách file .mp3 (đặt cùng thư mục với file HTML hoặc điền đường dẫn .mp3 của bạn)
             const playlist = [
                 {
                     title: 'Thương Nhau Đến Thế',
