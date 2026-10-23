@@ -44,7 +44,7 @@
 
     <style>
         /* ==========================================================================
-           HỆ THỐNG 6 THẾ GIỚI 3D: MÀU SẮC + CẤU TRÚC MÔ HÌNH 3D + CANVAS + CAROUSEL
+           HỆ THỐNG 6 THẾ GIỚI 3D + CHẾ ĐỘ TỰ TẠO GIAO DIỆN (CUSTOM 3D STUDIO)
            ========================================================================== */
         :root,
         html[data-theme="quantum"] {
@@ -64,6 +64,7 @@
             --aurora-1: rgba(139, 92, 246, 0.16);
             --aurora-2: rgba(0, 245, 212, 0.11);
             --aurora-3: rgba(244, 63, 94, 0.11);
+            --custom-card-radius: 30px;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -340,10 +341,10 @@
             to { opacity: 1; transform: none; }
         }
 
-        /* --- THEME SWITCHER MENU (6 THẾ GIỚI 3D) --- */
+        /* --- THEME SWITCHER MENU (6 THẾ GIỚI 3D + TỰ TẠO) --- */
         #themeMenu {
-            width: 320px;
-            max-height: 78vh;
+            width: 330px;
+            max-height: 82vh;
             overflow-y: auto;
             background: var(--bg-drawer);
             border: 1px solid var(--border-subtle);
@@ -378,8 +379,93 @@
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.45);
         }
 
+        /* --- MODAL TỰ TẠO GIAO DIỆN 3D (CUSTOM THEME BUILDER STUDIO) --- */
+        .custom-studio-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 12000;
+            background: rgba(2, 4, 12, 0.72);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+        }
+        .custom-studio-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .custom-studio-modal {
+            width: min(94vw, 560px);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 28px;
+            background: var(--bg-drawer);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 45px rgba(0, 245, 212, 0.22);
+            padding: 1.5rem;
+            transform: translateY(16px) scale(0.96);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .custom-studio-backdrop.open .custom-studio-modal {
+            transform: translateY(0) scale(1);
+        }
+        .studio-color-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .studio-color-item:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .studio-color-item input[type="color"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 36px;
+            height: 36px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 999px;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+        .studio-color-item input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .studio-color-item input[type="color"]::-webkit-color-swatch { border: none; border-radius: 999px; }
+        .studio-select {
+            width: 100%;
+            padding: 0.68rem 0.9rem;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .studio-select:focus { border-color: var(--neon-cyan); }
+        .studio-select option {
+            background: #0d091f;
+            color: #ffffff;
+        }
+
         /* ==========================================================================
-           HERO: 6 CỖ MÁY 3D ĐỘC LẬP — THAY MỚI HOÀN TOÀN KHI ĐỔI GIAO DIỆN
+           HERO: 6 CỖ MÁY 3D ĐỘC LẬP — HỖ TRỢ CẢ CHẾ ĐỘ MẶC ĐỊNH & TỰ TẠO
            ========================================================================== */
         .orbital-stage {
             position: relative;
@@ -428,7 +514,13 @@
         html[data-theme="emerald"] .scene-emerald,
         html[data-theme="viper"] .scene-viper,
         html[data-theme="vinyl"] .scene-vinyl,
-        html[data-theme="vortex"] .scene-vortex {
+        html[data-theme="vortex"] .scene-vortex,
+        html[data-theme="custom"][data-custom-model="quantum"] .scene-quantum,
+        html[data-theme="custom"][data-custom-model="cyberpunk"] .scene-cyberpunk,
+        html[data-theme="custom"][data-custom-model="emerald"] .scene-emerald,
+        html[data-theme="custom"][data-custom-model="viper"] .scene-viper,
+        html[data-theme="custom"][data-custom-model="vinyl"] .scene-vinyl,
+        html[data-theme="custom"][data-custom-model="vortex"] .scene-vortex {
             opacity: 1;
             visibility: visible;
             transform: scale3d(1, 1, 1);
@@ -488,10 +580,10 @@
             width: 136px; height: 136px;
             border-radius: 24px;
             border: 1.5px solid var(--neon-cyan);
-            background: linear-gradient(135deg, rgba(0, 245, 212, 0.2), rgba(139, 92, 246, 0.25));
+            background: linear-gradient(135deg, var(--aurora-2), var(--aurora-1));
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 0 28px rgba(0, 245, 212, 0.28), inset 0 0 22px rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 28px var(--aurora-2), inset 0 0 22px rgba(255, 255, 255, 0.18);
             display: grid;
             place-items: center;
             overflow: hidden;
@@ -545,8 +637,8 @@
             width: 168px;
             height: 2px;
             margin-left: -84px;
-            background: linear-gradient(90deg, #ff2a85, #facc15, #00f0ff);
-            box-shadow: 0 0 14px #ff2a85;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-rose), var(--neon-violet));
+            box-shadow: 0 0 14px var(--neon-cyan);
             transform-style: preserve-3d;
             transform: rotateY(calc(var(--i) * 30deg));
         }
@@ -561,20 +653,20 @@
         }
         .dna-rung::before {
             left: -8px;
-            background: #ff2a85;
-            box-shadow: 0 0 18px #ff2a85, 0 0 30px #ff2a85;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 18px var(--neon-cyan), 0 0 30px var(--neon-cyan);
         }
         .dna-rung::after {
             right: -8px;
-            background: #00f0ff;
-            box-shadow: 0 0 18px #00f0ff, 0 0 30px #00f0ff;
+            background: var(--neon-violet);
+            box-shadow: 0 0 18px var(--neon-violet), 0 0 30px var(--neon-violet);
         }
         .dna-holo-shield {
             position: absolute;
             inset: 6%;
-            border: 2px solid rgba(0, 240, 255, 0.45);
+            border: 2px solid var(--neon-violet);
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            box-shadow: 0 0 35px rgba(255, 42, 133, 0.35), inset 0 0 30px rgba(0, 240, 255, 0.22);
+            box-shadow: 0 0 35px var(--aurora-1), inset 0 0 30px var(--aurora-2);
             animation: shieldSpin 12s linear infinite reverse;
         }
         @keyframes shieldSpin {
@@ -587,9 +679,9 @@
             width: 86px; height: 86px;
             margin-left: -43px; margin-top: -43px;
             border-radius: 50%;
-            background: rgba(20, 4, 36, 0.9);
-            border: 2px solid #facc15;
-            box-shadow: 0 0 35px #ff2a85;
+            background: var(--bg-drawer);
+            border: 2px solid var(--neon-rose);
+            box-shadow: 0 0 35px var(--neon-cyan);
             display: grid;
             place-items: center;
             transform: translateZ(40px);
@@ -615,28 +707,28 @@
         }
         .stargate-tier.t1 {
             inset: 2%;
-            border: 3px dashed #10b981;
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4), inset 0 0 30px rgba(16, 185, 129, 0.2);
+            border: 3px dashed var(--neon-cyan);
+            box-shadow: 0 0 40px var(--aurora-2), inset 0 0 30px var(--aurora-2);
             transform: translateZ(-70px);
         }
         .stargate-tier.t2 {
             inset: 14%;
-            border: 2.5px solid #06b6d4;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.14), transparent 70%);
-            box-shadow: 0 0 35px rgba(6, 182, 212, 0.45);
+            border: 2.5px solid var(--neon-violet);
+            background: radial-gradient(circle, var(--aurora-2), transparent 70%);
+            box-shadow: 0 0 35px var(--aurora-1);
             transform: translateZ(-20px);
         }
         .stargate-tier.t3 {
             inset: 26%;
-            border: 3px dotted #a3e635;
-            box-shadow: 0 0 30px rgba(163, 230, 53, 0.45);
+            border: 3px dotted var(--neon-rose);
+            box-shadow: 0 0 30px var(--aurora-3);
             transform: translateZ(35px);
         }
         .stargate-tier.t4 {
             inset: 37%;
-            border: 2px solid #34d399;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.35), transparent 72%);
-            box-shadow: 0 0 45px #10b981;
+            border: 2px solid var(--neon-cyan);
+            background: radial-gradient(circle, var(--aurora-2), transparent 72%);
+            box-shadow: 0 0 45px var(--neon-cyan);
             transform: translateZ(85px);
         }
         .stargate-beam {
@@ -645,7 +737,7 @@
             width: 56px; height: 310px;
             margin-left: -28px; margin-top: -155px;
             border-radius: 999px;
-            background: linear-gradient(180deg, transparent, rgba(16, 185, 129, 0.55), rgba(6, 182, 212, 0.7), rgba(16, 185, 129, 0.55), transparent);
+            background: linear-gradient(180deg, transparent, var(--aurora-2), var(--aurora-1), var(--aurora-2), transparent);
             filter: blur(6px);
             transform: rotateX(-58deg);
             pointer-events: none;
@@ -656,9 +748,9 @@
             width: 92px; height: 92px;
             margin-left: -46px; margin-top: -46px;
             border-radius: 50%;
-            border: 2px solid #34d399;
-            background: rgba(3, 24, 19, 0.92);
-            box-shadow: 0 0 40px #10b981;
+            border: 2px solid var(--neon-cyan);
+            background: var(--bg-drawer);
+            box-shadow: 0 0 40px var(--neon-cyan);
             display: grid;
             place-items: center;
             transform: translateZ(95px);
@@ -677,8 +769,8 @@
         .viper-coil-ring {
             position: absolute;
             border-radius: 50%;
-            border: 5px dotted #84cc16;
-            box-shadow: 0 0 35px rgba(132, 204, 22, 0.45), inset 0 0 25px rgba(34, 197, 94, 0.3);
+            border: 5px dotted var(--neon-cyan);
+            box-shadow: 0 0 35px var(--aurora-2), inset 0 0 25px var(--aurora-1);
             transform-style: preserve-3d;
         }
         .viper-coil-ring.c1 {
@@ -687,14 +779,14 @@
         }
         .viper-coil-ring.c2 {
             inset: 14%;
-            border-color: #22c55e;
+            border-color: var(--neon-violet);
             border-style: dashed;
             border-width: 4px;
             animation: viperSlither2 5s ease-in-out infinite reverse;
         }
         .viper-coil-ring.c3 {
             inset: 24%;
-            border-color: #eab308;
+            border-color: var(--neon-rose);
             border-width: 3px;
             animation: viperSlither3 4s linear infinite;
         }
@@ -714,9 +806,9 @@
             position: relative;
             width: 118px; height: 118px;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 30%, #bef264, #15803d 58%, #052e16 100%);
-            border: 3px solid #84cc16;
-            box-shadow: 0 0 55px #84cc16, inset 0 0 30px #fde047;
+            background: radial-gradient(circle at 35% 30%, var(--neon-cyan), var(--neon-violet) 58%, var(--bg-void) 100%);
+            border: 3px solid var(--neon-cyan);
+            box-shadow: 0 0 55px var(--neon-cyan), inset 0 0 30px var(--neon-rose);
             display: grid;
             place-items: center;
             transform: translateZ(50px);
@@ -729,8 +821,8 @@
             height: 82px;
             border-radius: 50%;
             background: #020a03;
-            border: 2px solid #fde047;
-            box-shadow: 0 0 20px #eab308;
+            border: 2px solid var(--neon-rose);
+            box-shadow: 0 0 20px var(--neon-rose);
             z-index: 0;
         }
         @keyframes venomPulse {
@@ -752,14 +844,14 @@
             position: absolute;
             inset: -4%;
             border-radius: 50%;
-            border: 3px dashed rgba(251, 191, 36, 0.55);
-            box-shadow: 0 0 50px rgba(251, 191, 36, 0.35), inset 0 0 40px rgba(236, 72, 153, 0.28);
+            border: 3px dashed var(--neon-cyan);
+            box-shadow: 0 0 50px var(--aurora-2), inset 0 0 40px var(--aurora-1);
             transform: rotateX(56deg) translateZ(-35px);
             animation: vinylEqSpin 10s linear infinite;
         }
         .vinyl-eq-aura.outer {
             inset: -12%;
-            border: 2px dotted rgba(236, 72, 153, 0.6);
+            border: 2px dotted var(--neon-violet);
             animation: vinylEqSpin 14s linear infinite reverse;
         }
         @keyframes vinylEqSpin {
@@ -778,12 +870,12 @@
                     transparent 0deg,
                     rgba(255, 255, 255, 0.14) 22deg,
                     transparent 48deg,
-                    rgba(251, 191, 36, 0.18) 95deg,
+                    var(--aurora-2) 95deg,
                     transparent 140deg,
                     transparent 180deg,
                     rgba(255, 255, 255, 0.14) 202deg,
                     transparent 228deg,
-                    rgba(236, 72, 153, 0.18) 275deg,
+                    var(--aurora-1) 275deg,
                     transparent 320deg
                 ),
                 repeating-radial-gradient(
@@ -793,11 +885,11 @@
                     #1c1629 4px,
                     #0c0914 6px
                 );
-            border: 3px solid #fbbf24;
+            border: 3px solid var(--neon-cyan);
             box-shadow:
                 0 25px 60px rgba(0, 0, 0, 0.85),
-                0 0 45px rgba(251, 191, 36, 0.4),
-                inset 0 0 25px rgba(251, 191, 36, 0.25);
+                0 0 45px var(--aurora-2),
+                inset 0 0 25px var(--aurora-2);
             display: grid;
             place-items: center;
             transform-style: preserve-3d;
@@ -813,9 +905,9 @@
             width: 102px;
             height: 102px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fef08a, #f59e0b 55%, #b45309 100%);
+            background: radial-gradient(circle at 30% 30%, var(--neon-rose), var(--neon-cyan) 55%, var(--bg-void) 100%);
             border: 3px solid #ffffff;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), inset 0 0 14px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 0 25px var(--neon-cyan), inset 0 0 14px rgba(0, 0, 0, 0.45);
             display: grid;
             place-items: center;
         }
@@ -826,15 +918,15 @@
             height: 16px;
             border-radius: 50%;
             background: #090610;
-            border: 2px solid #fde047;
+            border: 2px solid var(--neon-rose);
             box-shadow: inset 0 0 6px #000;
             z-index: 3;
         }
         .vinyl-music-icon {
             width: 46px;
             height: 46px;
-            color: #451a03;
-            opacity: 0.35;
+            color: #1e1b4b;
+            opacity: 0.45;
         }
 
         .vinyl-tonearm-3d {
@@ -859,9 +951,9 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: radial-gradient(circle, #fde047, #b45309);
+            background: radial-gradient(circle, var(--neon-rose), var(--neon-cyan));
             border: 2px solid #fff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), 0 0 18px #fbbf24;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), 0 0 18px var(--neon-cyan);
         }
         .tonearm-rod {
             position: absolute;
@@ -870,7 +962,7 @@
             width: 5px;
             height: 125px;
             border-radius: 99px;
-            background: linear-gradient(180deg, #fef08a, #f59e0b, #e2e8f0);
+            background: linear-gradient(180deg, var(--neon-rose), var(--neon-cyan), #e2e8f0);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
             transform-origin: top center;
             transform: rotate(28deg);
@@ -882,9 +974,9 @@
             width: 15px;
             height: 22px;
             border-radius: 4px;
-            background: #ec4899;
-            border: 1.5px solid #fde047;
-            box-shadow: 0 0 16px #ec4899;
+            background: var(--neon-violet);
+            border: 1.5px solid var(--neon-rose);
+            box-shadow: 0 0 16px var(--neon-violet);
         }
 
         /* --------------------------------------------------------------------------
@@ -907,9 +999,9 @@
             width: 26px;
             height: 320px;
             border-radius: 999px;
-            background: linear-gradient(180deg, rgba(192, 132, 252, 0.9), rgba(56, 189, 248, 0.85), rgba(34, 211, 238, 0.2));
+            background: linear-gradient(180deg, var(--neon-violet), var(--neon-cyan), transparent);
             filter: blur(8px);
-            box-shadow: 0 0 45px #38bdf8, 0 0 80px #c084fc;
+            box-shadow: 0 0 45px var(--neon-cyan), 0 0 80px var(--neon-violet);
             animation: coreLightningFlash 1.6s ease-in-out infinite;
         }
         @keyframes coreLightningFlash {
@@ -926,15 +1018,15 @@
             margin-left: calc(var(--size) / -2);
             margin-top: calc(var(--size) / -2);
             border-radius: 50%;
-            border: 2.5px dashed rgba(56, 189, 248, 0.78);
-            box-shadow: 0 0 24px rgba(56, 189, 248, 0.38), inset 0 0 18px rgba(192, 132, 252, 0.25);
+            border: 2.5px dashed var(--neon-cyan);
+            box-shadow: 0 0 24px var(--aurora-2), inset 0 0 18px var(--aurora-1);
             transform-style: preserve-3d;
             animation: funnelSpinRing calc(2.2s - var(--t) * 0.08s) linear infinite;
         }
         .tornado-funnel-ring:nth-child(even) {
             border-style: dotted;
             border-width: 3.5px;
-            border-color: rgba(192, 132, 252, 0.82);
+            border-color: var(--neon-violet);
         }
         @keyframes funnelSpinRing {
             0% {
@@ -952,8 +1044,8 @@
             width: 240px;
             height: 240px;
             border-radius: 50%;
-            border: 3px dotted rgba(34, 211, 238, 0.55);
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 70%);
+            border: 3px dotted var(--neon-cyan);
+            background: radial-gradient(circle, var(--aurora-2), transparent 70%);
             transform: translateY(145px) rotateX(78deg);
             animation: debrisBaseSpin 3s linear infinite;
         }
@@ -966,9 +1058,9 @@
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 30%, #e0f2fe, #0284c7 55%, #0f172a 100%);
-            border: 2.5px solid #7dd3fc;
-            box-shadow: 0 0 50px #38bdf8, inset 0 0 24px #c084fc;
+            background: radial-gradient(circle at 35% 30%, var(--neon-rose), var(--neon-cyan) 55%, var(--bg-void) 100%);
+            border: 2.5px solid var(--neon-cyan);
+            box-shadow: 0 0 50px var(--neon-cyan), inset 0 0 24px var(--neon-violet);
             display: grid;
             place-items: center;
             transform: translateZ(65px);
@@ -1008,6 +1100,10 @@
             border-radius: 26px;
             border: 1.5px solid rgba(56, 189, 248, 0.35);
             box-shadow: 0 25px 65px rgba(0, 0, 0, 0.65), 0 0 30px rgba(56, 189, 248, 0.15);
+        }
+        html[data-theme="custom"] .holo-card {
+            border-radius: var(--custom-card-radius, 30px);
+            border: 1.5px solid var(--border-subtle);
         }
 
         .holo-card::before {
@@ -1122,7 +1218,7 @@
         @keyframes bubbleRise { 0% { transform: translateY(40px) scale(0.6); opacity: 0; } 40% { opacity: 0.85; } 100% { transform: translateY(-55px) scale(1.15); opacity: 0; } }
 
         /* ==========================================================================
-           3D RING CAROUSEL VIEW MODE (ĐÃ BỎ THANH NÚT ĐIỀU KHIỂN, GIỮ TỰ ĐỘNG XOAY)
+           3D RING CAROUSEL VIEW MODE
            ========================================================================== */
         .carousel-3d-stage {
             display: none;
@@ -1147,7 +1243,6 @@
             overflow: visible;
         }
 
-        /* 3 Vòng Gió Xoáy Neon 3D nằm dưới chân Vòng Xoay khi ở Giao diện 6 (Lốc Xoáy) */
         .carousel-vortex-rings {
             position: absolute;
             inset: 0;
@@ -1158,14 +1253,15 @@
             opacity: 0;
             transition: opacity 0.5s ease;
         }
-        html[data-theme="vortex"] .carousel-vortex-rings {
+        html[data-theme="vortex"] .carousel-vortex-rings,
+        html[data-theme="custom"][data-custom-model="vortex"] .carousel-vortex-rings {
             opacity: 1;
         }
         .carousel-vortex-rings i {
             position: absolute;
             border-radius: 50%;
-            border: 2.5px dashed rgba(56, 189, 248, 0.55);
-            box-shadow: 0 0 35px rgba(56, 189, 248, 0.25), inset 0 0 25px rgba(192, 132, 252, 0.2);
+            border: 2.5px dashed var(--neon-cyan);
+            box-shadow: 0 0 35px var(--aurora-2), inset 0 0 25px var(--aurora-1);
         }
         .carousel-vortex-rings i:nth-child(1) {
             width: 520px; height: 520px;
@@ -1174,13 +1270,13 @@
         .carousel-vortex-rings i:nth-child(2) {
             width: 680px; height: 680px;
             border-style: dotted;
-            border-color: rgba(192, 132, 252, 0.55);
+            border-color: var(--neon-violet);
             animation: carouselCycloneSpin2 9s linear infinite reverse;
         }
         .carousel-vortex-rings i:nth-child(3) {
             width: 820px; height: 820px;
             border-width: 1.5px;
-            border-color: rgba(34, 211, 238, 0.35);
+            border-color: var(--neon-rose);
             animation: carouselCycloneSpin3 12s linear infinite;
         }
         @keyframes carouselCycloneSpin1 {
@@ -1249,7 +1345,7 @@
             pointer-events: none;
         }
 
-        /* --- FLOATING MUSIC PLAYER DOCK (NÚT ICON TRÒN) --- */
+        /* --- FLOATING MUSIC PLAYER DOCK --- */
         .music-dock {
             position: fixed;
             right: 1.15rem;
@@ -1453,7 +1549,7 @@
         <symbol id="icon-terminal" viewBox="0 0 576 512"><path d="M9.4 86.6C-3.1 74.1-3.1 53.9 9.4 41.4s32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 9.4 86.6zM256 416h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></symbol>
         <symbol id="icon-heartPulse" viewBox="0 0 512 512"><path d="M228.3 469.1L47.6 300.4c-4.2-3.9-8.2-8.1-11.9-12.4h87c22.6 0 43-13.6 51.7-34.5l10.5-25.2 49.3 109.5c3.8 8.5 12.1 14 21.4 14.1s17.8-5 22-13.3L320 253.7l1.7 3.4c9.5 19 28.9 31 50.1 31h104.5c-3.7 4.3-7.7 8.5-11.9 12.4L283.7 469.1c-7.5 7-17.4 10.9-27.7 10.9s-20.2-3.9-27.7-10.9zM503.7 240h-132c-3 0-5.8-1.7-7.2-4.4l-23.2-46.3c-4.1-8.1-12.4-13.3-21.5-13.3s-17.4 5.1-21.5 13.3l-41.4 82.8-51-113.9c-3.9-8.7-12.7-14.3-22.2-14.1s-18.1 5.9-21.8 14.8l-31.8 76.3c-1.2 3-4.2 4.9-7.4 4.9H16c-2.6 0-5 .4-7.3 1.1C3 225.2 0 208.2 0 190.9v-5.8c0-69.9 50.5-129.5 119.4-141C165 36.5 211.4 51.4 244 84l12 12 12-12c32.6-32.6 79-47.5 124.6-39.9C461.5 55.6 512 115.2 512 185.1v5.8c0 16.9-2.8 33.5-8.3 49.1z"/></symbol>
         <symbol id="icon-wand" viewBox="0 0 576 512"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3z"/></symbol>
-        <symbol id="icon-qrcode" viewBox="0 0 448 512"><path d="M0 80C0 53.5 21.5 32 48 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80zm64 16v64h64V96H64zM0 336c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48v-96zm64 16v64h64v-64H64zM304 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48zm80 64h-64v64h64V96zM256 304c0-8.8 7.2-16 16-16h64c8.8 0 16 7.2 16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s7.2-16 16-16s16 7.2 16 16v96c0 8.8-7.2 16-16 16h-64c-8.8 0-16-7.2-16-16s-7.2-16-16-16s-16 7.2-16 16v64c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16V304zm112 176a16 16 0 1 1 0-32 16 16 0 1 1 0 32zm64 0a16 16 0 1 1 0-32 16 16 0 1 1 0 32z"/></symbol>
+        <symbol id="icon-qrcode" viewBox="0 0 448 512"><path d="M0 80C0 53.5 21.5 32 48 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80zm64 16v64h64V96H64zM0 336c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48v-96zm64 16v64h64v-64H64zM304 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48zm80 64h-64v64h64V96zM256 304c0-8.8 7.2-16 16-16h64c8.8 0 16 7.2 16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s7.2-16 16-16s16 7.2 16 16v96c0 8.8-7.2-16 16-16h-64c-8.8 0-16-7.2-16-16s-7.2-16-16-16s-16 7.2-16 16v64c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16V304zm112 176a16 16 0 1 1 0-32 16 16 0 1 1 0 32zm64 0a16 16 0 1 1 0-32 16 16 0 1 1 0 32z"/></symbol>
         <symbol id="icon-bolt" viewBox="0 0 448 512"><path d="M349.4 44.6c5.9-13.7 1.5-29.7-10.6-38.5s-28.6-8-39.9 1.8l-256 224c-10 8.8-13.6 22.9-8.9 35.3S50.7 288 64 288h111.5L98.6 467.4c-5.9 13.7-1.5 29.7 10.6 38.5s28.6 8 39.9-1.8l256-224c10-8.8 13.6-22.9 8.9-35.3s-16.6-20.7-30-20.7H272.5L349.4 44.6z"/></symbol>
         <symbol id="icon-fish" viewBox="0 0 576 512"><path d="M275.2 38.4c-10.6-8-25-8.5-36.3-1.5S222 57.3 224.6 70.3l9.7 48.6c-19.4 9-36.9 19.9-52.4 31.5-15.3 11.5-29 23.9-40.7 36.3L48.1 132.4c-12.5-7.3-28.4-5.3-38.6 4.9S-3 163.3 4.2 175.9L50 256 4.2 336.1c-7.2 12.6-5 28.4 5.3 38.6s26.1 12.2 38.6 4.9l93.1-54.3c11.8 12.3 25.4 24.8 40.7 36.3 15.5 11.6 33 22.5 52.4 31.5l-9.7 48.6c-2.6 13 3.1 26.3 14.3 33.3s25.6 6.5 36.3-1.5l77.6-58.2c54.9-4 101.5-27 137.2-53.8 39.2-29.4 67.2-64.7 81.6-89.5 5.8-9.9 5.8-22.2 0-32.1-14.4-24.8-42.5-60.1-81.6-89.5-35.8-26.8-82.3-49.8-137.2-53.8L275.2 38.4zM384 256a32 32 0 1 1 64 0 32 32 0 1 1-64 0z"/></symbol>
         <symbol id="icon-compass" viewBox="0 0 512 512"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0-64 0 32 32 0 1 0 64 0z"/></symbol>
@@ -1517,18 +1613,18 @@
                 </a>
             </div>
 
-            <!-- Theme Switcher (6 Thế Giới 3D) & Language -->
+            <!-- Theme Switcher (6 Thế Giới 3D + Tự Tạo Giao Diện) & Language -->
             <div class="flex items-center gap-2 ml-auto lg:ml-0">
                 <div class="relative">
                     <button id="themeDropdownBtn" type="button" aria-label="Đổi giao diện & thay mới mô hình 3D" class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-teal-400/50 text-xs font-extrabold text-white transition-all">
                         <svg class="icon text-teal-400 text-sm"><use href="#icon-palette"></use></svg>
-                        <span class="hidden md:inline" data-vi="Giao Diện" data-en="3D Worlds (6)" data-zh="切换 3D 世界 (6)">Giao Diện</span>
+                        <span class="hidden md:inline" data-vi="Giao Diện" data-en="3D Worlds" data-zh="切换 3D 世界">Giao Diện</span>
                     </button>
                     <div id="themeMenu" class="absolute right-0 mt-3 rounded-3xl p-2 space-y-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-[100]">
                         <!-- Giao diện 1 -->
                         <button type="button" class="theme-option active" data-theme-value="quantum">
                             <div>
-                                <div data-vi="1. Lượng Tử (Khối Cube )" data-en="1. Quantum (3D Glass Cube)" data-zh="1. 量子 (3D 玻璃立方)">1. Lượng Tử (Khối Cube )</div>
+                                <div data-vi="1. Lượng Tử (Khối Cube)" data-en="1. Quantum (3D Glass Cube)" data-zh="1. 量子 (3D 玻璃立方)">1. Lượng Tử (Khối Cube)</div>
                                 <div class="text-[10px] font-mono opacity-65" data-vi="Vòng Gyro + Xoay Tròn Ngang" data-en="Gyro Rings + Horizontal Ring" data-zh="陀螺仪环 + 水平环绕">Vòng Gyro + Xoay Tròn Ngang</div>
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #00f5d4, #8b5cf6);"></span>
@@ -1536,7 +1632,7 @@
                         <!-- Giao diện 2 -->
                         <button type="button" class="theme-option" data-theme-value="cyberpunk">
                             <div>
-                                <div data-vi="2. Cyberpunk (Xoắn DNA )" data-en="2. Cyberpunk (3D DNA Helix)" data-zh="2. 赛博 (3D 双螺旋 DNA)">2. Cyberpunk (Xoắn DNA)</div>
+                                <div data-vi="2. Cyberpunk (Xoắn DNA)" data-en="2. Cyberpunk (3D DNA Helix)" data-zh="2. 赛博 (3D 双螺旋 DNA)">2. Cyberpunk (Xoắn DNA)</div>
                                 <div class="text-[10px] font-mono opacity-65" data-vi="Hầm Tia Laser + Xoay Dọc Đứng" data-en="Laser Tunnel + Vertical Ferris" data-zh="激光隧道 + 垂直摩天轮">Hầm Tia Laser + Xoay Dọc Đứng</div>
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #ff2a85, #00f0ff);"></span>
@@ -1549,7 +1645,7 @@
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #10b981, #06b6d4);"></span>
                         </button>
-                        <!-- Giao diện 4 (HIỆU ỨNG RẮN 3D) -->
+                        <!-- Giao diện 4 -->
                         <button type="button" class="theme-option" data-theme-value="viper">
                             <div>
                                 <div data-vi="4. Mãng Xà (Rắn Săn Mồi)" data-en="4. Viper 3D (Cyber Snake)" data-zh="4. 灵蛇 3D (巨蟒游弋)">4. Mãng Xà (Rắn Săn Mồi)</div>
@@ -1557,7 +1653,7 @@
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #84cc16, #15803d);"></span>
                         </button>
-                        <!-- Giao diện 5 (ĐĨA NHẠC HOÀNG KIM 3D) -->
+                        <!-- Giao diện 5 -->
                         <button type="button" class="theme-option" data-theme-value="vinyl">
                             <div>
                                 <div data-vi="5. Đĩa Nhạc (Vinyl Studio)" data-en="5. Vinyl Turntable (Music 3D)" data-zh="5. 黑胶唱片 3D (音乐唱机)">5. Đĩa Nhạc (Vinyl Studio)</div>
@@ -1565,14 +1661,33 @@
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #fde047, #ec4899, #1e1b4b);"></span>
                         </button>
-                        <!-- Giao diện 6 (SIÊU BÃO LỐC XOÁY 3D) -->
+                        <!-- Giao diện 6 -->
                         <button type="button" class="theme-option" data-theme-value="vortex">
                             <div>
                                 <div data-vi="6. Lốc Xoáy (Siêu Bão)" data-en="6. Tornado Vortex (3D Storm)" data-zh="6. 龙卷风暴 3D (超级风暴)">6. Lốc Xoáy (Siêu Bão)</div>
-                                <div class="text-[10px] font-mono opacity-65" data-vi="Vòi Rồng + Mắt Bão Xoáy Phễu" data-en="3D Funnel + Eye of Storm Orbit" data-zh="3D 龙卷风漏斗 + 风暴眼旋转">Vòi Rồng 3D + Mắt Bão Xoáy Phễu</div>
+                                <div class="text-[10px] font-mono opacity-65" data-vi="Vòi Rồng 3D + Mắt Bão Xoáy Phễu" data-en="3D Funnel + Eye of Storm Orbit" data-zh="3D 龙卷风漏斗 + 风暴眼旋转">Vòi Rồng 3D + Mắt Bão Xoáy Phễu</div>
                             </div>
                             <span class="theme-swatch" style="background: linear-gradient(135deg, #38bdf8, #c084fc, #0f172a);"></span>
                         </button>
+
+                        <!-- Vạch ngăn cách + Mục 7: Tự Tạo Giao Diện 3D -->
+                        <div class="pt-1.5 mt-1.5 border-t border-white/10 space-y-1.5">
+                            <button type="button" class="theme-option" data-theme-value="custom" id="customThemeOptionBtn">
+                                <div>
+                                    <div class="flex items-center gap-1.5 text-teal-300">
+                                        <svg class="icon text-xs"><use href="#icon-wand"></use></svg>
+                                        <span data-vi="7. Tự Tạo Giao Diện (Studio)" data-en="7. Custom Theme (Studio)" data-zh="7. 自定义主题 (工作室)">7. Tự Tạo Giao Diện (Studio)</span>
+                                    </div>
+                                    <div class="text-[10px] font-mono opacity-75" data-vi="Tự phối màu + Chọn mô hình 3D riêng" data-en="Mix colors + Pick your 3D engine" data-zh="自由配色 + 选择专属 3D 引擎">Tự phối màu + Chọn mô hình 3D riêng</div>
+                                </div>
+                                <span id="customThemeSwatch" class="theme-swatch" style="background: linear-gradient(135deg, #ff6b6b, #a855f7, #00f5d4);"></span>
+                            </button>
+
+                            <button type="button" id="openCustomBuilderBtn" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-400/20 via-violet-500/20 to-pink-500/20 hover:from-teal-400/35 hover:to-pink-500/35 border border-teal-400/40 text-[11px] font-extrabold text-teal-200 uppercase tracking-wider flex items-center justify-center gap-2 transition-all">
+                                <svg class="icon text-xs"><use href="#icon-wand"></use></svg>
+                                <span data-vi="Mở Bảng Tự Thiết Kế Giao Diện" data-en="Open Custom Theme Studio" data-zh="打开自定义主题设计器">Mở Bảng Tự Thiết Kế Giao Diện</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1602,6 +1717,133 @@
             <a href="profile.html" class="dock-item"><svg class="icon"><use href="#icon-astronaut"></use></svg><span data-vi="Giới thiệu" data-en="Profile" data-zh="关于我">Giới thiệu</span></a>
         </div>
     </header>
+
+    <!-- MODAL TỰ TẠO GIAO DIỆN 3D (CUSTOM THEME STUDIO) -->
+    <div id="customStudioBackdrop" class="custom-studio-backdrop" role="dialog" aria-modal="true" aria-labelledby="customStudioTitle">
+        <div class="custom-studio-modal">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between gap-3 pb-4 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-teal-400/15 border border-teal-400/35 grid place-items-center text-teal-300">
+                        <svg class="icon text-lg"><use href="#icon-wand"></use></svg>
+                    </div>
+                    <div>
+                        <h3 id="customStudioTitle" class="font-display text-lg font-extrabold text-white" data-vi="Xưởng Thiết Kế Giao Diện 3D" data-en="3D Theme Creator Studio" data-zh="3D 主题创作工坊">
+                            Xưởng Thiết Kế Giao Diện 3D
+                        </h3>
+                        <p class="text-xs text-slate-400" data-vi="Tự phối màu Neon & kết hợp mô hình 3D theo phong cách riêng của bạn" data-en="Mix custom Neon colors & combine 3D engines in your own style" data-zh="自由调配霓虹色彩并组合专属 3D 引擎">
+                            Tự phối màu Neon & kết hợp mô hình 3D theo phong cách riêng của bạn
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="closeCustomStudioBtn" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 grid place-items-center text-slate-300 hover:text-white transition-all" aria-label="Đóng">
+                    <svg class="icon text-sm"><use href="#icon-xmark"></use></svg>
+                </button>
+            </div>
+
+            <!-- Body Chọn Màu Sắc -->
+            <div class="py-5 space-y-5">
+                <div>
+                    <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-300 mb-2.5" data-vi="1. Bảng Màu Ánh Sáng & Không Gian" data-en="1. Neon & Space Color Palette" data-zh="1. 霓虹与空间调色板">
+                        1. Bảng Màu Ánh Sáng & Không Gian
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="studio-color-item">
+                            <div>
+                                <div class="text-xs font-extrabold text-white" data-vi="Màu Neon Chính" data-en="Primary Neon" data-zh="主霓虹色">Màu Neon Chính</div>
+                                <div id="hexPrimaryLabel" class="text-[10px] font-mono text-slate-400">#00F5D4</div>
+                            </div>
+                            <input type="color" id="inputCustomPrimary" value="#00f5d4">
+                        </label>
+
+                        <label class="studio-color-item">
+                            <div>
+                                <div class="text-xs font-extrabold text-white" data-vi="Màu Neon Phụ" data-en="Secondary Neon" data-zh="副霓虹色">Màu Neon Phụ</div>
+                                <div id="hexSecondaryLabel" class="text-[10px] font-mono text-slate-400">#8B5CF6</div>
+                            </div>
+                            <input type="color" id="inputCustomSecondary" value="#8b5cf6">
+                        </label>
+
+                        <label class="studio-color-item">
+                            <div>
+                                <div class="text-xs font-extrabold text-white" data-vi="Màu Điểm Nhấn" data-en="Accent Glow" data-zh="点缀发光色">Màu Điểm Nhấn</div>
+                                <div id="hexAccentLabel" class="text-[10px] font-mono text-slate-400">#F43F5E</div>
+                            </div>
+                            <input type="color" id="inputCustomAccent" value="#f43f5e">
+                        </label>
+
+                        <label class="studio-color-item">
+                            <div>
+                                <div class="text-xs font-extrabold text-white" data-vi="Màu Nền Vũ Trụ" data-en="Space Background" data-zh="深空背景色">Màu Nền Vũ Trụ</div>
+                                <div id="hexBgLabel" class="text-[10px] font-mono text-slate-400">#060312</div>
+                            </div>
+                            <input type="color" id="inputCustomBg" value="#060312">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Chọn Mô Hình 3D + Hiệu Ứng Nền Canvas + Bo Góc Thẻ -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="selectCustomModel" class="block text-[11px] font-mono font-bold uppercase tracking-wider text-teal-300 mb-2" data-vi="2. Mô Hình 3D Trung Tâm" data-en="2. Center 3D Model" data-zh="2. 中心 3D 模型">
+                            2. Mô Hình 3D Trung Tâm
+                        </label>
+                        <select id="selectCustomModel" class="studio-select">
+                            <option value="quantum" data-vi="Khối Lập Phương Kính (Cube)" data-en="3D Glass Cube" data-zh="3D 玻璃立方体">Khối Lập Phương Kính (Cube)</option>
+                            <option value="cyberpunk" data-vi="Chuỗi Xoắn Kép DNA 3D" data-en="3D DNA Double Helix" data-zh="3D 双螺旋 DNA">Chuỗi Xoắn Kép DNA 3D</option>
+                            <option value="emerald" data-vi="Cổng Không Gian Stargate" data-en="Stargate Portal 3D" data-zh="星际之门 3D">Cổng Không Gian Stargate</option>
+                            <option value="viper" data-vi="Tổ Mãng Xà Săn Mồi" data-en="3D Viper Nest" data-zh="3D 灵蛇巢穴">Tổ Mãng Xà Săn Mồi</option>
+                            <option value="vinyl" data-vi="Bàn Xoay Đĩa Nhạc Vinyl" data-en="3D Vinyl Turntable" data-zh="3D 黑胶唱机">Bàn Xoay Đĩa Nhạc Vinyl</option>
+                            <option value="vortex" data-vi="Siêu Bão Lốc Xoáy Phễu" data-en="3D Tornado Funnel" data-zh="3D 龙卷风暴">Siêu Bão Lốc Xoáy Phễu</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="selectCustomCanvas" class="block text-[11px] font-mono font-bold uppercase tracking-wider text-teal-300 mb-2" data-vi="3. Hiệu Ứng Nền 3D" data-en="3. 3D Canvas Engine" data-zh="3. 3D 背景特效">
+                            3. Hiệu Ứng Nền 3D
+                        </label>
+                        <select id="selectCustomCanvas" class="studio-select">
+                            <option value="quantum" data-vi="Hạt Sao Lượng Tử Bay" data-en="Quantum Starfield" data-zh="量子星海">Hạt Sao Lượng Tử Bay</option>
+                            <option value="cyberpunk" data-vi="Hầm Tia Laser Lục Giác" data-en="Hexagon Laser Tunnel" data-zh="六边形激光隧道">Hầm Tia Laser Lục Giác</option>
+                            <option value="emerald" data-vi="Sóng Địa Hình Cực Quang" data-en="Topographic Wave" data-zh="极光地形波浪">Sóng Địa Hình Cực Quang</option>
+                            <option value="viper" data-vi="Rắn Thần 3D Uốn Lượn" data-en="Slithering 3D Snake" data-zh="3D 巨蟒游弋">Rắn Thần 3D Uốn Lượn</option>
+                            <option value="vinyl" data-vi="Sóng Tần Số & Nốt Nhạc" data-en="Soundwave & Music Notes" data-zh="声波与跳动音符">Sóng Tần Số & Nốt Nhạc</option>
+                            <option value="vortex" data-vi="Vòi Rồng & Tia Sét Bão" data-en="Supercell Tornado & Lightning" data-zh="超级龙卷风与闪电">Vòi Rồng & Tia Sét Bão</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="selectCustomCardShape" class="block text-[11px] font-mono font-bold uppercase tracking-wider text-teal-300 mb-2" data-vi="4. Kiểu Dáng Khung Thẻ Tiện Ích" data-en="4. Utility Card Geometry" data-zh="4. 卡片边框造型">
+                        4. Kiểu Dáng Khung Thẻ Tiện Ích
+                    </label>
+                    <select id="selectCustomCardShape" class="studio-select">
+                        <option value="30px" data-vi="Bo Tròn Hiện Đại (Mặc định)" data-en="Modern Rounded (30px)" data-zh="现代圆角 (30px)">Bo Tròn Hiện Đại (Mặc định)</option>
+                        <option value="8px 36px 8px 36px" data-vi="Vát Chéo Cyberpunk" data-en="Cyberpunk Angled Cut" data-zh="赛博斜切角">Vát Chéo Cyberpunk</option>
+                        <option value="44px" data-vi="Viên Nang Siêu Mượt" data-en="Ultra Capsule (44px)" data-zh="超圆润胶囊 (44px)">Viên Nang Siêu Mượt</option>
+                        <option value="38px 12px 38px 12px" data-vi="Vảy Rồng Bất Đối Xứng" data-en="Asymmetric Dragon Scale" data-zh="不对称龙鳞角">Vảy Rồng Bất Đối Xứng</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Footer Hành Động -->
+            <div class="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2">
+                    <button type="button" id="randomCustomThemeBtn" class="px-4 py-2.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 text-xs font-bold text-white transition-all inline-flex items-center gap-1.5">
+                        <svg class="icon text-teal-300 text-xs"><use href="#icon-wand"></use></svg>
+                        <span data-vi="Phối Màu Ngẫu Nhiên" data-en="Randomize" data-zh="随机配色">Phối Màu Ngẫu Nhiên</span>
+                    </button>
+                    <button type="button" id="resetCustomThemeBtn" class="px-3.5 py-2.5 rounded-full bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-400/40 text-xs font-bold text-slate-300 hover:text-rose-200 transition-all">
+                        <span data-vi="Mặc định" data-en="Reset" data-zh="重置">Mặc định</span>
+                    </button>
+                </div>
+
+                <button type="button" id="saveCustomThemeBtn" class="px-6 py-2.5 rounded-full bg-gradient-to-r from-teal-300 via-cyan-300 to-violet-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(0,245,212,0.4)] hover:brightness-110 transition-all">
+                    <span data-vi="Lưu & Áp Dụng" data-en="Save & Apply" data-zh="保存并应用">Lưu & Áp Dụng</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- HERO SECTION: 6 CỖ MÁY 3D THAY THẾ HOÀN TOÀN THEO GIAO DIỆN -->
     <main class="relative min-h-[92vh] pt-24 pb-12 flex flex-col items-center justify-center overflow-hidden">
@@ -1703,7 +1945,7 @@
                             <div class="tornado-lightning-core"></div>
                             <div class="tornado-debris-base"></div>
 
-                            <!-- 12 Tầng Vòng Xoáy Gió Phễu Lốc Xoáy (Mở rộng từ chân lên đỉnh) -->
+                            <!-- 12 Tầng Vòng Xoáy Gió Phễu Lốc Xoáy -->
                             <div class="tornado-funnel-ring" style="--t:0"></div>
                             <div class="tornado-funnel-ring" style="--t:1"></div>
                             <div class="tornado-funnel-ring" style="--t:2"></div>
@@ -1960,10 +2202,9 @@
 
             </div>
 
-            <!-- MODE 2: INTERACTIVE 3D RING CAROUSEL (TỰ ĐỘNG XOAY, ĐÃ XÓA BỘ ĐIỀU KHIỂN) -->
+            <!-- MODE 2: INTERACTIVE 3D RING CAROUSEL -->
             <div id="carouselStage" class="carousel-3d-stage">
                 <div class="carousel-3d-viewport">
-                    <!-- 3 Vòng Gió Xoáy Neon 3D tự động kích hoạt ở Giao diện 6 -->
                     <div class="carousel-vortex-rings" aria-hidden="true">
                         <i></i><i></i><i></i>
                     </div>
@@ -1974,7 +2215,7 @@
         </div>
     </section>
 
-    <!-- FLOATING BACKGROUND MUSIC PLAYER (SỬ DỤNG LINK FILE .MP3) -->
+    <!-- FLOATING BACKGROUND MUSIC PLAYER -->
     <aside class="music-dock" aria-label="Trình phát nhạc nền">
         <!-- Bảng điều khiển chi tiết -->
         <div id="musicPanel" class="music-panel">
@@ -2071,10 +2312,38 @@
         const textEntries = [];
         let active3DWorldMode = 'quantum';
 
+        const defaultCustomThemeConfig = {
+            primary: '#00f5d4',
+            secondary: '#8b5cf6',
+            accent: '#f43f5e',
+            bg: '#060312',
+            model: 'quantum',
+            canvas: 'quantum',
+            cardRadius: '30px'
+        };
+
+        let customThemeState = { ...defaultCustomThemeConfig };
+
         const storage = {
             get(k) { try { return localStorage.getItem(k); } catch { return null; } },
             set(k, v) { try { localStorage.setItem(k, v); } catch {} }
         };
+
+        function hexToRgb(hex) {
+            const clean = String(hex || '').replace('#', '').trim();
+            if (clean.length !== 6) return { r: 0, g: 245, b: 212 };
+            const num = parseInt(clean, 16);
+            return {
+                r: (num >> 16) & 255,
+                g: (num >> 8) & 255,
+                b: num & 255
+            };
+        }
+
+        function rgbaFromHex(hex, alpha) {
+            const { r, g, b } = hexToRgb(hex);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
 
         function registerTranslatableElements(scope = document) {
             scope.querySelectorAll('[data-vi]').forEach(el => {
@@ -2090,7 +2359,7 @@
         }
 
         /* ==========================================================================
-           1. ĐỘNG CƠ CANVAS 3D 6 CHẾ ĐỘ HOÀN TOÀN KHÁC NHAU
+           1. ĐỘNG CƠ CANVAS 3D 6 CHẾ ĐỘ (TƯƠNG THÍCH MÀU TỰ TẠO)
            ========================================================================== */
         function initStarfield3D() {
             const canvas = document.getElementById('starfieldCanvas');
@@ -2107,7 +2376,6 @@
             }));
             const tunnelRings = Array.from({ length: 10 }, (_, i) => ({ z: (i + 1) * 100 }));
 
-            // 4. Rắn Thần 3D (Viper)
             const VIPER_LEN = 42;
             const viperNodes = Array.from({ length: VIPER_LEN }, () => ({ x: width / 2, y: height / 2 }));
             const venomSpores = Array.from({ length: 45 }, () => ({
@@ -2117,7 +2385,6 @@
                 vy: -(Math.random() * 1.2 + 0.4)
             }));
 
-            // 5. Đĩa Nhạc 3D (Vinyl)
             const noteSymbols = ['♪', '♫', '♬', '♩'];
             const musicNotes = Array.from({ length: 34 }, (_, idx) => ({
                 x: Math.random() * width,
@@ -2126,7 +2393,7 @@
                 vx: (Math.random() - 0.5) * 0.8,
                 size: Math.random() * 16 + 14,
                 symbol: noteSymbols[idx % noteSymbols.length],
-                color: idx % 2 === 0 ? '#fbbf24' : '#ec4899',
+                colorIndex: idx % 2,
                 phase: Math.random() * Math.PI * 2
             }));
             const soundRipples = Array.from({ length: 5 }, (_, i) => ({
@@ -2134,14 +2401,13 @@
                 alpha: 0.5
             }));
 
-            // 6. Siêu Bão Lốc Xoáy 3D (Vortex)
             const tornadoParticles = Array.from({ length: 220 }, (_, idx) => ({
                 h: Math.random(),
                 angle: Math.random() * Math.PI * 2,
                 speed: 0.045 + Math.random() * 0.04,
                 lift: 0.0035 + Math.random() * 0.003,
                 size: Math.random() * 2.8 + 1,
-                color: ['#38bdf8', '#c084fc', '#22d3ee', '#e0f2fe'][idx % 4]
+                colorIndex: idx % 4
             }));
             let lightningBolt = null;
 
@@ -2161,6 +2427,18 @@
                 height = canvas.height = window.innerHeight;
             }, { passive: true });
 
+            function getActivePalette(defaultPalette) {
+                if (root.getAttribute('data-theme') === 'custom') {
+                    return [
+                        customThemeState.primary,
+                        customThemeState.secondary,
+                        customThemeState.accent,
+                        '#ffffff'
+                    ];
+                }
+                return defaultPalette;
+            }
+
             function render() {
                 ctx.clearRect(0, 0, width, height);
                 currentX += (targetX - currentX) * 0.05;
@@ -2172,7 +2450,7 @@
 
                 /* --- ENGINE 1: QUANTUM STARFIELD 3D --- */
                 if (active3DWorldMode === 'quantum') {
-                    const colors = ['#00f5d4', '#8b5cf6', '#f43f5e', '#ffffff'];
+                    const colors = getActivePalette(['#00f5d4', '#8b5cf6', '#f43f5e', '#ffffff']);
                     for (const s of stars) {
                         s.z -= 2.4;
                         if (s.z <= 20) {
@@ -2196,7 +2474,7 @@
 
                 /* --- ENGINE 2: CYBERPUNK HEXAGON LASER TUNNEL 3D --- */
                 else if (active3DWorldMode === 'cyberpunk') {
-                    const colors = ['#ff2a85', '#00f0ff', '#facc15', '#a855f7'];
+                    const colors = getActivePalette(['#ff2a85', '#00f0ff', '#facc15', '#a855f7']);
                     for (const ring of tunnelRings) {
                         ring.z -= 6.5;
                         if (ring.z <= 30) ring.z = 1000;
@@ -2210,7 +2488,7 @@
                             else ctx.lineTo(hx, hy);
                         }
                         ctx.closePath();
-                        ctx.strokeStyle = ring.z % 200 < 100 ? '#ff2a85' : '#00f0ff';
+                        ctx.strokeStyle = ring.z % 200 < 100 ? colors[0] : colors[1];
                         ctx.globalAlpha = Math.min(0.45, (1000 - ring.z) / 1400);
                         ctx.lineWidth = 1.6;
                         ctx.stroke();
@@ -2232,6 +2510,7 @@
 
                 /* --- ENGINE 3: EMERALD 3D TOPOGRAPHIC WAVE FIELD --- */
                 else if (active3DWorldMode === 'emerald') {
+                    const colors = getActivePalette(['#10b981', '#06b6d4', '#a3e635', '#34d399']);
                     const rows = 14, cols = 22;
                     ctx.lineWidth = 1.15;
                     for (let r = 0; r < rows; r++) {
@@ -2247,7 +2526,7 @@
                             if (c === 0) ctx.moveTo(sx, sy);
                             else ctx.lineTo(sx, sy);
                         }
-                        ctx.strokeStyle = r % 2 === 0 ? '#10b981' : '#06b6d4';
+                        ctx.strokeStyle = r % 2 === 0 ? colors[0] : colors[1];
                         ctx.globalAlpha = Math.max(0.08, (rows - r) / rows * 0.42);
                         ctx.stroke();
                     }
@@ -2255,11 +2534,12 @@
 
                 /* --- ENGINE 4: MÃNG XÀ LỤC ĐỘC 3D UỐN LƯỢN SĂN MỒI --- */
                 else if (active3DWorldMode === 'viper') {
+                    const colors = getActivePalette(['#84cc16', '#15803d', '#fde047', '#ef4444']);
                     for (const sp of venomSpores) {
                         sp.y += sp.vy;
                         if (sp.y < -10) { sp.y = height + 10; sp.x = Math.random() * width; }
                         ctx.beginPath();
-                        ctx.fillStyle = '#84cc16';
+                        ctx.fillStyle = colors[0];
                         ctx.globalAlpha = 0.32;
                         ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
                         ctx.fill();
@@ -2289,8 +2569,8 @@
 
                         ctx.save();
                         ctx.beginPath();
-                        ctx.fillStyle = i % 2 === 0 ? '#84cc16' : '#15803d';
-                        ctx.strokeStyle = '#bef264';
+                        ctx.fillStyle = i % 2 === 0 ? colors[0] : colors[1];
+                        ctx.strokeStyle = colors[2];
                         ctx.lineWidth = 1.2;
                         ctx.globalAlpha = 0.78;
                         ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
@@ -2308,7 +2588,7 @@
                             if (Math.sin(time * 7) > -0.2) {
                                 const tongueLen = 26 + Math.sin(time * 18) * 6;
                                 ctx.beginPath();
-                                ctx.strokeStyle = '#ef4444';
+                                ctx.strokeStyle = colors[3];
                                 ctx.lineWidth = 2;
                                 ctx.moveTo(16, 0);
                                 ctx.lineTo(tongueLen, 0);
@@ -2318,7 +2598,7 @@
                                 ctx.stroke();
                             }
 
-                            ctx.fillStyle = '#fde047';
+                            ctx.fillStyle = colors[2];
                             ctx.beginPath();
                             ctx.arc(6, -9, 4, 0, Math.PI * 2);
                             ctx.arc(6, 9, 4, 0, Math.PI * 2);
@@ -2330,12 +2610,13 @@
 
                 /* --- ENGINE 5: ĐĨA NHẠC 3D — SÓNG TẦN SỐ EQUALIZER & NỐT NHẠC BAY --- */
                 else if (active3DWorldMode === 'vinyl') {
+                    const colors = getActivePalette(['#fbbf24', '#ec4899', '#fde047', '#ffffff']);
                     for (const rp of soundRipples) {
                         rp.r += 2.2;
                         if (rp.r > Math.max(width, height) * 0.55) rp.r = 65;
                         const progress = rp.r / (Math.max(width, height) * 0.55);
                         ctx.beginPath();
-                        ctx.strokeStyle = progress > 0.5 ? '#ec4899' : '#fbbf24';
+                        ctx.strokeStyle = progress > 0.5 ? colors[1] : colors[0];
                         ctx.lineWidth = 1.8;
                         ctx.globalAlpha = (1 - progress) * 0.35;
                         ctx.arc(cx, cy, rp.r, 0, Math.PI * 2);
@@ -2351,7 +2632,7 @@
                             if (x === 0) ctx.moveTo(x, sy);
                             else ctx.lineTo(x, sy);
                         }
-                        ctx.strokeStyle = w === 1 ? '#fbbf24' : '#ec4899';
+                        ctx.strokeStyle = w === 1 ? colors[0] : colors[1];
                         ctx.lineWidth = 1.6;
                         ctx.globalAlpha = 0.24;
                         ctx.stroke();
@@ -2366,10 +2647,11 @@
                             nt.y = height + 30;
                             nt.x = Math.random() * width;
                         }
+                        const noteCol = colors[nt.colorIndex];
                         ctx.save();
                         ctx.font = `800 ${nt.size}px "Be Vietnam Pro", sans-serif`;
-                        ctx.fillStyle = nt.color;
-                        ctx.shadowColor = nt.color;
+                        ctx.fillStyle = noteCol;
+                        ctx.shadowColor = noteCol;
                         ctx.shadowBlur = 12;
                         ctx.globalAlpha = 0.68;
                         ctx.fillText(nt.symbol, nt.x, nt.y);
@@ -2377,8 +2659,9 @@
                     }
                 }
 
-                /* --- ENGINE 6: SIÊU BÃO VÒI RỒNG LỐC XOÁY 3D (3D SUPERCELL TORNADO) --- */
+                /* --- ENGINE 6: SIÊU BÃO VÒI RỒNG LỐC XOÁY 3D --- */
                 else if (active3DWorldMode === 'vortex') {
+                    const colors = getActivePalette(['#38bdf8', '#c084fc', '#22d3ee', '#e0f2fe']);
                     const baseBottomY = height * 0.88;
                     const topCloudY = height * 0.08;
                     const funnelHeight = baseBottomY - topCloudY;
@@ -2392,7 +2675,7 @@
 
                         ctx.beginPath();
                         ctx.ellipse(cx + bendX, ry, radiusX, radiusY, 0, 0, Math.PI * 2);
-                        ctx.strokeStyle = ringIdx % 2 === 0 ? '#38bdf8' : '#c084fc';
+                        ctx.strokeStyle = ringIdx % 2 === 0 ? colors[0] : colors[1];
                         ctx.lineWidth = 1.4;
                         ctx.globalAlpha = 0.16 + (1 - hRatio) * 0.18;
                         ctx.stroke();
@@ -2419,7 +2702,7 @@
                         const py = worldY + Math.sin(prevAngle) * radius * 0.18 * depthScale;
 
                         ctx.beginPath();
-                        ctx.strokeStyle = p.color;
+                        ctx.strokeStyle = colors[p.colorIndex];
                         ctx.lineWidth = p.size * depthScale;
                         ctx.globalAlpha = Math.min(0.9, depthScale * 0.65);
                         ctx.moveTo(px, py);
@@ -2443,8 +2726,8 @@
                     if (lightningBolt) {
                         ctx.save();
                         ctx.beginPath();
-                        ctx.strokeStyle = '#e0f2fe';
-                        ctx.shadowColor = '#38bdf8';
+                        ctx.strokeStyle = colors[3];
+                        ctx.shadowColor = colors[0];
                         ctx.shadowBlur = 22;
                         ctx.lineWidth = 2.6;
                         ctx.globalAlpha = lightningBolt.alpha;
@@ -2508,7 +2791,7 @@
         }
 
         /* ==========================================================================
-           3. VÒNG XOAY 3D TỰ ĐỘNG XOAY (ĐÃ XÓA BỘ NÚT ĐIỀU KHIỂN DƯỚI)
+           3. VÒNG XOAY 3D TỰ ĐỘNG XOAY
            ========================================================================== */
         function init3DCarouselMode() {
             const btnBento = document.getElementById('btnViewBento');
@@ -2581,9 +2864,15 @@
                 registerTranslatableElements(carouselWheel);
             }
 
+            function getCarouselOrbitStyle() {
+                const t = root.getAttribute('data-theme');
+                return t === 'custom' ? customThemeState.model : t;
+            }
+
             function layoutCarouselCardsByWorld() {
                 const radius = window.innerWidth < 640 ? 255 : 385;
                 const currentMod = ((activeIndex % total) + total) % total;
+                const orbitMode = getCarouselOrbitStyle();
 
                 wheelCards.forEach((c, idx) => {
                     const stepAngle = (360 / total) * idx;
@@ -2591,20 +2880,20 @@
                     if (rel > total / 2) rel -= total;
                     if (rel < -total / 2) rel += total;
 
-                    if (active3DWorldMode === 'cyberpunk') {
+                    if (orbitMode === 'cyberpunk') {
                         c.style.transform = `rotateX(${-stepAngle}deg) translateZ(${radius * 0.84}px)`;
-                    } else if (active3DWorldMode === 'emerald') {
+                    } else if (orbitMode === 'emerald') {
                         const yShift = rel * 24;
                         c.style.transform = `rotateY(${stepAngle}deg) translateY(${yShift}px) translateZ(${radius}px)`;
-                    } else if (active3DWorldMode === 'viper') {
+                    } else if (orbitMode === 'viper') {
                         const waveY = rel === 0 ? 0 : Math.sin(rel * 1.45) * 48;
                         const slitherRoll = rel === 0 ? 0 : Math.cos(rel * 1.3) * 12;
                         c.style.transform = `rotateY(${stepAngle}deg) translateY(${waveY}px) translateZ(${radius}px) rotateZ(${slitherRoll}deg)`;
-                    } else if (active3DWorldMode === 'vinyl') {
+                    } else if (orbitMode === 'vinyl') {
                         const discTiltZ = rel === 0 ? 0 : (rel > 0 ? 12 : -12);
                         const discDepth = rel === 0 ? radius : radius - 22;
                         c.style.transform = `rotateY(${stepAngle}deg) translateZ(${discDepth}px) rotateZ(${discTiltZ}deg)`;
-                    } else if (active3DWorldMode === 'vortex') {
+                    } else if (orbitMode === 'vortex') {
                         if (rel === 0) {
                             c.style.transform = `rotateY(${stepAngle}deg) translateY(0px) translateZ(${radius}px) rotateX(0deg) rotateZ(0deg) scale(1)`;
                         } else {
@@ -2627,17 +2916,17 @@
                 layoutCarouselCardsByWorld();
 
                 const angle = -(360 / total) * activeIndex;
-                if (active3DWorldMode === 'cyberpunk') {
+                const orbitMode = getCarouselOrbitStyle();
+
+                if (orbitMode === 'cyberpunk') {
                     carouselWheel.style.transform = `translateZ(-230px) rotateX(${-angle}deg)`;
-                } else if (active3DWorldMode === 'emerald') {
+                } else if (orbitMode === 'emerald') {
                     carouselWheel.style.transform = `translateZ(-220px) rotateZ(-3deg) rotateY(${angle}deg)`;
-                } else if (active3DWorldMode === 'viper') {
+                } else if (orbitMode === 'viper') {
                     const snakeSway = (activeIndex % 2 === 0) ? 3 : -3;
                     carouselWheel.style.transform = `translateZ(-220px) rotateZ(${snakeSway}deg) rotateY(${angle}deg)`;
-                } else if (active3DWorldMode === 'vinyl') {
+                } else if (orbitMode === 'vinyl') {
                     carouselWheel.style.transform = `translateZ(-220px) rotateX(-3deg) rotateY(${angle}deg)`;
-                } else if (active3DWorldMode === 'vortex') {
-                    carouselWheel.style.transform = `translateZ(-220px) rotateY(${angle}deg)`;
                 } else {
                     carouselWheel.style.transform = `translateZ(-220px) rotateY(${angle}deg)`;
                 }
@@ -2702,12 +2991,34 @@
             });
         }
 
-        /* --- 4. HỆ THỐNG ĐỔI GIAO DIỆN 6 THẾ GIỚI 3D --- */
+        /* ==========================================================================
+           4. HỆ THỐNG ĐỔI GIAO DIỆN 6 THẾ GIỚI 3D + TỰ TẠO GIAO DIỆN (STUDIO)
+           ========================================================================== */
         function initThemeSwitcher() {
             const themeBtn = document.getElementById('themeDropdownBtn');
             const themeMenu = document.getElementById('themeMenu');
             const metaThemeColor = document.getElementById('metaThemeColor');
             const gyroSystem = document.getElementById('gyroSystem');
+            const customSwatch = document.getElementById('customThemeSwatch');
+
+            // Các phần tử trong Modal Tự Tạo Giao Diện
+            const studioBackdrop = document.getElementById('customStudioBackdrop');
+            const openStudioBtn = document.getElementById('openCustomBuilderBtn');
+            const closeStudioBtn = document.getElementById('closeCustomStudioBtn');
+            const inputPrimary = document.getElementById('inputCustomPrimary');
+            const inputSecondary = document.getElementById('inputCustomSecondary');
+            const inputAccent = document.getElementById('inputCustomAccent');
+            const inputBg = document.getElementById('inputCustomBg');
+            const hexPrimaryLabel = document.getElementById('hexPrimaryLabel');
+            const hexSecondaryLabel = document.getElementById('hexSecondaryLabel');
+            const hexAccentLabel = document.getElementById('hexAccentLabel');
+            const hexBgLabel = document.getElementById('hexBgLabel');
+            const selectModel = document.getElementById('selectCustomModel');
+            const selectCanvas = document.getElementById('selectCustomCanvas');
+            const selectCardShape = document.getElementById('selectCustomCardShape');
+            const randomBtn = document.getElementById('randomCustomThemeBtn');
+            const resetBtn = document.getElementById('resetCustomThemeBtn');
+            const saveBtn = document.getElementById('saveCustomThemeBtn');
 
             const themeConfigs = {
                 quantum:   { color: '#04020c' },
@@ -2715,22 +3026,102 @@
                 emerald:   { color: '#020b09' },
                 viper:     { color: '#030a04' },
                 vinyl:     { color: '#0b0610' },
-                vortex:    { color: '#020813' }
+                vortex:    { color: '#020813' },
+                custom:    { color: '#060312' }
             };
+
+            // Khôi phục dữ liệu giao diện người dùng đã lưu
+            try {
+                const savedCustom = storage.get('userCustomThemeConfig');
+                if (savedCustom) {
+                    const parsed = JSON.parse(savedCustom);
+                    customThemeState = { ...defaultCustomThemeConfig, ...parsed };
+                }
+            } catch {}
 
             let currentTheme = storage.get('siteTheme') || 'quantum';
             if (currentTheme === 'dragon') currentTheme = 'vinyl';
             if (currentTheme === 'arena') currentTheme = 'vortex';
             if (!themeConfigs[currentTheme]) currentTheme = 'quantum';
 
+            function clearInlineCustomProperties() {
+                const vars = [
+                    '--neon-cyan', '--neon-blue', '--neon-violet', '--neon-rose', '--neon-amber',
+                    '--bg-void', '--bg-elevated', '--bg-drawer', '--card-surface', '--card-carousel',
+                    '--border-subtle', '--aurora-1', '--aurora-2', '--aurora-3', '--custom-card-radius'
+                ];
+                vars.forEach(v => root.style.removeProperty(v));
+                root.removeAttribute('data-custom-model');
+            }
+
+            function injectCustomThemeProperties(cfg) {
+                const bgRgb = hexToRgb(cfg.bg);
+                const secRgb = hexToRgb(cfg.secondary);
+
+                root.style.setProperty('--neon-cyan', cfg.primary);
+                root.style.setProperty('--neon-blue', cfg.secondary);
+                root.style.setProperty('--neon-violet', cfg.secondary);
+                root.style.setProperty('--neon-rose', cfg.accent);
+                root.style.setProperty('--neon-amber', cfg.accent);
+                root.style.setProperty('--bg-void', cfg.bg);
+                root.style.setProperty('--bg-elevated', `rgba(${Math.min(255, bgRgb.r + 12)}, ${Math.min(255, bgRgb.g + 10)}, ${Math.min(255, bgRgb.b + 24)}, 0.84)`);
+                root.style.setProperty('--bg-drawer', `rgba(${Math.min(255, bgRgb.r + 8)}, ${Math.min(255, bgRgb.g + 6)}, ${Math.min(255, bgRgb.b + 18)}, 0.96)`);
+                root.style.setProperty(
+                    '--card-surface',
+                    `linear-gradient(160deg, rgba(${Math.min(255, bgRgb.r + Math.round(secRgb.r * 0.16))}, ${Math.min(255, bgRgb.g + Math.round(secRgb.g * 0.16))}, ${Math.min(255, bgRgb.b + Math.round(secRgb.b * 0.16))}, 0.9) 0%, rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.97) 100%)`
+                );
+                root.style.setProperty(
+                    '--card-carousel',
+                    `linear-gradient(160deg, rgba(${Math.min(255, bgRgb.r + Math.round(secRgb.r * 0.18))}, ${Math.min(255, bgRgb.g + Math.round(secRgb.g * 0.18))}, ${Math.min(255, bgRgb.b + Math.round(secRgb.b * 0.18))}, 0.98) 0%, rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.99) 100%)`
+                );
+                root.style.setProperty('--border-subtle', rgbaFromHex(cfg.primary, 0.28));
+                root.style.setProperty('--aurora-1', rgbaFromHex(cfg.secondary, 0.22));
+                root.style.setProperty('--aurora-2', rgbaFromHex(cfg.primary, 0.17));
+                root.style.setProperty('--aurora-3', rgbaFromHex(cfg.accent, 0.15));
+                root.style.setProperty('--custom-card-radius', cfg.cardRadius || '30px');
+                root.setAttribute('data-custom-model', cfg.model || 'quantum');
+
+                if (customSwatch) {
+                    customSwatch.style.background = `linear-gradient(135deg, ${cfg.primary}, ${cfg.secondary}, ${cfg.accent})`;
+                }
+            }
+
+            function syncFormControlsWithState() {
+                if (inputPrimary) inputPrimary.value = customThemeState.primary;
+                if (inputSecondary) inputSecondary.value = customThemeState.secondary;
+                if (inputAccent) inputAccent.value = customThemeState.accent;
+                if (inputBg) inputBg.value = customThemeState.bg;
+
+                if (hexPrimaryLabel) hexPrimaryLabel.textContent = customThemeState.primary.toUpperCase();
+                if (hexSecondaryLabel) hexSecondaryLabel.textContent = customThemeState.secondary.toUpperCase();
+                if (hexAccentLabel) hexAccentLabel.textContent = customThemeState.accent.toUpperCase();
+                if (hexBgLabel) hexBgLabel.textContent = customThemeState.bg.toUpperCase();
+
+                if (selectModel) selectModel.value = customThemeState.model;
+                if (selectCanvas) selectCanvas.value = customThemeState.canvas;
+                if (selectCardShape) selectCardShape.value = customThemeState.cardRadius;
+
+                if (customSwatch) {
+                    customSwatch.style.background = `linear-gradient(135deg, ${customThemeState.primary}, ${customThemeState.secondary}, ${customThemeState.accent})`;
+                }
+            }
+
             function applyTheme(themeName, animateMorph = false) {
                 if (!themeConfigs[themeName]) return;
                 currentTheme = themeName;
-                active3DWorldMode = themeName;
-                root.setAttribute('data-theme', themeName);
                 storage.set('siteTheme', themeName);
 
-                if (metaThemeColor) metaThemeColor.setAttribute('content', themeConfigs[themeName].color);
+                if (themeName === 'custom') {
+                    root.setAttribute('data-theme', 'custom');
+                    injectCustomThemeProperties(customThemeState);
+                    active3DWorldMode = customThemeState.canvas || 'quantum';
+                    if (metaThemeColor) metaThemeColor.setAttribute('content', customThemeState.bg);
+                } else {
+                    clearInlineCustomProperties();
+                    root.setAttribute('data-theme', themeName);
+                    active3DWorldMode = themeName;
+                    if (metaThemeColor) metaThemeColor.setAttribute('content', themeConfigs[themeName].color);
+                }
 
                 if (animateMorph && gyroSystem) {
                     gyroSystem.classList.remove('morph-pulse');
@@ -2747,6 +3138,81 @@
                 });
             }
 
+            function openCustomStudioModal() {
+                closeAllPopovers();
+                syncFormControlsWithState();
+                applyTheme('custom', false);
+                studioBackdrop?.classList.add('open');
+            }
+
+            function closeCustomStudioModal() {
+                studioBackdrop?.classList.remove('open');
+            }
+
+            function handleLiveStudioChange(animateModel = false) {
+                customThemeState = {
+                    primary: inputPrimary?.value || '#00f5d4',
+                    secondary: inputSecondary?.value || '#8b5cf6',
+                    accent: inputAccent?.value || '#f43f5e',
+                    bg: inputBg?.value || '#060312',
+                    model: selectModel?.value || 'quantum',
+                    canvas: selectCanvas?.value || 'quantum',
+                    cardRadius: selectCardShape?.value || '30px'
+                };
+                syncFormControlsWithState();
+                storage.set('userCustomThemeConfig', JSON.stringify(customThemeState));
+                applyTheme('custom', animateModel);
+            }
+
+            [inputPrimary, inputSecondary, inputAccent, inputBg, selectCanvas, selectCardShape].forEach(ctrl => {
+                ctrl?.addEventListener('input', () => handleLiveStudioChange(false));
+            });
+
+            selectModel?.addEventListener('change', () => handleLiveStudioChange(true));
+
+            randomBtn?.addEventListener('click', () => {
+                const randHex = () => '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
+                const darkBgs = ['#05020e', '#020b12', '#090214', '#030b05', '#0c050a', '#030614'];
+                const models = ['quantum', 'cyberpunk', 'emerald', 'viper', 'vinyl', 'vortex'];
+                const shapes = ['30px', '8px 36px 8px 36px', '44px', '38px 12px 38px 12px'];
+
+                customThemeState = {
+                    primary: randHex(),
+                    secondary: randHex(),
+                    accent: randHex(),
+                    bg: darkBgs[Math.floor(Math.random() * darkBgs.length)],
+                    model: models[Math.floor(Math.random() * models.length)],
+                    canvas: models[Math.floor(Math.random() * models.length)],
+                    cardRadius: shapes[Math.floor(Math.random() * shapes.length)]
+                };
+                syncFormControlsWithState();
+                storage.set('userCustomThemeConfig', JSON.stringify(customThemeState));
+                applyTheme('custom', true);
+            });
+
+            resetBtn?.addEventListener('click', () => {
+                customThemeState = { ...defaultCustomThemeConfig };
+                syncFormControlsWithState();
+                storage.set('userCustomThemeConfig', JSON.stringify(customThemeState));
+                applyTheme('custom', true);
+            });
+
+            saveBtn?.addEventListener('click', () => {
+                storage.set('userCustomThemeConfig', JSON.stringify(customThemeState));
+                applyTheme('custom', true);
+                closeCustomStudioModal();
+            });
+
+            openStudioBtn?.addEventListener('click', e => {
+                e.stopPropagation();
+                openCustomStudioModal();
+            });
+
+            closeStudioBtn?.addEventListener('click', closeCustomStudioModal);
+            studioBackdrop?.addEventListener('click', e => {
+                if (e.target === studioBackdrop) closeCustomStudioModal();
+            });
+
             themeBtn?.addEventListener('click', e => {
                 e.stopPropagation();
                 const isOpen = themeMenu.classList.contains('opacity-100');
@@ -2761,10 +3227,16 @@
                 const btn = e.target.closest('[data-theme-value]');
                 if (!btn) return;
                 e.stopPropagation();
-                applyTheme(btn.dataset.themeValue, true);
-                closeAllPopovers();
+                const val = btn.dataset.themeValue;
+                if (val === 'custom') {
+                    openCustomStudioModal();
+                } else {
+                    applyTheme(val, true);
+                    closeAllPopovers();
+                }
             });
 
+            syncFormControlsWithState();
             applyTheme(currentTheme, false);
         }
 
