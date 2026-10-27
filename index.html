@@ -160,6 +160,7 @@
         html { background-color: var(--bg-void); transition: background-color 0.45s ease; }
         body {
             font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+            isolation: isolate;
             background-color: var(--bg-void);
             color: var(--text-main);
             overflow-x: hidden;
@@ -181,6 +182,28 @@
         }
 
         /* --- 3D CANVAS & AURORA --- */
+        #pageBackground {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            pointer-events: none;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        #pageBackground::after,
+        .background-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, var(--page-background-shade, 0));
+            pointer-events: none;
+        }
+        html[data-background-mode]:not([data-background-mode="default"]) .aurora-backdrop {
+            opacity: 0;
+        }
+        html[data-background-effects="off"] #starfieldCanvas { visibility: hidden; }
+
         #starfieldCanvas {
             position: fixed;
             inset: 0;
@@ -462,6 +485,132 @@
         .studio-select option {
             background: #0d091f;
             color: #ffffff;
+        }
+
+        /* --- ĐỔI NỀN TRANG: ÁP DỤNG CHO MỌI GIAO DIỆN --- */
+        #backgroundSettingsBackdrop [hidden], #pageBackground[hidden] { display: none !important; }
+        #backgroundSettingsBackdrop .custom-studio-modal {
+            width: min(94vw, 580px);
+            max-height: min(92dvh, 850px);
+            padding: 0;
+            background: #101326;
+            color: #f8fafc;
+            overscroll-behavior: contain;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .background-dialog-header, .background-dialog-body, .background-dialog-footer { padding: 1.2rem 1.35rem; }
+        .background-dialog-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; border-bottom: 1px solid rgba(255,255,255,.1);
+            flex-shrink: 0;
+        }
+        .background-dialog-header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+        .background-dialog-header p, .background-help { margin: .35rem 0 0; font-size: .73rem; line-height: 1.6; color: #b3bed2; }
+        .background-dialog-body { display: grid; gap: 1rem; overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+        .background-dialog-footer {
+            position: relative; z-index: 2; background: #101326; flex-shrink: 0;
+            display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end;
+            border-top: 1px solid rgba(255,255,255,.12);
+        }
+        .background-button {
+            padding: .7rem .9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,.16);
+            background: rgba(255,255,255,.06); color: #e2e8f0;
+            font: inherit; font-size: .73rem; font-weight: 700; cursor: pointer;
+        }
+        .background-button:hover { background: rgba(255,255,255,.13); }
+        .background-button:disabled { opacity: .5; cursor: wait; }
+        .background-button-primary { background: #5eead4; border-color: #5eead4; color: #082f49; }
+        .background-button-primary:hover { background: #99f6e4; }
+        .background-close { padding: .5rem; width: 38px; height: 38px; flex-shrink: 0; }
+        .background-preview {
+            position: relative; min-height: 100px; border-radius: 16px; overflow: hidden;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            border: 1px solid rgba(255,255,255,.17); display: grid; align-items: end; padding: 1rem;
+        }
+        .background-preview > span {
+            position: relative; justify-self: start; background: rgba(8,15,30,.8);
+            color: #fff; padding: .35rem .6rem; border-radius: 8px; font-size: .7rem; font-weight: 700;
+        }
+        .background-modes { padding: 0; margin: 0; border: 0; min-width: 0; }
+        .background-modes legend, .background-field-label { font-size: .75rem; font-weight: 700; margin-bottom: .6rem; }
+        .background-mode-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+        .background-mode { position: relative; cursor: pointer; }
+        .background-mode input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .background-mode span {
+            display: grid; place-items: center; min-height: 43px; padding: .5rem .25rem;
+            border: 1px solid rgba(255,255,255,.15); border-radius: 11px;
+            font-size: .72rem; font-weight: 700; color: #cbd5e1; text-align: center;
+        }
+        .background-mode input:checked + span { color: #99f6e4; background: rgba(45,212,191,.13); border-color: #5eead4; }
+        .background-mode input:focus-visible + span,
+        #backgroundSettingsBackdrop :is(button, input, select):focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+        .background-color-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+        .background-color-field {
+            display: flex; align-items: center; justify-content: space-between; gap: .65rem;
+            padding: .65rem .8rem; border-radius: 12px; border: 1px solid rgba(255,255,255,.15);
+        }
+        .background-color-field span { font-size: .73rem; font-weight: 700; }
+        .background-color-field input { width: 38px; height: 36px; padding: 2px; background: transparent; border: 0; cursor: pointer; }
+        .background-controls { display: grid; gap: .8rem; }
+        .background-range-label { display: flex; justify-content: space-between; gap: 1rem; font-size: .75rem; font-weight: 700; }
+        #backgroundSettingsBackdrop input[type="range"] { display: block; width: 100%; margin: .6rem 0; accent-color: #5eead4; }
+        .background-checkbox { display: flex; align-items: center; gap: .6rem; font-size: .74rem; cursor: pointer; }
+        .background-checkbox input { width: 17px; height: 17px; accent-color: #5eead4; }
+        .background-file-input { width: 100%; font: inherit; font-size: .72rem; color: #b3bed2; }
+        .background-file-input::file-selector-button {
+            padding: .65rem .8rem; margin-right: .6rem; border-radius: 10px;
+            border: 1px solid #3d5162; background: #203244; color: #e2e8f0; cursor: pointer;
+        }
+        .background-file-name { overflow-wrap: anywhere; }
+        .background-status { margin: 0; color: #fda4af; font-size: .75rem; line-height: 1.5; }
+        .background-status:empty { display: none; }
+        .background-palette-section { padding-top: .9rem; border-top: 1px solid rgba(255,255,255,.12); }
+        .background-palette-select {
+            display: block; width: 100%; border: 1px solid rgba(255,255,255,.2); border-radius: 10px;
+            padding: .7rem; background: #161d31; color: #f8fafc; font: inherit; font-size: .76rem;
+        }
+        .background-palette-select:disabled { opacity: .6; }
+        .background-palette-select option { background: #161d31; color: #f8fafc; }
+        .background-palette-swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); gap: .5rem; margin-top: .65rem; }
+        .background-palette-swatch {
+            display: grid; gap: .4rem; padding: .4rem; min-width: 0; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.03); cursor: pointer;
+            color: #dce4f0; font: inherit; font-size: .59rem; font-weight: 700;
+        }
+        .background-palette-swatch:hover { border-color: #dce4f0; }
+        .background-palette-swatch[aria-pressed="true"] { border-color: var(--neon-cyan); box-shadow: 0 0 0 1px var(--neon-cyan); }
+        .background-palette-chip { position: relative; display: block; height: 31px; border-radius: 5px; background: var(--swatch-color); }
+        .background-palette-swatch[aria-pressed="true"] .background-palette-chip::after {
+            content: '✓'; position: absolute; inset: 0; margin: auto; width: 22px; height: 22px; line-height: 22px;
+            border-radius: 50%; background: rgba(0,0,0,.7); color: #fff; font-size: 13px;
+        }
+        .background-theme-preview {
+            position: relative; display: flex; align-items: center; justify-content: space-between; gap: .65rem;
+            padding: .6rem .75rem; margin-top: .65rem; border: 1px solid var(--border-subtle); border-radius: 10px;
+            background: var(--card-surface); color: var(--text-main); font-size: .7rem; font-weight: 700;
+        }
+        .background-theme-preview b { padding: .4rem .65rem; border-radius: 7px; background: var(--neon-cyan); color: #07111b; white-space: nowrap; }
+        html[data-image-palette="on"] .background-preview { min-height: 136px; }
+        html[data-image-palette="on"] #backgroundSettingsBackdrop .custom-studio-modal,
+        html[data-image-palette="on"] .background-dialog-footer { background: var(--bg-drawer); }
+        html[data-image-palette="on"] .background-button-primary { background: var(--neon-cyan); border-color: var(--neon-cyan); color: #07111b; }
+        html[data-image-palette="on"] .background-button-primary:hover { filter: brightness(1.08); }
+        html[data-image-palette="on"] .background-mode input:checked + span { color: var(--text-main); border-color: var(--neon-cyan); background: var(--aurora-2); }
+        html[data-image-palette="on"] #backgroundSettingsBackdrop input { accent-color: var(--neon-cyan); }
+        html[data-image-palette="on"] #backgroundSettingsBackdrop :is(button, input, select):focus-visible { outline-color: var(--neon-cyan); }
+        html[data-image-palette="on"] :is(main, #explore) .bg-gradient-to-r { background-image: linear-gradient(110deg, var(--neon-cyan), var(--neon-violet)); color: #07111b; }
+        html[data-image-palette="on"] .holo-card { --card-accent: var(--neon-cyan) !important; }
+        html[data-image-palette="on"] .holo-card:nth-child(3n+2) { --card-accent: var(--neon-violet) !important; }
+        html[data-image-palette="on"] .holo-card:nth-child(3n) { --card-accent: var(--neon-rose) !important; }
+        html[data-image-palette="on"] .holo-card :is(.prism-icon-box, a, .font-mono) { color: var(--card-accent); }
+        #resetPageBackgroundBtn { margin-right: auto; }
+        @media (max-width: 400px) {
+            .background-dialog-header, .background-dialog-body, .background-dialog-footer { padding: 1rem; }
+            .background-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .background-color-grid { grid-template-columns: 1fr; }
+            .background-dialog-footer .background-button { flex: 1 1 auto; }
         }
 
         /* ==========================================================================
@@ -1578,6 +1727,7 @@
     </div>
 
     <!-- INTERACTIVE 6-ENGINE 3D CANVAS -->
+    <div id="pageBackground" aria-hidden="true" hidden></div>
     <canvas id="starfieldCanvas"></canvas>
     <div class="aurora-backdrop"></div>
 
@@ -1616,11 +1766,20 @@
             <!-- Theme Switcher (6 Thế Giới 3D + Tự Tạo Giao Diện) & Language -->
             <div class="flex items-center gap-2 ml-auto lg:ml-0">
                 <div class="relative">
-                    <button id="themeDropdownBtn" type="button" aria-label="Đổi giao diện & thay mới mô hình 3D" class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-teal-400/50 text-xs font-extrabold text-white transition-all">
+                    <button id="themeDropdownBtn" type="button" aria-label="Đổi giao diện, nền & mô hình 3D" aria-expanded="false" aria-controls="themeMenu" class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-teal-400/50 text-xs font-extrabold text-white transition-all">
                         <svg class="icon text-teal-400 text-sm"><use href="#icon-palette"></use></svg>
                         <span class="hidden md:inline" data-vi="Giao Diện" data-en="3D Worlds" data-zh="切换 3D 世界">Giao Diện</span>
                     </button>
                     <div id="themeMenu" class="absolute right-0 mt-3 rounded-3xl p-2 space-y-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-[100]">
+                        <div class="pb-2 mb-1 border-b border-white/10">
+                            <button type="button" id="openBackgroundSettingsBtn" class="theme-option" aria-haspopup="dialog" aria-controls="backgroundSettingsBackdrop">
+                                <div>
+                                    <div class="text-teal-200" data-vi="Đổi nền" data-en="Change background" data-zh="更换背景">Đổi nền</div>
+                                    <div class="text-[10px] opacity-75" data-vi="Màu nền · Chuyển màu · Ảnh của bạn" data-en="Solid color · Gradient · Your photo" data-zh="纯色 · 渐变 · 自选图片">Màu nền · Chuyển màu · Ảnh của bạn</div>
+                                </div>
+                                <svg class="icon text-lg text-teal-200"><use href="#icon-camera"></use></svg>
+                            </button>
+                        </div>
                         <!-- Giao diện 1 -->
                         <button type="button" class="theme-option active" data-theme-value="quantum">
                             <div>
@@ -1717,6 +1876,83 @@
             <a href="profile.html" class="dock-item"><svg class="icon"><use href="#icon-astronaut"></use></svg><span data-vi="Giới thiệu" data-en="Profile" data-zh="关于我">Giới thiệu</span></a>
         </div>
     </header>
+
+    <!-- BẢNG ĐỔI NỀN ĐỘC LẬP VỚI MÀU GIAO DIỆN -->
+    <div id="backgroundSettingsBackdrop" class="custom-studio-backdrop" role="dialog" aria-modal="true" aria-labelledby="backgroundSettingsTitle" aria-describedby="backgroundSettingsDescription" aria-hidden="true">
+        <div class="custom-studio-modal" tabindex="-1">
+            <div class="background-dialog-header">
+                <div>
+                    <h3 id="backgroundSettingsTitle" data-vi="Đổi nền trang" data-en="Page background" data-zh="页面背景">Đổi nền trang</h3>
+                    <p id="backgroundSettingsDescription" data-vi="Xem trước và chọn nền theo phong cách của bạn." data-en="Preview and choose a background that feels like you." data-zh="预览并选择您喜欢的页面背景。">Xem trước và chọn nền theo phong cách của bạn.</p>
+                </div>
+                <button type="button" id="closeBackgroundSettingsBtn" class="background-button background-close" aria-label="Đóng bảng đổi nền">
+                    <svg class="icon"><use href="#icon-xmark"></use></svg>
+                </button>
+            </div>
+            <div class="background-dialog-body">
+                <div id="backgroundPreview" class="background-preview" aria-hidden="true">
+                    <span data-vi="Xem trước nền" data-en="Background preview" data-zh="背景预览">Xem trước nền</span>
+                    <div id="backgroundThemePreview" class="background-theme-preview" hidden>
+                        <span data-vi="Giao diện theo ảnh" data-en="Photo-inspired theme" data-zh="图片配色主题">Giao diện theo ảnh</span>
+                        <b data-vi="Nút bấm" data-en="Button" data-zh="按钮">Nút bấm</b>
+                    </div>
+                </div>
+                <fieldset class="background-modes">
+                    <legend data-vi="Kiểu nền" data-en="Background style" data-zh="背景类型">Kiểu nền</legend>
+                    <div class="background-mode-grid">
+                        <label class="background-mode"><input type="radio" name="pageBackgroundMode" value="default" checked><span data-vi="Theo giao diện" data-en="Theme default" data-zh="跟随主题">Theo giao diện</span></label>
+                        <label class="background-mode"><input type="radio" name="pageBackgroundMode" value="color"><span data-vi="Một màu" data-en="Solid color" data-zh="纯色">Một màu</span></label>
+                        <label class="background-mode"><input type="radio" name="pageBackgroundMode" value="gradient"><span data-vi="Chuyển màu" data-en="Gradient" data-zh="渐变">Chuyển màu</span></label>
+                        <label class="background-mode"><input type="radio" name="pageBackgroundMode" value="image"><span data-vi="Ảnh nền" data-en="Your photo" data-zh="背景图片">Ảnh nền</span></label>
+                    </div>
+                </fieldset>
+                <div id="backgroundColorControls" class="background-color-grid" hidden>
+                    <label class="background-color-field"><span data-vi="Màu nền 1" data-en="First color" data-zh="颜色一">Màu nền 1</span><input id="pageBackgroundColor" type="color" value="#0b1026"></label>
+                    <label id="backgroundColor2Field" class="background-color-field"><span data-vi="Màu nền 2" data-en="Second color" data-zh="颜色二">Màu nền 2</span><input id="pageBackgroundColor2" type="color" value="#312e81"></label>
+                </div>
+                <div id="backgroundGradientControls" hidden>
+                    <label for="pageBackgroundAngle" class="background-range-label"><span data-vi="Hướng chuyển màu" data-en="Gradient angle" data-zh="渐变角度">Hướng chuyển màu</span><output id="pageBackgroundAngleValue" for="pageBackgroundAngle">135°</output></label>
+                    <input id="pageBackgroundAngle" type="range" min="0" max="360" step="15" value="135">
+                </div>
+                <div id="backgroundImageControls" class="background-controls" hidden>
+                    <div>
+                        <label for="pageBackgroundFile" class="background-field-label" style="display:block" data-vi="Chọn ảnh từ máy" data-en="Choose a photo from your device" data-zh="从设备选择图片">Chọn ảnh từ máy</label>
+                        <input id="pageBackgroundFile" class="background-file-input" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="backgroundImageHelp backgroundImageName">
+                        <p id="backgroundImageHelp" class="background-help" data-vi="JPG, PNG hoặc WebP, tối đa 10 MB. Ảnh được căn giữa, phủ đầy trang và tự thu nhỏ để lưu." data-en="JPG, PNG or WebP, up to 10 MB. Photos are centered, cover the page and are resized for saving." data-zh="JPG、PNG 或 WebP，最大 10 MB。图片居中铺满页面，并自动缩小后保存。">JPG, PNG hoặc WebP, tối đa 10 MB. Ảnh được căn giữa, phủ đầy trang và tự thu nhỏ để lưu.</p>
+                        <p id="backgroundImageName" class="background-help background-file-name"></p>
+                    </div>
+                    <div class="background-palette-section">
+                        <label for="backgroundPaletteMode" class="background-field-label" style="display:block" data-vi="Phối màu phù hợp với ảnh" data-en="Match interface colors to your photo" data-zh="根据图片搭配界面颜色">Phối màu phù hợp với ảnh</label>
+                        <select id="backgroundPaletteMode" class="background-palette-select" aria-describedby="backgroundPaletteHelp" disabled>
+                            <option value="off" data-vi="Giữ màu giao diện đang chọn" data-en="Keep current theme colors" data-zh="保留当前主题颜色">Giữ màu giao diện đang chọn</option>
+                            <option value="auto" data-vi="Tự động theo ảnh nền" data-en="Match automatically" data-zh="根据背景图片自动配色">Tự động theo ảnh nền</option>
+                            <option value="manual" data-vi="Chọn một màu trong ảnh" data-en="Choose a color from the photo" data-zh="选择图片中的一种颜色">Chọn một màu trong ảnh</option>
+                        </select>
+                        <p id="backgroundPaletteHelp" class="background-help" data-vi="Đồng bộ màu nút bấm, viền, thẻ và hiệu ứng. Chọn ảnh để xem các màu gợi ý." data-en="Coordinate buttons, borders, cards and effects. Choose a photo to see its suggested colors." data-zh="同步按钮、边框、卡片和特效颜色。选择图片后即可查看推荐色。">Đồng bộ màu nút bấm, viền, thẻ và hiệu ứng. Chọn ảnh để xem các màu gợi ý.</p>
+                        <div id="backgroundPaletteColors" hidden>
+                            <p class="background-help" data-vi="Màu lấy từ ảnh — nhấn một màu để dùng làm màu chủ đạo." data-en="Colors from your photo — select one as the main accent." data-zh="从图片提取的颜色 — 点击一种作为主色。">Màu lấy từ ảnh — nhấn một màu để dùng làm màu chủ đạo.</p>
+                            <div id="backgroundPaletteSwatches" class="background-palette-swatches" role="group" aria-label="Màu gợi ý từ ảnh nền"></div>
+                            <p class="background-help" data-vi="Màu giao diện được điều chỉnh độ sáng để chữ và nút dễ nhìn." data-en="Theme colors are adjusted for readable text and buttons." data-zh="界面颜色会调整亮度，使文字与按钮更清晰。">Màu giao diện được điều chỉnh độ sáng để chữ và nút dễ nhìn.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="backgroundExtraControls" class="background-controls" hidden>
+                    <div>
+                        <label for="pageBackgroundDim" class="background-range-label"><span data-vi="Lớp phủ tối để dễ đọc chữ" data-en="Dark overlay for readable text" data-zh="暗色遮罩，提高文字可读性">Lớp phủ tối để dễ đọc chữ</span><output id="pageBackgroundDimValue" for="pageBackgroundDim">0%</output></label>
+                        <input id="pageBackgroundDim" type="range" min="0" max="80" step="5" value="0">
+                    </div>
+                    <label class="background-checkbox"><input id="pageBackgroundEffects" type="checkbox"><span data-vi="Giữ hiệu ứng nền 3D" data-en="Keep animated 3D background effects" data-zh="保留 3D 背景动画">Giữ hiệu ứng nền 3D</span></label>
+                </div>
+                <p class="background-help" data-vi="Bấm Lưu & áp dụng để ghi nhớ trên trình duyệt này." data-en="Choose Save & apply to remember this background in this browser." data-zh="点击保存并应用，在此浏览器中记住背景。">Bấm Lưu & áp dụng để ghi nhớ trên trình duyệt này.</p>
+                <p id="backgroundSettingsStatus" class="background-status" role="status" aria-live="polite"></p>
+            </div>
+            <div class="background-dialog-footer">
+                <button id="resetPageBackgroundBtn" type="button" class="background-button" data-vi="Nền mặc định" data-en="Default background" data-zh="默认背景">Nền mặc định</button>
+                <button id="cancelBackgroundSettingsBtn" type="button" class="background-button" data-vi="Hủy" data-en="Cancel" data-zh="取消">Hủy</button>
+                <button id="savePageBackgroundBtn" type="button" class="background-button background-button-primary" data-vi="Lưu & áp dụng" data-en="Save & apply" data-zh="保存并应用">Lưu & áp dụng</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL TỰ TẠO GIAO DIỆN 3D (CUSTOM THEME STUDIO) -->
     <div id="customStudioBackdrop" class="custom-studio-backdrop" role="dialog" aria-modal="true" aria-labelledby="customStudioTitle">
@@ -2311,6 +2547,8 @@
         const finePointer = matchMedia('(hover:hover) and (pointer:fine)').matches;
         const textEntries = [];
         let active3DWorldMode = 'quantum';
+        let refreshPageBackground = () => {};
+        let activeImageThemePalette = null;
 
         const defaultCustomThemeConfig = {
             primary: '#00f5d4',
@@ -2428,6 +2666,7 @@
             }, { passive: true });
 
             function getActivePalette(defaultPalette) {
+                if (activeImageThemePalette) return activeImageThemePalette;
                 if (root.getAttribute('data-theme') === 'custom') {
                     return [
                         customThemeState.primary,
@@ -2440,6 +2679,10 @@
             }
 
             function render() {
+                if (root.dataset.backgroundEffects === 'off') {
+                    requestAnimationFrame(render);
+                    return;
+                }
                 ctx.clearRect(0, 0, width, height);
                 currentX += (targetX - currentX) * 0.05;
                 currentY += (targetY - currentY) * 0.05;
@@ -2994,6 +3237,459 @@
         /* ==========================================================================
            4. HỆ THỐNG ĐỔI GIAO DIỆN 6 THẾ GIỚI 3D + TỰ TẠO GIAO DIỆN (STUDIO)
            ========================================================================== */
+        // Pure helpers: representative image colors and a legible dark UI derived from them.
+        function extractBackgroundImagePalette(imageData) {
+            const pixels = imageData && imageData.data;
+            if (!pixels || pixels.length < 4) return [];
+            const bins = new Map();
+            const stride = Math.max(1, Math.ceil(pixels.length / 4 / 4096)) * 4;
+            for (let i = 0; i + 3 < pixels.length; i += stride) {
+                if (pixels[i + 3] < 32) continue;
+                const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], weight = pixels[i + 3] / 255;
+                const key = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4);
+                const bin = bins.get(key) || { rgb: [0, 0, 0], weight: 0 };
+                bin.rgb[0] += r * weight; bin.rgb[1] += g * weight; bin.rgb[2] += b * weight;
+                bin.weight += weight;
+                bins.set(key, bin);
+            }
+            const points = [...bins.values()].map(p => ({ rgb: p.rgb.map(v => v / p.weight), weight: p.weight }));
+            if (!points.length) return [];
+            const distance = (a, b) => a.reduce((sum, v, i) => sum + (v - b[i]) ** 2, 0);
+            points.sort((a, b) => b.weight - a.weight);
+            const centers = [points[0].rgb.slice()];
+            while (centers.length < 5) {
+                let next = null, best = 0;
+                for (const point of points) {
+                    const gap = Math.min(...centers.map(center => distance(point.rgb, center)));
+                    const score = gap * Math.sqrt(point.weight);
+                    if (gap >= 36 ** 2 && score > best) { next = point; best = score; }
+                }
+                if (!next) break;
+                centers.push(next.rgb.slice());
+            }
+            let clusters = [];
+            for (let round = 0; round < 5; round += 1) {
+                clusters = centers.map(() => ({ rgb: [0, 0, 0], weight: 0 }));
+                for (const point of points) {
+                    let nearest = 0;
+                    centers.forEach((center, i) => { if (distance(point.rgb, center) < distance(point.rgb, centers[nearest])) nearest = i; });
+                    const cluster = clusters[nearest];
+                    point.rgb.forEach((v, i) => { cluster.rgb[i] += v * point.weight; });
+                    cluster.weight += point.weight;
+                }
+                clusters.forEach((cluster, i) => {
+                    if (cluster.weight) centers[i] = cluster.rgb.map(v => v / cluster.weight);
+                });
+            }
+            const ranked = centers.map((rgb, i) => ({ rgb, weight: clusters[i].weight })).sort((a, b) => b.weight - a.weight);
+            const selected = [];
+            for (const point of ranked) {
+                if (point.weight && selected.every(rgb => distance(rgb, point.rgb) >= 30 ** 2)) selected.push(point.rgb);
+            }
+            return selected.map(rgb => '#' + rgb.map(v => Math.round(v).toString(16).padStart(2, '0')).join(''));
+        }
+
+        function buildBackgroundImageTheme(seedHex, palette = []) {
+            const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
+            const parse = value => [1, 3, 5].map(start => parseInt(value.slice(start, start + 2), 16));
+            const hex = rgb => '#' + rgb.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+            const rgba = (rgb, alpha) => `rgba(${rgb.map(Math.round).join(', ')}, ${alpha})`;
+            const luminance = rgb => rgb.reduce((sum, value, i) => {
+                const channel = value / 255;
+                return sum + (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4) * [0.2126, 0.7152, 0.0722][i];
+            }, 0);
+            // Mixing with white keeps the source hue, including neutral images, while lifting contrast.
+            const readable = rgb => {
+                let result = rgb.slice();
+                for (let step = 1; step <= 20 && luminance(result) < 0.43; step += 1) {
+                    result = rgb.map(v => v + (255 - v) * step / 20);
+                }
+                return result;
+            };
+            const seed = parse(validHex(seedHex) ? seedHex : '#9ca3af');
+            const distance = rgb => rgb.reduce((sum, v, i) => sum + (v - seed[i]) ** 2, 0);
+            const chroma = rgb => (Math.max(...rgb) - Math.min(...rgb)) / 255;
+            const candidates = (Array.isArray(palette) ? palette : []).filter(validHex).slice(0, 5).map(parse);
+            candidates.sort((a, b) => distance(b) * (0.3 + chroma(b)) - distance(a) * (0.3 + chroma(a)));
+            const primary = readable(seed), secondary = readable(candidates[0] || seed);
+            const accent = readable(candidates[1] || candidates[0] || seed);
+            const tinted = (base, strength) => seed.map(v => Math.round(base + v * strength));
+            const elevated = tinted(13, 0.08), drawer = tinted(8, 0.055), card = tinted(10, 0.07), deep = tinted(5, 0.035);
+            return {
+                '--neon-cyan': hex(primary),
+                '--neon-blue': hex(secondary),
+                '--neon-violet': hex(secondary),
+                '--neon-rose': hex(accent),
+                '--neon-amber': hex(accent),
+                '--text-main': '#f8fafc',
+                '--text-muted': '#cbd5e1',
+                '--bg-elevated': rgba(elevated, 0.96),
+                '--bg-drawer': rgba(drawer, 0.98),
+                '--card-surface': `linear-gradient(160deg, ${rgba(card, 0.97)} 0%, ${rgba(deep, 0.99)} 100%)`,
+                '--card-carousel': `linear-gradient(160deg, ${rgba(card, 0.98)} 0%, ${rgba(deep, 0.99)} 100%)`,
+                '--border-subtle': rgba(primary, 0.38),
+                '--aurora-1': rgba(secondary, 0.22),
+                '--aurora-2': rgba(primary, 0.17),
+                '--aurora-3': rgba(accent, 0.15)
+            };
+        }
+
+        function initPageBackground() {
+            const key = 'siteBackgroundConfigV1';
+            const defaults = {
+                mode: 'default', color: '#0b1026', color2: '#312e81', angle: 135,
+                image: '', imageName: '', dim: 0, effects: false,
+                paletteMode: 'off', palette: [], paletteSeed: ''
+            };
+            const byId = id => document.getElementById(id);
+            const layer = byId('pageBackground');
+            const backdrop = byId('backgroundSettingsBackdrop');
+            const preview = byId('backgroundPreview');
+            const modeInputs = [...document.querySelectorAll('input[name="pageBackgroundMode"]')];
+            const colorInput = byId('pageBackgroundColor');
+            const color2Input = byId('pageBackgroundColor2');
+            const angleInput = byId('pageBackgroundAngle');
+            const dimInput = byId('pageBackgroundDim');
+            const effectsInput = byId('pageBackgroundEffects');
+            const fileInput = byId('pageBackgroundFile');
+            const paletteModeInput = byId('backgroundPaletteMode');
+            const paletteSwatches = byId('backgroundPaletteSwatches');
+            const paletteStyle = document.createElement('style');
+            paletteStyle.id = 'backgroundPaletteStyle';
+            document.head.appendChild(paletteStyle);
+            const status = byId('backgroundSettingsStatus');
+            const saveButton = byId('savePageBackgroundBtn');
+            const closeButton = byId('closeBackgroundSettingsBtn');
+            let isOpen = false;
+            let uploading = false;
+            let uploadToken = 0;
+            let previousOverflow = '';
+            let swatchSignature = '';
+            let themeSignature = '';
+
+            const message = (vi, en, zh) => root.lang.startsWith('zh') ? zh : root.lang === 'en' ? en : vi;
+            function announce(text, error = false) {
+                status.textContent = text;
+                status.style.color = error ? '#fda4af' : '#99f6e4';
+            }
+            function normalize(value) {
+                const data = value && typeof value === 'object' ? value : {};
+                const hex = (v, fallback) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v) ? v : fallback;
+                const bounded = (v, fallback, max) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(max, v)) : fallback;
+                const cfg = {
+                    mode: ['default', 'color', 'gradient', 'image'].includes(data.mode) ? data.mode : 'default',
+                    color: hex(data.color, defaults.color), color2: hex(data.color2, defaults.color2),
+                    angle: bounded(data.angle, 135, 360), dim: bounded(data.dim, 0, 80),
+                    image: typeof data.image === 'string' && data.image.length <= 1500000 && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.image) ? data.image : '',
+                    imageName: typeof data.imageName === 'string' ? data.imageName.slice(0, 180) : '',
+                    effects: data.effects === true,
+                    paletteMode: ['off', 'auto', 'manual'].includes(data.paletteMode) ? data.paletteMode : 'off',
+                    palette: Array.isArray(data.palette) ? [...new Set(data.palette.filter(color => hex(color, '')).slice(0, 5).map(color => color.toLowerCase()))] : [],
+                    paletteSeed: hex(data.paletteSeed, '').toLowerCase()
+                };
+                if (cfg.mode === 'image' && !cfg.image) cfg.mode = 'default';
+                if (!cfg.image) cfg.palette = [];
+                if (!cfg.palette.includes(cfg.paletteSeed)) cfg.paletteSeed = cfg.palette[0] || '';
+                return cfg;
+            }
+            let saved = { ...defaults };
+            try { saved = normalize(JSON.parse(storage.get(key))); } catch {}
+            let draft = { ...saved };
+
+            function imagePaletteEnabled(cfg) {
+                return cfg.mode === 'image' && Boolean(cfg.image) && cfg.paletteMode !== 'off' && cfg.palette.length > 0;
+            }
+            function paletteSeed(cfg) {
+                return cfg.paletteMode === 'manual' && cfg.palette.includes(cfg.paletteSeed) ? cfg.paletteSeed : cfg.palette[0];
+            }
+            function applyImageColors(cfg) {
+                const enabled = imagePaletteEnabled(cfg);
+                root.dataset.imagePalette = enabled ? 'on' : 'off';
+                byId('backgroundThemePreview').hidden = !enabled;
+                const signature = enabled ? `${paletteSeed(cfg)}:${cfg.palette.join(',')}` : '';
+                if (!enabled) {
+                    paletteStyle.textContent = '';
+                    activeImageThemePalette = null;
+                } else if (signature !== themeSignature) {
+                    const theme = buildBackgroundImageTheme(paletteSeed(cfg), cfg.palette);
+                    paletteStyle.textContent = `html[data-image-palette="on"] { ${Object.entries(theme).map(([key, value]) => `${key}: ${value} !important;`).join(' ')} }`;
+                    activeImageThemePalette = [theme['--neon-cyan'], theme['--neon-violet'], theme['--neon-rose'], '#ffffff'];
+                }
+                themeSignature = signature;
+            }
+            function syncPaletteControls() {
+                paletteModeInput.value = draft.paletteMode;
+                paletteModeInput.disabled = uploading || !draft.image || draft.palette.length === 0;
+                byId('backgroundPaletteColors').hidden = draft.palette.length === 0;
+                const signature = `${root.lang}:${draft.palette.join(',')}`;
+                if (signature !== swatchSignature) {
+                    paletteSwatches.replaceChildren(...draft.palette.map(color => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'background-palette-swatch';
+                        button.dataset.paletteColor = color;
+                        button.setAttribute('aria-label', message(`Dùng ${color.toUpperCase()} làm màu chủ đạo`, `Use ${color.toUpperCase()} as the main accent`, `使用 ${color.toUpperCase()} 作为主色`));
+                        const chip = document.createElement('span');
+                        chip.className = 'background-palette-chip';
+                        chip.style.setProperty('--swatch-color', color);
+                        const label = document.createElement('span');
+                        label.textContent = color.toUpperCase();
+                        button.append(chip, label);
+                        return button;
+                    }));
+                    swatchSignature = signature;
+                }
+                paletteSwatches.querySelectorAll('button').forEach(button => {
+                    button.disabled = uploading;
+                    button.setAttribute('aria-pressed', String(imagePaletteEnabled(draft) && button.dataset.paletteColor === paletteSeed(draft)));
+                });
+            }
+
+            function paintSurface(element, cfg) {
+                let backgroundImage = 'none';
+                let backgroundColor = cfg.color;
+                if (cfg.mode === 'default') {
+                    const theme = getComputedStyle(root);
+                    backgroundColor = theme.getPropertyValue('--bg-void').trim() || defaults.color;
+                    backgroundImage = `radial-gradient(ellipse at 25% 25%, ${theme.getPropertyValue('--aurora-1').trim() || 'transparent'}, transparent 75%)`;
+                } else if (cfg.mode === 'gradient') {
+                    backgroundImage = `linear-gradient(${cfg.angle}deg, ${cfg.color}, ${cfg.color2})`;
+                } else if (cfg.mode === 'image' && cfg.image) {
+                    backgroundImage = `url("${cfg.image}")`;
+                }
+                element.style.backgroundColor = backgroundColor;
+                element.style.backgroundImage = backgroundImage;
+                element.style.setProperty('--page-background-shade', cfg.mode === 'default' ? '0' : String(cfg.dim / 100));
+            }
+            function render(cfg) {
+                applyImageColors(cfg);
+                root.dataset.backgroundMode = cfg.mode;
+                root.dataset.backgroundEffects = cfg.mode === 'default' || cfg.effects ? 'on' : 'off';
+                layer.hidden = cfg.mode === 'default';
+                paintSurface(layer, cfg);
+                paintSurface(preview, cfg);
+            }
+            function syncControls() {
+                modeInputs.forEach(input => { input.checked = input.value === draft.mode; });
+                colorInput.value = draft.color;
+                color2Input.value = draft.color2;
+                angleInput.value = draft.angle;
+                dimInput.value = draft.dim;
+                effectsInput.checked = draft.effects;
+                byId('pageBackgroundAngleValue').textContent = `${draft.angle}°`;
+                byId('pageBackgroundDimValue').textContent = `${draft.dim}%`;
+                byId('backgroundColorControls').hidden = !['color', 'gradient'].includes(draft.mode);
+                byId('backgroundColor2Field').hidden = draft.mode !== 'gradient';
+                byId('backgroundGradientControls').hidden = draft.mode !== 'gradient';
+                byId('backgroundImageControls').hidden = draft.mode !== 'image';
+                byId('backgroundExtraControls').hidden = draft.mode === 'default';
+                byId('backgroundImageName').textContent = draft.image ? (draft.imageName || message('Ảnh đã lưu', 'Saved photo', '已保存的图片')) : message('Chưa chọn ảnh nền.', 'No photo selected yet.', '尚未选择图片。');
+                saveButton.disabled = uploading;
+                backdrop.setAttribute('aria-busy', String(uploading));
+                syncPaletteControls();
+            }
+            function refreshDraft() { syncControls(); render(draft); }
+            function cancelUpload() {
+                uploadToken += 1;
+                uploading = false;
+                fileInput.value = '';
+                saveButton.disabled = false;
+                backdrop.setAttribute('aria-busy', 'false');
+                syncPaletteControls();
+            }
+            function open() {
+                closeAllPopovers();
+                cancelUpload();
+                draft = { ...saved };
+                isOpen = true;
+                previousOverflow = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+                announce('');
+                refreshDraft();
+                backdrop.setAttribute('aria-hidden', 'false');
+                backdrop.classList.add('open');
+                backdrop.querySelector('.custom-studio-modal').scrollTop = 0;
+                backdrop.querySelector('.background-dialog-body').scrollTop = 0;
+                ensureImagePalette();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if (isOpen) closeButton.focus({ preventScroll: true });
+                }));
+            }
+            function close() {
+                if (!isOpen) return;
+                isOpen = false;
+                cancelUpload();
+                draft = { ...saved };
+                render(saved);
+                backdrop.classList.remove('open');
+                document.body.style.overflow = previousOverflow;
+                byId('themeDropdownBtn').focus({ preventScroll: true });
+                backdrop.setAttribute('aria-hidden', 'true');
+            }
+
+            byId('openBackgroundSettingsBtn').addEventListener('click', event => { event.stopPropagation(); open(); });
+            closeButton.addEventListener('click', close);
+            byId('cancelBackgroundSettingsBtn').addEventListener('click', close);
+            backdrop.addEventListener('click', event => { if (event.target === backdrop) close(); });
+            document.addEventListener('keydown', event => {
+                if (!isOpen) return;
+                if (event.key === 'Escape') { event.preventDefault(); close(); return; }
+                if (event.key !== 'Tab') return;
+                const controls = [...backdrop.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex="0"]')].filter(el => el.getClientRects().length > 0);
+                const first = controls[0], last = controls[controls.length - 1];
+                const outside = !backdrop.contains(document.activeElement);
+                if (event.shiftKey && (document.activeElement === first || outside)) { event.preventDefault(); last?.focus(); }
+                else if (!event.shiftKey && (document.activeElement === last || outside)) { event.preventDefault(); first?.focus(); }
+            });
+            modeInputs.forEach(input => input.addEventListener('change', () => {
+                cancelUpload();
+                draft.mode = input.value;
+                announce('');
+                refreshDraft();
+                ensureImagePalette();
+            }));
+            [[colorInput, 'color'], [color2Input, 'color2'], [angleInput, 'angle'], [dimInput, 'dim']].forEach(([input, field]) => {
+                input.addEventListener('input', () => {
+                    draft[field] = input.type === 'range' ? Number(input.value) : input.value;
+                    announce('');
+                    refreshDraft();
+                });
+            });
+            effectsInput.addEventListener('change', () => { draft.effects = effectsInput.checked; render(draft); });
+
+            paletteModeInput.addEventListener('change', () => {
+                draft.paletteMode = paletteModeInput.value;
+                if (!draft.palette.includes(draft.paletteSeed)) draft.paletteSeed = draft.palette[0] || '';
+                announce('');
+                refreshDraft();
+            });
+            paletteSwatches.addEventListener('click', event => {
+                const button = event.target.closest('button[data-palette-color]');
+                if (!button || button.disabled || !draft.palette.includes(button.dataset.paletteColor)) return;
+                draft.paletteMode = 'manual';
+                draft.paletteSeed = button.dataset.paletteColor;
+                announce('');
+                refreshDraft();
+            });
+            function loadPhotoImage(src) {
+                return new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => resolve(image);
+                    image.onerror = reject;
+                    image.src = src;
+                });
+            }
+            function samplePhotoPalette(image) {
+                const sample = document.createElement('canvas');
+                const scale = 64 / Math.max(image.naturalWidth, image.naturalHeight);
+                sample.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                sample.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                const context = sample.getContext('2d', { willReadFrequently: true });
+                context.drawImage(image, 0, 0, sample.width, sample.height);
+                const colors = extractBackgroundImagePalette(context.getImageData(0, 0, sample.width, sample.height));
+                return colors.length ? colors : [defaults.color];
+            }
+            async function ensureImagePalette() {
+                if (!isOpen || draft.mode !== 'image' || !draft.image || draft.palette.length || uploading) return;
+                const token = ++uploadToken;
+                uploading = true;
+                syncControls();
+                announce(message('Đang lấy màu từ ảnh nền…', 'Finding colors in your photo…', '正在提取背景图片颜色…'));
+                try {
+                    const image = await loadPhotoImage(draft.image);
+                    if (token !== uploadToken || !isOpen) return;
+                    draft.palette = samplePhotoPalette(image);
+                    draft.paletteSeed = draft.palette[0];
+                    announce('');
+                } catch {
+                    if (token === uploadToken && isOpen) announce(message('Chưa lấy được màu từ ảnh. Bạn có thể chọn lại ảnh để thử lại.', 'Could not read the photo colors. Choose the photo again to retry.', '暂时无法提取图片颜色，请重新选择图片。'), true);
+                } finally {
+                    if (token === uploadToken) { uploading = false; refreshDraft(); }
+                }
+            }
+
+            async function resizePhoto(file) {
+                const objectUrl = URL.createObjectURL(file);
+                try {
+                    const img = await loadPhotoImage(objectUrl);
+                    if (!img.naturalWidth || !img.naturalHeight) throw new Error('Invalid image');
+                    const palette = samplePhotoPalette(img);
+                    const scale = Math.min(1, 1920 / Math.max(img.naturalWidth, img.naturalHeight));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+                    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+                    const context = canvas.getContext('2d');
+                    let quality = 0.86;
+                    for (let attempt = 0; attempt < 6; attempt += 1) {
+                        context.fillStyle = defaults.color;
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        if (dataUrl.length <= 1500000) return { image: dataUrl, palette };
+                        quality = Math.max(0.5, quality - 0.12);
+                        canvas.width = Math.max(1, Math.round(canvas.width * 0.85));
+                        canvas.height = Math.max(1, Math.round(canvas.height * 0.85));
+                    }
+                    throw new Error('Image is too large');
+                } finally { URL.revokeObjectURL(objectUrl); }
+            }
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files?.[0];
+                if (!file) return;
+                cancelUpload();
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+                    fileInput.value = '';
+                    announce(message('Vui lòng chọn ảnh JPG, PNG hoặc WebP không quá 10 MB.', 'Please choose a JPG, PNG or WebP image up to 10 MB.', '请选择不超过 10 MB 的 JPG、PNG 或 WebP 图片。'), true);
+                    return;
+                }
+                const token = ++uploadToken;
+                uploading = true;
+                syncControls();
+                announce(message('Đang xử lý ảnh…', 'Preparing your photo…', '正在处理图片…'));
+                try {
+                    const { image, palette } = await resizePhoto(file);
+                    if (token !== uploadToken || !isOpen) return;
+                    const firstPhoto = !draft.image;
+                    draft = { ...draft, mode: 'image', image, imageName: file.name, dim: firstPhoto && draft.dim === 0 ? 35 : draft.dim, palette, paletteSeed: palette[0] };
+                    announce(message('Ảnh đã sẵn sàng. Bấm Lưu & áp dụng để sử dụng.', 'Photo ready. Choose Save & apply to keep it.', '图片已就绪，点击保存并应用。'));
+                } catch {
+                    if (token === uploadToken && isOpen) announce(message('Không đọc được ảnh này. Vui lòng chọn một ảnh JPG, PNG hoặc WebP khác.', 'This photo could not be read. Please choose another JPG, PNG or WebP image.', '无法读取此图片，请选择其他 JPG、PNG 或 WebP 图片。'), true);
+                } finally {
+                    if (token === uploadToken) {
+                        uploading = false;
+                        fileInput.value = '';
+                        refreshDraft();
+                    }
+                }
+            });
+            byId('resetPageBackgroundBtn').addEventListener('click', () => {
+                cancelUpload();
+                draft = { ...defaults };
+                announce('');
+                refreshDraft();
+            });
+            saveButton.addEventListener('click', () => {
+                if (uploading) return;
+                if (draft.mode === 'image' && !draft.image) {
+                    announce(message('Hãy chọn ảnh trước khi lưu nền.', 'Choose a photo before saving.', '请先选择背景图片再保存。'), true);
+                    fileInput.focus();
+                    return;
+                }
+                const config = normalize(draft);
+                try {
+                    localStorage.setItem(key, JSON.stringify(config));
+                } catch {
+                    announce(message('Trình duyệt chưa lưu được nền. Hãy chọn ảnh nhỏ hơn hoặc kiểm tra quyền lưu dữ liệu của trình duyệt.', 'The browser could not save this background. Try a smaller photo or check browser storage permissions.', '浏览器无法保存背景。请选择更小的图片或检查浏览器的存储权限。'), true);
+                    return;
+                }
+                saved = config;
+                close();
+            });
+            refreshPageBackground = () => render(isOpen ? draft : saved);
+            syncControls();
+            refreshPageBackground();
+        }
+
         function initThemeSwitcher() {
             const themeBtn = document.getElementById('themeDropdownBtn');
             const themeMenu = document.getElementById('themeMenu');
@@ -3136,6 +3832,7 @@
                 document.querySelectorAll('.theme-option').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.themeValue === themeName);
                 });
+                refreshPageBackground();
             }
 
             function openCustomStudioModal() {
@@ -3220,6 +3917,7 @@
                 if (!isOpen) {
                     themeMenu.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
                     themeMenu.classList.add('opacity-100', 'scale-100');
+                    themeBtn.setAttribute('aria-expanded', 'true');
                 }
             });
 
@@ -3522,6 +4220,7 @@
             langMenu?.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
             themeMenu?.classList.remove('opacity-100', 'scale-100');
             themeMenu?.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            document.getElementById('themeDropdownBtn')?.setAttribute('aria-expanded', 'false');
             dropdownArrow?.classList.remove('rotate-180');
         }
 
@@ -3613,6 +4312,7 @@
 
         registerTranslatableElements();
         buildLanguageSelector();
+        initPageBackground();
         initThemeSwitcher();
         initBackgroundMusicPlayer();
         initNavEvents();
