@@ -70,15 +70,15 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
 .turn-info{text-align:right;font-size:13px;color:var(--muted)}
 .turn-info strong{display:block;color:#fff}
 .board-shell{padding:13px;border-radius:22px;background:linear-gradient(145deg,#8b6a3b,#4e341e);box-shadow:inset 0 0 0 2px rgba(255,255,255,.1),0 18px 35px rgba(0,0,0,.34)}
-.board{display:grid;grid-template-columns:repeat(10,1fr);aspect-ratio:1/1;background:var(--cell);border:1px solid #a99670;position:relative;contain:layout paint style;transform:translateZ(0);backface-visibility:hidden}
-.cell{min-width:0;aspect-ratio:1;border-right:1px solid var(--cell-line);border-bottom:1px solid var(--cell-line);display:grid;place-items:center;cursor:pointer;position:relative;transition:background-color .08s ease;font-size:clamp(20px,3vw,32px);font-weight:900;user-select:none;contain:layout paint;backface-visibility:hidden}
-.cell:nth-child(10n){border-right:0}.cell:nth-last-child(-n+10){border-bottom:0}
+.board{display:grid;grid-template-columns:repeat(14,1fr);aspect-ratio:1/1;background:var(--cell);border:1px solid #a99670;position:relative;contain:layout paint style;transform:translateZ(0);backface-visibility:hidden}
+.cell{min-width:0;aspect-ratio:1;border-right:1px solid var(--cell-line);border-bottom:1px solid var(--cell-line);display:grid;place-items:center;cursor:pointer;position:relative;transition:background-color .08s ease;font-size:clamp(14px,2.2vw,24px);font-weight:900;user-select:none;contain:layout paint;backface-visibility:hidden}
+.cell:nth-child(14n){border-right:0}.cell:nth-last-child(-n+14){border-bottom:0}
 .cell:hover{background:rgba(59,130,246,.13)}
 .cell.X{color:#2563eb;text-shadow:0 2px 8px rgba(37,99,235,.25)}
 .cell.O{color:#e11d48;text-shadow:0 2px 8px rgba(225,29,72,.25)}
 .cell.piece-enter{animation:pieceEnter .13s cubic-bezier(.2,.9,.25,1)}
 @keyframes pieceEnter{0%{transform:scale(.72);opacity:.35}100%{transform:scale(1);opacity:1}}
-.cell.last:after{content:"";position:absolute;inset:9%;border:2px solid rgba(255,255,255,.8);border-radius:10px;pointer-events:none}
+.cell.last:after{content:"";position:absolute;inset:9%;border:2px solid rgba(255,255,255,.8);border-radius:6px;pointer-events:none}
 .cell.win{animation:pulseWin .75s infinite alternate;background:rgba(251,191,36,.35)}
 @keyframes pulseWin{to{filter:brightness(1.25)}}
 .message{min-height:27px;text-align:center;margin-top:12px;font-weight:800;color:#dbeafe}
@@ -354,7 +354,7 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
 <div class="toast" id="notifyToast"></div>
 
 <script>
-const SIZE = 10;
+const SIZE = 14;
 let board = [];
 let moves = [];
 let active = false;
@@ -1157,8 +1157,6 @@ async function joinListedRoom(code){
   updateOnlineRoleControls();
   updateStartButtonLabel();
 
-  // Sau khi chọn phòng, chuyển sang bước xác nhận quân cờ và luật chơi.
-  // Người tham gia sẽ bấm “Vào phòng” ở bước này để kết nối thật sự.
   showStep(3);
   showToast('Đã chọn phòng ' + normalized + '. Kiểm tra thông tin rồi nhấn “Vào phòng”.','success');
 }
@@ -1465,7 +1463,6 @@ async function startOnlineMatch(){
 
   const hostPeerId = 'caro-arena-' + code.toLowerCase();
   if(onlineRole === 'host'){
-    // Luôn mở kênh HTTP dự phòng để Firefox, Chrome, Edge hoặc mạng chặn WebRTC vẫn chơi được.
     ensureCloudHostRelay();
     const peerLoaded = await ensurePeerJsLoaded();
     if(!peerLoaded){
@@ -2233,7 +2230,6 @@ window.addEventListener('beforeunload', () => {
   stopRoomHeartbeat();
   stopCloudRelay(true,false);
   stopRoomDirectory();
-  // Không xóa phòng ngay khi đóng trang; phòng sẽ tự hết hạn sau 45 giây.
 });
 buildBoard();
 selectMode('computer', document.querySelector('[data-mode="computer"]'));
