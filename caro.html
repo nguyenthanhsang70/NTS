@@ -213,7 +213,6 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
       <div class="message" id="message"></div>
       <div class="bottom-controls">
         <button class="control-btn primary" onclick="resetRound()"><i class="fa-solid fa-rotate-right"></i> Chơi lại</button>
-        <button class="control-btn" onclick="undoMove()"><i class="fa-solid fa-arrow-rotate-left"></i> Đi lại</button>
         <button class="control-btn" onclick="openSetup()"><i class="fa-solid fa-plus"></i> Trận mới</button>
         <button class="control-btn leave hidden" id="leaveMatchButton" onclick="leaveOnlineMatch()"><i class="fa-solid fa-right-from-bracket"></i> Rời trận</button>
         <button class="control-btn dissolve hidden" id="dissolveRoomButton" onclick="dissolveOnlineRoom()"><i class="fa-solid fa-trash-can"></i> Giải tán phòng</button>
@@ -1758,8 +1757,6 @@ function handleOnlineData(data){
     applyRemoteMove(data);
   }else if(data.type === 'reset'){
     resetRound(true);
-  }else if(data.type === 'undo'){
-    undoMove(true);
   }else if(data.type === 'timeout'){
     stopTimer();
     currentPiece = currentPiece === 'X' ? 'O' : 'X';
@@ -1970,12 +1967,6 @@ function updateTurn(){
 
 function startTimer(){
   stopTimer();
-  if(gameMode === 'online' && currentPiece !== myOnlinePiece){
-    $('timeText').textContent = turnTime || '∞';
-    $('timerFill').style.height = '100%';
-    $('timer').classList.remove('warning');
-    return;
-  }
   if(!turnTime){
     $('timeText').textContent = '∞';
     $('timerFill').style.height = '100%';
@@ -1985,13 +1976,23 @@ function startTimer(){
   timeLeft = turnTime;
   lastWarningSecond = null;
   renderTimer();
+  if(!active || (gameMode === 'online' && !onlineConnected)) return;
+
+  // Cả hai người cùng thấy đồng hồ của lượt đang đánh.
+  // Tính theo mốc thời gian để bộ đếm bắt kịp khi trình duyệt chạy chậm.
+  const turnDeadline = Date.now() + turnTime * 1000;
   timerId = setInterval(()=>{
-    timeLeft--;
-    renderTimer();
-    if(timeLeft <= 0){
-      handleTimeout();
+    if(!active || (gameMode === 'online' && !onlineConnected)){
+      stopTimer();
+      return;
     }
-  },1000);
+    const remaining = Math.max(0, Math.ceil((turnDeadline - Date.now()) / 1000));
+    if(remaining !== timeLeft){
+      timeLeft = remaining;
+      renderTimer();
+    }
+    if(timeLeft <= 0) handleTimeout();
+  },200);
 }
 
 function showAITimer(){
@@ -2003,6 +2004,9 @@ function showAITimer(){
 
 function handleTimeout(){
   stopTimer();
+  if(!active) return;
+  // Chỉ người đang đến lượt gửi tín hiệu hết giờ; bên còn lại chờ nhận.
+  if(gameMode === 'online' && (!onlineConnected || currentPiece !== myOnlinePiece)) return;
   if(gameMode === 'computer'){
     message.textContent = 'Hết thời gian! Bạn mất lượt.';
     currentPiece = p2Piece;
@@ -2031,24 +2035,6 @@ function renderTimer(){
   }
 }
 function stopTimer(){ clearInterval(timerId); timerId = null; }
-
-function undoMove(fromNetwork = false){
-  boardRevision += 1;
-  if(!moves.length) return;
-  if(gameMode === 'online' && !fromNetwork){
-    if(!onlineConnected) return;
-    sendOnline({type:'undo'});
-  }
-  stopTimer();
-  const removeCount = gameMode === 'computer' ? Math.min(2, moves.length) : 1;
-  for(let i=0;i<removeCount;i++) moves.pop();
-  rebuildFromMoves();
-  active = true;
-  if(gameMode === 'computer') currentPiece = p1Piece;
-  else currentPiece = moves.length ? (moves[moves.length - 1].piece === 'X' ? 'O' : 'X') : 'X';
-  startTurnFlow();
-  if(gameMode === 'online') void publishOnlineSnapshot();
-}
 
 function rebuildFromMoves(){
   board = Array.from({length:SIZE}, ()=> Array(SIZE).fill(null));
