@@ -1527,64 +1527,162 @@
             transform: translateY(0) scale(1);
             pointer-events: auto;
         }
+        /* Đĩa than thật: rãnh và tem quay dưới ánh phản chiếu cố định. */
         .music-fab {
-            width: 48px;
-            height: 48px;
-            padding: 0;
-            border-radius: 9999px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 22px rgba(0, 245, 212, 0.2);
+            width: 68px;
+            height: 68px;
+            padding: 2px;
+            position: relative;
             display: inline-grid;
             place-items: center;
-            color: var(--text-main);
-            transition: all 0.25s ease;
-            position: relative;
-        }
-        .music-fab:hover,
-        .music-fab.playing {
-            border-color: var(--neon-cyan);
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
             color: var(--neon-cyan);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 28px rgba(0, 245, 212, 0.35);
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.25s ease;
         }
-        .music-fab .music-fab-icon {
-            font-size: 1rem;
-            transition: transform 0.25s ease, opacity 0.25s ease;
-        }
-        .music-fab.playing .music-fab-icon {
-            opacity: 0;
-            transform: scale(0.5);
+        .music-fab::before {
+            content: '';
             position: absolute;
+            inset: -1px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
         }
-        .music-fab .eq-bars {
-            display: none;
+        .music-fab:hover { transform: translateY(-2px); }
+        .music-fab:active { transform: translateY(0) scale(0.97); }
+        .music-fab:hover::before,
+        .music-fab[aria-expanded="true"]::before { opacity: 0.25; }
+        .music-fab.playing::before { opacity: 0.42; }
+        .music-fab:focus-visible {
+            outline: 2px solid var(--neon-cyan);
+            outline-offset: 5px;
         }
-        .music-fab.playing .eq-bars {
-            display: inline-flex;
+        .music-record {
+            --record-size: 64px;
+            width: var(--record-size);
+            height: var(--record-size);
+            position: relative;
+            display: block;
+            flex-shrink: 0;
+            overflow: hidden;
+            isolation: isolate;
+            border-radius: 50%;
+            background: linear-gradient(140deg, #8d8d87 0%, #30302e 12%, #070708 35%, #141415 69%, #53534e 87%, #131314 100%);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.18),
+                0 3px 0 #020203,
+                0 5px 5px rgba(0, 0, 0, 0.6),
+                0 12px 20px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
         }
-
-        .eq-bars {
-            display: inline-flex;
-            align-items: flex-end;
-            gap: 2.5px;
-            height: 14px;
-            width: 16px;
+        .music-record-face {
+            position: absolute;
+            inset: 1px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle closest-side, transparent 0 38%, rgba(0, 0, 0, 0.72) 38.6% 40%, transparent 41% 54%, rgba(0, 0, 0, 0.64) 54.7% 56%, transparent 57% 72%, rgba(0, 0, 0, 0.66) 72.7% 74%, transparent 75% 88%, rgba(0, 0, 0, 0.75) 89% 91%, transparent 92%),
+                repeating-radial-gradient(circle closest-side, #161617 0 0.45px, #323232 0.55px 0.7px, #0a0a0b 0.82px 1.15px);
+            box-shadow:
+                inset 0 0 0 1px #080809,
+                inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+                inset 0 0 8px rgba(0, 0, 0, 0.5);
+            animation: musicRecordSpin 8s linear infinite;
+            animation-play-state: paused;
         }
-        .eq-bars span {
-            width: 3px;
-            height: 4px;
-            border-radius: 99px;
-            background: var(--neon-cyan);
-            transition: height 0.2s ease;
+        /* Vệt phản quang nằm yên như ánh đèn chiếu vào mặt đĩa. */
+        .music-record::after {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            z-index: 2;
+            border-radius: 50%;
+            background:
+                conic-gradient(from -45deg,
+                    transparent 0deg,
+                    rgba(255, 251, 235, 0.04) 7deg,
+                    rgba(255, 251, 235, 0.27) 19deg,
+                    rgba(255, 251, 235, 0.07) 31deg,
+                    transparent 47deg 165deg,
+                    rgba(232, 237, 244, 0.04) 174deg,
+                    rgba(232, 237, 244, 0.19) 188deg,
+                    rgba(232, 237, 244, 0.04) 203deg,
+                    transparent 218deg 360deg);
+            -webkit-mask-image: radial-gradient(circle closest-side, transparent 0 36%, #000 38% 98%, transparent 100%);
+            mask-image: radial-gradient(circle closest-side, transparent 0 36%, #000 38% 98%, transparent 100%);
+            pointer-events: none;
         }
-        .music-fab.playing .eq-bars span:nth-child(1) { animation: eqBounce 0.7s ease-in-out infinite; }
-        .music-fab.playing .eq-bars span:nth-child(2) { animation: eqBounce 0.55s ease-in-out infinite 0.15s; }
-        .music-fab.playing .eq-bars span:nth-child(3) { animation: eqBounce 0.8s ease-in-out infinite 0.3s; }
-        .music-fab.playing .eq-bars span:nth-child(4) { animation: eqBounce 0.62s ease-in-out infinite 0.08s; }
-        @keyframes eqBounce {
-            0%, 100% { height: 4px; }
-            50% { height: 14px; }
+        .music-record-label {
+            width: 34%;
+            height: 34%;
+            position: relative;
+            display: block;
+            border-radius: 50%;
+            border: 1px solid rgba(68, 45, 22, 0.6);
+            color: #37271d;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 250, 221, 0.5), transparent 65%),
+                repeating-linear-gradient(0deg, transparent 0 1px, rgba(79, 48, 21, 0.07) 1px 1.5px),
+                linear-gradient(180deg, #d8c193 0 65%, #a14b3a 65% 73%, #c8ae7e 73% 100%);
+            box-shadow:
+                0 0 0 1px #060607,
+                0 0 0 2.5px rgba(0, 0, 0, 0.52),
+                inset 0 0 0 1px rgba(255, 239, 203, 0.28);
+        }
+        .music-record-label::before {
+            content: 'NTS';
+            position: absolute;
+            top: 13%;
+            left: 0;
+            width: 100%;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: calc(var(--record-size) * 0.078);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: calc(var(--record-size) * 0.008);
+            text-align: center;
+        }
+        .music-record-label::after {
+            content: '33⅓ RPM';
+            position: absolute;
+            bottom: 9%;
+            left: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            font-size: calc(var(--record-size) * 0.035);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0.1px;
+            text-align: center;
+        }
+        .music-record-hole {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 19%;
+            height: 19%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 25%, #52524d, #111113 38%, #020203 70%);
+            box-shadow: 0 0 0 0.6px rgba(43, 29, 18, 0.75), 0 1px 0 rgba(255, 246, 217, 0.65), inset 0 1px 1px #000;
+        }
+        .music-record--small { --record-size: 34px; }
+        .music-fab.playing .music-record-face { animation-play-state: running; }
+        @keyframes musicRecordSpin {
+            to { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .music-fab, .music-fab::before { transition: none; }
+            .music-record-face { animation: none; }
         }
 
         /* --- LANGUAGE MENU --- */
@@ -2457,15 +2555,15 @@
         <div id="musicPanel" class="music-panel">
             <div class="flex items-center justify-between gap-2 mb-3">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-teal-400/15 border border-teal-400/30 grid place-items-center text-teal-300 flex-shrink-0">
-                        <svg class="icon text-sm"><use href="#icon-music"></use></svg>
-                    </div>
+                    <span class="music-record music-record--small" aria-hidden="true">
+                        <span class="music-record-face"><span class="music-record-label"><span class="music-record-hole"></span></span></span>
+                    </span>
                     <div class="min-w-0">
                         <p id="musicTrackTitle" class="text-xs font-extrabold text-white truncate">Nhạc Nền </p>
                         <p id="musicTrackSub" class="text-[10px] font-mono text-teal-300 uppercase tracking-wider" data-vi="Nhạc nền không gian" data-en="Space Ambient" data-zh="空间背景音乐">Nhạc nền không gian</p>
                     </div>
                 </div>
-                <button type="button" id="musicClosePanel" class="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 grid place-items-center text-slate-400 hover:text-white">
+                <button type="button" id="musicClosePanel" aria-label="Đóng trình phát nhạc" class="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 grid place-items-center text-slate-400 hover:text-white">
                     <svg class="icon text-xs"><use href="#icon-xmark"></use></svg>
                 </button>
             </div>
@@ -2491,18 +2589,12 @@
             </div>
         </div>
 
-        <!-- Nút Icon tròn mở nhanh / bật nhạc -->
-        <div class="flex items-center gap-2">
-            <button type="button" id="musicQuickPlay" class="w-12 h-12 rounded-full bg-teal-400/15 hover:bg-teal-400 text-teal-300 hover:text-slate-950 border border-teal-400/40 backdrop-blur-xl shadow-lg grid place-items-center transition-all" aria-label="Bật / Tắt nhạc nhanh" title="Bật / Tắt nhạc nền">
-                <svg class="icon text-sm"><use id="musicQuickIcon" href="#icon-play"></use></svg>
-            </button>
-            <button type="button" id="musicFabToggle" class="music-fab" aria-expanded="false" aria-label="Mở trình phát nhạc" title="Trình phát nhạc nền">
-                <svg class="icon music-fab-icon"><use href="#icon-music"></use></svg>
-                <div class="eq-bars" aria-hidden="true">
-                    <span></span><span></span><span></span><span></span>
-                </div>
-            </button>
-        </div>
+        <!-- Bấm đĩa nhạc để mở / đóng bảng điều khiển. -->
+        <button type="button" id="musicFabToggle" class="music-fab" aria-controls="musicPanel" aria-expanded="false" aria-label="Mở trình phát nhạc" title="Mở trình phát nhạc">
+            <span class="music-record" aria-hidden="true">
+                <span class="music-record-face"><span class="music-record-label"><span class="music-record-hole"></span></span></span>
+            </span>
+        </button>
 
         <audio id="bgAudioElement" preload="metadata"></audio>
     </aside>
@@ -3942,8 +4034,6 @@
         function initBackgroundMusicPlayer() {
             const audio = document.getElementById('bgAudioElement');
             const fabToggle = document.getElementById('musicFabToggle');
-            const quickPlayBtn = document.getElementById('musicQuickPlay');
-            const quickIcon = document.getElementById('musicQuickIcon');
             const panel = document.getElementById('musicPanel');
             const closeBtn = document.getElementById('musicClosePanel');
             const playBtn = document.getElementById('musicPlayBtn');
@@ -4022,7 +4112,7 @@
                 if (titleEl) titleEl.textContent = current.title;
                 const iconHref = isPlaying ? '#icon-pause' : '#icon-play';
                 playIcon?.setAttribute('href', iconHref);
-                quickIcon?.setAttribute('href', iconHref);
+                playBtn?.setAttribute('aria-label', isPlaying ? 'Tạm dừng nhạc' : 'Phát nhạc');
                 fabToggle?.classList.toggle('playing', isPlaying);
             }
 
@@ -4080,16 +4170,28 @@
                 }
             });
 
+            function setPanelOpen(open) {
+                panel?.classList.toggle('open', open);
+                fabToggle?.setAttribute('aria-expanded', String(open));
+                const label = open ? 'Đóng trình phát nhạc' : 'Mở trình phát nhạc';
+                fabToggle?.setAttribute('aria-label', label);
+                fabToggle?.setAttribute('title', label);
+            }
+
             fabToggle?.addEventListener('click', e => {
                 e.stopPropagation();
-                panel?.classList.toggle('open');
+                setPanelOpen(!panel?.classList.contains('open'));
             });
-            closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
+            closeBtn?.addEventListener('click', () => {
+                setPanelOpen(false);
+                fabToggle?.focus();
+            });
             panel?.addEventListener('click', e => e.stopPropagation());
-
-            quickPlayBtn?.addEventListener('click', e => {
-                e.stopPropagation();
-                togglePlay();
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && panel?.classList.contains('open')) {
+                    setPanelOpen(false);
+                    fabToggle?.focus();
+                }
             });
             playBtn?.addEventListener('click', togglePlay);
             prevBtn?.addEventListener('click', () => loadAndPlayTrack(trackIndex - 1, true));
