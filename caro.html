@@ -163,6 +163,68 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
   *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+
+/* ===== CHAT PHONG ONLINE: CHI THEM, KHONG DOI GIAO DIEN CU ===== */
+.right-column{min-width:0;display:flex;flex-direction:column;align-self:stretch}
+.online-chat{
+  margin-top:48px;min-width:0;height:420px;min-height:320px;display:flex;flex-direction:column;
+  overflow:hidden;border:1px solid rgba(59,130,246,.72);border-radius:22px;
+  background:linear-gradient(155deg,rgba(13,31,51,.96),rgba(6,17,33,.98));
+  box-shadow:0 20px 52px rgba(0,0,0,.32),0 0 0 1px rgba(34,211,238,.035),inset 0 1px rgba(255,255,255,.06);
+}
+.online-chat-header{
+  display:flex;align-items:center;justify-content:space-between;gap:9px;flex:0 0 auto;
+  padding:14px 15px;border-bottom:1px solid rgba(125,211,252,.14);
+  background:linear-gradient(105deg,rgba(3,105,161,.24),rgba(59,130,246,.065));
+}
+.online-chat-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:900;white-space:nowrap}
+.online-chat-title-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,#0284c7,#3b82f6);box-shadow:0 7px 18px rgba(2,132,199,.22)}
+.online-chat-count{display:flex;align-items:center;gap:6px;color:#a5b7cc;font-size:11px;white-space:nowrap}
+.online-chat-count .online-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:#f59e0b;box-shadow:0 0 9px rgba(245,158,11,.3)}
+.online-chat-count.connected .online-dot{background:#22c55e;box-shadow:0 0 9px rgba(34,197,94,.55)}
+.chat-messages{
+  min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:15px 12px;
+  display:flex;flex-direction:column;gap:13px;scrollbar-width:thin;scrollbar-color:#3b5576 transparent;
+}
+.chat-messages::-webkit-scrollbar{width:5px}
+.chat-messages::-webkit-scrollbar-thumb{border-radius:9px;background:#344966}
+.chat-empty{margin:auto;text-align:center;max-width:240px;color:#90a5bd;font-size:12px;line-height:1.65;padding:14px}
+.chat-empty i{display:block;font-size:25px;color:#3b82f6;margin-bottom:9px}
+.chat-entry{display:flex;gap:8px;align-items:flex-end;max-width:100%;min-width:0}
+.chat-entry.mine{flex-direction:row-reverse}
+.chat-avatar{width:29px;height:29px;flex:0 0 29px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;background:linear-gradient(145deg,#0891b2,#3b82f6)}
+.chat-entry:not(.mine) .chat-avatar{background:linear-gradient(145deg,#9333ea,#6366f1)}
+.chat-entry-content{min-width:0;max-width:calc(100% - 37px);display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.chat-entry.mine .chat-entry-content{align-items:flex-end}
+.chat-entry-name{font-size:11px;font-weight:800;color:#bacce1;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 4px}
+.chat-bubble{max-width:100%;font-size:12px;line-height:1.55;padding:9px 12px;border-radius:13px 13px 13px 4px;color:#f1f5f9;background:#192a40;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+.chat-entry.mine .chat-bubble{background:linear-gradient(135deg,#075985,#1d4ed8);border-radius:13px 13px 4px 13px}
+.chat-time{color:#7f94ac;font-size:10px;padding:0 4px;font-variant-numeric:tabular-nums}
+.chat-compose{display:flex;gap:8px;flex:0 0 auto;padding:12px;border-top:1px solid rgba(125,211,252,.11);background:rgba(5,14,28,.58)}
+.chat-input{min-width:0;flex:1;height:43px;border-radius:12px;border:1px solid rgba(148,163,184,.4);background:rgba(255,255,255,.055);color:#fff;outline:none;padding:0 11px;font-size:12px;transition:border-color .2s,box-shadow .2s}
+.chat-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.12)}
+.chat-input::placeholder{color:#8fa3bc}
+.chat-input:disabled{opacity:.55;cursor:not-allowed}
+.chat-send{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border:0;border-radius:12px;color:#fff;background:linear-gradient(135deg,#0284c7,#4f46e5);cursor:pointer;box-shadow:0 5px 13px rgba(37,99,235,.22);transition:filter .2s,transform .2s}
+.chat-send:hover:not(:disabled){filter:brightness(1.14);transform:translateY(-1px)}
+.chat-send:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+@media(min-width:1400px){.online-chat{width:360px}}
+@media(min-width:901px) and (max-width:1399px){.online-chat{width:100%}}
+@media(max-width:900px){
+  .right-column{display:contents}
+  #player2Card{grid-column:2;grid-row:2}
+  .online-chat{grid-column:1/-1;grid-row:3;margin-top:0;width:100%;height:315px;min-height:270px}
+}
+@media(max-width:600px){
+  .online-chat{height:320px;border-radius:18px}
+  .online-chat-header{padding:11px 12px}
+  .chat-messages{padding:12px 10px}
+  .chat-compose{padding:10px}
+  .chat-input,.chat-send{height:42px}
+  .chat-send{width:42px;flex-basis:42px}
+}
+/* ===== KET THUC CSS CHAT ===== */
+
 </style>
 </head>
 <body>
@@ -219,6 +281,7 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
       </div>
     </main>
 
+    <div class="right-column">
     <aside class="player-card o" id="player2Card">
       <div class="avatar" id="p2Avatar">O</div>
       <div class="player-name" id="p2Name">Người chơi 2</div>
@@ -229,6 +292,22 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
       </div>
       <div class="piece-badge"><span class="piece-dot" id="p2PieceBadge">O</span><span>Quân cờ</span></div>
     </aside>
+
+    <!-- Chat chi xuat hien khi dang o trong phong online. -->
+    <section class="online-chat hidden" id="onlineChat" aria-label="Tin nhan cua phong online">
+      <div class="online-chat-header">
+        <div class="online-chat-title"><span class="online-chat-title-icon"><i class="fa-solid fa-comments"></i></span> Chat</div>
+        <div class="online-chat-count" id="chatOnlineCount"><span class="online-dot"></span><span id="chatOnlineLabel">Trực tuyến: 1</span></div>
+      </div>
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-relevant="additions text">
+        <div class="chat-empty"><i class="fa-regular fa-comments"></i>Chưa có tin nhắn.<br>Hãy gửi lời chào để bắt đầu!</div>
+      </div>
+      <form class="chat-compose" id="chatForm" autocomplete="off">
+        <input class="chat-input" id="chatInput" maxlength="400" aria-label="Nhap tin nhan online" placeholder="Nhập tin nhắn..." type="text">
+        <button class="chat-send" id="chatSend" type="submit" title="Gửi tin nhắn" aria-label="Gửi tin nhắn"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+    </section>
+    </div>
   </section>
 </div>
 
@@ -380,6 +459,12 @@ let myOnlinePiece = null;
 let suppressNetworkSend = false;
 let devtoolsWarningShown = false;
 let toastTimer = null;
+// Tin nhan dung chung ket noi online san co (WebRTC hoac cloud relay).
+const MAX_CHAT_MESSAGES = 80;
+const MAX_CHAT_LENGTH = 400;
+let chatMessages = [];
+let chatMessageIds = new Set();
+let lastChatSentAt = 0;
 let lastWarningSecond = null;
 let intentionalOnlineExit = '';
 const ROOM_DIRECTORY_API_BASE = 'https://mantledb.sh/v2';
@@ -423,6 +508,163 @@ const PEERJS_CDN_SOURCES = [
 const $ = id => document.getElementById(id);
 const boardEl = $('board');
 const message = $('message');
+/* ===== ONLINE ROOM CHAT ===== */
+function resetOnlineChat(){
+  chatMessages = [];
+  chatMessageIds = new Set();
+  lastChatSentAt = 0;
+  const input = $('chatInput');
+  if(input) input.value = '';
+  renderOnlineChat(true);
+  updateOnlineChatUI();
+}
+
+function updateOnlineChatUI(){
+  const panel = $('onlineChat');
+  if(!panel) return;
+  const inRoom = gameMode === 'online' && Boolean(onlineRole && currentOnlineRoomCode);
+  panel.classList.toggle('hidden', !inRoom);
+  const connected = inRoom && onlineConnected;
+  $('chatOnlineCount').classList.toggle('connected', connected);
+  $('chatOnlineLabel').textContent = 'Trực tuyến: ' + (connected ? '2' : '1');
+  const canWrite = inRoom && (onlineRole === 'host' || connected);
+  $('chatInput').disabled = !canWrite;
+  $('chatSend').disabled = !canWrite;
+  $('chatInput').placeholder = canWrite ? 'Nhập tin nhắn...' : 'Đang kết nối người chơi...';
+  if(inRoom && chatMessages.length === 0) renderOnlineChat(false);
+}
+
+function chatSenderName(){
+  const supplied = $('name1Input').value.trim();
+  return cleanRoomName(onlineRole === 'host' ? p1Name : p2Name) || cleanRoomName(supplied) || 'Người chơi';
+}
+
+function sanitizeChatMessage(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  const id = String(raw.id || '').slice(0,100);
+  const content = String(raw.text || '').trim().slice(0,MAX_CHAT_LENGTH);
+  const role = raw.role === 'host' ? 'host' : raw.role === 'guest' ? 'guest' : null;
+  const room = normalizeRoomCode(String(raw.room || ''));
+  const time = Number(raw.time);
+  if(!id || !content || !role || !room || room !== currentOnlineRoomCode) return null;
+  return {
+    id, text:content, role, room,
+    name:cleanRoomName(raw.name) || (role === 'host' ? 'Chủ phòng' : 'Người tham gia'),
+    time:Number.isFinite(time) && Math.abs(Date.now() - time) < 86400000 ? time : Date.now()
+  };
+}
+
+function formatChatTime(time){
+  try{return new Date(time).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});}
+  catch(_){return '';}
+}
+
+function appendChatMessage(raw, render = true){
+  const item = sanitizeChatMessage(raw);
+  if(!item || chatMessageIds.has(item.id)) return false;
+  chatMessages.push(item);
+  chatMessageIds.add(item.id);
+  chatMessages.sort((a,b) => a.time - b.time);
+  if(chatMessages.length > MAX_CHAT_MESSAGES){
+    const extra = chatMessages.splice(0, chatMessages.length - MAX_CHAT_MESSAGES);
+    for(const removed of extra) chatMessageIds.delete(removed.id);
+  }
+  if(render) renderOnlineChat(true);
+  return true;
+}
+
+function renderOnlineChat(scrollToLatest = false){
+  const list = $('chatMessages');
+  if(!list) return;
+  const shouldScroll = scrollToLatest || (list.scrollHeight - list.scrollTop - list.clientHeight < 65);
+  const fragment = document.createDocumentFragment();
+  if(chatMessages.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'chat-empty';
+    empty.innerHTML = '<i class="fa-regular fa-comments"></i>Chưa có tin nhắn.<br>Hãy gửi lời chào để bắt đầu!';
+    fragment.appendChild(empty);
+  }else{
+    for(const chat of chatMessages){
+      const isMine = chat.role === onlineRole;
+      const row = document.createElement('div');
+      row.className = 'chat-entry' + (isMine ? ' mine' : '');
+      const avatar = document.createElement('div');
+      avatar.className = 'chat-avatar';
+      avatar.textContent = Array.from(chat.name)[0]?.toLocaleUpperCase('vi-VN') || '?';
+      const content = document.createElement('div');
+      content.className = 'chat-entry-content';
+      const name = document.createElement('div');
+      name.className = 'chat-entry-name';
+      name.textContent = isMine ? 'Bạn' : chat.name;
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = chat.text; // Luon dung textContent: khong thuc thi HTML do nguoi choi gui.
+      const time = document.createElement('div');
+      time.className = 'chat-time';
+      time.textContent = formatChatTime(chat.time);
+      content.append(name,bubble,time);
+      row.append(avatar,content);
+      fragment.appendChild(row);
+    }
+  }
+  list.replaceChildren(fragment);
+  if(shouldScroll) requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
+}
+
+function createChatId(){
+  if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+  return String(Date.now()) + '-' + Math.random().toString(36).slice(2,12);
+}
+
+function sendChatMessage(event){
+  if(event) event.preventDefault();
+  if(gameMode !== 'online' || !onlineRole || !currentOnlineRoomCode){
+    showToast('Chỉ có thể chat trong phòng online.','info');
+    return;
+  }
+  if(onlineRole === 'guest' && !onlineConnected){
+    showToast('Bạn chưa kết nối với chủ phòng.','warn');
+    return;
+  }
+  const input = $('chatInput');
+  const value = input.value.trim().slice(0,MAX_CHAT_LENGTH);
+  if(!value) return;
+  const now = Date.now();
+  if(now - lastChatSentAt < 350){
+    showToast('Bạn đang gửi tin nhắn quá nhanh.','info');
+    return;
+  }
+  lastChatSentAt = now;
+  const packet = {
+    id:createChatId(), text:value, role:onlineRole,
+    name:chatSenderName(), time:now, room:currentOnlineRoomCode
+  };
+  appendChatMessage(packet);
+  input.value = '';
+  input.focus();
+  // Chu phong chua co nguoi vao van co the viet; lich su se gui khi co nguoi ket noi.
+  if(onlineConnected) sendOnline({type:'chat_message', message:packet});
+}
+
+function handleIncomingChatMessage(raw){
+  const chat = sanitizeChatMessage(raw);
+  if(!chat || chat.role === onlineRole) return;
+  appendChatMessage(chat);
+}
+
+function receiveChatHistory(rawMessages){
+  if(onlineRole !== 'guest' || !Array.isArray(rawMessages)) return;
+  const incoming = rawMessages.slice(-MAX_CHAT_MESSAGES);
+  for(const raw of incoming){
+    const chat = sanitizeChatMessage(raw);
+    if(chat && chat.role === 'host') appendChatMessage(chat,false);
+  }
+  renderOnlineChat(true);
+}
+
+$('chatForm').addEventListener('submit',sendChatMessage);
+/* ===== END ONLINE ROOM CHAT ===== */
+
 boardEl.addEventListener('click', event => {
   const cell = event.target.closest('.cell');
   if(!cell || !boardEl.contains(cell)) return;
@@ -1426,6 +1668,7 @@ async function startOnlineMatch(){
   currentRoomPlayerCount = 1;
   cloudRelayJoinFallbackStarted = false;
   updateOnlineActionButtons();
+  resetOnlineChat();
   if(onlineRole === 'host') $('roomCodeInput').value = code;
   else $('joinRoomCodeInput').value = code;
   onlineConnected = false;
@@ -1661,6 +1904,7 @@ function closeExistingPeer(removeRoom = true){
   onlineConnected = false;
   if(removeRoom && wasHost && oldCode) void removePublishedRoom(oldCode);
   currentOnlineRoomCode = '';
+  resetOnlineChat();
   roomSnapshotVersion = 0;
   lastAppliedSnapshotVersion = 0;
   latestGameSnapshot = null;
@@ -1683,6 +1927,7 @@ function setupOnlineConnection(conn){
     if(!connection._transport) connection._transport = 'peer';
     clearJoinAttempt();
     onlineConnected = true;
+    updateOnlineChatUI();
     if(cloudRelaySession && cloudRelaySession.conn !== conn) stopCloudRelay(true,false);
     if(onlineRole === 'host') setCurrentRoomState('full',2);
     $('networkStatus').textContent = 'Đã kết nối cùng phòng';
@@ -1702,12 +1947,14 @@ function setupOnlineConnection(conn){
     onlineConnected = false;
     active = false;
     stopTimer();
+    updateOnlineChatUI();
     if(intentionalOnlineExit){
       intentionalOnlineExit = '';
       updateOnlineActionButtons();
       return;
     }
     if(onlineRole === 'host' && currentOnlineRoomCode){
+      resetOnlineChat(); // Xoa chat cua khach cu truoc khi cho khach moi.
       p2Name = 'Đang chờ người chơi...';
       applyPlayerUI();
       setCurrentRoomState('waiting',1);
@@ -1738,10 +1985,19 @@ function setupOnlineConnection(conn){
 
 function handleOnlineData(data){
   if(!data || !data.type) return;
+  if(data.type === 'chat_message'){
+    handleIncomingChatMessage(data.message);
+    return;
+  }
+  if(data.type === 'chat_history'){
+    receiveChatHistory(data.messages);
+    return;
+  }
   if(data.type === 'hello' && onlineRole === 'host'){
     p2Name = data.name || 'Người tham gia';
     applyPlayerUI();
     sendOnline({type:'init', hostName:p1Name, guestName:p2Name, hostPiece:p1Piece, guestPiece:p2Piece, winLength, turnTime});
+    sendOnline({type:'chat_history', messages:chatMessages.filter(item => item.role === 'host').slice(-MAX_CHAT_MESSAGES)});
     $('networkStatus').textContent = 'Đã kết nối cùng phòng';
     scores = {p1:0,p2:0}; wins = {p1:0,p2:0}; updateScores();
     resetRound(false);
@@ -1763,7 +2019,9 @@ function handleOnlineData(data){
     startTurnFlow();
     if(onlineRole === 'host') void publishOnlineSnapshot();
   }else if(data.type === 'participant_left' && onlineRole === 'host'){
+    resetOnlineChat();
     onlineConnected = false;
+    updateOnlineChatUI();
     active = false;
     stopTimer();
     p2Name = 'Đang chờ người chơi...';
@@ -2221,6 +2479,7 @@ buildBoard();
 selectMode('computer', document.querySelector('[data-mode="computer"]'));
 updatePiecePreview();
 updateOnlineActionButtons();
+updateOnlineChatUI();
 showStep(1);
 openGuide();
 </script>
