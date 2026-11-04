@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caro</title>
+<title>Caro - Avatar đồng bộ 100 triệu mẫu</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 :root{
@@ -225,6 +225,34 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
 }
 /* ===== KET THUC CSS CHAT ===== */
 
+/* Generated avatar portraits: one stable ID per player, shared by all clients. */
+.avatar{
+  border-radius:50%!important; overflow:hidden; padding:3px;
+  background:linear-gradient(135deg,#34d399,#38bdf8,#a78bfa);
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:0 8px 25px rgba(52,211,153,.18),inset 0 0 0 1px rgba(255,255,255,.26);
+  flex-shrink:0;
+}
+.avatar img,.chat-avatar img,.room-list-avatar img{
+  display:block;width:100%;height:100%;object-fit:cover;border-radius:50%;
+}
+.avatar.avatar-pending{background:#182a42;color:#a6b9d0;font-size:29px}
+.chat-avatar,.chat-entry:not(.mine) .chat-avatar{
+  padding:2px; overflow:hidden;border-radius:50%;
+  background:linear-gradient(135deg,#34d399,#60a5fa);
+  border:1px solid rgba(148,240,218,.65);
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+.room-list-avatar{
+  width:36px;height:36px;flex:0 0 36px;padding:2px;border-radius:50%;
+  background:linear-gradient(135deg,#34d399,#818cf8);overflow:hidden;
+  display:grid;place-items:center;color:#a5b4fc;
+}
+.room-host{display:flex;align-items:center;gap:9px;min-width:0}
+.room-host-name{min-width:0;overflow-wrap:anywhere}
+@media(max-width:600px){.avatar{border-radius:50%!important}}
+
+
 </style>
 </head>
 <body>
@@ -255,7 +283,7 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
 
   <section class="game-layout">
     <aside class="player-card x active" id="player1Card">
-      <div class="avatar" id="p1Avatar">X</div>
+      <div class="avatar" id="p1Avatar" aria-label="Avatar người chơi 1"></div>
       <div class="player-name" id="p1Name">Người chơi 1</div>
       <div class="player-label" id="p1Label">PLAYER 1</div>
       <div class="stats">
@@ -283,7 +311,7 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
 
     <div class="right-column">
     <aside class="player-card o" id="player2Card">
-      <div class="avatar" id="p2Avatar">O</div>
+      <div class="avatar" id="p2Avatar" aria-label="Avatar người chơi 2"></div>
       <div class="player-name" id="p2Name">Người chơi 2</div>
       <div class="player-label" id="p2Label">PLAYER 2</div>
       <div class="stats">
@@ -368,7 +396,7 @@ button,input,select{font:inherit}button,.cell,.choice,.control-btn,.wizard-btn,.
             <div class="open-room-list" id="openRoomList">
               <div class="room-list-empty">Đang tải danh sách phòng...</div>
             </div>
-            <div class="room-browser-note">Phòng của chủ phòng mất kết nối sẽ tự ẩn sau 45 giây. Nhấn nút làm mới để cập nhật ngay.</div>
+            <div class="room-browser-note">Danh sách tự đồng bộ khoảng 10 giây/lần. Phòng mất kết nối quá 45 giây sẽ tự ẩn; có thể làm mới ngay.</div>
           </aside>
         </div>
       </div>
@@ -442,6 +470,8 @@ let p1Piece = 'X';
 let p2Piece = 'O';
 let p1Name = 'Người chơi 1';
 let p2Name = 'Máy';
+let p1AvatarId = null;
+let p2AvatarId = null;
 let winLength = 5;
 let turnTime = 20;
 let timeLeft = 20;
@@ -467,11 +497,14 @@ let chatMessageIds = new Set();
 let lastChatSentAt = 0;
 let lastWarningSecond = null;
 let intentionalOnlineExit = '';
+let roomDissolvingCode = '';
 const ROOM_DIRECTORY_API_BASE = 'https://mantledb.sh/v2';
-const ROOM_DIRECTORY_NAMESPACE = 'caro-zhaowen-global-rooms-2026-v1';
+// Namespace moi tranh kho du lieu cu day 100 ban ghi/bi chiem quyen ghi.
+// Moi thiet bi phai dung cung ban HTML moi de nhin thay phong.
+const ROOM_DIRECTORY_NAMESPACE = 'caro-zhaowen-global-rooms-2026-nov-v2';
 const ROOM_DIRECTORY_PREFIX = 'rooms';
 const ROOM_TTL_MS = 45000;
-const ROOM_LIST_POLL_MS = 8000;
+const ROOM_LIST_POLL_MS = 10000;
 let globalOpenRooms = [];
 let roomListPollTimer = null;
 let roomListRequestController = null;
@@ -480,30 +513,207 @@ let currentOnlineRoomCode = '';
 let currentRoomStatus = 'waiting';
 let currentRoomPlayerCount = 1;
 let roomCloudAvailable = true;
+let roomDirectoryLastError = '';
 let peerLibraryPromise = null;
 let joinAttemptTimer = null;
 let cloudRelaySession = null;
+const cloudRelaySharedWrites = new Map();
 let cloudRelayJoinFallbackStarted = false;
 let roomStatePollTimer = null;
 let roomStateSyncBusy = false;
+let roomMissingPolls = 0;
 let roomSnapshotVersion = 0;
 let lastAppliedSnapshotVersion = 0;
 let latestGameSnapshot = null;
 let roomWriteChain = Promise.resolve();
+let roomMaintenanceChain = Promise.resolve();
+let onlineStartPending = false;
 let boardRevision = 0;
 let lastAppliedBoardRevision = 0;
 let lastMoveCell = null;
 let sharedAudioContext = null;
-const ROOM_STATE_POLL_MS = 1800;
-const CLOUD_RELAY_POLL_MS = 320;
-const CLOUD_RELAY_HEARTBEAT_MS = 1000;
-const CLOUD_RELAY_STALE_MS = 12000;
+let lastRoomListRenderSignature = '';
+let roomStatusPublishTimer = null;
+let aiMoveToken = 0;
+let guestHelloRetryTimer = null;
+let guestHandshakeId = '';
+let guestInitReceived = false;
+let hostHandshakeId = '';
+const ROOM_STATE_POLL_MS = 3500;
+// Nhip poll thay doi theo trang thai: nhanh khi choi, cham khi cho / an tab.
+const CLOUD_RELAY_POLL_ACTIVE_MS = 900;
+const CLOUD_RELAY_POLL_WAITING_MS = 1450;
+const CLOUD_RELAY_POLL_HIDDEN_MS = 3200;
+const CLOUD_RELAY_HEARTBEAT_MS = 12000;
+const CLOUD_RELAY_STALE_MS = 35000;
 const PEERJS_CDN_SOURCES = [
   'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js',
   'https://cdn.bootcdn.net/ajax/libs/peerjs/1.5.5/peerjs.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js',
   'https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'
 ];
+
+
+/* ===== 100,000,000 PROCEDURAL AVATARS =====
+   Eight independently rendered base-10 features => exactly 10^8 combinations.
+   Only the numeric ID is sent over the network. SVG is rebuilt deterministically
+   on every device, preserving the same portrait in players, lobby and chat.
+*/
+const AVATAR_COUNT = 100000000;
+const avatarUrlCache = new Map();
+
+function normalizeAvatarId(value){
+  if(value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isSafeInteger(n) && n >= 0 && n < AVATAR_COUNT ? n : null;
+}
+
+function randomAvatarId(except = null){
+  let result;
+  do{
+    if(window.crypto && typeof window.crypto.getRandomValues === 'function'){
+      const bytes = new Uint32Array(1);
+      window.crypto.getRandomValues(bytes);
+      result = bytes[0] % AVATAR_COUNT;
+    }else{
+      result = Math.floor(Math.random() * AVATAR_COUNT);
+    }
+  }while(result === except);
+  return result;
+}
+
+function svgAvatar(id){
+  const n = normalizeAvatarId(id);
+  if(n === null) return '';
+  let digitsLeft = n;
+  const digits = [];
+  for(let i = 0; i < 8; i++){
+    digits.push(digitsLeft % 10);
+    digitsLeft = Math.floor(digitsLeft / 10);
+  }
+  const [backgroundIdx,skinIdx,hairColorIdx,hairIdx,eyesIdx,mouthIdx,shirtIdx,accessoryIdx] = digits;
+  const backgrounds = [
+    ['#274b62','#0c283d'],['#8c675d','#51374d'],['#2a756e','#0e394e'],
+    ['#654a85','#32234f'],['#d7a45a','#705541'],['#5685a8','#233d65'],
+    ['#b66577','#5a3458'],['#507953','#264f55'],['#ce7f6a','#673d5b'],['#65789f','#33345c']
+  ];
+  const skinTones = ['#f6d9b6','#e9b78e','#e5aa7d','#d69665','#c78559','#ad704c','#98613f','#774c38','#f3c3a1','#dca47d'];
+  const hairColors = ['#382d33','#77503c','#ba7b4b','#171c32','#a45b43','#dbba76','#583b69','#1f6267','#92535f','#b3b4c1'];
+  const shirts = ['#e8597b','#3b7db9','#f0a947','#37ad8e','#7464d1','#b85653','#e0d8c9','#529b66','#a56ac5','#23577b'];
+  const bg = backgrounds[backgroundIdx];
+  const skin = skinTones[skinIdx];
+  const hair = hairColors[hairColorIdx];
+  const shirt = shirts[shirtIdx];
+  const frontHair = [
+    '<path d="M22 40Q21 18 42 17Q66 11 78 35L75 44Q65 29 55 29Q36 44 22 40Z"/>',
+    '<path d="M20 42L23 21L31 30L37 14L47 26L57 11L67 27L77 19L80 43Q58 29 45 36Q30 45 20 42Z"/>',
+    '<path d="M20 41Q14 15 48 14Q82 13 81 42Q64 28 46 33Q31 49 20 41Z"/><path d="M18 38Q26 50 32 51L28 30Z"/>',
+    '<path d="M18 43Q21 16 49 16Q74 12 81 42Q55 42 43 29Q38 44 18 43Z"/>',
+    '<circle cx="27" cy="28" r="12"/><circle cx="42" cy="18" r="12"/><circle cx="58" cy="19" r="13"/><circle cx="73" cy="31" r="12"/>',
+    '<path d="M20 37Q22 14 49 15Q78 14 81 39L78 44L65 35L55 44L43 34L32 44L20 37Z"/>',
+    '<path d="M24 32Q27 19 50 19Q72 19 76 32L73 36Q49 25 26 38Z"/>',
+    '<path d="M18 42Q19 18 46 14Q70 12 79 37Q63 29 47 30L24 44Z"/><path d="M20 31Q12 53 23 56Q29 48 29 31Z"/>',
+    '<path d="M38 35L41 9Q52 1 60 10L66 35Q54 29 38 35Z"/><path d="M25 37Q50 29 75 37L74 42Q50 35 26 42Z"/>',
+    '<circle cx="23" cy="23" r="12"/><circle cx="76" cy="23" r="12"/><path d="M21 43Q24 20 50 20Q75 20 80 43Q63 31 50 36Q37 30 21 43Z"/>'
+  ];
+  const backHair = [
+    '', '', '<path d="M22 34Q12 57 16 79L33 80L36 37Z"/><path d="M67 34L82 79L66 81L65 35Z"/>',
+    '', '<path d="M17 38Q13 62 18 76L29 75L27 36Z"/><path d="M72 37L84 76L73 77Z"/>',
+    '', '', '<path d="M76 34Q93 48 86 67Q82 74 73 73Z"/>', '', ''
+  ];
+  const eyes = [
+    '<circle cx="38" cy="49" r="2.6"/><circle cx="61" cy="49" r="2.6"/>',
+    '<ellipse cx="38" cy="49" rx="3.3" ry="4.6"/><ellipse cx="61" cy="49" rx="3.3" ry="4.6"/>',
+    '<path d="M33 49Q38 43 44 49M56 49Q61 43 67 49" fill="none" stroke="#32232c" stroke-width="2.8" stroke-linecap="round"/>',
+    '<path d="M33 49Q38 53 44 49M56 49Q61 53 67 49" fill="none" stroke="#32232c" stroke-width="2.8" stroke-linecap="round"/>',
+    '<circle cx="38" cy="49" r="4"/><circle cx="61" cy="49" r="4"/><circle cx="39" cy="48" r="1" fill="white"/><circle cx="62" cy="48" r="1" fill="white"/>',
+    '<path d="M33 49Q38 47 44 49" fill="none" stroke="#32232c" stroke-width="3" stroke-linecap="round"/><circle cx="61" cy="49" r="2.8"/>',
+    '<circle cx="38" cy="49" r="2"/><path d="M56 49Q61 46 67 49" fill="none" stroke="#32232c" stroke-width="2.5" stroke-linecap="round"/>',
+    '<ellipse cx="38" cy="49" rx="2" ry="4"/><ellipse cx="61" cy="49" rx="2" ry="4"/>',
+    '<path d="M33 47L43 50M56 50L67 47" fill="none" stroke="#32232c" stroke-width="3" stroke-linecap="round"/>',
+    '<ellipse cx="38" cy="50" rx="3.6" ry="2.4"/><ellipse cx="61" cy="50" rx="3.6" ry="2.4"/>'
+  ];
+  const mouths = [
+    '<path d="M43 65Q50 72 58 65" fill="none" stroke="#8d434d" stroke-width="2.6" stroke-linecap="round"/>',
+    '<path d="M42 64Q50 75 59 64Z" fill="#8d434d" stroke="#723c47" stroke-width="1"/>',
+    '<ellipse cx="50" cy="65" rx="5" ry="6" fill="#8d434d"/>',
+    '<path d="M44 66L57 66" fill="none" stroke="#8d434d" stroke-width="2.5" stroke-linecap="round"/>',
+    '<path d="M43 64Q50 68 58 64L55 70L47 70Z" fill="#fff7e8" stroke="#8d434d" stroke-width="1"/>',
+    '<path d="M44 65Q51 61 57 65" fill="none" stroke="#8d434d" stroke-width="2.3" stroke-linecap="round"/>',
+    '<path d="M43 63Q50 74 59 63Q51 65 43 63Z" fill="#bf5d63"/>',
+    '<path d="M44 65Q50 70 56 65" fill="none" stroke="#8d434d" stroke-width="3.3" stroke-linecap="round"/>',
+    '<path d="M42 65Q48 66 51 64Q55 66 59 64" fill="none" stroke="#8d434d" stroke-width="2" stroke-linecap="round"/>',
+    '<path d="M44 64Q50 67 57 64" fill="none" stroke="#8d434d" stroke-width="2.4" stroke-linecap="round"/><path d="M49 68H53" stroke="#8d434d" stroke-width="1.6"/>'
+  ];
+  const accessories = [
+    '<circle cx="33" cy="59" r="1.2" fill="#a15f58"/><circle cx="38" cy="60" r="1.2" fill="#a15f58"/><circle cx="62" cy="60" r="1.2" fill="#a15f58"/><circle cx="67" cy="59" r="1.2" fill="#a15f58"/>',
+    '<g fill="none" stroke="#405770" stroke-width="2.8"><rect x="29" y="43" width="18" height="13" rx="5"/><rect x="53" y="43" width="18" height="13" rx="5"/><path d="M47 48Q50 46 53 48"/></g>',
+    '<path d="M29 46H47L44 55H33Z M53 46H71L67 55H56Z" fill="#344356" stroke="#172f45" stroke-width="1.5"/><path d="M47 48H53" stroke="#344356" stroke-width="2.5"/>',
+    '<circle cx="23" cy="55" r="3.2" fill="#facc15"/><circle cx="77" cy="55" r="3.2" fill="#facc15"/>',
+    '<path d="M19 35Q19 14 48 13Q76 11 82 35L22 36Z" fill="#2d6fa3"/><path d="M22 35Q47 29 78 36" fill="none" stroke="#e8f4f5" stroke-width="4" stroke-linecap="round"/>',
+    '<path d="M20 46Q19 13 50 13Q81 13 80 46" fill="none" stroke="#e9ad50" stroke-width="6"/><rect x="15" y="42" width="10" height="18" rx="5" fill="#e9ad50"/><rect x="75" y="42" width="10" height="18" rx="5" fill="#e9ad50"/>',
+    '<path d="M18 25l4 5 6-4-2 7 4 4-7-1-4 5-1-8-6-3Z" fill="#ffe17c"/><path d="M78 24l3 5 6 0-3 5 2 6-6-3-5 3 1-7-4-3Z" fill="#ffe17c"/>',
+    '<path d="M59 26l2 5 5 1-4 3 1 5-4-3-4 2 1-5-4-3 5-1Z" fill="#ff80a4"/>',
+    '<path d="M41 62Q45 57 50 63Q56 57 61 62Q55 67 50 64Q46 67 41 62Z" fill="#483038"/>',
+    '<path d="M21 45Q14 15 49 15Q83 13 80 48" fill="none" stroke="#4cc2bc" stroke-width="5"/><rect x="16" y="43" width="9" height="16" rx="4" fill="#4cc2bc"/><rect x="75" y="43" width="9" height="16" rx="4" fill="#4cc2bc"/><path d="M79 57Q77 67 66 65" fill="none" stroke="#4cc2bc" stroke-width="2.5"/><circle cx="65" cy="65" r="3" fill="#f1e2b4"/>'
+  ];
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 100 100" aria-hidden="true">
+    <defs><linearGradient id="portrait" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient><clipPath id="circle"><circle cx="50" cy="50" r="49"/></clipPath></defs>
+    <g clip-path="url(#circle)">
+      <rect width="100" height="100" fill="url(#portrait)"/>
+      <circle cx="21" cy="17" r="36" fill="#ffffff" opacity=".08"/>
+      <path d="M8 100Q12 78 34 76L50 83L66 76Q89 77 93 100Z" fill="${shirt}"/>
+      <path d="M30 78L49 93L67 78" fill="none" stroke="#ffffff" stroke-opacity=".21" stroke-width="3"/>
+      <path d="M43 70L43 82Q50 88 57 82L57 70Z" fill="${skin}"/>
+      <g fill="${hair}">${backHair[hairIdx]}</g>
+      <ellipse cx="24" cy="54" rx="6" ry="9" fill="${skin}"/>
+      <ellipse cx="76" cy="54" rx="6" ry="9" fill="${skin}"/>
+      <path d="M24 42Q24 25 50 25Q76 25 76 42L75 62Q72 78 50 79Q28 78 25 62Z" fill="${skin}"/>
+      <path d="M29 61Q33 69 41 71" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="2"/>
+      <path d="M34 42Q38 40 43 42M57 42Q61 40 66 42" fill="none" stroke="${hair}" stroke-width="2.5" stroke-linecap="round"/>
+      <g fill="#32232c">${eyes[eyesIdx]}</g>
+      <path d="M50 51L47 59Q50 61 53 59" fill="none" stroke="#8c5142" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>
+      ${mouths[mouthIdx]}
+      <g fill="${hair}">${frontHair[hairIdx]}</g>
+      ${accessories[accessoryIdx]}
+    </g><circle cx="50" cy="50" r="48.5" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
+  </svg>`;
+}
+
+function avatarUrl(id){
+  const normalized = normalizeAvatarId(id);
+  if(normalized === null) return '';
+  if(avatarUrlCache.has(normalized)) return avatarUrlCache.get(normalized);
+  const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgAvatar(normalized));
+  if(avatarUrlCache.size >= 220) avatarUrlCache.delete(avatarUrlCache.keys().next().value);
+  avatarUrlCache.set(normalized,url);
+  return url;
+}
+
+function setAvatar(element, avatarId, label = 'Người chơi'){
+  if(!element) return;
+  const id = normalizeAvatarId(avatarId);
+  const nextKey = id === null ? 'pending' : String(id);
+  if(element.dataset.avatarId === nextKey) return;
+  element.dataset.avatarId = nextKey;
+  element.replaceChildren();
+  element.classList.toggle('avatar-pending',id === null);
+  element.title = id === null ? label + ' đang chờ avatar' : label + ' · Avatar #' + String(id).padStart(8,'0');
+  if(id === null){
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-user';
+    element.appendChild(icon);
+    return;
+  }
+  const img = document.createElement('img');
+  img.src = avatarUrl(id);
+  img.alt = label + ' - avatar #' + String(id).padStart(8,'0');
+  img.draggable = false;
+  element.appendChild(img);
+}
+/* ===== END GENERATED AVATARS ===== */
+p1AvatarId = randomAvatarId();
+p2AvatarId = randomAvatarId(p1AvatarId);
 
 const $ = id => document.getElementById(id);
 const boardEl = $('board');
@@ -531,7 +741,7 @@ function updateOnlineChatUI(){
   $('chatInput').disabled = !canWrite;
   $('chatSend').disabled = !canWrite;
   $('chatInput').placeholder = canWrite ? 'Nhập tin nhắn...' : 'Đang kết nối người chơi...';
-  if(inRoom && chatMessages.length === 0) renderOnlineChat(false);
+  if(inRoom && chatMessages.length === 0 && !$('chatMessages').firstElementChild) renderOnlineChat(false);
 }
 
 function chatSenderName(){
@@ -550,6 +760,7 @@ function sanitizeChatMessage(raw){
   return {
     id, text:content, role, room,
     name:cleanRoomName(raw.name) || (role === 'host' ? 'Chủ phòng' : 'Người tham gia'),
+    avatarId:normalizeAvatarId(raw.avatarId) ?? (role === 'host' ? p1AvatarId : p2AvatarId),
     time:Number.isFinite(time) && Math.abs(Date.now() - time) < 86400000 ? time : Date.now()
   };
 }
@@ -559,24 +770,65 @@ function formatChatTime(time){
   catch(_){return '';}
 }
 
+function makeChatRow(chat){
+  const isMine = chat.role === onlineRole;
+  const row = document.createElement('div');
+  row.className = 'chat-entry' + (isMine ? ' mine' : '');
+  row.dataset.chatId = chat.id;
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  setAvatar(avatar, chat.avatarId, chat.name);
+  const content = document.createElement('div');
+  content.className = 'chat-entry-content';
+  const name = document.createElement('div');
+  name.className = 'chat-entry-name';
+  name.textContent = isMine ? 'Bạn' : chat.name;
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.textContent = chat.text;
+  const time = document.createElement('div');
+  time.className = 'chat-time';
+  time.textContent = formatChatTime(chat.time);
+  content.append(name,bubble,time);
+  row.append(avatar,content);
+  return row;
+}
+
 function appendChatMessage(raw, render = true){
   const item = sanitizeChatMessage(raw);
   if(!item || chatMessageIds.has(item.id)) return false;
+  const last = chatMessages[chatMessages.length - 1];
+  const chronological = !last || item.time >= last.time;
   chatMessages.push(item);
   chatMessageIds.add(item.id);
-  chatMessages.sort((a,b) => a.time - b.time);
+  if(!chronological) chatMessages.sort((a,b) => a.time - b.time);
   if(chatMessages.length > MAX_CHAT_MESSAGES){
-    const extra = chatMessages.splice(0, chatMessages.length - MAX_CHAT_MESSAGES);
-    for(const removed of extra) chatMessageIds.delete(removed.id);
+    const removed = chatMessages.splice(0,chatMessages.length - MAX_CHAT_MESSAGES);
+    for(const old of removed) chatMessageIds.delete(old.id);
   }
-  if(render) renderOnlineChat(true);
+  if(render){
+    const list = $('chatMessages');
+    // Them dung 1 DOM node; khong ve lai 80 avatar khi nhan 1 tin nhan.
+    if(list && chronological){
+      const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+      const empty = list.querySelector('.chat-empty');
+      if(empty) empty.remove();
+      list.appendChild(makeChatRow(item));
+      while(list.children.length > chatMessages.length) list.firstElementChild.remove();
+      if(nearBottom || item.role === onlineRole){
+        requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
+      }
+    }else{
+      renderOnlineChat(true);
+    }
+  }
   return true;
 }
 
 function renderOnlineChat(scrollToLatest = false){
   const list = $('chatMessages');
   if(!list) return;
-  const shouldScroll = scrollToLatest || (list.scrollHeight - list.scrollTop - list.clientHeight < 65);
+  const shouldScroll = scrollToLatest || list.scrollHeight - list.scrollTop - list.clientHeight < 65;
   const fragment = document.createDocumentFragment();
   if(chatMessages.length === 0){
     const empty = document.createElement('div');
@@ -584,28 +836,7 @@ function renderOnlineChat(scrollToLatest = false){
     empty.innerHTML = '<i class="fa-regular fa-comments"></i>Chưa có tin nhắn.<br>Hãy gửi lời chào để bắt đầu!';
     fragment.appendChild(empty);
   }else{
-    for(const chat of chatMessages){
-      const isMine = chat.role === onlineRole;
-      const row = document.createElement('div');
-      row.className = 'chat-entry' + (isMine ? ' mine' : '');
-      const avatar = document.createElement('div');
-      avatar.className = 'chat-avatar';
-      avatar.textContent = Array.from(chat.name)[0]?.toLocaleUpperCase('vi-VN') || '?';
-      const content = document.createElement('div');
-      content.className = 'chat-entry-content';
-      const name = document.createElement('div');
-      name.className = 'chat-entry-name';
-      name.textContent = isMine ? 'Bạn' : chat.name;
-      const bubble = document.createElement('div');
-      bubble.className = 'chat-bubble';
-      bubble.textContent = chat.text; // Luon dung textContent: khong thuc thi HTML do nguoi choi gui.
-      const time = document.createElement('div');
-      time.className = 'chat-time';
-      time.textContent = formatChatTime(chat.time);
-      content.append(name,bubble,time);
-      row.append(avatar,content);
-      fragment.appendChild(row);
-    }
+    for(const chat of chatMessages) fragment.appendChild(makeChatRow(chat));
   }
   list.replaceChildren(fragment);
   if(shouldScroll) requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
@@ -637,7 +868,7 @@ function sendChatMessage(event){
   lastChatSentAt = now;
   const packet = {
     id:createChatId(), text:value, role:onlineRole,
-    name:chatSenderName(), time:now, room:currentOnlineRoomCode
+    name:chatSenderName(), avatarId:onlineRole === 'host' ? p1AvatarId : p2AvatarId, time:now, room:currentOnlineRoomCode
   };
   appendChatMessage(packet);
   input.value = '';
@@ -649,6 +880,12 @@ function sendChatMessage(event){
 function handleIncomingChatMessage(raw){
   const chat = sanitizeChatMessage(raw);
   if(!chat || chat.role === onlineRole) return;
+  const incomingAvatar = normalizeAvatarId(chat.avatarId);
+  if(incomingAvatar !== null){
+    if(chat.role === 'host' && p1AvatarId !== incomingAvatar) p1AvatarId = incomingAvatar;
+    if(chat.role === 'guest' && p2AvatarId !== incomingAvatar) p2AvatarId = incomingAvatar;
+    applyPlayerUI();
+  }
   appendChatMessage(chat);
 }
 
@@ -703,21 +940,59 @@ function getRoomCloudListUrl(){
   return ROOM_DIRECTORY_API_BASE + '/list/' + ROOM_DIRECTORY_NAMESPACE;
 }
 
+// Chi GET 404 moi mang nghia la phong chua ton tai. POST 404 phai bao loi.
+// Co timeout de nut Tao phong khong bi treo khi mang mat ket noi.
 async function fetchJsonResponse(url, options = {}){
-  const response = await fetch(url, {
-    cache:'no-store',
-    ...options,
-    headers:{
-      'Accept':'application/json',
-      ...(options.body ? {'Content-Type':'application/json'} : {}),
-      ...(options.headers || {})
+  const method = String(options.method || 'GET').toUpperCase();
+  const controller = options.signal ? null : new AbortController();
+  const timer = controller ? setTimeout(() => controller.abort(),8500) : null;
+  try{
+    const response = await fetch(url, {
+      cache:'no-store',
+      ...options,
+      signal:options.signal || controller.signal,
+      headers:{
+        'Accept':'application/json',
+        ...(options.body ? {'Content-Type':'application/json'} : {}),
+        ...(options.headers || {})
+      }
+    });
+    if(response.status === 404 && method === 'GET') return null;
+    const bodyText = await response.text();
+    let data = null;
+    try{ if(bodyText) data = JSON.parse(bodyText); }catch(_){ }
+    if(!response.ok || (data && typeof data === 'object' && data.success === false)){
+      const detail = data && (data.error || data.message || data.detail);
+      const error = new Error('HTTP ' + response.status + (detail ? ' - ' + String(detail).slice(0,140) : ''));
+      error.status = response.status;
+      throw error;
     }
-  });
-  if(response.status === 404) return null;
-  if(!response.ok) throw new Error('HTTP ' + response.status);
-  const body = await response.text();
-  if(!body) return null;
-  try{ return JSON.parse(body); }catch(_){ return null; }
+    // Khong duoc xem HTTP 200 voi body loi la luu thanh cong.
+    return data;
+  }catch(error){
+    if(error?.name === 'AbortError') throw new Error('Hết thời gian chờ máy chủ (8,5 giây)');
+    if(error instanceof TypeError) throw new Error('Không kết nối được máy chủ lưu phòng (mạng hoặc CORS)');
+    throw error;
+  }finally{
+    if(timer) clearTimeout(timer);
+  }
+}
+
+function readableRoomError(error){
+  const str = String(error && error.message || error || 'Không rõ lỗi');
+  if(/HTTP 401|HTTP 403/.test(str)) return 'Máy chủ từ chối quyền lưu phòng (401/403).';
+  if(/HTTP 429/.test(str)) return 'Dịch vụ lưu phòng vượt giới hạn truy cập (429).';
+  if(/HTTP 413/.test(str)) return 'Dữ liệu phòng vượt dung lượng cho phép (413).';
+  if(/HTTP 409|HTTP 507/.test(str)) return 'Kho lưu phòng có thể đã đầy hoặc bị giới hạn (' + str + ').';
+  return str.slice(0,180);
+}
+function showCreateRoomFailure(reason){
+  const text = 'Không tạo được phòng: ' + String(reason || 'Không rõ nguyên nhân');
+  $('networkStatus').textContent = 'Tạo phòng không thành công';
+  message.textContent = text;
+  $('onlineRoomHelp').textContent = text + ' Hãy thử lại hoặc tải bản mới ở cả hai thiết bị.';
+  console.error('[Caro]',text);
+  showToast(text,'warn');
 }
 
 
@@ -833,19 +1108,25 @@ async function writeCloudRelayState(session = cloudRelaySession){
     code:session.code,
     role:session.role,
     name:localName,
+    sessionId:session.sessionId,
     updatedAt:Date.now(),
     closed:Boolean(session.closed),
     messages:session.messages.slice(-50)
   };
-  session.writeChain = session.writeChain
-    .catch(() => {})
-    .then(() => fetchJsonResponse(getCloudRelayUrl(session.code,session.role), {
-      method:'POST',
-      body:JSON.stringify(payload)
-    }))
-    .catch(() => null);
-  await session.writeChain;
-  return true;
+  const relayUrl = getCloudRelayUrl(session.code,session.role);
+  // Dong bo cac phien cu/moi cung 1 endpoint de goi DONG cua nguoi cu
+  // khong ghi de len goi MO cua nguoi moi.
+  const previousWrite = cloudRelaySharedWrites.get(relayUrl) || Promise.resolve();
+  const nextWrite = previousWrite.catch(() => null)
+    .then(() => fetchJsonResponse(relayUrl,{method:'POST',body:JSON.stringify(payload)}))
+    .catch(error => { console.warn('[Caro] Relay write failed:',error); return null; });
+  cloudRelaySharedWrites.set(relayUrl,nextWrite);
+  session.writeChain = nextWrite;
+  void nextWrite.finally(() => {
+    if(cloudRelaySharedWrites.get(relayUrl) === nextWrite) cloudRelaySharedWrites.delete(relayUrl);
+  });
+  const result = await nextWrite;
+  return Boolean(result);
 }
 
 function queueCloudRelayMessage(data){
@@ -854,7 +1135,13 @@ function queueCloudRelayMessage(data){
   session.localSeq += 1;
   session.messages.push({seq:session.localSeq,at:Date.now(),data});
   if(session.messages.length > 50) session.messages.splice(0,session.messages.length - 50);
-  void writeCloudRelayState(session);
+  // Gop tin lien tiep (init, reset, chat_history) thanh mot lan ghi cloud.
+  if(!session.flushTimer){
+    session.flushTimer = setTimeout(() => {
+      session.flushTimer = null;
+      if(!session.stopped) void writeCloudRelayState(session);
+    },35);
+  }
 }
 
 async function pollCloudRelay(session = cloudRelaySession){
@@ -862,7 +1149,14 @@ async function pollCloudRelay(session = cloudRelaySession){
   session.polling = true;
   try{
     const remote = await fetchJsonResponse(getCloudRelayUrl(session.code,session.remoteRole) + '?t=' + Date.now());
+    session.pollFailures = 0;
     if(!remote || typeof remote !== 'object') return;
+    // Nguoi moi dung lai ma phong: reset so thu tu tin de khong bo sot loi chao/chat.
+    const remoteSessionId = String(remote.sessionId || 'legacy');
+    if(session.remoteSessionId !== remoteSessionId){
+      session.remoteSessionId = remoteSessionId;
+      session.remoteSeq = 0;
+    }
     const messages = Array.isArray(remote.messages) ? remote.messages : [];
     messages
       .filter(item => Number(item && item.seq) > session.remoteSeq)
@@ -884,10 +1178,25 @@ async function pollCloudRelay(session = cloudRelaySession){
       session.conn._emit('close');
     }
   }catch(_){
-    // Giữ phiên và tự thử lại; hữu ích khi trình duyệt hoặc mạng tạm chặn WebRTC.
+    // Khong lien tuc goi lai khi mang loi / API gioi han (429).
+    session.pollFailures = Math.min(5,(session.pollFailures || 0) + 1);
   }finally{
     session.polling = false;
+    scheduleNextCloudRelayPoll(session);
   }
+}
+
+function scheduleNextCloudRelayPoll(session){
+  if(!session || session.stopped || cloudRelaySession !== session) return;
+  clearTimeout(session.pollTimer);
+  const base = document.hidden ? CLOUD_RELAY_POLL_HIDDEN_MS
+    : (session.conn.open && active ? CLOUD_RELAY_POLL_ACTIVE_MS : CLOUD_RELAY_POLL_WAITING_MS);
+  const cadence = Math.min(10000,base * (1 + (session.pollFailures || 0)));
+  // Sau khi hoan tat 1 yeu cau moi hen yeu cau tiep: khong bao gio chong GET.
+  session.pollTimer = setTimeout(() => {
+    session.pollTimer = null;
+    void pollCloudRelay(session);
+  },cadence);
 }
 
 function startCloudRelay(role, code){
@@ -898,21 +1207,25 @@ function startCloudRelay(role, code){
     role:role === 'host' ? 'host' : 'guest',
     remoteRole:role === 'host' ? 'guest' : 'host',
     conn,
+    sessionId:(window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)),
+    remoteSessionId:null,
     localSeq:0,
     remoteSeq:0,
     messages:[],
     writeChain:Promise.resolve(),
     polling:false,
+    pollFailures:0,
     closed:false,
     stopped:false,
     pollTimer:null,
+    flushTimer:null,
     heartbeatTimer:null
   };
   cloudRelaySession = session;
   setupOnlineConnection(conn);
   void writeCloudRelayState(session);
   void pollCloudRelay(session);
-  session.pollTimer = setInterval(() => void pollCloudRelay(session),CLOUD_RELAY_POLL_MS);
+  // Poll dau tien da duoc goi ngay ben tren; chinh no se hen lan tiep theo.
   session.heartbeatTimer = setInterval(() => void writeCloudRelayState(session),CLOUD_RELAY_HEARTBEAT_MS);
   return conn;
 }
@@ -922,7 +1235,8 @@ function stopCloudRelay(markClosed = true, emitClose = false){
   if(!session) return;
   cloudRelaySession = null;
   session.stopped = true;
-  clearInterval(session.pollTimer);
+  clearTimeout(session.pollTimer);
+  clearTimeout(session.flushTimer);
   clearInterval(session.heartbeatTimer);
   if(markClosed){
     session.stopped = false;
@@ -949,9 +1263,10 @@ function startCloudGuestJoin(code, reason = 'Kết nối trực tiếp bị ch�
   peer = null;
   try{ if(connection && connection.open) connection.close(); }catch(_){ }
   connection = null;
-  $('networkStatus').textContent = 'Đang kết nối tương thích';
-  message.textContent = reason;
-  showToast(reason,'info');
+  // Chuyen sang cloud relay am tham cho nguoi choi 2: khong hien toast ky thuat.
+  // Van giu thong tin dang ket noi va toan bo co che du phong.
+  $('networkStatus').textContent = 'Đang kết nối phòng...';
+  message.textContent = 'Đang kết nối với chủ phòng...';
   startCloudRelay('guest',code);
   joinAttemptTimer = setTimeout(() => {
     if(onlineConnected) return;
@@ -977,6 +1292,7 @@ function sanitizeDirectoryRoom(room){
   return {
     code,
     hostName:cleanRoomName(room.hostName) || 'Người chơi',
+    hostAvatarId:normalizeAvatarId(room.hostAvatarId),
     winLength:[3,4,5,6].includes(Number(room.winLength)) ? Number(room.winLength) : 5,
     turnTime:[20,60].includes(Number(room.turnTime)) ? Number(room.turnTime) : 20,
     playerCount,
@@ -1029,8 +1345,20 @@ function renderOpenRooms(){
   const list = $('openRoomList');
   if(!list) return;
   const rooms = getActiveRooms();
+  // lastSeen thay doi moi 10 giay, nhung no khong hien thi tren giao dien.
+  // Bo qua viec tao lai toan bo the phong/anh avatar neu phan hien thi giong het.
+  const signature = JSON.stringify([
+    roomCloudAvailable,
+    onlineRole === 'host' ? currentOnlineRoomCode : '',
+    ...rooms.map(r => [r.code,r.hostName,r.hostAvatarId,r.winLength,r.turnTime,r.status,r.playerCount])
+  ]);
+  if(signature === lastRoomListRenderSignature) return;
+  lastRoomListRenderSignature = signature;
   if(!rooms.length){
-    list.innerHTML = '<div class="room-list-empty">Chưa có phòng nào đang chờ.<br>Hãy tạo phòng mới hoặc nhấn Làm mới.</div>';
+    const missing = !roomCloudAvailable
+      ? 'Không thể kết nối máy chủ danh sách phòng. Hãy kiểm tra Internet hoặc quyền truy cập dữ liệu rồi nhấn Làm mới.'
+      : 'Chưa có phòng nào đang chờ.<br>Hãy tạo phòng mới hoặc nhấn Làm mới.';
+    list.innerHTML = '<div class="room-list-empty">' + missing + '</div>';
     return;
   }
   list.innerHTML = rooms.map(room => {
@@ -1039,7 +1367,7 @@ function renderOpenRooms(){
     const ownRoom = onlineRole === 'host' && currentOnlineRoomCode === room.code;
     const buttonText = ownRoom ? 'Phòng của bạn' : (canJoin ? 'Tham gia phòng' : info.label);
     return '<div class="room-list-item">' +
-      '<div class="room-list-top"><div class="room-host"><i class="fa-solid fa-crown"></i> ' + escapeRoomText(room.hostName) + '</div><div class="room-code">' + escapeRoomText(room.code) + '</div></div>' +
+      '<div class="room-list-top"><div class="room-host"><span class="room-list-avatar">' + (room.hostAvatarId === null ? '<i class="fa-solid fa-user"></i>' : '<img src="' + avatarUrl(room.hostAvatarId) + '" alt="Avatar chủ phòng">') + '</span><span class="room-host-name"><i class="fa-solid fa-crown"></i> ' + escapeRoomText(room.hostName) + '</span></div><div class="room-code">' + escapeRoomText(room.code) + '</div></div>' +
       '<div class="room-list-meta">' +
         '<span class="room-chip ' + info.status + '"><i class="fa-solid ' + info.icon + '"></i>&nbsp; ' + info.label + '</span>' +
         '<span class="room-chip"><i class="fa-solid fa-users"></i>&nbsp; ' + room.playerCount + '/2</span>' +
@@ -1054,14 +1382,44 @@ function renderOpenRooms(){
 async function deleteCloudRoom(code, silent = true){
   const normalized = normalizeRoomCode(code);
   if(!normalized) return false;
-  try{
-    const response = await fetch(getRoomCloudUrl(normalized), {method:'DELETE',cache:'no-store',keepalive:true,headers:{'Accept':'application/json'}});
-    if(!response.ok && response.status !== 404) throw new Error('HTTP ' + response.status);
-    return true;
-  }catch(_){
-    if(!silent) showToast('Không thể xóa phòng khỏi danh sách online.','warn');
-    return false;
+  // Giai tan phong hien tai: doi cac POST cu, sau do xoa.
+  // Don phong het han: dung hang doi R I E N G, tranh chen hang Tao phong.
+  const task = async () => {
+    try{
+      const response = await fetch(getRoomCloudUrl(normalized), {
+        method:'DELETE',cache:'no-store',keepalive:true,headers:{'Accept':'application/json'}
+      });
+      if(!response.ok && response.status !== 404) throw new Error('HTTP ' + response.status);
+      return true;
+    }catch(error){
+      console.warn('[Caro] Khong xoa duoc phong',normalized,error);
+      if(!silent) showToast('Không thể xóa phòng khỏi danh sách online.','warn');
+      return false;
+    }
+  };
+  if(normalized === currentOnlineRoomCode && onlineRole === 'host'){
+    roomWriteChain = roomWriteChain.catch(() => false).then(task);
+    return roomWriteChain;
   }
+  roomMaintenanceChain = roomMaintenanceChain.catch(() => false).then(task);
+  return roomMaintenanceChain;
+}
+
+// Don cac message relay da dong de tranh cham tran gioi han 100 ban ghi.
+// Chi goi sau khi nguoi choi da duoc thong bao roi phong.
+async function cleanupCloudRelayRecords(code){
+  const normalized = normalizeRoomCode(code);
+  if(!normalized) return;
+  await Promise.all(['host','guest'].map(async role => {
+    const url = getCloudRelayUrl(normalized,role);
+    const queuedWrite = cloudRelaySharedWrites.get(url);
+    if(queuedWrite) await queuedWrite.catch(() => null);
+    try{
+      await fetch(url,{method:'DELETE',cache:'no-store',keepalive:true,headers:{'Accept':'application/json'}});
+    }catch(error){
+      console.warn('[Caro] Khong the don relay:',role,normalized,error);
+    }
+  }));
 }
 
 async function upsertCloudRoom(room){
@@ -1072,11 +1430,16 @@ async function upsertCloudRoom(room){
     .catch(() => false)
     .then(async () => {
       try{
-        await fetchJsonResponse(getRoomCloudUrl(cleanRoom.code), {method:'POST',body:JSON.stringify(payload)});
+        const result = await fetchJsonResponse(getRoomCloudUrl(cleanRoom.code), {method:'POST',body:JSON.stringify(payload)});
+        if(!result || typeof result !== 'object') throw new Error('Máy chủ không xác nhận đã lưu phòng');
         roomCloudAvailable = true;
+        roomDirectoryLastError = '';
         return true;
-      }catch(_){
+      }catch(error){
         roomCloudAvailable = false;
+        roomDirectoryLastError = readableRoomError(error);
+        console.warn('[Caro] Khong dang duoc phong len danh sach:',roomDirectoryLastError);
+        renderOpenRooms();
         return false;
       }
     });
@@ -1084,10 +1447,12 @@ async function upsertCloudRoom(room){
 }
 
 async function requestGlobalRooms(manual = false){
-  if(roomListRequestController) roomListRequestController.abort();
+  // Mot request moi khong huy request cu: tranh man hinh trong khi 2 tab
+  // cung kich hoat viec doc danh sach qua thu tuc khoi dong/lam moi.
+  if(roomListRequestController) return false;
   const controller = new AbortController();
   roomListRequestController = controller;
-  const timeout = setTimeout(() => controller.abort(),7000);
+  const timeout = setTimeout(() => controller.abort(),9000);
   try{
     const listPayload = await fetchJsonResponse(getRoomCloudListUrl() + '?t=' + Date.now(), {signal:controller.signal});
     const roomCodes = extractRoomPaths(listPayload);
@@ -1102,14 +1467,22 @@ async function requestGlobalRooms(manual = false){
       if(now - room.lastSeen >= ROOM_TTL_MS) staleCodes.push(roomCodes[index]);
       else activeRooms.push(room);
     });
-    applyGlobalRoomList(activeRooms);
     roomCloudAvailable = true;
-    staleCodes.forEach(code => void deleteCloudRoom(code,true));
+    roomDirectoryLastError = '';
+    applyGlobalRoomList(activeRooms);
+    staleCodes.filter(code => code !== currentOnlineRoomCode).forEach(code => void deleteCloudRoom(code,true).then(deleted => {
+      if(deleted) setTimeout(() => void cleanupCloudRelayRecords(code),4500);
+    }));
     if(manual) showToast(activeRooms.length ? 'Đã tải ' + activeRooms.length + ' phòng đang hoạt động.' : 'Chưa có phòng nào đang hoạt động.','info');
     return true;
   }catch(error){
-    if(error?.name !== 'AbortError') roomCloudAvailable = false;
-    if(manual) showToast('Không thể tải danh sách phòng. Hãy kiểm tra Internet.','warn');
+    if(error?.name !== 'AbortError'){
+      roomCloudAvailable = false;
+      roomDirectoryLastError = String(error && error.message || error);
+      console.warn('[Caro] Loi lay danh sach phong:',roomDirectoryLastError);
+      renderOpenRooms();
+    }
+    if(manual) showToast('Không tải được danh sách phòng từ máy chủ. Kiểm tra Internet và thử lại.','warn');
     return false;
   }finally{
     clearTimeout(timeout);
@@ -1120,15 +1493,26 @@ async function requestGlobalRooms(manual = false){
 async function refreshOpenRooms(manual = false){
   const button = $('roomRefreshBtn');
   if(button){ button.disabled = true; button.classList.add('refreshing'); }
-  if(onlineRole === 'host' && currentOnlineRoomCode) await publishCurrentRoom();
-  await requestGlobalRooms(manual);
-  if(button){ button.disabled = false; setTimeout(() => button.classList.remove('refreshing'),250); }
+  try{
+    if(onlineRole === 'host' && currentOnlineRoomCode) await publishCurrentRoom();
+    await requestGlobalRooms(manual);
+  }finally{
+    if(button){ button.disabled = false; setTimeout(() => button.classList.remove('refreshing'),250); }
+  }
+}
+
+function roomBrowserVisible(){
+  const setup = $('setupModal');
+  return Boolean(setup && setup.classList.contains('show') && gameMode === 'online' && wizardStep === 2);
 }
 
 function initRoomDirectory(){
   clearInterval(roomListPollTimer);
-  roomListPollTimer = setInterval(() => void requestGlobalRooms(false),ROOM_LIST_POLL_MS);
-  void requestGlobalRooms(false);
+  // Khong quet danh sach phong khi dang danh co hoac choi voi may/offline.
+  roomListPollTimer = setInterval(() => {
+    if(roomBrowserVisible() && !document.hidden) void requestGlobalRooms(false);
+  },ROOM_LIST_POLL_MS);
+  if(roomBrowserVisible()) void requestGlobalRooms(false);
 }
 
 function stopRoomDirectory(){
@@ -1138,11 +1522,12 @@ function stopRoomDirectory(){
 }
 
 async function publishCurrentRoom(extraData = null){
-  if(onlineRole !== 'host' || !currentOnlineRoomCode) return false;
+  if(onlineRole !== 'host' || !currentOnlineRoomCode || roomDissolvingCode === currentOnlineRoomCode) return false;
   const previous = globalOpenRooms.find(room => room.code === currentOnlineRoomCode);
   const room = Object.assign({
     code:currentOnlineRoomCode,
     hostName:p1Name || $('name1Input').value.trim() || 'Người chơi',
+    hostAvatarId:p1AvatarId,
     winLength,
     turnTime,
     playerCount:currentRoomPlayerCount,
@@ -1152,16 +1537,19 @@ async function publishCurrentRoom(extraData = null){
     gameSnapshot:latestGameSnapshot
   }, extraData || {});
   if(room.gameSnapshot) latestGameSnapshot = room.gameSnapshot;
-  globalOpenRooms = [room,...globalOpenRooms.filter(item => item.code !== room.code)];
-  renderOpenRooms();
-  return upsertCloudRoom(room);
+  const saved = await upsertCloudRoom(room);
+  if(saved && onlineRole === 'host' && currentOnlineRoomCode === room.code){
+    globalOpenRooms = [room,...globalOpenRooms.filter(item => item.code !== room.code)];
+    renderOpenRooms();
+  }
+  return saved;
 }
 
 function buildCurrentStateSignature(){
   return JSON.stringify({
     currentPiece,
     active:Boolean(active),
-    p1Name,p2Name,p1Piece,p2Piece,
+    p1Name,p2Name,p1Piece,p2Piece,p1AvatarId,p2AvatarId,
     scores,wins,
     moves,
     winLength,
@@ -1180,6 +1568,8 @@ function buildRoomSnapshot(){
     p2Name,
     p1Piece,
     p2Piece,
+    p1AvatarId,
+    p2AvatarId,
     scores:{p1:Number((scores || {}).p1) || 0, p2:Number((scores || {}).p2) || 0},
     wins:{p1:Number((wins || {}).p1) || 0, p2:Number((wins || {}).p2) || 0},
     winLength,
@@ -1196,6 +1586,8 @@ function buildRoomSnapshot(){
 
 async function publishOnlineSnapshot(){
   if(gameMode !== 'online' || onlineRole !== 'host' || !currentOnlineRoomCode) return false;
+  clearTimeout(roomStatusPublishTimer);
+  roomStatusPublishTimer = null;
   roomSnapshotVersion = Math.max(Date.now(), roomSnapshotVersion + 1);
   latestGameSnapshot = buildRoomSnapshot();
   return publishCurrentRoom({gameSnapshot:latestGameSnapshot});
@@ -1219,10 +1611,13 @@ function setLastMoveCell(cell){
 
 function animatePlacedCell(cell){
   if(!cell) return;
+  // Khong ep trinh duyet tinh lai layout (offsetWidth) khi danh moi 1 o.
   cell.classList.remove('piece-enter');
-  void cell.offsetWidth;
-  cell.classList.add('piece-enter');
-  setTimeout(() => cell.classList.remove('piece-enter'),150);
+  requestAnimationFrame(() => {
+    if(!cell.isConnected) return;
+    cell.classList.add('piece-enter');
+    setTimeout(() => cell.classList.remove('piece-enter'),165);
+  });
 }
 
 function renderSnapshotMove(move, isLast, animate = false){
@@ -1264,8 +1659,17 @@ function applyRoomSnapshot(snapshot){
 
   p1Name = cleanRoomName(snapshot.p1Name) || p1Name || 'Chủ phòng';
   p2Name = cleanRoomName(snapshot.p2Name) || p2Name || 'Người tham gia';
+  const snapshotHostAvatar = normalizeAvatarId(snapshot.p1AvatarId);
+  if(snapshotHostAvatar !== null) p1AvatarId = snapshotHostAvatar;
+  // Guest avatar is owned by this browser. A stale snapshot cannot replace it.
+  if(onlineRole !== 'guest'){
+    const snapshotGuestAvatar = normalizeAvatarId(snapshot.p2AvatarId);
+    if(snapshotGuestAvatar !== null) p2AvatarId = snapshotGuestAvatar;
+  }
   p1Piece = snapshot.p1Piece === 'O' ? 'O' : 'X';
   p2Piece = snapshot.p2Piece === 'X' ? 'X' : 'O';
+  // Co the mat goi init qua relay; guest van duoc quyen danh dung quan minh.
+  if(onlineRole === 'guest') myOnlinePiece = p2Piece;
   currentPiece = snapshot.currentPiece === 'O' ? 'O' : 'X';
   winLength = [3,4,5,6].includes(Number(snapshot.winLength)) ? Number(snapshot.winLength) : winLength;
   turnTime = [20,60].includes(Number(snapshot.turnTime)) ? Number(snapshot.turnTime) : turnTime;
@@ -1307,7 +1711,15 @@ async function pollRoomState(){
   roomStateSyncBusy = true;
   try{
     const rawRoom = await fetchJsonResponse(getRoomCloudUrl(currentOnlineRoomCode) + '?t=' + Date.now());
-    if(rawRoom && rawRoom.gameSnapshot) applyRoomSnapshot(rawRoom.gameSnapshot);
+    if(!rawRoom){
+      roomMissingPolls += 1;
+      if(roomMissingPolls >= 2 && onlineRole === 'guest' && currentOnlineRoomCode){
+        handleOnlineData({type:'room_dissolved',code:currentOnlineRoomCode});
+      }
+    }else{
+      roomMissingPolls = 0;
+      if(rawRoom.gameSnapshot) applyRoomSnapshot(rawRoom.gameSnapshot);
+    }
   }catch(_){
   }finally{
     roomStateSyncBusy = false;
@@ -1334,16 +1746,29 @@ function stopRoomStateSync(){
 }
 
 function setCurrentRoomState(status, playerCount){
-  currentRoomStatus = ['waiting','full','playing'].includes(status) ? status : 'waiting';
-  currentRoomPlayerCount = Math.min(Math.max(Number(playerCount) || 1,1),2);
-  if(onlineRole === 'host' && currentOnlineRoomCode) void publishCurrentRoom();
+  const nextStatus = ['waiting','full','playing'].includes(status) ? status : 'waiting';
+  const nextCount = Math.min(Math.max(Number(playerCount) || 1,1),2);
+  if(nextStatus === currentRoomStatus && nextCount === currentRoomPlayerCount) return;
+  currentRoomStatus = nextStatus;
+  currentRoomPlayerCount = nextCount;
+  if(onlineRole === 'host' && currentOnlineRoomCode){
+    clearTimeout(roomStatusPublishTimer);
+    roomStatusPublishTimer = setTimeout(() => {
+      roomStatusPublishTimer = null;
+      if(onlineRole === 'host' && currentOnlineRoomCode) void publishCurrentRoom();
+    },110);
+  }
 }
 
 async function startRoomHeartbeat(){
   stopRoomHeartbeat();
+  const roomCode = currentOnlineRoomCode;
   const published = await publishCurrentRoom();
-  roomHeartbeatTimer = setInterval(() => void publishCurrentRoom(),10000);
-  return published;
+  if(!published || onlineRole !== 'host' || currentOnlineRoomCode !== roomCode) return false;
+  roomHeartbeatTimer = setInterval(() => {
+    if(onlineRole === 'host' && currentOnlineRoomCode === roomCode) void publishCurrentRoom();
+  },10000);
+  return true;
 }
 
 function stopRoomHeartbeat(){
@@ -1429,6 +1854,7 @@ function setupSourceProtection(){
 }
 
 function buildBoard(){
+  aiMoveToken++;
   board = Array.from({length:SIZE}, ()=> Array(SIZE).fill(null));
   moves = [];
   lastMoveCell = null;
@@ -1576,6 +2002,8 @@ function startMatch(){
 
   winLength = +$('winLengthSelect').value;
   turnTime = +$('turnTimeSelect').value;
+  p1AvatarId = randomAvatarId();
+  p2AvatarId = randomAvatarId(p1AvatarId);
   applyPlayerUI();
 
   if(gameMode === 'computer'){
@@ -1597,8 +2025,8 @@ function startMatch(){
 function applyPlayerUI(){
   $('p1Name').textContent = p1Name;
   $('p2Name').textContent = p2Name;
-  $('p1Avatar').textContent = p1Piece;
-  $('p2Avatar').textContent = p2Piece;
+  setAvatar($('p1Avatar'),p1AvatarId,p1Name);
+  setAvatar($('p2Avatar'),p2AvatarId,p2Name);
   $('p1PieceBadge').textContent = p1Piece;
   $('p2PieceBadge').textContent = p2Piece;
   $('player1Card').className = 'player-card ' + p1Piece.toLowerCase();
@@ -1608,6 +2036,28 @@ function applyPlayerUI(){
 }
 
 async function startOnlineMatch(){
+  if(onlineStartPending) return;
+  onlineStartPending = true;
+  const mainButton = $('startMatchBtn');
+  if(mainButton){ mainButton.disabled = true; mainButton.dataset.pending = '1'; }
+  try{
+  await startOnlineMatchImpl();
+  }catch(error){
+    console.error('[Caro] Loi Tao/Tham gia phong:',error);
+    showCreateRoomFailure(readableRoomError(error));
+    if(onlineRole && currentOnlineRoomCode){
+      closeExistingPeer(false);
+      onlineRole = null;
+      myOnlinePiece = null;
+    }
+    returnToOnlineSetup('', $('roomType').value);
+  }finally{
+    onlineStartPending = false;
+    if(mainButton){ mainButton.disabled = false; delete mainButton.dataset.pending; }
+  }
+}
+
+async function startOnlineMatchImpl(){
   const code = normalizeRoomCode($('roomType').value === 'create' ? $('roomCodeInput').value : $('joinRoomCodeInput').value);
   if(!code){
     showToast('Vui lòng nhập hoặc chọn mã phòng.','warn');
@@ -1615,6 +2065,19 @@ async function startOnlineMatch(){
   }
 
   const requestedRole = $('roomType').value === 'create' ? 'host' : 'guest';
+  let selectedDirectoryRoom = null;
+  if(requestedRole === 'host'){
+    try{
+      const existing = sanitizeDirectoryRoom(await fetchJsonResponse(getRoomCloudUrl(code) + '?t=' + Date.now()));
+      if(existing && Date.now() - existing.lastSeen < ROOM_TTL_MS){
+        showToast('Mã phòng ' + code + ' đang được sử dụng. Hãy bấm tạo mã phòng khác.','warn');
+        return;
+      }
+    }catch(error){
+      // Khong huy Tao phong chi vi loi GET; thu POST, hien ro loi neu may chu tu choi.
+      console.warn('[Caro] Khong kiem tra duoc ma phong, van thu dang:',error);
+    }
+  }
   if(requestedRole === 'guest'){
     const startButton = $('startMatchBtn');
     const originalButtonHtml = startButton ? startButton.innerHTML : '';
@@ -1630,7 +2093,12 @@ async function startOnlineMatch(){
       }catch(_){
         directoryRoom = getActiveRooms().find(item => item.code === code) || null;
       }
+      if(!directoryRoom || Date.now() - directoryRoom.lastSeen >= ROOM_TTL_MS){
+        showToast('Không tìm thấy phòng ' + code + ' hoặc chủ phòng đã thoát.','warn');
+        return;
+      }
       if(directoryRoom){
+        selectedDirectoryRoom = directoryRoom;
         const roomInfo = getRoomStatusInfo(directoryRoom);
         if(roomInfo.status === 'playing'){
           const blockedMessage = 'Phòng ' + code + ' đã bắt đầu trận. Bạn không thể vào lúc này.';
@@ -1663,10 +2131,15 @@ async function startOnlineMatch(){
   currentOnlineRoomCode = code;
   roomSnapshotVersion = 0;
   lastAppliedSnapshotVersion = 0;
+  roomMissingPolls = 0;
   latestGameSnapshot = null;
   currentRoomStatus = 'waiting';
   currentRoomPlayerCount = 1;
   cloudRelayJoinFallbackStarted = false;
+  guestInitReceived = false;
+  guestHandshakeId = createChatId();
+  hostHandshakeId = '';
+  stopGuestHelloRetry();
   updateOnlineActionButtons();
   resetOnlineChat();
   if(onlineRole === 'host') $('roomCodeInput').value = code;
@@ -1689,9 +2162,13 @@ async function startOnlineMatch(){
     p2Name = 'Đang chờ người chơi...';
     p2Piece = p1Piece === 'X' ? 'O' : 'X';
     myOnlinePiece = p1Piece;
+    p1AvatarId = randomAvatarId();
+    p2AvatarId = null; // Waiting for guest's real avatar ID.
   }else{
     p1Name = 'Chủ phòng';
     p2Name = localName;
+    p1AvatarId = selectedDirectoryRoom ? selectedDirectoryRoom.hostAvatarId : null;
+    p2AvatarId = randomAvatarId(p1AvatarId);
     myOnlinePiece = null;
   }
 
@@ -1705,22 +2182,58 @@ async function startOnlineMatch(){
 
   const hostPeerId = 'caro-arena-' + code.toLowerCase();
   if(onlineRole === 'host'){
+    // Tao phong len may chu NGAY, khong cho PeerJS/CDN ket noi xong moi dang.
+    let published = false;
+    let confirmed = false;
+    for(let attempt=0; attempt<2 && !confirmed; attempt++){
+      if(onlineRole !== 'host' || currentOnlineRoomCode !== code) return;
+      published = await startRoomHeartbeat();
+      if(!published){
+        if(attempt === 0) await new Promise(resolve => setTimeout(resolve,650));
+        continue;
+      }
+      try{
+        // Doc lai de khang dinh phong THUC SU ton tai tren may chu chia se.
+        const saved = sanitizeDirectoryRoom(await fetchJsonResponse(getRoomCloudUrl(code) + '?t=' + Date.now()));
+        confirmed = Boolean(saved && saved.code === code && Date.now() - saved.lastSeen < ROOM_TTL_MS);
+        if(!confirmed) roomDirectoryLastError = 'Máy chủ chưa trả lại phòng vừa tạo';
+      }catch(error){ roomDirectoryLastError = readableRoomError(error); }
+      if(!confirmed && attempt === 0) await new Promise(resolve => setTimeout(resolve,650));
+    }
+    if(onlineRole !== 'host' || currentOnlineRoomCode !== code) return;
+    if(!confirmed){
+      const errorText = roomDirectoryLastError || 'Máy chủ không xác nhận đã tạo phòng';
+      stopRoomHeartbeat();
+      if(published) await removePublishedRoom(code);
+      closeExistingPeer(false);
+      onlineRole = null;
+      myOnlinePiece = null;
+      globalOpenRooms = globalOpenRooms.filter(room => room.code !== code);
+      renderOpenRooms();
+      returnToOnlineSetup('', 'create');
+      showCreateRoomFailure(errorText);
+      return;
+    }
+    $('onlineRoomHelp').textContent = '';
+    $('networkStatus').textContent = 'Phòng đã đăng • Đang chờ người chơi';
+    message.textContent = 'Phòng ' + code + ' đã đăng lên danh sách. Đang chờ người chơi thứ hai.';
+    void requestGlobalRooms(false);
     ensureCloudHostRelay();
     const peerLoaded = await ensurePeerJsLoaded();
+    if(onlineRole !== 'host' || currentOnlineRoomCode !== code) return;
     if(!peerLoaded){
-      const published = await startRoomHeartbeat();
-      $('networkStatus').textContent = published ? 'Phòng đã tạo • Chế độ tương thích' : 'Phòng đã tạo • Chưa đăng được danh sách';
-      message.textContent = 'Phòng ' + code + ' đang dùng chế độ tương thích giữa các trình duyệt. Đang chờ người chơi.';
+      $('networkStatus').textContent = 'Phòng đã đăng • Chế độ tương thích';
+      message.textContent = 'Phòng ' + code + ' đã có trong danh sách, đang chờ người chơi bằng kết nối tương thích.';
       return;
     }
     try{
       peer = createConfiguredPeer(hostPeerId);
-      peer.on('open', async () => {
-        const published = await startRoomHeartbeat();
-        $('networkStatus').textContent = published ? 'Phòng đã tạo • Đang chờ người chơi' : 'Phòng đã tạo • Chế độ tương thích';
-        message.textContent = published
-          ? 'Phòng ' + code + ' đã xuất hiện trong danh sách. Đang chờ người chơi thứ hai.'
-          : 'Phòng ' + code + ' đang hoạt động bằng chế độ tương thích.';
+      peer.on('open', () => {
+        if(onlineRole !== 'host' || currentOnlineRoomCode !== code) return;
+        if(!onlineConnected){
+          $('networkStatus').textContent = 'Phòng đã đăng • Đang chờ người chơi';
+          message.textContent = 'Phòng ' + code + ' đã có trong danh sách. Đang chờ người chơi thứ hai.';
+        }
         void requestGlobalRooms(false);
       });
       peer.on('connection', conn => {
@@ -1744,12 +2257,19 @@ async function startOnlineMatch(){
     }catch(_){
       peer = null;
       ensureCloudHostRelay();
-      await startRoomHeartbeat();
-      $('networkStatus').textContent = 'Phòng đã tạo • Chế độ tương thích';
-      message.textContent = 'Kết nối trực tiếp không khả dụng. Phòng vẫn hoạt động trên các trình duyệt bằng chế độ tương thích.';
+      $('networkStatus').textContent = 'Phòng đã đăng • Chế độ tương thích';
+      message.textContent = 'Kết nối trực tiếp không khả dụng. Phòng vẫn có trong danh sách và dùng chế độ tương thích.';
     }
   }else{
+    // Khong cho guest doi cac CDN PeerJS qua lau khi mang cham.
+    const quickFallback = setTimeout(() => {
+      if(onlineRole === 'guest' && currentOnlineRoomCode === code && !onlineConnected && !cloudRelayJoinFallbackStarted){
+        startCloudGuestJoin(code,'Kết nối trực tiếp chậm, đang vào phòng bằng chế độ tương thích...');
+      }
+    },4500);
     const peerLoaded = await ensurePeerJsLoaded();
+    clearTimeout(quickFallback);
+    if(onlineRole !== 'guest' || currentOnlineRoomCode !== code || cloudRelayJoinFallbackStarted) return;
     if(!peerLoaded){
       startCloudGuestJoin(code,'Không tải được kết nối trực tiếp. Đang dùng chế độ tương thích trình duyệt...');
       return;
@@ -1760,7 +2280,7 @@ async function startOnlineMatch(){
         if(!onlineConnected && !cloudRelayJoinFallbackStarted){
           startCloudGuestJoin(code,'Kết nối trực tiếp chậm. Đang chuyển sang chế độ tương thích trình duyệt...');
         }
-      },7000);
+      },4500);
       peer.on('open', () => {
         if(cloudRelayJoinFallbackStarted) return;
         $('networkStatus').textContent = 'Đang mở phòng ' + code;
@@ -1879,17 +2399,29 @@ async function dissolveOnlineRoom(){
   if(connection && connection.open){
     try{ connection.send({type:'room_dissolved', code:roomCode}); }catch(_){ }
   }
-  await removePublishedRoom(roomCode);
   intentionalOnlineExit = 'host-dissolved';
+  roomDissolvingCode = roomCode;
+  stopRoomHeartbeat(); // Chan ca heartbeat va callback ket noi dang doi.
+  await removePublishedRoom(roomCode);
   closeExistingPeer(false);
+  roomDissolvingCode = '';
   onlineRole = null;
   myOnlinePiece = null;
+  // Cho nguoi choi con lai nhan thong bao giai tan truoc khi xoa relay.
+  setTimeout(() => void cleanupCloudRelayRecords(roomCode),4500);
   generateRoomCode();
   $('networkStatus').textContent = 'Phòng đã được giải tán';
   message.textContent = 'Chủ phòng đã giải tán phòng ' + roomCode + '.';
   returnToOnlineSetup('Đã giải tán phòng ' + roomCode + '.','create');
 }
 function closeExistingPeer(removeRoom = true){
+  stopGuestHelloRetry();
+  guestInitReceived = false;
+  guestHandshakeId = '';
+  hostHandshakeId = '';
+  clearTimeout(roomStatusPublishTimer);
+  roomStatusPublishTimer = null;
+  aiMoveToken++;
   const oldCode = currentOnlineRoomCode;
   const wasHost = onlineRole === 'host';
   stopRoomHeartbeat();
@@ -1902,16 +2434,43 @@ function closeExistingPeer(removeRoom = true){
   connection = null;
   peer = null;
   onlineConnected = false;
-  if(removeRoom && wasHost && oldCode) void removePublishedRoom(oldCode);
+  if(removeRoom && wasHost && oldCode){
+    void removePublishedRoom(oldCode).then(deleted => {
+      if(deleted) setTimeout(() => void cleanupCloudRelayRecords(oldCode),4500);
+    });
+  }
   currentOnlineRoomCode = '';
   resetOnlineChat();
   roomSnapshotVersion = 0;
   lastAppliedSnapshotVersion = 0;
+  roomMissingPolls = 0;
   latestGameSnapshot = null;
   boardRevision = 0;
   lastAppliedBoardRevision = 0;
   lastMoveCell = null;
   updateOnlineActionButtons();
+}
+
+function stopGuestHelloRetry(){
+  clearInterval(guestHelloRetryTimer);
+  guestHelloRetryTimer = null;
+}
+
+function sendGuestHello(){
+  if(onlineRole !== 'guest' || !onlineConnected || !connection || !connection.open) return;
+  sendOnline({type:'hello',name:$('name1Input').value.trim(),avatarId:p2AvatarId,guestSessionId:guestHandshakeId});
+}
+
+function startGuestHelloRetry(){
+  stopGuestHelloRetry();
+  sendGuestHello();
+  guestHelloRetryTimer = setInterval(() => {
+    if(guestInitReceived || onlineRole !== 'guest' || !onlineConnected){
+      stopGuestHelloRetry();
+      return;
+    }
+    sendGuestHello();
+  },1700);
 }
 
 function setupOnlineConnection(conn){
@@ -1936,7 +2495,7 @@ function setupOnlineConnection(conn){
     if(onlineRole === 'guest'){
       if(isCloudTransport()) startRoomStateSync(true);
       else { stopRoomStateSync(); void pollRoomState(); }
-      sendOnline({type:'hello',name:$('name1Input').value.trim()});
+      startGuestHelloRetry();
     }
   });
 
@@ -1956,7 +2515,10 @@ function setupOnlineConnection(conn){
     if(onlineRole === 'host' && currentOnlineRoomCode){
       resetOnlineChat(); // Xoa chat cua khach cu truoc khi cho khach moi.
       p2Name = 'Đang chờ người chơi...';
+      p2AvatarId = null;
+      hostHandshakeId = '';
       applyPlayerUI();
+      void publishOnlineSnapshot();
       setCurrentRoomState('waiting',1);
       void startRoomHeartbeat();
       ensureCloudHostRelay();
@@ -1994,21 +2556,40 @@ function handleOnlineData(data){
     return;
   }
   if(data.type === 'hello' && onlineRole === 'host'){
-    p2Name = data.name || 'Người tham gia';
+    const nextGuestId = String(data.guestSessionId || ((data.name || '') + ':' + (data.avatarId ?? ''))).slice(0,120);
+    const newParticipant = nextGuestId !== hostHandshakeId;
+    // Cung nguoi choi gui hello lai khi mang yeu: chi gui lai init, KHONG reset tran.
+    if(newParticipant && hostHandshakeId && currentRoomPlayerCount >= 2){
+      sendOnline({type:'join_rejected',reason:currentRoomStatus === 'playing' ? 'playing' : 'full',code:currentOnlineRoomCode});
+      return;
+    }
+    hostHandshakeId = nextGuestId;
+    p2Name = cleanRoomName(data.name) || 'Người tham gia';
+    p2AvatarId = normalizeAvatarId(data.avatarId);
     applyPlayerUI();
-    sendOnline({type:'init', hostName:p1Name, guestName:p2Name, hostPiece:p1Piece, guestPiece:p2Piece, winLength, turnTime});
+    sendOnline({type:'init', hostName:p1Name, guestName:p2Name, hostPiece:p1Piece, guestPiece:p2Piece, hostAvatarId:p1AvatarId, guestAvatarId:p2AvatarId, winLength, turnTime});
     sendOnline({type:'chat_history', messages:chatMessages.filter(item => item.role === 'host').slice(-MAX_CHAT_MESSAGES)});
     $('networkStatus').textContent = 'Đã kết nối cùng phòng';
-    scores = {p1:0,p2:0}; wins = {p1:0,p2:0}; updateScores();
-    resetRound(false);
+    if(newParticipant){
+      scores = {p1:0,p2:0}; wins = {p1:0,p2:0}; updateScores();
+      resetRound(false);
+    }
   }else if(data.type === 'init' && onlineRole === 'guest'){
-    p1Name = data.hostName; p2Name = data.guestName;
+    const wasInitReceived = guestInitReceived;
+    const alreadySynced = lastAppliedSnapshotVersion > 0 || active || moves.length > 0;
+    guestInitReceived = true;
+    stopGuestHelloRetry();
+    p1Name = cleanRoomName(data.hostName) || 'Chủ phòng'; p2Name = cleanRoomName(data.guestName) || p2Name;
     p1Piece = data.hostPiece; p2Piece = data.guestPiece;
+    p1AvatarId = normalizeAvatarId(data.hostAvatarId) ?? p1AvatarId;
+    if(p2AvatarId === null) p2AvatarId = normalizeAvatarId(data.guestAvatarId);
     winLength = data.winLength; turnTime = data.turnTime;
     myOnlinePiece = p2Piece;
     applyPlayerUI();
-    scores = {p1:0,p2:0}; wins = {p1:0,p2:0}; updateScores();
-    resetRound(true);
+    if(!wasInitReceived && !alreadySynced){
+      scores = {p1:0,p2:0}; wins = {p1:0,p2:0}; updateScores();
+      resetRound(true);
+    }
   }else if(data.type === 'move'){
     applyRemoteMove(data);
   }else if(data.type === 'reset'){
@@ -2019,19 +2600,24 @@ function handleOnlineData(data){
     startTurnFlow();
     if(onlineRole === 'host') void publishOnlineSnapshot();
   }else if(data.type === 'participant_left' && onlineRole === 'host'){
+    hostHandshakeId = '';
     resetOnlineChat();
     onlineConnected = false;
     updateOnlineChatUI();
     active = false;
     stopTimer();
     p2Name = 'Đang chờ người chơi...';
+    p2AvatarId = null;
     applyPlayerUI();
     setCurrentRoomState('waiting',1);
+    void publishOnlineSnapshot();
     void startRoomHeartbeat();
     $('networkStatus').textContent = 'Phòng đang mở lại';
     message.textContent = (data.name || 'Người tham gia') + ' đã rời trận. Phòng đang chờ người chơi mới.';
     try{ if(connection) connection.close(); }catch(_){ }
     connection = null;
+    // Nguoi cu da roi: tao cloud host relay moi de nguoi tiep theo van vao duoc.
+    ensureCloudHostRelay();
     updateOnlineActionButtons();
   }else if(data.type === 'join_rejected' && onlineRole === 'guest'){
     const roomCode = currentOnlineRoomCode || data.code || '';
@@ -2098,7 +2684,7 @@ function resetRound(fromNetwork = false){
   if(gameMode === 'computer' && currentPiece === p2Piece){
     message.textContent = p2Name + ' đi trước vì đang cầm quân X.';
     showAITimer();
-    setTimeout(computerMove, 500);
+    scheduleComputerMove(500);
   } else {
     message.textContent = 'Trận đấu bắt đầu! Quân X đi trước.';
     startTurnFlow();
@@ -2110,7 +2696,7 @@ function startTurnFlow(){
   updateTurn();
   if(gameMode === 'computer' && currentPiece === p2Piece){
     showAITimer();
-    setTimeout(computerMove, 450);
+    scheduleComputerMove(450);
   } else {
     startTimer();
   }
@@ -2250,7 +2836,7 @@ function startTimer(){
       renderTimer();
     }
     if(timeLeft <= 0) handleTimeout();
-  },200);
+  },250);
 }
 
 function showAITimer(){
@@ -2310,6 +2896,11 @@ function rebuildFromMoves(){
     cell.textContent = m.piece;
     if(idx === moves.length - 1) setLastMoveCell(cell);
   });
+}
+
+function scheduleComputerMove(delay){
+  const token = ++aiMoveToken;
+  setTimeout(() => { if(token === aiMoveToken) computerMove(); },delay);
 }
 
 function computerMove(){
@@ -2462,14 +3053,30 @@ $('roomType').addEventListener('change', ()=>{
 setupSourceProtection();
 initRoomDirectory();
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible' && gameMode === 'online' && onlineRole === 'guest' && currentOnlineRoomCode){
-    void pollRoomState();
+  if(document.visibilityState === 'visible'){
+    if(gameMode === 'online' && onlineRole === 'guest' && currentOnlineRoomCode) void pollRoomState();
+    if(roomBrowserVisible()) void requestGlobalRooms(false);
+    if(cloudRelaySession && !cloudRelaySession.polling){
+      clearTimeout(cloudRelaySession.pollTimer);
+      cloudRelaySession.pollTimer = null;
+      void pollCloudRelay(cloudRelaySession);
+    }
   }
 });
 window.addEventListener('pageshow', () => {
   if(gameMode === 'online' && onlineRole === 'guest' && currentOnlineRoomCode) void pollRoomState();
 });
 
+window.addEventListener('pagehide', () => {
+  // Browser may cancel outgoing requests when closing a tab; server TTL is fallback.
+  if(onlineRole === 'host' && currentOnlineRoomCode){
+    try{
+      void fetch(getRoomCloudUrl(currentOnlineRoomCode),{
+        method:'DELETE',cache:'no-store',keepalive:true,headers:{'Accept':'application/json'}
+      });
+    }catch(_){ }
+  }
+});
 window.addEventListener('beforeunload', () => {
   stopRoomHeartbeat();
   stopCloudRelay(true,false);
@@ -2477,6 +3084,7 @@ window.addEventListener('beforeunload', () => {
 });
 buildBoard();
 selectMode('computer', document.querySelector('[data-mode="computer"]'));
+applyPlayerUI();
 updatePiecePreview();
 updateOnlineActionButtons();
 updateOnlineChatUI();
