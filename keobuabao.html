@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#070b19">
     <meta name="color-scheme" content="dark">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -377,17 +377,24 @@
             font-weight: 900;
         }
         .room-browser-refresh {
-            width: 38px;
-            height: 38px;
-            flex: 0 0 38px;
-            border-radius: 0.8rem;
+            min-width: 112px;
+            height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.11);
             background: rgba(255,255,255,0.07);
             color: white;
-            font-size: 1.15rem;
+            font-size: 0.95rem;
+            font-weight: 800;
             cursor: pointer;
+            white-space: nowrap;
         }
-        .room-browser-refresh.refreshing {
+        .room-refresh-icon{font-size:1.08rem;line-height:1;display:inline-block}
+        .room-browser-refresh.refreshing .room-refresh-icon {
             animation: roomRefreshSpin 0.55s linear;
         }
         @keyframes roomRefreshSpin {
@@ -1000,10 +1007,12 @@
 .round-info {color:#f1f5f9;font-size:clamp(16px,2.7vw,20px);font-weight:850;line-height:1.5;}
 .vote-status {color:#a5bad0;font-size:13px;}
 .round-reveal {display:flex; flex-wrap:wrap;justify-content:center;gap:8px;max-width:100%; }
+.round-reveal {display:flex; flex-wrap:wrap;justify-content:center;gap:8px;max-width:100%; align-items:center;}
 .reveal-pill {display:flex;align-items:center;gap:6px;border-radius:12px;padding:7px 9px;background:#1b344c;border:1px solid rgba(255,255,255,.1);font-size:12px;}
 .reveal-pill img {width:25px;height:25px;border-radius:50%;}
 .reveal-pill b {display:block;max-width:88px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .reveal-pill .gesture {font-size:19px;}
+.reveal-vs{display:grid;place-items:center;min-width:40px;height:40px;padding:0 10px;border-radius:999px;background:linear-gradient(135deg,rgba(255,214,138,.22),rgba(255,152,99,.18));border:1px solid rgba(255,214,138,.28);color:#ffe7b3;font-size:14px;font-weight:950;letter-spacing:.14em;box-shadow:0 8px 20px rgba(0,0,0,.18)}
 .btn-start-online {background:linear-gradient(100deg,#14b8a6,#2563eb);color:#fff;box-shadow:0 9px 26px rgba(6,182,212,.19)}
 .choice-btn.selected-choice {border-color:#4ade80;background:#164e41;box-shadow:0 0 0 3px rgba(74,222,128,.13);}
 .layout-shell.online-active .battle-zone {min-height:190px;margin-bottom:15px;padding:18px;}
@@ -1069,12 +1078,1353 @@
 }
 .modal-overlay:not(.open) {visibility:hidden;}
 
-    </style>
+
+
+.source-protection-toast.copy-success {border-color:rgba(74,222,128,.45);color:#dcfce7;}
+
+/* Chat tren may tinh: o ben phai va thap xuong goc duoi cua khung game. */
+body.online-chat-bottom-right {
+    align-items: center;
+}
+@media (min-width: 881px) {
+    .layout-shell.online-active {
+        width: min(1230px, 100%);
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: clamp(12px, 2vw, 24px);
+        align-items: end;
+    }
+    .layout-shell.online-active .game-container {
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        min-width: 0;
+    }
+    .layout-shell.online-active .online-chat {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: end;
+        width: 100%;
+        min-width: 0;
+        height: clamp(350px, 52dvh, 470px);
+        min-height: 350px;
+        max-height: none;
+        margin: 0;
+        border-radius: 22px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+    }
+}
+@media (min-width: 881px) and (max-width: 980px) {
+    .layout-shell.online-active {
+        grid-template-columns: minmax(0, 1fr) 285px;
+        gap: 12px;
+    }
+}
+@media (max-width: 880px) {
+    body.online-chat-bottom-right { align-items: flex-start; }
+}
+/* Giữ nút chat bong bóng trên Android/iOS, nhấn để mở như trước. */
+
+/* =========================================================
+   BUA KEO BAO — AURORA ARENA UI (design-only override)
+   Gameplay, networking, avatars and chat logic stay intact.
+   ========================================================= */
+:root {
+  --bg:#070b19;
+  --card-bg:#121c35;
+  --accent-blue:#58dcff;
+  --accent-pink:#fb78b4;
+  --win:#49e8ae;
+  --lose:#ff728f;
+  --tie:#ffd27b;
+  --text:#eff7ff;
+  --shadow:0 22px 70px rgba(0,0,0,.36);
+  --ui-border:rgba(151,186,255,.14);
+  --ui-muted:#91a9c7;
+  --ui-violet:#9785ff;
+}
+html{background:#070b19;scroll-behavior:smooth}
+body{
+  position:relative; isolation:isolate;
+  background:#070b19;
+  color:#f4f8ff;
+  padding:clamp(16px,2.5vw,30px);
+  padding-top:calc(clamp(16px,2.5vw,30px) + env(safe-area-inset-top));
+  padding-bottom:calc(clamp(16px,2.5vw,30px) + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+  min-height:100dvh;
+}
+body::before{
+  content:"";position:fixed;inset:-18%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 32% 31% at 12% 21%,rgba(34,124,247,.28),transparent 78%),
+    radial-gradient(ellipse 28% 35% at 87% 18%,rgba(151,85,240,.22),transparent 76%),
+    radial-gradient(ellipse 32% 34% at 68% 90%,rgba(11,200,202,.10),transparent 78%),
+    radial-gradient(ellipse 33% 40% at 25% 95%,rgba(190,56,140,.10),transparent 75%);
+  filter:blur(20px);animation:arenaAurora 18s ease-in-out infinite alternate;
+}
+body::after{
+  content:"";position:fixed;inset:8% -20% -45%;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(114,157,225,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(114,157,225,.09) 1px,transparent 1px);
+  background-size:50px 50px;
+  transform-origin:center bottom;transform:perspective(700px) rotateX(63deg) scale(1.4);
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.72),transparent 75%);
+  mask-image:linear-gradient(to top,rgba(0,0,0,.72),transparent 75%);
+}
+@keyframes arenaAurora {0%{transform:translate3d(-2%,0,0) rotate(0)}50%{transform:translate3d(2%,-2%,0) rotate(4deg)}100%{transform:translate3d(0,3%,0) rotate(-3deg)}}
+@keyframes arenaPulse {0%,100%{opacity:.5;transform:scale(.98)}50%{opacity:1;transform:scale(1.025)}}
+@keyframes arenaShine {0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes arenaAppear {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes onlineLive {0%,100%{box-shadow:0 0 0 0 rgba(63,238,182,.38)}50%{box-shadow:0 0 0 5px rgba(63,238,182,0)}}
+.layout-shell{
+  position:relative;z-index:1;
+  width:min(800px,100%);
+  gap:22px;
+  animation:arenaAppear .6s ease both;
+}
+.layout-shell.online-active{
+  width:min(1440px,100%);
+  grid-template-columns:minmax(0,1fr) 344px;
+  align-items:end;
+  gap:clamp(14px,2vw,24px);
+}
+.game-container,.layout-shell .game-container{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:clamp(22px,3.3vw,38px);
+  background:linear-gradient(145deg,rgba(24,38,71,.94),rgba(12,21,42,.97) 70%);
+  border:1px solid rgba(145,178,247,.19);
+  border-radius:30px;
+  box-shadow:0 28px 90px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.08),0 0 50px rgba(57,96,205,.065);
+  backdrop-filter:blur(22px);
+}
+.game-container::before{
+  content:"";position:absolute;inset:0 0 auto;height:2px;z-index:3;
+  background:linear-gradient(90deg,transparent,#48def5 23%,#977cff 56%,#f77eb8 84%,transparent);
+  opacity:.86;
+}
+.game-container::after{
+  content:"";position:absolute;width:330px;height:330px;right:-165px;top:-190px;
+  border-radius:50%;background:radial-gradient(circle,rgba(114,91,244,.16),transparent 70%);
+  z-index:-1;pointer-events:none;
+}
+.arena-topbar{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:0 0 17px;text-align:left}
+.arena-brand{display:inline-flex;align-items:center;gap:10px;color:#d8e7ff;font-size:11px;letter-spacing:.19em;font-weight:900;white-space:nowrap}
+.arena-brand-symbol{display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(150,206,255,.28);border-radius:11px;background:linear-gradient(135deg,rgba(88,220,255,.25),rgba(145,114,255,.22));color:#c9f5ff;font-size:18px;box-shadow:0 8px 20px rgba(29,100,211,.18)}
+.arena-edition{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(97,213,255,.19);border-radius:999px;background:rgba(14,37,64,.72);font-size:10px;font-weight:850;letter-spacing:.08em;color:#b8e9ff;white-space:nowrap}
+.arena-edition::before{content:"";width:7px;height:7px;flex:none;background:#4ce8bc;border-radius:50%;animation:onlineLive 2s infinite}
+.game-container h1,.layout-shell.online-active .game-container h1{
+  margin:0 0 6px;
+  font-size:clamp(2.25rem,5.3vw,3.65rem);
+  font-weight:950;
+  letter-spacing:-.055em;
+  line-height:1.04;
+  background:linear-gradient(103deg,#e8f7ff 7%,#68e5ff 37%,#a19aff 74%,#ffacda 98%);
+  color:transparent;-webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 8px 28px rgba(86,177,242,.14));
+  text-shadow:none;
+}
+.arena-subtitle{color:#92a9c8;letter-spacing:.015em;font-size:clamp(12px,1.8vw,13px);font-weight:560;margin-bottom:19px}
+.status-stack,.layout-shell.online-active .status-stack{
+  margin:0 auto 15px;
+  flex-direction:row;justify-content:center;align-items:center;flex-wrap:wrap;gap:9px;
+}
+.connection-status,.target-score-display{
+  min-height:34px;margin:0;border-radius:100px;
+  padding:8px 13px;
+  background:rgba(6,17,34,.56);
+  border:1px solid rgba(138,180,246,.14);
+  color:#bfd4ec;
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+  font-size:11px;letter-spacing:.005em;font-weight:750;
+}
+.target-score-display{background:rgba(126,88,33,.13);border-color:rgba(244,191,112,.22);color:#ffdf9e}
+.room-toolbar{
+  margin:0 0 16px;gap:9px;
+  padding:9px 10px;border:1px solid rgba(110,151,229,.14);border-radius:15px;
+  background:linear-gradient(105deg,rgba(17,45,76,.56),rgba(20,31,56,.57));
+}
+.room-toolbar>span{font-weight:800;letter-spacing:.02em;color:#bcecff;font-size:12px;overflow-wrap:anywhere}
+.room-code-label{color:inherit;font-weight:950;letter-spacing:.12em;margin-right:8px}
+.room-code-value{color:#ffd56a;font-weight:950;letter-spacing:.065em;text-shadow:0 0 15px rgba(255,204,80,.24)}
+.copy-code-btn{padding:10px 14px;border:1px solid rgba(114,215,248,.30);border-radius:11px;background:rgba(76,187,242,.11);color:#d9f7ff;font-size:12px;font-weight:800;white-space:nowrap;transition:.2s ease}
+.copy-code-btn:hover,.chat-code-copy:hover{background:rgba(73,216,250,.2);transform:translateY(-1px)}
+.scoreboard{gap:12px;margin-bottom:17px}
+.score-card,.scoreboard.is-multi .score-card{
+  position:relative;overflow:hidden;
+  flex:1;min-width:0;max-width:none;
+  border:1px solid rgba(140,176,238,.16);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(38,55,91,.70),rgba(14,28,55,.8));
+  padding:16px 11px;
+  box-shadow:inset 0 1px rgba(255,255,255,.055),0 6px 25px rgba(0,0,0,.10);
+  transition:border-color .22s,transform .22s,box-shadow .22s;
+}
+.score-card::before{
+  content:"";pointer-events:none;position:absolute;width:130px;height:95px;top:-73px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(ellipse,rgba(123,174,255,.15),transparent 70%);
+}
+.score-card:hover{transform:translateY(-3px);border-color:rgba(126,190,255,.38);box-shadow:0 12px 27px rgba(3,10,24,.28)}
+.scoreboard.is-multi .score-card:hover{transform:translateY(-2px)}
+.scoreboard.is-multi{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:17px}
+.scoreboard.is-multi .score-card{padding:12px 8px;border-radius:17px}
+.scoreboard.is-multi .score-card.is-me{
+  background:linear-gradient(145deg,rgba(18,77,105,.52),rgba(22,40,78,.82));
+  border-color:rgba(85,227,255,.62);
+  box-shadow:inset 0 0 0 1px rgba(85,216,255,.12),0 0 22px rgba(30,166,217,.09);
+}
+.scoreboard.is-multi .score-card.has-picked{box-shadow:inset 0 0 0 1px rgba(68,229,165,.38),0 0 15px rgba(34,199,125,.11)}
+.score-label,.scoreboard.is-multi .score-label{color:#bdd0e6;text-transform:none;letter-spacing:0;font-weight:850;font-size:12px;min-height:0;margin:7px 0 4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.score-value,.scoreboard.is-multi .score-value{color:#f9fcff;font-size:clamp(27px,3.8vw,39px);font-weight:950;line-height:1.14;letter-spacing:-1.4px;text-shadow:0 6px 18px rgba(87,174,255,.12)}
+.scoreboard.is-multi .score-value{font-size:27px}
+.scoreboard.is-multi .card-status{margin-top:7px;font-size:10px;min-height:13px;font-weight:720;color:#8da7c8}
+.scoreboard.is-multi .score-card .avatar-img{
+  width:53px;height:53px;margin:1px auto 6px;
+  padding:3px;border:2px solid rgba(194,224,255,.4);
+  background:linear-gradient(135deg,#7df6e8,#668dff,#c486ff);
+  box-shadow:0 7px 19px rgba(11,13,40,.32);
+}
+.battle-zone,.layout-shell.online-active .battle-zone{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:27px 18px 20px;
+  min-height:210px;
+  margin:0 0 16px;
+  border-radius:24px;
+  border:1px solid rgba(111,158,243,.20);
+  background:radial-gradient(ellipse 80% 70% at 50% 80%,rgba(48,102,167,.13),transparent),linear-gradient(160deg,rgba(8,18,40,.97),rgba(16,25,51,.98));
+  box-shadow:inset 0 0 50px rgba(10,35,81,.26),inset 0 1px rgba(255,255,255,.05);
+}
+.battle-zone::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(92,131,213,.043) 1px,transparent 1px),linear-gradient(90deg,rgba(92,131,213,.043) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(ellipse,black,transparent 95%);
+  mask-image:radial-gradient(ellipse,black,transparent 95%);
+}
+.battle-zone::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:290px;height:160px;bottom:-105px;left:50%;transform:translateX(-50%);
+  background:rgba(80,116,242,.14);filter:blur(47px);border-radius:100%;
+}
+.online-battle{gap:12px;min-height:115px;width:100%;justify-content:center}
+.round-meta{font-size:11px;letter-spacing:.13em;font-weight:900;color:#8fb2db}
+#roundCounter{max-width:70%;text-align:left}
+#roundTimer{
+  font-size:12px;letter-spacing:.015em;font-weight:850;color:#ffdda0;
+  background:rgba(255,193,94,.095);border:1px solid rgba(243,191,102,.27);
+  border-radius:12px;padding:9px 13px;min-width:90px;white-space:nowrap;
+}
+.round-info{max-width:690px;line-height:1.45;font-size:clamp(17px,2.5vw,21px);font-weight:860;color:#ecf6ff;text-wrap:balance}
+.vote-status{color:#8da6c4;font-size:12px;line-height:1.55;max-width:600px}
+.result-text{
+  line-height:1.2;font-size:clamp(20px,3.2vw,32px);font-weight:950;letter-spacing:-.02em;
+  min-height:30px;margin-top:14px;
+  text-wrap:balance;
+}
+.result-text.tie{color:#ffd27b;text-shadow:0 0 24px rgba(254,192,86,.22)}
+.result-text.win{color:#63eabb;text-shadow:0 0 22px rgba(66,234,186,.27)}
+.result-text.lose{color:#ff8198;text-shadow:0 0 22px rgba(255,96,144,.22)}
+.choices-display{min-height:105px;gap:clamp(10px,3vw,38px)}
+.emoji-box{font-size:clamp(4rem,9vw,6.3rem)}
+.vs-circle{background:linear-gradient(135deg,#69ddff,#816aff);box-shadow:0 0 24px rgba(99,154,255,.34);color:#071a2a;border:3px solid rgba(255,255,255,.28)}
+.choices-menu,.layout-shell.online-active .choices-menu{margin:0 0 15px;gap:clamp(10px,2vw,17px);align-items:stretch}
+.choice-btn{
+  position:relative;isolation:isolate;overflow:hidden;
+  width:clamp(95px,12vw,135px);height:104px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border-radius:20px;border:1px solid rgba(126,171,245,.23);
+  background:linear-gradient(160deg,rgba(43,60,100,.86),rgba(23,37,74,.94));
+  box-shadow:0 9px 0 rgba(5,13,29,.65),inset 0 1px rgba(255,255,255,.08),0 13px 25px rgba(0,0,0,.21);
+  transform:translateY(0);color:#fff;
+  touch-action:manipulation;
+}
+.choice-btn::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 50% 0,rgba(106,177,251,.22),transparent 76%)}
+.choice-btn:nth-child(1){border-color:rgba(98,206,255,.28)}
+.choice-btn:nth-child(2){border-color:rgba(176,136,255,.28)}
+.choice-btn:nth-child(3){border-color:rgba(255,171,208,.28)}
+.choice-btn:nth-child(2)::before{background:radial-gradient(circle at 50% 0,rgba(147,110,244,.26),transparent 76%)}
+.choice-btn:nth-child(3)::before{background:radial-gradient(circle at 50% 0,rgba(255,142,190,.21),transparent 76%)}
+.move-emoji{font-size:49px;line-height:1;filter:drop-shadow(0 6px 7px rgba(0,0,0,.2));transition:transform .2s ease}
+.move-name{display:none}
+.choice-btn:hover:not(:disabled){background:linear-gradient(150deg,#324f8a,#272d66);transform:translateY(-5px);border-color:#9ddfff;box-shadow:0 14px 0 rgba(5,13,29,.53),0 19px 32px rgba(42,109,220,.23)}
+.choice-btn:hover:not(:disabled) .move-emoji{transform:scale(1.12) rotate(-5deg)}
+.choice-btn:active:not(:disabled){transform:translateY(5px) scale(.98);box-shadow:0 3px 0 rgba(5,13,29,.65)}
+.choice-btn:disabled{opacity:.48;filter:saturate(.6);cursor:not-allowed;box-shadow:0 5px 0 rgba(5,13,29,.6)}
+.choice-btn.selected-choice,.choice-btn.selected-choice:disabled{opacity:1;filter:none;border-color:#56e7b8;background:linear-gradient(150deg,#105e5e,#17386a);box-shadow:0 5px 0 rgba(5,13,29,.65),inset 0 0 0 1px rgba(79,242,201,.24),0 0 28px rgba(64,233,178,.18)}
+.actions{gap:10px;justify-content:center;align-items:stretch}
+.btn{
+  min-width:120px;min-height:48px;border-radius:13px;
+  padding:12px 17px;font-size:13px;font-weight:850;
+  transition:transform .2s,box-shadow .2s,filter .2s,border-color .2s;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.09)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none;filter:saturate(.5)}
+.btn-start-online,.btn-continue,.btn-start,.btn-online{
+  color:#061a31;
+  background:linear-gradient(105deg,#62f0d6,#4fdaff 45%,#7f91ff 100%);
+  box-shadow:0 12px 30px rgba(28,155,220,.20),inset 0 1px rgba(255,255,255,.35);
+}
+.btn-secondary,.btn-back{color:#c6d5e9;border:1px solid rgba(144,170,212,.18);background:rgba(131,154,216,.075)}
+.btn-leave{color:#ffd3a1;background:rgba(245,176,88,.12);border:1px solid rgba(255,204,128,.28)}
+.btn-dissolve{color:#ffc5d7;background:rgba(220,64,120,.13);border:1px solid rgba(255,108,151,.3)}
+a.btn{display:inline-flex;text-decoration:none;align-items:center;justify-content:center;box-sizing:border-box}
+.device-support{margin-top:21px;color:#748eae;font-size:10px;letter-spacing:.04em}
+/* -------- CHAT DOCK / on the lower right on desktop -------- */
+.online-chat{
+  background:linear-gradient(165deg,rgba(20,33,64,.98),rgba(9,18,38,.99));
+  border:1px solid rgba(128,173,255,.26);
+  border-radius:24px;
+  box-shadow:0 24px 75px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.055);
+}
+.online-chat-header{
+  gap:8px;padding:15px 14px;
+  background:linear-gradient(110deg,rgba(42,89,140,.35),rgba(50,43,109,.22));
+  border-bottom:1px solid rgba(133,184,255,.16);
+}
+.online-chat-title{gap:10px;font-weight:920;font-size:14px}
+.online-chat-title small{font-size:10px;color:#96b1d0;margin-top:3px}
+.online-chat-icon{
+  width:39px;height:39px;border-radius:13px;
+  background:linear-gradient(140deg,#347fe7,#8a62f2);
+  box-shadow:0 7px 20px rgba(72,105,231,.31);
+  font-size:19px;
+}
+.chat-online-count{color:#86f8c8;font-size:10px;font-weight:820;background:rgba(46,222,164,.08);border-color:rgba(55,233,174,.25);padding:7px 9px}
+.chat-messages{
+  background:radial-gradient(ellipse at 50% 0,rgba(25,67,123,.13),transparent 65%);
+  scrollbar-color:#384e77 transparent;
+  gap:14px;padding:17px 14px;
+}
+.chat-empty{font-size:12px;line-height:1.7;color:#819ab9}
+.chat-entry{gap:8px}
+.chat-avatar{width:31px;height:31px;flex-basis:31px}
+.chat-entry-name{color:#a8c2e6;font-size:10px}
+.chat-bubble{
+  padding:10px 13px;
+  border:1px solid rgba(141,181,239,.13);
+  border-radius:15px 15px 15px 4px;
+  background:rgba(42,58,91,.68);
+  color:#eaf4ff;font-size:12px;line-height:1.55;
+}
+.chat-entry.mine .chat-bubble{background:linear-gradient(135deg,#2461bd,#6659cf);border:1px solid rgba(157,172,255,.25);border-radius:15px 15px 4px 15px;box-shadow:0 7px 19px rgba(51,88,213,.14)}
+.chat-time{color:#6884a6;font-size:9px}
+.chat-compose{padding:12px;background:rgba(7,15,33,.84);border-top-color:rgba(147,171,222,.16)}
+.chat-input{
+  background:rgba(14,27,52,.96);border:1px solid rgba(138,170,230,.2);
+  border-radius:12px;color:#fff;padding:0 13px;height:44px;
+}
+.chat-input::placeholder{color:#6884a8}
+.chat-input:focus{border-color:#65dfff;box-shadow:0 0 0 3px rgba(71,206,255,.10)}
+.chat-send{
+  background:linear-gradient(135deg,#5bd5f7,#7367ed);
+  color:#0b2247;font-size:21px;
+  box-shadow:0 8px 18px rgba(71,107,255,.18);
+}
+@media(min-width:881px){
+  .layout-shell.online-active{width:min(1440px,100%);grid-template-columns:minmax(0,1fr) 344px;gap:clamp(14px,2vw,24px);align-items:end}
+  .layout-shell.online-active .game-container{grid-column:1;grid-row:1;width:100%;padding:clamp(22px,3.2vw,34px)}
+  .layout-shell.online-active .online-chat{
+    grid-column:2;grid-row:1;align-self:end;
+    min-width:0;width:100%;height:clamp(410px,58dvh,545px);min-height:410px;max-height:none;
+    border-radius:24px;margin:0;
+  }
+}
+/* -------- SETUP & HELP MODALS -------- */
+.modal-overlay{
+  padding:12px;
+  background:rgba(3,7,18,.76);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.modal-content{
+  background:linear-gradient(155deg,rgba(28,43,82,.99),rgba(13,23,49,.99));
+  border:1px solid rgba(150,187,255,.22);border-radius:27px;
+  box-shadow:0 36px 110px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.06);
+  scrollbar-width:thin;scrollbar-color:#4e628e transparent;
+  padding:clamp(20px,3vw,32px);
+}
+#modeModal .modal-content{max-width:650px;width:min(650px,100%);padding:clamp(23px,4vw,37px)}
+#modeModal .modal-title{margin:5px auto 7px;font-size:clamp(22px,4vw,30px);color:#f1f8ff;font-weight:950;letter-spacing:-.045em}
+.modal-title{color:#eff7ff;font-weight:920;letter-spacing:-.02em}
+.mode-lead{font-size:13px;color:#96b2d4;line-height:1.55;margin-bottom:20px;text-align:center}
+.target-selector-card{
+  background:rgba(7,20,43,.65);border:1px solid rgba(126,173,248,.2);
+  border-radius:18px;padding:15px 17px;margin:0 0 20px;
+}
+.target-selector-card label{font-size:12px;font-weight:900;color:#d9ecff}
+.target-score-select,.room-input,.setup-select{
+  border:1px solid rgba(148,180,234,.21);
+  background:#111f3d;
+  border-radius:12px;
+  padding:12px 14px;color:#f1f7ff;
+  min-height:46px;
+}
+.target-score-select:focus,.room-input:focus{outline:none;border-color:#6ddefb;box-shadow:0 0 0 3px rgba(76,201,255,.10)}
+.target-selector-note{color:#839dbb;font-size:11px}
+.mode-grid{gap:13px;margin-top:12px}
+.mode-card{
+  min-height:176px;position:relative;overflow:hidden;
+  border-radius:20px;
+  border:1px solid rgba(135,180,248,.22);
+  background:linear-gradient(145deg,rgba(40,68,113,.64),rgba(19,35,71,.92));
+  padding:20px 17px;transition:transform .22s,border-color .22s,box-shadow .22s;
+  text-align:left;
+}
+.mode-card:last-child{background:linear-gradient(145deg,rgba(58,48,109,.68),rgba(18,37,76,.93))}
+.mode-card::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-75px;top:-84px;background:rgba(94,208,244,.08);pointer-events:none}
+.mode-card:last-child::after{background:rgba(177,116,252,.14)}
+.mode-card:hover{border-color:#79deff;box-shadow:0 16px 32px rgba(53,118,227,.18);transform:translateY(-4px)}
+.mode-icon{width:59px;height:59px;display:grid;place-items:center;margin:0 0 17px;border-radius:17px;background:linear-gradient(135deg,rgba(91,224,254,.18),rgba(72,98,235,.19));border:1px solid rgba(119,217,255,.23);font-size:32px}
+.mode-card:last-child .mode-icon{background:linear-gradient(135deg,rgba(173,130,255,.25),rgba(65,118,236,.18));border-color:rgba(170,151,255,.3)}
+.mode-name{font-size:15px;font-weight:920;margin-bottom:5px;color:#fff}
+.mode-desc{font-size:12px;color:#9cb5d2;line-height:1.5}
+.online-setup-card{width:min(1110px,calc(100vw - 22px));max-width:1110px;border-radius:27px;padding:clamp(17px,2.6vw,29px)}
+.setup-title{color:#f5f9ff;font-size:clamp(22px,3vw,30px);letter-spacing:-.05em}
+.setup-subtitle{font-size:12px;color:#95accc;line-height:1.55}
+.setup-close,.room-browser-refresh,.refresh-code-btn{
+  border-radius:13px;border:1px solid rgba(147,178,231,.19);
+  color:#e4f1ff;background:rgba(133,165,223,.09);
+  transition:background .2s,transform .2s;
+}
+.setup-close:hover,.room-browser-refresh:hover,.refresh-code-btn:hover{background:rgba(87,180,250,.21);transform:translateY(-1px)}
+.setup-progress{margin:17px 0 19px;gap:8px}
+.setup-progress span{height:5px;background:#263958}
+.setup-progress span.active{background:linear-gradient(90deg,#44e4dc,#82a4ff);box-shadow:0 0 14px rgba(83,198,255,.22)}
+.setup-body-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.88fr);gap:18px}
+.setup-label{font-size:10px;letter-spacing:.12em;font-weight:900;color:#aac1df}
+.setup-room-box{
+  gap:12px;padding:15px;
+  border-radius:18px;border:1px solid rgba(115,181,244,.21);
+  background:rgba(7,22,46,.56);
+}
+.setup-room-box.three-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.setup-name-input{width:100%;max-width:none;margin-bottom:13px}
+.setup-help{font-size:12px;color:#94abc9}
+.profile-preview{
+  background:rgba(29,52,89,.47);border:1px solid rgba(121,168,239,.16);
+  padding:12px;border-radius:16px;
+}
+.profile-avatar{width:55px;height:55px;min-width:55px;box-shadow:0 6px 18px rgba(0,0,0,.19)}
+.profile-preview-text strong{font-size:12px}
+.profile-preview-text small{font-size:10px;color:#8ca6c9}
+.profile-random{border-radius:10px;background:rgba(100,185,255,.14);border-color:rgba(116,208,255,.31);font-size:12px;font-weight:820}
+.online-status{padding:10px 12px;border:1px solid rgba(146,182,237,.12);border-radius:11px;background:rgba(8,19,42,.45);font-size:12px;color:#a8c7df}
+.room-browser-panel{
+  padding:16px;border-radius:19px;
+  background:rgba(7,19,42,.7);
+  border:1px solid rgba(146,168,237,.17);
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+}
+.room-browser-title{font-size:14px;color:#eff8ff}
+.room-list{max-height:385px;gap:9px}
+.room-list-empty{padding:25px 14px;background:rgba(32,51,82,.19);border-color:rgba(148,175,231,.23);color:#90accd}
+.room-list-item{
+  padding:13px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(47,66,111,.38),rgba(17,33,66,.5));
+  border:1px solid rgba(143,179,242,.14);
+  gap:9px;
+}
+.room-list-host{font-size:12px}
+.room-list-avatar{width:42px;height:42px;min-width:42px}
+.room-list-code{color:#ffe4ad}
+.room-list-details{gap:8px}
+.room-player-count,.room-status-badge{font-size:10px;min-height:31px}
+.room-join-btn{background:linear-gradient(110deg,#37cddb,#5b7bf3);border-radius:10px;color:#061c31;min-height:40px;font-size:11px}
+.room-browser-note{font-size:10px;color:#708cae}
+.setup-footer{border-top:1px solid rgba(128,167,224,.13);padding-top:15px;margin-top:17px}
+.setup-footer .btn{min-width:130px}
+.guide-list li{color:#c0d4ed;font-size:13px}
+.rules-summary{border:1px solid rgba(138,183,246,.16);border-radius:14px;color:#abc5dd;background:rgba(8,20,42,.56)}
+.guide-step-number{background:linear-gradient(135deg,#46d7ed,#8276f6);color:#07152f}
+.source-protection-toast{background:rgba(15,27,53,.98);border-color:rgba(133,179,243,.22);color:#e4f0ff}
+/* Accessibility: focus ring and motion preference */
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #6fdbff;outline-offset:3px}
+@media (max-width:1100px) and (min-width:881px){
+  .layout-shell.online-active{grid-template-columns:minmax(0,1fr) 300px;gap:13px}
+  .layout-shell.online-active .game-container{padding:19px 16px}
+  .scoreboard.is-multi{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+  .arena-edition{font-size:9px}
+  .round-info{font-size:17px}
+}
+@media(max-width:880px){
+  body,body.online-chat-bottom-right{align-items:flex-start}
+  .layout-shell.online-active{width:min(740px,100%);grid-template-columns:minmax(0,1fr);gap:0}
+  .game-container,.layout-shell.online-active .game-container{padding:clamp(18px,4vw,30px)}
+  .layout-shell.online-active .online-chat{
+    display:none;position:fixed;right:12px;bottom:calc(82px + env(safe-area-inset-bottom));
+    z-index:1100;width:min(398px,calc(100vw - 24px));
+    height:min(70dvh,590px);min-height:280px;
+    background:linear-gradient(160deg,#182c4f,#0a162e 85%);border-radius:21px;
+  }
+  .layout-shell.online-active .online-chat.chat-open{display:flex}
+  .layout-shell.online-active .chat-fab{
+    display:grid;position:fixed;z-index:1090;
+    right:17px;bottom:calc(15px + env(safe-area-inset-bottom));
+    width:59px;height:59px;border-radius:19px;
+    color:#fff;background:linear-gradient(135deg,#358de2,#885ff5);
+    border:1px solid rgba(178,217,255,.33);
+    box-shadow:0 14px 38px rgba(41,83,210,.34),inset 0 1px rgba(255,255,255,.19);
+    font-size:25px;animation:arenaAppear .5s ease both;
+  }
+  .mobile-chat-close{display:grid;border-radius:9px;background:rgba(255,255,255,.10)}
+  .online-setup-card .setup-footer{position:sticky;bottom:-30px;z-index:4;padding:12px 0;background:#10203f;box-shadow:0 -10px 30px rgba(9,19,43,.82)}
+}
+@media(max-width:700px){
+  .setup-body-grid{grid-template-columns:1fr}
+  .room-browser-panel{min-height:180px}
+  .room-list{max-height:200px}
+}
+@media(max-width:620px){
+  body{padding:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .game-container,.layout-shell .game-container,.layout-shell.online-active .game-container{border-radius:22px;padding:17px 13px}
+  .arena-topbar{margin:0 0 15px}
+  .arena-brand{letter-spacing:.09em;font-size:10px}
+  .arena-edition{padding:6px 8px;font-size:9px;letter-spacing:0}
+  .game-container h1,.layout-shell.online-active .game-container h1{font-size:clamp(2.2rem,11vw,3.1rem);margin-bottom:7px}
+  .arena-subtitle{font-size:11px;margin-bottom:15px}
+  .status-stack,.layout-shell.online-active .status-stack{gap:7px;margin-bottom:14px}
+  .connection-status,.target-score-display{max-width:100%;width:auto;padding:8px 10px;font-size:10px}
+  .scoreboard{gap:8px;margin-bottom:13px}
+  .scoreboard.is-multi{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:13px}
+  .scoreboard.is-multi .score-card{padding:11px 7px;border-radius:15px}
+  .scoreboard.is-multi .score-card .avatar-img{width:48px;height:48px}
+  .scoreboard.is-multi .score-value{font-size:25px}
+  .battle-zone,.layout-shell.online-active .battle-zone{padding:19px 12px;min-height:195px;margin-bottom:15px;border-radius:19px}
+  .round-meta{font-size:10px}
+  .round-info{font-size:16px}
+  .vote-status{font-size:11px}
+  .result-text{font-size:clamp(19px,5.5vw,25px);margin-top:10px}
+  .choices-menu,.layout-shell.online-active .choices-menu{gap:10px;margin-bottom:16px}
+  .choice-btn{width:min(29vw,107px);height:94px;border-radius:16px}
+  .move-emoji{font-size:43px}.move-name{display:none}
+  .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .actions .btn,.actions a.btn{padding:10px 7px;min-width:0;width:100%;min-height:45px;font-size:12px}
+  .actions .btn-start-online:not(.hidden){grid-column:1/-1}
+  .device-support{font-size:9px;margin-top:17px}
+  .mode-grid{grid-template-columns:1fr}
+  .mode-card{min-height:130px;padding:16px 16px}
+  .mode-icon{width:47px;height:47px;margin-bottom:8px;font-size:25px}
+  .mode-name{font-size:14px}
+  .mode-desc{font-size:11px}
+  .online-setup-card{padding:16px 13px;width:calc(100vw - 14px)}
+  .setup-room-box,.setup-room-box.three-fields{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;gap:10px}
+  .setup-label{font-size:9px}
+  .profile-preview-text small{font-size:9px}
+}
+@media(max-width:380px){
+  .arena-edition{display:none}
+  .setup-room-box,.setup-room-box.three-fields{grid-template-columns:1fr}
+  .room-toolbar>span{font-size:11px}
+  .copy-code-btn{font-size:10px;padding:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,.layout-shell,.arena-edition::before,.layout-shell.online-active .chat-fab{animation:none !important}
+  .choice-btn,.btn,.mode-card{transition:none!important}
+}
+
+
+/* AI tactics panel: independent hints per match/player and a WebAudio countdown toggle. */
+.assist-panel{
+  margin:0 0 17px;padding:13px 14px 11px;
+  border:1px solid rgba(115,169,249,.24);border-radius:18px;
+  background:linear-gradient(120deg,rgba(21,52,93,.76),rgba(31,27,73,.78));
+  box-shadow:inset 0 1px rgba(255,255,255,.065),0 10px 28px rgba(4,12,34,.2);
+  text-align:left;
+}
+.assist-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.assist-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.assist-brain{display:grid;place-items:center;font-size:22px;width:39px;height:39px;flex:0 0 39px;border:1px solid rgba(116,230,249,.26);border-radius:12px;background:rgba(77,175,246,.11)}
+.assist-brand strong{display:block;font-size:12px;letter-spacing:.08em;color:#e3eaff;font-weight:950}
+.assist-brand small{display:block;color:#9db8d8;font-size:10px;margin-top:3px;line-height:1.35}
+.assist-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.assist-sound,.assist-hint-btn{border:1px solid rgba(139,183,244,.23);border-radius:11px;min-height:39px;padding:8px 11px;color:#d9eafa;background:rgba(10,31,61,.65);font-size:11px;font-weight:850;white-space:nowrap;cursor:pointer;transition:transform .15s,border-color .15s}
+.assist-sound:hover,.assist-hint-btn:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(154,220,255,.56)}
+.assist-sound[aria-pressed="false"]{opacity:.58}
+.assist-hint-btn{display:flex;align-items:center;gap:9px;color:#16182f;background:linear-gradient(110deg,#fce38c,#eaa5ff);border-color:rgba(255,255,255,.28)}
+.assist-hint-btn:disabled{cursor:not-allowed;opacity:.55;filter:grayscale(.25)}
+#aiHintCount{border-radius:7px;padding:3px 6px;background:rgba(25,18,61,.12);font-variant-numeric:tabular-nums}
+.assist-result{margin-top:12px;border:1px solid rgba(147,227,255,.18);border-radius:12px;padding:11px 12px;background:rgba(5,19,42,.61);color:#d7e9ff;font-size:12px;line-height:1.55}
+.assist-result .assist-result-move{color:#ffe3a0;font-weight:950;font-size:16px;margin-right:5px}
+.assist-result .assist-result-percent{color:#8becd1;font-weight:850}
+.assist-result .assist-result-info{display:block;margin-top:4px;color:#91afce;font-size:11px}
+.assist-note{margin:9px 0 0;color:#8ca9c8;font-size:10px;line-height:1.5}
+@media(max-width:620px){
+  .assist-panel{padding:11px;margin-bottom:14px;border-radius:15px}
+  .assist-header{align-items:flex-start}
+  .assist-controls{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .assist-sound,.assist-hint-btn{justify-content:center;width:100%;padding:9px 5px}
+  .assist-brand strong{font-size:11px}
+}
+    /* An empty online result label should not take up vertical room. */
+    .layout-shell.online-active #result:empty { display:none !important; }
+    /* ═════════════════════════════════════════════════════════════════
+   BÚA KÉO BAO — NEON CIRCUIT DESIGN SYSTEM
+   Visual layer only: existing game, room, AI, sound and chat logic intact.
+   ═════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#070d14;
+  --card-bg:#132531;
+  --accent-blue:#65e4c5;
+  --accent-pink:#ffad79;
+  --win:#66eab4;
+  --lose:#ff817f;
+  --tie:#ffd481;
+  --text:#f3f8fa;
+  --shadow:0 26px 90px rgba(0,0,0,.40);
+  --ui-border:rgba(157,202,202,.14);
+  --ui-muted:#97acb7;
+  --ui-violet:#c6a6ff;
+  --n-edge:rgba(156,213,215,.17);
+  --n-ink:#f2fbfd;
+  --n-soft:#a1b5be;
+  --n-mint:#72f0c9;
+  --n-gold:#ffcf80;
+  --n-orange:#ff9b75;
+  --n-pane:#0e1c27;
+}
+html{background:#080e17;scroll-behavior:smooth}
+body{
+  color:var(--n-ink);
+  align-items:center;
+  background:#070e17;
+  background-image:
+    radial-gradient(circle at 7% 12%,rgba(37,142,144,.16),transparent 36%),
+    radial-gradient(circle at 91% 9%,rgba(224,129,83,.10),transparent 31%),
+    radial-gradient(circle at 51% 100%,rgba(29,94,110,.12),transparent 46%);
+  padding:clamp(16px,2.2vw,32px);
+  padding-top:calc(clamp(16px,2.2vw,32px) + env(safe-area-inset-top));
+  padding-bottom:calc(clamp(16px,2.2vw,32px) + env(safe-area-inset-bottom));
+  min-height:100dvh;
+}
+body::before{
+  content:"";position:fixed;inset:-25%;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 25% 24% at 20% 31%,rgba(61,177,153,.16),transparent 77%),
+    radial-gradient(ellipse 25% 35% at 79% 19%,rgba(255,145,100,.13),transparent 72%),
+    radial-gradient(ellipse 27% 25% at 80% 85%,rgba(83,128,192,.10),transparent 80%);
+  filter:blur(35px);animation:neonAmbient 22s ease-in-out infinite alternate;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;transform:none;
+  background-image:radial-gradient(circle,rgba(138,216,204,.15) .7px,transparent 1px);
+  background-size:34px 34px;
+  opacity:.25;mask-image:linear-gradient(to bottom,transparent,black 38%,black 75%,transparent);
+  -webkit-mask-image:linear-gradient(to bottom,transparent,black 38%,black 75%,transparent);
+}
+@keyframes neonAmbient{0%{transform:translate3d(-3%,0,0)}50%{transform:translate3d(2%,-2%,0)}100%{transform:translate3d(-1%,3%,0)}}
+@keyframes neonBreathe{0%,100%{opacity:.42}50%{opacity:.75}}
+@keyframes neonPing{0%{box-shadow:0 0 0 0 rgba(101,239,190,.4)}75%{box-shadow:0 0 0 8px rgba(101,239,190,0)}100%{box-shadow:0 0 0 0 rgba(101,239,190,0)}}
+@keyframes neonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes neonDraw{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.layout-shell{
+  z-index:1;width:min(880px,100%);gap:22px;
+  animation:neonDraw .65s cubic-bezier(.18,.7,.2,1) both;
+}
+.layout-shell.online-active{
+  width:min(1460px,100%);
+  grid-template-columns:minmax(0,1fr) 334px;
+  align-items:end;
+  gap:20px;
+}
+.game-container,.layout-shell .game-container{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:linear-gradient(148deg,rgba(17,34,46,.97),rgba(9,19,29,.98) 54%,rgba(11,23,34,.98));
+  border:1px solid rgba(158,210,211,.20);
+  border-radius:28px;
+  padding:clamp(25px,3.3vw,43px);
+  box-shadow:0 30px 95px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.055),0 0 80px rgba(36,158,133,.045);
+  backdrop-filter:blur(20px);
+  text-align:center;
+}
+.game-container::before{
+  content:"";position:absolute;z-index:3;inset:0 0 auto;height:2px;
+  background:linear-gradient(90deg,transparent 2%,#68edc2 35%,#c6eadc 50%,#ffb078 69%,transparent 99%);
+  opacity:.92;
+}
+.game-container::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  top:-300px;right:-200px;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,176,111,.095),transparent 62%);
+}
+.game-kicker{display:flex;justify-content:center;align-items:center;gap:11px;margin:0 0 13px;color:#82a7ae;font-size:10px;font-weight:860;letter-spacing:.24em}
+.game-kicker .kicker-line{width:26px;height:1px;background:linear-gradient(90deg,transparent,#64d7bd)}
+.game-kicker .kicker-line:last-child{transform:rotate(180deg)}
+.game-kicker .kicker-star{font-size:12px;color:#fbd68e;letter-spacing:0}
+.game-container h1,.layout-shell.online-active .game-container h1{
+  margin:0 0 9px;
+  font-size:clamp(2.5rem,5vw,4rem);
+  font-weight:1000;line-height:1.1;letter-spacing:-.065em;
+  background:none;color:#f7fcfd;-webkit-text-fill-color:initial;
+  text-shadow:0 8px 32px rgba(0,0,0,.13);
+  filter:none;
+}
+.game-container h1 .title-accent{color:#79ebc8}
+.game-container h1 .title-orange{color:#ffc18f}
+.arena-subtitle{color:#9aadb4;font-size:12px;font-weight:530;letter-spacing:.04em;margin:0 0 21px;line-height:1.5}
+.status-stack,.layout-shell.online-active .status-stack{
+  display:flex;flex-direction:row;justify-content:center;align-items:center;flex-wrap:wrap;
+  gap:8px;margin:0 auto 22px;
+}
+.connection-status,.target-score-display{
+  padding:9px 14px;margin:0;min-height:36px;max-width:100%;
+  color:#c1dedb;background:rgba(7,19,27,.75);border:1px solid rgba(116,191,188,.22);
+  border-radius:10px;box-shadow:inset 0 1px rgba(255,255,255,.03);
+  font-size:11px;font-weight:750;line-height:1.4;
+}
+.target-score-display{color:#f9d79d;background:rgba(103,72,37,.14);border-color:rgba(255,201,126,.23)}
+.room-toolbar{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+  gap:10px;margin:0 0 22px;padding:10px 12px 10px 17px;
+  background:linear-gradient(100deg,rgba(11,43,49,.76),rgba(13,28,40,.90));
+  border:1px solid rgba(103,206,184,.23);border-radius:14px;
+}
+.room-toolbar>span{flex:1;min-width:160px;text-align:left;font-size:12px;font-weight:850;color:#c1dee2;letter-spacing:.01em}
+.room-code-label{font-size:10px;letter-spacing:.13em;color:#a7c9c9;margin-right:8px;font-weight:850}
+.room-code-value{color:#ffd076;font-size:14px;letter-spacing:.09em;text-shadow:0 0 20px rgba(254,196,93,.18)}
+.copy-code-btn{border:1px solid rgba(123,226,202,.28);border-radius:10px;background:rgba(97,222,182,.10);color:#c4ffe7;font-size:11px;font-weight:860;padding:11px 14px}
+.copy-code-btn:hover{background:rgba(84,227,182,.18);border-color:rgba(134,252,209,.53)}
+/* THE SCORE RACK */
+.score-area{margin:0 0 17px;text-align:left}
+.score-section-head,.choice-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 11px;text-align:left}
+.score-section-head .section-id,.choice-section-head .section-id{display:flex;align-items:center;gap:8px;color:#a6c6c4;font-size:10px;font-weight:960;letter-spacing:.17em}
+.section-id .section-mark{width:20px;height:20px;display:grid;place-items:center;border:1px solid rgba(117,210,189,.27);border-radius:6px;background:rgba(96,216,174,.08);color:#7cefc9;font-size:10px;letter-spacing:0}
+.section-hint{color:#6c8c96;font-size:10px;font-weight:740;letter-spacing:.06em}
+.scoreboard,.scoreboard.is-multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:0}
+.score-card,.scoreboard.is-multi .score-card{
+  position:relative;overflow:hidden;min-width:0;max-width:none;
+  min-height:125px;padding:17px 20px 15px;border-radius:17px;
+  background:linear-gradient(138deg,rgba(27,55,64,.92),rgba(15,34,44,.94));
+  border:1px solid rgba(115,204,189,.22);
+  box-shadow:inset 0 1px rgba(255,255,255,.04),0 10px 25px rgba(0,0,0,.11);
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.score-card:nth-child(even){background:linear-gradient(140deg,rgba(56,42,43,.85),rgba(28,31,39,.95));border-color:rgba(244,166,122,.20)}
+.score-card::before{position:absolute;top:0;left:0;right:auto;width:43%;height:3px;border-radius:0;transform:none;background:linear-gradient(90deg,#78f7c9,transparent);opacity:.8;content:""}
+.score-card:nth-child(even)::before{background:linear-gradient(90deg,#ffb579,transparent)}
+.score-card::after{content:"";position:absolute;right:-20px;bottom:-50px;width:125px;height:125px;border-radius:50%;border:1px solid rgba(127,221,198,.07);pointer-events:none}
+.score-card:nth-child(even)::after{border-color:rgba(255,175,128,.08)}
+.score-card:hover,.scoreboard.is-multi .score-card:hover{transform:translateY(-2px);border-color:rgba(115,233,199,.39);box-shadow:0 13px 25px rgba(0,0,0,.18)}
+.score-label,.scoreboard.is-multi .score-label{font-size:12px;font-weight:860;letter-spacing:.03em;color:#b4d7d4;min-height:0;margin:0 0 5px;text-transform:none}
+.score-card:nth-child(even) .score-label{color:#edc5ad}
+.score-value,.scoreboard.is-multi .score-value{font-size:clamp(39px,5vw,55px);font-weight:950;line-height:1.06;letter-spacing:-.055em;color:#f6fffd;text-shadow:0 8px 24px rgba(50,220,180,.10)}
+.score-card:nth-child(even) .score-value{color:#fff2e8;text-shadow:0 8px 24px rgba(255,160,104,.09)}
+.scoreboard.is-multi{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.scoreboard.is-multi .score-card{min-height:155px;padding:12px 9px;border-radius:16px;text-align:center}
+.scoreboard.is-multi .score-label{font-size:11px;margin:7px 0 3px}
+.scoreboard.is-multi .score-value{font-size:32px}
+.scoreboard.is-multi .card-status{font-size:10px;color:#95afb6;margin-top:5px}
+.scoreboard.is-multi .score-card .avatar-img{width:52px;height:52px;border:2px solid rgba(153,236,207,.55);padding:2px;background:linear-gradient(140deg,#38d8b4,#f3af7b);box-shadow:0 6px 15px rgba(0,0,0,.22)}
+.scoreboard.is-multi .score-card.is-me{border:1px solid rgba(105,246,196,.68);background:linear-gradient(145deg,rgba(22,83,75,.58),rgba(15,43,46,.95));box-shadow:inset 0 0 0 1px rgba(117,231,198,.10),0 0 26px rgba(34,185,129,.07)}
+.scoreboard.is-multi .score-card.has-picked{box-shadow:inset 0 0 0 1px rgba(109,234,184,.4),0 0 21px rgba(75,223,176,.10)}
+/* THE STAGE */
+.battle-zone,.layout-shell.online-active .battle-zone{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:245px;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  margin:0 0 22px;padding:47px 21px 26px;
+  background:
+    radial-gradient(ellipse 54% 100% at 50% 104%,rgba(54,165,139,.13),transparent 86%),
+    linear-gradient(147deg,rgba(9,20,31,.99),rgba(10,28,35,.99) 66%,rgba(15,29,37,.98));
+  border:1px solid rgba(126,209,192,.23);border-radius:20px;
+  box-shadow:inset 0 0 70px rgba(4,11,20,.52),inset 0 1px rgba(255,255,255,.04),0 8px 25px rgba(0,0,0,.10);
+}
+.battle-zone::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(103,184,165,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(103,184,165,.055) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(ellipse,black,transparent 80%);-webkit-mask-image:radial-gradient(ellipse,black,transparent 80%);
+}
+.battle-zone::after{
+  content:"";position:absolute;bottom:-215px;left:50%;height:360px;width:480px;z-index:-1;
+  transform:translateX(-50%);background:radial-gradient(circle,rgba(87,227,179,.17),transparent 59%);
+  filter:blur(6px);pointer-events:none;
+}
+.stage-heading{position:absolute;top:16px;left:19px;right:19px;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#99c5c1;font-weight:850;letter-spacing:.17em;font-size:10px;z-index:1}
+.stage-heading strong{display:inline-flex;gap:7px;align-items:center;font-weight:900}
+.stage-heading strong::before{content:"";height:7px;width:7px;border-radius:50%;background:#75eabd;box-shadow:0 0 0 4px rgba(117,234,189,.07);animation:neonPing 2.6s infinite}
+.stage-heading span{font-weight:780;font-size:9px;letter-spacing:.07em;color:#547982}
+.stage-rings{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:240px;height:240px;border-radius:50%;pointer-events:none;z-index:-1;background:repeating-radial-gradient(circle,transparent 0,transparent 38px,rgba(141,236,216,.052) 39px,transparent 40px)}
+.stage-rings::before,.stage-rings::after{content:"";position:absolute;inset:34px;border-radius:50%;border:1px dashed rgba(142,222,210,.10)}
+.stage-rings::after{inset:77px;border-color:rgba(249,187,135,.07)}
+.choices-display{min-height:116px;gap:clamp(12px,3vw,35px)}
+.emoji-box{font-size:clamp(4.6rem,10vw,7rem);filter:drop-shadow(0 15px 11px rgba(0,0,0,.32))}
+.vs-circle{width:64px;height:64px;min-width:64px;color:#0f2931;background:linear-gradient(142deg,#9df5d2,#77c9bc);border:4px solid rgba(197,255,228,.23);box-shadow:0 0 0 8px rgba(116,239,204,.045),0 12px 27px rgba(38,196,153,.22);font-size:17px}
+.result-text{margin-top:17px;min-height:25px;font-weight:950;letter-spacing:-.04em;font-size:clamp(23px,3.4vw,36px);line-height:1.2;color:#f6fff9}
+.result-text.win{color:#79f8b6;text-shadow:0 3px 24px rgba(74,218,139,.21)}
+.result-text.lose{color:#ffa093;text-shadow:0 3px 24px rgba(252,116,116,.19)}
+.result-text.tie{color:#ffd18b;text-shadow:0 3px 22px rgba(236,178,79,.15)}
+.online-battle{width:100%;min-height:130px;gap:12px;align-items:center;justify-content:center}
+.layout-shell.online-active .stage-heading{display:none}
+.round-meta{width:100%;display:flex;justify-content:space-between;align-items:center;color:#9cceb8;font-weight:900;font-size:11px;letter-spacing:.14em}
+#roundTimer{min-width:100px;border-radius:10px;border:1px solid rgba(249,193,125,.25);color:#ffd59d;background:rgba(124,77,44,.16);font-size:11px;font-weight:870;padding:9px 12px}
+.round-info{font-size:clamp(16px,2.3vw,22px);font-weight:880;line-height:1.45;color:#ecf9f5;max-width:740px}
+.vote-status{font-size:12px;line-height:1.5;color:#91aab1}
+.round-reveal{gap:8px}
+.reveal-pill{border:1px solid rgba(129,230,195,.19);background:#153138}
+.reveal-vs{background:linear-gradient(135deg,rgba(255,214,138,.16),rgba(254,180,122,.12));border:1px solid rgba(255,214,138,.20);color:#ffe7b3}
+/* THE CHOICE DECK */
+.choice-section-head{margin:0 0 12px}
+.choice-section-head .section-id{color:#b1d1c5}
+.choices-menu,.layout-shell.online-active .choices-menu{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;max-width:635px;margin:0 auto 23px;align-items:stretch;
+}
+.choice-btn{
+  isolation:isolate;position:relative;overflow:hidden;
+  width:100%;height:128px;display:flex;align-items:center;justify-content:center;
+  margin:0;border:1px solid rgba(128,216,185,.28);border-radius:17px;
+  background:linear-gradient(145deg,#244b49,#143238 76%);
+  box-shadow:0 7px 0 #071719,inset 0 1px rgba(255,255,255,.13),0 16px 30px rgba(0,0,0,.18);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.choice-btn::before{
+  content:"";position:absolute;z-index:-1;inset:0;border-radius:inherit;
+  background:radial-gradient(ellipse at 50% 15%,rgba(160,255,214,.30),transparent 76%);
+}
+.choice-btn::after{content:"";position:absolute;inset:9px;border-radius:11px;border:1px solid rgba(255,255,255,.08);pointer-events:none}
+.choice-btn:nth-child(2){background:linear-gradient(145deg,#3e4359,#242e4b 76%);border-color:rgba(160,169,249,.28);box-shadow:0 7px 0 #11172b,inset 0 1px rgba(255,255,255,.12),0 16px 30px rgba(0,0,0,.17)}
+.choice-btn:nth-child(2)::before{background:radial-gradient(ellipse at 50% 15%,rgba(157,167,255,.32),transparent 76%)}
+.choice-btn:nth-child(3){background:linear-gradient(145deg,#5c4241,#382a38 76%);border-color:rgba(255,177,138,.29);box-shadow:0 7px 0 #271b23,inset 0 1px rgba(255,255,255,.11),0 16px 30px rgba(0,0,0,.17)}
+.choice-btn:nth-child(3)::before{background:radial-gradient(ellipse at 50% 15%,rgba(255,187,143,.25),transparent 76%)}
+.move-emoji{font-size:clamp(3.4rem,6.1vw,4.9rem);line-height:1;filter:drop-shadow(0 11px 12px rgba(0,0,0,.24));transition:transform .2s ease}
+.move-name{display:none!important}
+.choice-btn:hover:not(:disabled){transform:translateY(-5px);border-color:rgba(192,255,224,.77);box-shadow:0 12px 0 #071719,0 23px 36px rgba(39,171,135,.16)}
+.choice-btn:nth-child(2):hover:not(:disabled){box-shadow:0 12px 0 #11172b,0 23px 36px rgba(98,118,231,.15)}
+.choice-btn:nth-child(3):hover:not(:disabled){box-shadow:0 12px 0 #271b23,0 23px 36px rgba(237,149,115,.13)}
+.choice-btn:hover:not(:disabled) .move-emoji{transform:scale(1.14) rotate(-6deg)}
+.choice-btn:active:not(:disabled){transform:translateY(5px) scale(.985);box-shadow:0 2px 0 #071719}
+.choice-btn:disabled{opacity:.40;filter:saturate(.55);box-shadow:0 3px 0 rgba(0,0,0,.38);cursor:not-allowed}
+.choice-btn.selected-choice,.choice-btn.selected-choice:disabled{opacity:1;filter:none;border-color:rgba(131,255,195,.87);background:linear-gradient(150deg,#246454,#163c43);box-shadow:0 6px 0 #092827,inset 0 0 0 2px rgba(154,255,213,.13),0 0 35px rgba(67,237,168,.2)}
+/* THE AI UNIT */
+.assist-panel{
+  position:relative;isolation:isolate;overflow:hidden;
+  text-align:left;margin:0 0 22px;padding:18px 19px 15px;
+  border-radius:18px;border:1px solid rgba(130,226,182,.25);
+  background:linear-gradient(120deg,rgba(19,49,50,.91),rgba(18,38,41,.97) 57%,rgba(37,42,38,.89));
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 12px 29px rgba(0,0,0,.13);
+}
+.assist-panel::before{content:"";position:absolute;right:-45px;top:-100px;width:220px;height:220px;border-radius:50%;z-index:-1;background:radial-gradient(circle,rgba(251,183,99,.11),transparent 72%)}
+.assist-header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.assist-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.assist-brain{display:grid;place-items:center;flex:none;width:48px;height:48px;border:1px solid rgba(117,245,185,.32);border-radius:14px;background:linear-gradient(145deg,rgba(71,191,144,.26),rgba(26,86,77,.31));box-shadow:inset 0 1px rgba(255,255,255,.1);font-size:24px}
+.assist-brand strong{display:block;color:#d8fff0;font-weight:950;letter-spacing:.075em;font-size:14px}
+.assist-brand small{color:#8ec1b3;font-size:11px;line-height:1.35;margin-top:4px}
+.assist-controls{gap:8px;display:flex;align-items:center;flex-wrap:wrap}
+.assist-sound,.assist-hint-btn{display:flex;align-items:center;justify-content:center;min-height:43px;border-radius:11px;padding:10px 13px;font-size:11px;font-weight:850;white-space:nowrap;transition:filter .2s,transform .2s,border-color .2s}
+.assist-sound{background:rgba(5,22,28,.58);border:1px solid rgba(119,213,183,.27);color:#d9f8ed}
+.assist-sound[aria-pressed="false"]{opacity:.6}
+.assist-sound:hover{border-color:rgba(126,240,201,.63)}
+.assist-hint-btn{display:flex;gap:9px;background:linear-gradient(125deg,#ffd591,#ffa96b);color:#33200f;border:1px solid rgba(255,232,188,.42);box-shadow:0 7px 18px rgba(236,157,90,.11)}
+.assist-hint-btn:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.09)}
+.assist-hint-btn:disabled{opacity:.48;filter:saturate(.5)}
+#aiHintCount{background:rgba(93,58,24,.13);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:950;color:#3d230e}
+.assist-result{margin-top:15px;border:1px solid rgba(104,218,170,.25);border-radius:12px;padding:13px 14px;color:#dbfcef;background:rgba(5,22,28,.59);font-size:12px;line-height:1.6}
+.assist-result .assist-result-move{color:#ffd08c;font-size:17px}
+.assist-result .assist-result-percent{color:#82f0c4;font-size:12px}
+.assist-result .assist-result-info{color:#92b8ac;font-size:11px;margin-top:7px}
+.assist-note{margin:13px 0 0;color:#82ab9c;font-size:11px;line-height:1.5}
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:9px}
+.btn{
+  border-radius:11px;min-height:44px;min-width:136px;
+  padding:12px 16px;font-size:12px;font-weight:850;
+  transition:filter .18s,transform .18s,box-shadow .18s;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1)}
+.btn:disabled{opacity:.45;filter:grayscale(.3)}
+.btn-secondary,.btn-back{color:#c3d9d5;background:rgba(81,119,123,.11);border:1px solid rgba(132,192,184,.19)}
+.btn-start-online,.btn-start,.btn-continue,.btn-online{background:linear-gradient(120deg,#94f4cd,#63dbba);color:#0c3028;border:1px solid rgba(220,255,238,.35);box-shadow:0 10px 22px rgba(74,186,148,.15)}
+.setup-nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 20px;font-weight:900;border-radius:18px;letter-spacing:-.01em}
+.setup-nav-btn .btn-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:999px;font-size:16px;font-weight:950;line-height:1;flex:0 0 30px}
+.btn-back.setup-nav-btn{padding-right:22px}
+.btn-back.setup-nav-btn .btn-icon{background:rgba(255,255,255,.07);border:1px solid rgba(174,210,201,.16);color:#d7ebe4}
+.btn-continue.setup-nav-btn{padding-left:22px}
+.btn-continue.setup-nav-btn .btn-icon{background:rgba(12,48,40,.12);border:1px solid rgba(12,48,40,.12);color:#0c3028}
+.btn-continue.setup-nav-btn:disabled .btn-icon{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.1);color:rgba(12,48,40,.55)}
+.btn-back.setup-nav-btn:hover .btn-icon{transform:translateX(-2px)}
+.btn-continue.setup-nav-btn:hover .btn-icon{transform:translateX(2px)}
+.setup-nav-btn .btn-icon{transition:transform .2s ease,background .2s ease}
+.btn-leave{color:#ffd4a9;border:1px solid rgba(255,183,125,.28);background:rgba(124,69,34,.21)}
+.btn-dissolve{color:#ffb9b2;border:1px solid rgba(255,131,135,.25);background:rgba(119,43,56,.2)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.device-support{color:#577680;letter-spacing:.075em;margin-top:24px;font-size:10px}
+/* CHAT: stays docked at the lower right on desktop and bubbles on mobile. */
+.online-chat{
+  background:linear-gradient(160deg,rgba(17,35,42,.98),rgba(9,20,30,.99));
+  border:1px solid rgba(135,211,194,.22);border-radius:22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.06);
+}
+.online-chat-header{padding:16px 14px;gap:8px;border-bottom:1px solid rgba(149,212,196,.15);background:linear-gradient(110deg,rgba(42,95,90,.37),rgba(21,54,62,.24))}
+.online-chat-title{font-size:14px;color:#f1fcf6;font-weight:920;gap:10px}
+.online-chat-title small{font-size:10px;color:#8cafad;line-height:1.45;margin-top:3px}
+.online-chat-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#3a9b86,#8be5ba);box-shadow:0 7px 19px rgba(55,180,139,.20);font-size:18px}
+.chat-online-count{color:#91f5c5;border-color:rgba(122,237,184,.23);background:rgba(71,185,129,.09);font-size:10px;font-weight:860}
+.chat-messages{background:radial-gradient(ellipse at 50% 0%,rgba(51,135,108,.07),transparent 70%);gap:13px;padding:18px 13px;scrollbar-color:#29575a transparent}
+.chat-entry-name{color:#9bc7bc;font-size:10px}
+.chat-bubble{color:#e6f8f1;border:1px solid rgba(111,177,167,.16);background:rgba(26,58,59,.72);padding:11px 13px;font-size:12px;border-radius:15px 15px 15px 4px}
+.chat-entry.mine .chat-bubble{border-color:rgba(123,239,184,.23);background:linear-gradient(140deg,#197e6a,#236d66);border-radius:15px 15px 4px 15px;box-shadow:0 7px 18px rgba(18,112,78,.16)}
+.chat-time{font-size:9px;color:#6e9899}
+.chat-empty{color:#89a8a8;font-size:12px}
+.chat-compose{padding:12px;background:rgba(5,17,24,.76);border-top:1px solid rgba(122,200,184,.12)}
+.chat-input{height:45px;border-radius:11px;background:#112934;border:1px solid rgba(136,200,192,.20);color:#f1fffa;padding:0 13px}
+.chat-input::placeholder{color:#78959d}
+.chat-input:focus{border-color:#82ecc3;box-shadow:0 0 0 3px rgba(115,234,189,.13)}
+.chat-send{background:linear-gradient(135deg,#96efc1,#42c6ac);color:#0c3931;border-radius:11px;font-size:20px;box-shadow:0 6px 18px rgba(47,180,138,.15)}
+@media(min-width:881px){
+  .layout-shell.online-active{width:min(1460px,100%);grid-template-columns:minmax(0,1fr) 334px;gap:20px;align-items:end}
+  .layout-shell.online-active .game-container{grid-column:1;grid-row:1;width:100%;padding:clamp(25px,3vw,40px)}
+  .layout-shell.online-active .online-chat{grid-column:2;grid-row:1;align-self:end;min-width:0;width:100%;height:clamp(450px,64dvh,650px);min-height:450px;max-height:none;margin:0}
+}
+/* MODALS AND ROOM BROWSER */
+.modal-overlay{padding:14px;background:rgba(3,9,13,.80);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.modal-content{background:linear-gradient(146deg,#18313a,#0d1d28 60%,#0b1821);border:1px solid rgba(157,225,201,.22);border-radius:24px;box-shadow:0 38px 115px rgba(0,0,0,.63),inset 0 1px rgba(255,255,255,.06);padding:clamp(21px,3.6vw,36px);scrollbar-color:#36655e transparent}
+#modeModal .modal-content{max-width:710px;width:min(710px,100%);padding:clamp(24px,4vw,42px)}
+#modeModal .modal-title{font-size:clamp(24px,4vw,34px);font-weight:960;letter-spacing:-.045em;margin:0 0 11px;color:#f1fff9}
+.modal-title{color:#f1fff9;font-weight:900;letter-spacing:-.03em}
+.mode-lead{color:#9ebbb6;font-size:13px;line-height:1.6;margin-bottom:24px}
+.target-selector-card{margin-bottom:19px;padding:18px;border:1px solid rgba(123,210,180,.21);border-radius:15px;background:rgba(3,20,27,.48);text-align:left}
+.target-selector-card label{color:#dff6e9;font-size:12px;font-weight:860}
+.target-score-select,.room-input,.setup-select{min-height:46px;background:#102a32;border:1px solid rgba(136,200,184,.23);color:#f4fff9;border-radius:11px;padding:11px 13px}
+.target-score-select:focus,.room-input:focus,.setup-select:focus{border-color:#7ae9c2;box-shadow:0 0 0 3px rgba(104,222,179,.11)}
+.target-selector-note{color:#8aa9a4;font-size:11px;line-height:1.5}
+.mode-grid{gap:14px;margin-top:12px}
+.mode-card{min-height:196px;position:relative;overflow:hidden;text-align:left;border:1px solid rgba(111,219,182,.26);border-radius:17px;padding:23px 20px;background:linear-gradient(142deg,#214a46,#143337);transition:transform .2s,border-color .2s,box-shadow .2s}
+.mode-card:last-child{border-color:rgba(255,186,132,.25);background:linear-gradient(142deg,#4a3e39,#302b31)}
+.mode-card::after{content:"";position:absolute;right:-65px;top:-85px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(135,239,193,.15),transparent 73%);pointer-events:none}
+.mode-card:last-child::after{background:radial-gradient(circle,rgba(255,182,128,.16),transparent 73%)}
+.mode-card:hover{transform:translateY(-5px);border-color:#8cf7cb;box-shadow:0 16px 32px rgba(0,0,0,.22)}
+.mode-card:last-child:hover{border-color:#ffd092}
+.mode-icon{display:grid;place-items:center;width:58px;height:58px;border:1px solid rgba(149,247,198,.28);border-radius:15px;background:rgba(113,240,187,.13);font-size:33px;margin:0 0 24px}
+.mode-card:last-child .mode-icon{background:rgba(248,178,117,.12);border-color:rgba(255,203,148,.30)}
+.mode-name{color:#f8fff9;font-size:17px;font-weight:900;margin-bottom:8px}
+.mode-desc{color:#acd0c4;font-size:12px;line-height:1.5}
+.mode-card:last-child .mode-desc{color:#d6c4b6}
+.online-setup-card{width:min(1110px,calc(100vw - 22px));max-width:1110px;border-radius:22px;padding:clamp(17px,2.4vw,30px)}
+.setup-title{font-size:clamp(23px,3vw,32px);color:#f7fff9;letter-spacing:-.05em}
+.setup-subtitle{color:#9fb9b3;font-size:12px}
+.setup-close,.room-browser-refresh,.refresh-code-btn{background:rgba(118,179,161,.10);border:1px solid rgba(139,205,179,.22);color:#e5fbee;border-radius:11px}
+.setup-close:hover,.room-browser-refresh:hover,.refresh-code-btn:hover{background:rgba(108,223,179,.19)}
+.setup-progress{gap:9px;margin:18px 0 21px}
+.setup-progress span{height:5px;background:#23423e}
+.setup-progress span.active{background:linear-gradient(90deg,#69edbc,#ffd18a);box-shadow:0 0 14px rgba(112,230,187,.18)}
+.setup-body-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.94fr);gap:18px}
+.setup-label{font-size:10px;color:#a9cabc;letter-spacing:.12em;font-weight:850}
+.setup-room-box,.setup-room-box.three-fields{grid-template-columns:repeat(2,minmax(0,1fr));padding:15px;gap:12px;border:1px solid rgba(129,206,174,.23);border-radius:15px;background:rgba(4,25,31,.57)}
+.setup-name-input{max-width:none;width:100%;margin-bottom:13px}
+.setup-help{font-size:12px;color:#91aba4}
+.profile-preview{padding:12px;border:1px solid rgba(137,201,182,.19);border-radius:14px;background:rgba(34,65,65,.40)}
+.profile-avatar{box-shadow:0 7px 16px rgba(0,0,0,.19)}
+.profile-preview-text strong{color:#edfff3;font-size:12px}
+.profile-preview-text small{color:#88ad9f;font-size:10px}
+.profile-random{color:#e7fff6;border:1px solid rgba(130,233,187,.34);background:rgba(96,196,148,.13);border-radius:10px;font-size:12px}
+.online-status{padding:10px 12px;border-radius:10px;border:1px solid rgba(138,207,189,.15);background:rgba(4,22,28,.47);font-size:12px;color:#a8c8ba}
+.room-browser-panel{padding:16px;border:1px solid rgba(142,207,175,.21);border-radius:17px;background:rgba(6,23,29,.74)}
+.room-browser-title{color:#edfff4;font-size:15px}
+.room-list{max-height:410px;gap:9px}
+.room-list-empty{border-color:rgba(132,202,177,.22);background:rgba(42,77,71,.2);color:#98b8ae;padding:27px 14px}
+.room-list-item{border:1px solid rgba(135,206,182,.17);border-radius:13px;background:linear-gradient(145deg,rgba(37,71,68,.48),rgba(17,40,45,.57));padding:13px;gap:9px}
+.room-list-code{color:#ffda91}
+.room-player-count{border-color:rgba(127,230,190,.22);color:#b5f3d4;background:rgba(89,181,139,.09)}
+.room-status-waiting{border-color:rgba(124,234,172,.26);background:rgba(88,178,125,.12);color:#b0f4c4}
+.room-join-btn{border:1px solid rgba(201,255,224,.25);background:linear-gradient(110deg,#6ee5b7,#43c9ac);color:#0c3428;border-radius:10px;font-size:11px;font-weight:900;min-height:42px}
+.room-browser-note{font-size:10px;color:#6e948b}
+.setup-footer{border-top:1px solid rgba(133,210,183,.15);padding-top:15px;margin-top:17px}
+.guide-list li{color:#c5e2d7;font-size:13px}
+.rules-summary{color:#b6dacf;border:1px solid rgba(129,202,179,.17);border-radius:12px;background:rgba(8,31,36,.63)}
+.guide-step-number{background:linear-gradient(140deg,#69f0bf,#e9d18d);color:#10392d}
+.source-protection-toast{background:#142b34;border-color:rgba(144,222,192,.22);color:#e1fff3}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #85f4cb;outline-offset:3px}
+/* Desktop breakpoints */
+@media(min-width:881px) and (max-width:1150px){
+ .layout-shell.online-active{grid-template-columns:minmax(0,1fr) 290px;gap:13px}
+ .layout-shell.online-active .game-container{padding:22px 19px}
+ .scoreboard.is-multi{grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}
+ .room-toolbar{gap:9px}
+ .choice-btn{height:115px}
+ .assist-header{align-items:flex-start}
+}
+/* Tablet and phone chat overlay */
+@media(max-width:880px){
+ body,body.online-chat-bottom-right{align-items:flex-start}
+ .layout-shell.online-active{width:min(800px,100%);grid-template-columns:minmax(0,1fr);gap:0}
+ .game-container,.layout-shell .game-container,.layout-shell.online-active .game-container{padding:clamp(20px,4vw,34px)}
+ .layout-shell.online-active .online-chat{
+   position:fixed;display:none;right:12px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:1100;
+   width:min(410px,calc(100vw - 24px));height:min(70dvh,610px);min-height:280px;border-radius:21px;
+   background:linear-gradient(150deg,#173239,#0c1e28 85%);
+ }
+ .layout-shell.online-active .online-chat.chat-open{display:flex}
+ .layout-shell.online-active .chat-fab{
+   display:grid;position:fixed;z-index:1090;right:16px;bottom:calc(15px + env(safe-area-inset-bottom));
+   width:60px;height:60px;border-radius:20px;border:1px solid rgba(190,255,220,.34);
+   background:linear-gradient(138deg,#31a684,#78e7b8);color:#0a332c;
+   box-shadow:0 15px 34px rgba(28,162,116,.26),inset 0 1px rgba(255,255,255,.2);
+   font-size:27px;animation:neonDraw .45s ease both;
+ }
+ .mobile-chat-close{display:grid;border-radius:9px;background:rgba(160,239,200,.12)}
+ .online-setup-card .setup-footer{position:sticky;bottom:-30px;z-index:4;padding:12px 0;background:#102a31;box-shadow:0 -9px 28px rgba(3,15,19,.78)}
+}
+@media(max-width:700px){
+ .setup-body-grid{grid-template-columns:1fr}
+ .room-browser-panel{min-height:180px}
+ .room-list{max-height:245px}
+}
+@media(max-width:620px){
+ body{padding:10px;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+ .game-container,.layout-shell .game-container,.layout-shell.online-active .game-container{padding:19px 14px;border-radius:21px}
+ .game-kicker{font-size:9px;margin-bottom:11px;gap:8px;letter-spacing:.16em}
+ .game-kicker .kicker-line{width:18px}
+ .game-container h1,.layout-shell.online-active .game-container h1{font-size:clamp(2.35rem,10.7vw,3.2rem);line-height:1.04;letter-spacing:-.06em;margin-bottom:8px}
+ .arena-subtitle{font-size:10px;margin-bottom:18px}
+ .status-stack,.layout-shell.online-active .status-stack{gap:7px;margin-bottom:18px}
+ .connection-status,.target-score-display{font-size:10px;min-height:32px;padding:8px 10px}
+ .score-section-head,.choice-section-head{margin-bottom:10px}
+ .section-hint{font-size:9px}
+ .scoreboard,.scoreboard.is-multi{gap:9px}
+ .score-area{margin-bottom:15px}
+ .score-card{padding:15px 11px;min-height:112px;border-radius:13px}
+ .score-label{font-size:11px}
+ .score-value{font-size:41px}
+ .scoreboard.is-multi{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .scoreboard.is-multi .score-card{min-height:143px;padding:11px 8px;border-radius:13px}
+ .scoreboard.is-multi .score-card .avatar-img{width:48px;height:48px}
+ .scoreboard.is-multi .score-value{font-size:27px}
+ .battle-zone,.layout-shell.online-active .battle-zone{padding:46px 12px 21px;min-height:215px;border-radius:15px;margin-bottom:19px}
+ .stage-heading{left:14px;right:14px;top:14px;font-size:9px}
+ .stage-heading span{font-size:8px}
+ .stage-rings{width:185px;height:185px}
+ .emoji-box{font-size:clamp(3.6rem,13vw,5.7rem)}
+ .vs-circle{width:47px;height:47px;min-width:47px;font-size:14px}
+ .round-meta{font-size:10px}
+ #roundTimer{min-width:85px;padding:7px 9px;font-size:10px}
+ .round-info{font-size:16px}
+ .vote-status{font-size:11px}
+ .result-text{font-size:clamp(21px,5.8vw,27px);margin-top:13px}
+ .choices-menu,.layout-shell.online-active .choices-menu{gap:10px;margin-bottom:21px}
+ .choice-btn{height:100px;border-radius:14px}
+ .choice-btn::after{inset:7px;border-radius:9px}
+ .move-emoji{font-size:clamp(2.8rem,13vw,4.4rem)}
+ .assist-panel{padding:14px 13px;border-radius:15px;margin-bottom:18px}
+ .assist-header{align-items:flex-start}
+ .assist-brand strong{font-size:12px}
+ .assist-brand small{font-size:10px}
+ .assist-brain{width:42px;height:42px;font-size:22px;border-radius:12px}
+ .assist-controls{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .assist-sound,.assist-hint-btn{justify-content:center;width:100%;font-size:11px;padding:10px 5px;min-height:41px}
+ .assist-note{font-size:10px}
+ .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .actions .btn,.actions a.btn{width:100%;min-width:0;min-height:44px;padding:10px 7px;font-size:11px}
+ .actions .btn-start-online:not(.hidden){grid-column:1/-1}
+ .device-support{margin-top:17px;font-size:9px}
+ .mode-grid{grid-template-columns:1fr}
+ .mode-card{min-height:136px;padding:16px}
+ .mode-icon{width:45px;height:45px;margin-bottom:10px;font-size:25px}
+ .mode-name{font-size:15px}
+ .mode-desc{font-size:11px}
+ .online-setup-card{padding:16px 13px;width:calc(100vw - 14px)}
+ .setup-room-box,.setup-room-box.three-fields{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;gap:10px}
+ .setup-label{font-size:9px}
+ .room-toolbar{padding:10px;gap:8px}
+ .room-toolbar>span{font-size:11px;min-width:0}
+ .copy-code-btn{font-size:10px;padding:9px 10px}
+}
+@media(max-width:380px){
+ .game-kicker{font-size:8px;letter-spacing:.11em}
+ .game-container h1,.layout-shell.online-active .game-container h1{font-size:clamp(2.15rem,10.6vw,2.8rem)}
+ .section-hint{display:none}
+ .choice-btn{height:89px}
+ .move-emoji{font-size:42px}
+ .room-toolbar>span{min-width:100%;text-align:center}
+ .copy-code-btn{width:100%}
+ .setup-room-box,.setup-room-box.three-fields{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ body::before,.layout-shell,.stage-heading strong::before,.layout-shell.online-active .chat-fab{animation:none!important}
+ .choice-btn,.btn,.mode-card,.assist-hint-btn{transition:none!important}
+}
+/* Waiting state: visible before the first rock/paper/scissors selection. */
+.battle-placeholder{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;padding:42px 14px 19px;pointer-events:none;z-index:1;
+  background:radial-gradient(ellipse at 50% 54%,rgba(72,196,148,.045),transparent 67%);
+}
+.battle-placeholder-icons{display:flex;gap:12px;align-items:center;justify-content:center;margin:0 0 5px}
+.battle-placeholder-icons span{
+  display:grid;place-items:center;width:64px;height:64px;font-size:34px;
+  border-radius:50%;border:1px solid rgba(152,234,200,.19);
+  background:linear-gradient(143deg,rgba(45,85,78,.63),rgba(13,40,45,.55));
+  box-shadow:0 8px 25px rgba(0,0,0,.13);filter:drop-shadow(0 4px 3px rgba(0,0,0,.1));
+}
+.battle-placeholder-icons span:nth-child(2){width:73px;height:73px;font-size:41px;border-color:rgba(248,202,135,.31);background:linear-gradient(143deg,rgba(93,72,59,.62),rgba(37,45,45,.70));animation:neonFloat 3.8s ease-in-out infinite}
+.battle-placeholder-icons span:nth-child(3){background:linear-gradient(143deg,rgba(67,76,112,.58),rgba(22,37,65,.64))}
+.battle-placeholder strong{font-size:clamp(18px,3vw,24px);font-weight:950;letter-spacing:-.03em;color:#e6fff1}
+.battle-placeholder small{font-size:11px;color:#8bb9ae;letter-spacing:.025em}
+#choicesDisplay.show + .battle-placeholder,
+#choicesDisplay.hidden + .battle-placeholder{display:none}
+@media(max-width:620px){
+ .battle-placeholder-icons{gap:9px}
+ .battle-placeholder-icons span{width:51px;height:51px;font-size:29px}
+ .battle-placeholder-icons span:nth-child(2){width:58px;height:58px;font-size:34px}
+ .battle-placeholder strong{font-size:18px}
+ .battle-placeholder small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.battle-placeholder-icons span:nth-child(2){animation:none}}
+
+
+/* 2026 compact header + single AI action. Keep underlying multiplayer logic intact. */
+.arena-titlebar{
+  display:grid;
+  grid-template-columns:minmax(44px,1fr) minmax(0,auto) minmax(44px,1fr);
+  align-items:center;gap:12px;width:100%;margin:0 0 9px;
+}
+.game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{
+  margin:0;white-space:nowrap;min-width:0;
+  font-size:clamp(2rem,4.2vw,3.8rem);line-height:1.14;
+}
+.title-back-icon,.title-sound-toggle{
+  position:relative;z-index:5;display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;min-height:44px;padding:0 11px;border-radius:13px;
+  border:1px solid rgba(134,205,185,.25);
+  background:linear-gradient(145deg,rgba(37,80,78,.73),rgba(16,41,51,.85));
+  color:#d2fff0;text-decoration:none;cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+  box-shadow:inset 0 1px rgba(255,255,255,.055),0 8px 20px rgba(0,0,0,.17);
+}
+.title-back-icon{justify-self:start;width:46px;height:46px}
+.title-sound-toggle{justify-self:end;gap:7px;min-width:46px;height:46px;white-space:nowrap;
+  color:#d8fdf0;font-size:11px;font-weight:850;}
+.sound-icon{font-size:20px;line-height:1}
+.title-sound-toggle[aria-pressed="false"]{opacity:.7}
+.title-back-icon:hover,.title-sound-toggle:hover{transform:translateY(-2px);border-color:rgba(134,255,213,.56);background:rgba(45,107,95,.7)}
+.title-back-icon:focus-visible,.title-sound-toggle:focus-visible,.assist-hint-btn:focus-visible{
+  outline:3px solid #ffcc79;outline-offset:3px;
+}
+/* The AI action replaces the old bottom back button; the large AI panel is gone. */
+.actions .assist-hint-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-width:135px;padding:12px 16px;min-height:48px;border-radius:13px;
+  color:#34200d;background:linear-gradient(125deg,#ffdf9b,#ffad72);
+  border:1px solid rgba(255,227,183,.55);font-size:13px;font-weight:900;
+  box-shadow:0 8px 24px rgba(235,145,67,.14),inset 0 1px rgba(255,255,255,.36);
+}
+.actions .assist-hint-btn:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.08)}
+.actions .assist-hint-btn:disabled{opacity:.53;filter:saturate(.65);cursor:not-allowed}
+.actions .assist-hint-btn #aiHintCount{background:rgba(99,59,19,.13);color:#512c0e;border-radius:6px;padding:3px 7px;font-size:11px;}
+.game-container > .assist-result{
+  width:100%;max-width:700px;margin:15px auto 0;padding:14px 16px;
+  border:1px solid rgba(111,231,185,.32);border-left:4px solid #79e7bf;
+  border-radius:13px;text-align:left;
+  background:linear-gradient(120deg,rgba(17,67,57,.8),rgba(18,38,43,.9));
+  box-shadow:0 12px 30px rgba(3,25,24,.14);
+}
+.game-container > .assist-result::before{
+  content:'✨ AI ĐỀ XUẤT';display:block;color:#9dffda;
+  font-size:10px;font-weight:950;letter-spacing:.14em;margin:0 0 6px;
+}
+@media(max-width:760px){
+ .game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{
+   font-size:clamp(1.65rem,5.2vw,2.5rem);
+ }
+ .title-sound-toggle .sound-text{display:none}
+ .title-sound-toggle,.title-back-icon{width:44px;height:44px;padding:0}
+}
+@media(max-width:620px){
+ .arena-titlebar{grid-template-columns:40px minmax(0,1fr) 40px;gap:5px;margin-bottom:10px}
+ .game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{
+   font-size:clamp(1.36rem,6.65vw,2.05rem);letter-spacing:-.055em;
+ }
+ .title-back-icon,.title-sound-toggle{width:39px;min-width:39px;height:39px;min-height:39px;border-radius:11px}
+ .title-sound-toggle .sound-icon{font-size:19px}
+ .actions .assist-hint-btn{min-width:0;width:100%;padding:9px 7px;min-height:44px;font-size:11px;}
+ .game-container > .assist-result{padding:12px;margin-top:12px;font-size:11px}
+}
+@media(max-width:360px){
+ .game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{font-size:clamp(1.25rem,6.15vw,1.6rem)}
+}
+@media(prefers-reduced-motion:reduce){.title-back-icon,.title-sound-toggle,.actions .assist-hint-btn{transition:none!important}}
+
+
+/* Multiplayer reveal is now a separate synchronized OAN–TU–TI phase. */
+.rps-roll{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;
+  width:100%;margin:10px auto 5px;padding:20px 14px 16px;min-height:195px;
+  position:relative;overflow:hidden;border:1px solid rgba(113,236,192,.30);border-radius:20px;
+  background:radial-gradient(ellipse at 50% 20%,rgba(74,226,178,.15),transparent 73%),linear-gradient(145deg,rgba(9,45,49,.90),rgba(7,22,39,.90));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 11px 38px rgba(2,11,20,.21);
+}
+.rps-roll.hidden{display:none!important}
+.rps-roll::before{content:"";position:absolute;inset:-50%;background:conic-gradient(from 20deg,transparent 0 30%,rgba(118,231,190,.08) 45%,transparent 60% 100%);animation:rpsRotate 9s linear infinite;pointer-events:none}
+.rps-roll-tag{z-index:1;display:inline-flex;align-items:center;gap:9px;font-size:10px;font-weight:950;letter-spacing:.18em;color:#c8ffe8}
+.rps-live-dot{width:7px;height:7px;border-radius:50%;background:#77f6c8;box-shadow:0 0 15px #77f6c8;animation:rpsPulse 1s ease-in-out infinite}
+.rps-roll-arena{z-index:1;display:flex;align-items:center;justify-content:center;width:100%;gap:clamp(6px,3.5vw,29px)}
+.rps-hand{font-size:clamp(47px,9vw,70px);line-height:1;filter:drop-shadow(0 10px 16px rgba(0,0,0,.3));transform-origin:50% 90%;will-change:transform}
+.rps-hand-left{animation:rpsThrustLeft .68s ease-in-out infinite}
+.rps-hand-right{animation:rpsThrustRight .68s ease-in-out infinite}
+.rps-roll-middle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:108px;min-height:96px;position:relative}
+.rps-roll-word{font-size:clamp(20px,5vw,32px);color:#ffdda1;font-weight:1000;letter-spacing:.07em;line-height:1.2;text-shadow:0 0 24px rgba(255,206,125,.20)}
+.rps-roll-count{font-size:38px;font-weight:1000;color:#caffeb;line-height:1.15;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(109,239,191,.3)}
+.rps-roll-note{z-index:1;color:#a4c9bf;font-size:11px;font-weight:750;text-align:center;line-height:1.35}
+.rps-roll.beat-2{border-color:rgba(255,205,115,.52)}
+.rps-roll.beat-2 .rps-roll-word{color:#fff0c9}
+@keyframes rpsThrustLeft{0%,100%{transform:translate(0,9px) rotate(-15deg) scale(.96)}48%{transform:translate(8px,-13px) rotate(6deg) scale(1.1)}}
+@keyframes rpsThrustRight{0%,100%{transform:translate(0,9px) rotate(15deg) scale(.96)}48%{transform:translate(-8px,-13px) rotate(-6deg) scale(1.1)}}
+@keyframes rpsRotate{to{transform:rotate(360deg)}}
+@keyframes rpsPulse{50%{opacity:.5;transform:scale(.7)}}
+@media (max-width:480px){.rps-roll{padding:13px 7px;min-height:165px}.rps-roll-middle{min-width:92px;min-height:80px}.rps-hand{font-size:45px}.rps-roll-count{font-size:30px}.rps-roll-note{font-size:10px}}
+@media (prefers-reduced-motion: reduce){.rps-roll::before,.rps-hand,.rps-live-dot{animation:none!important}}
+
+
+/* Reposition sound & help as a compact tool group on the title row. */
+.arena-titlebar .title-tools{display:flex;align-items:center;justify-self:end;justify-content:flex-end;gap:9px;min-width:0}
+.arena-titlebar .title-sound-toggle{justify-self:auto}
+.title-help-btn{
+  flex:0 0 46px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:13px;border:1px solid rgba(255,205,117,.4);
+  background:linear-gradient(145deg,rgba(93,73,39,.65),rgba(36,44,49,.87));
+  color:#ffdfa3;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.17);
+  transition:background .18s ease,transform .18s ease,border-color .18s ease;
+}
+.title-help-btn:hover{transform:translateY(-2px);border-color:#ffe1a5;background:rgba(96,83,49,.79)}
+.title-help-btn:focus-visible{outline:3px solid #ffcc79;outline-offset:3px}
+/* The central beat shows only the synchronized 3-2-1 counter, without words. */
+.rps-roll-middle{gap:0;min-height:82px}
+.rps-roll-count{font-size:clamp(43px,6vw,56px);color:#caffeb}
+/* Show the victorious move, not a trophy, after the round reveal. */
+.result-text.winning-move-icon{
+  display:flex;justify-content:center;align-items:center;
+  font-size:clamp(61px,8.5vw,88px);min-height:90px;line-height:1.1;
+  filter:drop-shadow(0 0 18px rgba(255,210,119,.28));
+  animation:winningMoveReveal .65s cubic-bezier(.25,1.5,.5,1) both;
+}
+.result-text.winning-move-icon.match-finished{
+  animation:winningMoveReveal .65s cubic-bezier(.25,1.5,.5,1) both,
+            finalWinnerPulse 1.1s .7s ease-in-out infinite alternate;
+}
+@keyframes winningMoveReveal{
+  from{opacity:0;transform:translateY(16px) scale(.52) rotate(-13deg)}
+  to{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+}
+@media(max-width:760px){
+  .arena-titlebar .title-tools{gap:6px}
+  .title-help-btn{width:44px;height:44px;flex-basis:44px}
+}
+@media(max-width:620px){
+  .arena-titlebar{grid-template-columns:39px minmax(0,1fr) auto;gap:5px}
+  .arena-titlebar .title-tools{gap:5px}
+  .title-help-btn{width:39px;height:39px;flex-basis:39px;border-radius:11px}
+  .title-help-btn svg{width:19px;height:19px}
+  .game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{
+     font-size:clamp(1.23rem,5.65vw,1.83rem);letter-spacing:-.055em
+  }
+}
+@media(max-width:375px){
+  .arena-titlebar{grid-template-columns:35px minmax(0,1fr) auto;gap:3px}
+  .title-back-icon,.title-sound-toggle,.title-help-btn{width:35px;min-width:35px;height:35px;min-height:35px;border-radius:10px;padding:0}
+  .title-help-btn{flex-basis:35px}
+  .arena-titlebar .title-tools{gap:4px}
+  .game-container .arena-titlebar h1,.layout-shell.online-active .game-container .arena-titlebar h1{font-size:clamp(1.08rem,5.3vw,1.45rem)}
+}
+@media(prefers-reduced-motion:reduce){.title-help-btn,.result-text.winning-move-icon{transition:none;animation:none}}
+
+
+/* Room invitations and win announcement */
+.room-code-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
+.room-code-actions .copy-code-btn{min-height:43px;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.share-room-btn{background:linear-gradient(120deg,rgba(255,209,129,.17),rgba(255,183,94,.07))!important;border-color:rgba(255,211,135,.38)!important;color:#ffe6b7!important}
+.share-room-btn:hover{background:rgba(255,205,128,.22)!important;border-color:rgba(255,224,177,.68)!important}
+.share-room-btn svg{flex:0 0 17px}
+.round-winner-names{width:fit-content;max-width:100%;margin:7px auto 4px;padding:9px 16px;border-radius:999px;border:1px solid rgba(126,239,193,.32);background:linear-gradient(115deg,rgba(40,112,87,.27),rgba(31,64,73,.36));color:#d6ffea;font-weight:850;font-size:clamp(12px,2.3vw,15px);line-height:1.6;overflow-wrap:anywhere;text-align:center;box-shadow:0 7px 22px rgba(0,0,0,.13);animation:winnerCaptionEnter .5s ease-out both}
+.round-winner-names.hidden{display:none!important}
+@keyframes winnerCaptionEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:620px){.room-code-actions{width:100%;justify-content:stretch;flex-wrap:nowrap}.room-code-actions .copy-code-btn{flex:1 1 0;min-width:0;padding:10px 7px;font-size:11px}.round-winner-names{border-radius:14px;padding:8px 11px}}
+@media(prefers-reduced-motion:reduce){.round-winner-names{animation:none}}
+    
+/* Premium pair of room-setup navigation buttons: crisp SVG icons and consistent mobile sizing. */
+.setup-footer .setup-nav-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:11px;
+  position:relative;isolation:isolate;overflow:hidden;
+  min-width:168px;min-height:56px;padding:7px 13px;
+  font-size:14px;font-weight:850;line-height:1.2;letter-spacing:-.01em;
+  border-radius:17px;cursor:pointer;white-space:nowrap;
+  transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.setup-footer .setup-nav-btn .btn-icon{
+  display:grid;place-items:center;flex:0 0 38px;
+  width:38px;height:38px;border-radius:12px;
+  transition:transform .22s ease,background .22s ease,box-shadow .22s ease;
+}
+.setup-footer .setup-nav-btn .btn-icon svg{display:block;width:19px;height:19px}
+.setup-footer .btn-back.setup-nav-btn{
+  color:#d9f4eb;
+  background:linear-gradient(125deg,rgba(34,76,78,.52),rgba(23,46,57,.72));
+  border:1px solid rgba(147,218,191,.26);
+  box-shadow:inset 0 1px 0 rgba(226,255,243,.06),0 7px 22px rgba(2,15,20,.2);
+}
+.setup-footer .btn-back.setup-nav-btn .btn-icon{
+  color:#bdf8df;background:rgba(132,238,192,.11);
+  border:1px solid rgba(164,241,204,.20);
+}
+.setup-footer .btn-continue.setup-nav-btn{
+  color:#092b25;
+  background:linear-gradient(115deg,#a8f5cf 0%,#71e9bd 58%,#5ddbb3 100%);
+  border:1px solid rgba(217,255,238,.52);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.46),0 9px 22px rgba(40,194,140,.20);
+}
+.setup-footer .btn-continue.setup-nav-btn .btn-icon{
+  color:#d9fff0;background:linear-gradient(145deg,#176f5a,#0b584d);
+  border:1px solid rgba(7,80,61,.2);box-shadow:0 3px 8px rgba(6,71,54,.15);
+}
+@media(hover:hover){
+  .setup-footer .btn-back.setup-nav-btn:hover{
+    background:linear-gradient(125deg,rgba(47,104,103,.73),rgba(28,67,74,.8));
+    border-color:rgba(160,246,205,.52);box-shadow:0 10px 25px rgba(2,15,20,.28);
+    transform:translateY(-2px);
+  }
+  .setup-footer .btn-continue.setup-nav-btn:hover:not(:disabled){
+    background:linear-gradient(115deg,#c6ffe5,#8df2c8 58%,#69e5bc);
+    box-shadow:0 12px 28px rgba(40,194,140,.27);
+    transform:translateY(-2px);
+  }
+  .setup-footer .btn-back.setup-nav-btn:hover .btn-icon{transform:translateX(-3px)}
+  .setup-footer .btn-continue.setup-nav-btn:hover:not(:disabled) .btn-icon{transform:translateX(3px)}
+}
+.setup-footer .setup-nav-btn:active:not(:disabled){transform:translateY(1px) scale(.985)}
+.setup-footer .setup-nav-btn:disabled{opacity:.68;cursor:wait}
+.setup-footer .setup-nav-btn.is-busy .btn-icon svg{opacity:0}
+.setup-footer .setup-nav-btn.is-busy .btn-icon:after{
+  content:"";position:absolute;width:17px;height:17px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.36);border-top-color:#fff;animation:setupNavSpin .8s linear infinite;
+}
+@keyframes setupNavSpin{to{transform:rotate(360deg)}}
+@media(max-width:620px){
+ .online-setup-card .setup-footer{gap:10px}
+ .online-setup-card .setup-footer .setup-nav-btn{flex:1;min-width:0;min-height:52px;padding:7px 8px;font-size:12px;gap:7px;border-radius:14px}
+ .online-setup-card .setup-footer .setup-nav-btn .btn-icon{width:33px;height:33px;flex-basis:33px;border-radius:10px}
+ .online-setup-card .setup-footer .setup-nav-btn .btn-icon svg{width:18px;height:18px}
+}
+@media(max-width:880px){
+ .online-setup-card .setup-footer{
+  position:sticky;bottom:0;z-index:5;margin-bottom:0;
+  padding:12px 0 10px;background:linear-gradient(180deg,rgba(16,42,49,.98),#102a31);
+  box-shadow:0 -12px 26px rgba(3,15,19,.84);
+ }
+}
+@media(max-width:340px){
+ .online-setup-card .setup-footer .setup-nav-btn{font-size:11px;gap:5px;padding:6px}
+ .online-setup-card .setup-footer .setup-nav-btn .btn-icon{width:30px;height:30px;flex-basis:30px}
+ .online-setup-card .setup-footer .setup-nav-btn.is-busy .btn-icon{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .setup-footer .setup-nav-btn,.setup-footer .setup-nav-btn .btn-icon{transition:none}
+ .setup-footer .setup-nav-btn.is-busy .btn-icon:after{animation:none}
+}
+
+</style>
 </head>
 <body>
     <div class="modal-overlay" id="modeModal">
         <div class="modal-content">
             <div class="modal-title">🎮 CHỌN CHẾ ĐỘ CHƠI</div>
+            <p class="mode-lead">Sẵn sàng cho một ván đấu bùng nổ? Chọn cách bạn muốn tranh tài.</p>
             <div class="target-selector-card">
                 <label for="targetScoreSelect">🏆 Điểm để thắng chung cuộc</label>
                 <select id="targetScoreSelect" class="target-score-select" onchange="setTargetScore(this.value)">
@@ -1169,7 +2519,7 @@
                     </div>
                     <div class="profile-preview">
                         <div class="profile-avatar" id="ownAvatarPreview" aria-label="Avatar ngẫu nhiên"></div>
-                        <div class="profile-preview-text"><strong>Avatar của bạn</strong><small>Chọn ngẫu nhiên trong 100.000.000 tổ hợp và đồng bộ cho cả phòng.</small></div>
+                        <div class="profile-preview-text"><strong>Avatar của bạn</strong><small>Chọn ngẫu nhiên trong 100.000.000 tổ hợp.</small></div>
                         <button class="profile-random" type="button" onclick="rerollAvatar()">🎲 Đổi</button>
                     </div>
 
@@ -1182,7 +2532,7 @@
                 <aside class="room-browser-panel" aria-label="Danh sách phòng đã tạo">
                     <div class="room-browser-header">
                         <div class="room-browser-title">🎮 Danh sách phòng</div>
-                        <button class="room-browser-refresh" id="roomBrowserRefreshButton" type="button" title="Làm mới danh sách phòng" onclick="refreshOpenRooms()">⟳</button>
+                        <button class="room-browser-refresh" id="roomBrowserRefreshButton" type="button" title="Làm mới danh sách phòng" onclick="refreshOpenRooms()"><span class="room-refresh-icon" aria-hidden="true">⟳</span><span>Làm mới</span></button>
                     </div>
                     <div class="room-list" id="openRoomList">
                         <div class="room-list-empty">Chưa có phòng nào đang hoạt động.</div>
@@ -1192,8 +2542,14 @@
             </div>
 
             <div class="setup-footer">
-                <button class="btn btn-back" type="button" onclick="cancelOnlineMode()">← Quay lại</button>
-                <button class="btn btn-continue" type="button" onclick="continueOnlineSetup()">Tiếp tục →</button>
+                <button class="btn btn-back setup-nav-btn" type="button" onclick="cancelOnlineMode()">
+                    <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></span>
+                    <span class="nav-text">Quay lại</span>
+                </button>
+                <button class="btn btn-continue setup-nav-btn" type="button" onclick="continueOnlineSetup()">
+                    <span class="nav-text">Tiếp tục</span>
+                    <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                </button>
             </div>
         </div>
     </div>
@@ -1213,50 +2569,83 @@
 
     <div class="layout-shell" id="layoutShell">
     <main class="game-container" id="gameContainer">
-        <h1>BÚA KÉO BAO</h1>
+<div class="arena-titlebar">
+            <a href="game.html" class="title-back-icon" title="Quay lại" aria-label="Quay lại trang trò chơi">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            </a>
+            <h1><span class="title-accent">BÚA</span> KÉO <span class="title-orange">BAO</span></h1>
+            <div class="title-tools">
+                <button class="title-sound-toggle" type="button" id="countdownSoundButton" onclick="toggleCountdownSound()" aria-label="Tắt âm thanh" aria-pressed="true" title="Bật hoặc tắt âm thanh"><span class="sound-icon" aria-hidden="true">🔊</span><span class="sound-text">Âm thanh</span></button>
+                <button class="title-help-btn" type="button" onclick="showGuide('help')" aria-label="Xem hướng dẫn chơi" title="Hướng dẫn chơi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 1.6-2.5 2-2.5 3.5"/><circle cx="12" cy="17.2" r=".85" fill="currentColor" stroke="none"/></svg></button>
+            </div>
+        </div>
+        <p class="arena-subtitle">Một lựa chọn. Một cuộc đấu. Một người chiến thắng.</p>
         <div class="status-stack">
             <div class="connection-status" id="connectionStatus">Chưa chọn chế độ</div>
             <div class="target-score-display" id="targetScoreDisplay">🏆 Chạm 10 điểm để thắng chung cuộc</div>
         </div>
 
         <div class="room-toolbar hidden" id="roomToolbar">
-            <span id="roomBadge">🌐 Phòng đang chờ</span>
-            <button class="copy-code-btn" type="button" onclick="copyRoomCode()">📋 Sao chép mã</button>
+            <span id="roomBadge"><span class="room-code-label">MÃ PHÒNG</span> ĐANG CHỜ</span>
+            <div class="room-code-actions">
+                <button class="copy-code-btn" id="copyRoomCodeButton" type="button" onclick="copyRoomCode(this)" aria-label="Sao chép mã phòng">📋 Sao chép mã</button>
+                <button class="copy-code-btn share-room-btn" id="shareRoomLinkButton" type="button" onclick="shareRoomLink()" aria-label="Chia sẻ đường dẫn phòng" title="Gửi link để bạn bè tham gia cùng phòng">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 13.5 6.6 4m0-11-6.6 4"/></svg>
+                    <span>Chia sẻ link</span>
+                </button>
+            </div>
         </div>
-        <div class="scoreboard" id="scoreboard">
-            <div class="score-card"><div class="score-label">Bạn</div><div class="score-value">0</div></div>
-            <div class="score-card"><div class="score-label">Máy</div><div class="score-value">0</div></div>
-        </div>
+        <section class="score-area" aria-label="Bảng điểm">
+            <div class="score-section-head"><span class="section-id"><span class="section-mark">01</span> BẢNG ĐIỂM</span><span class="section-hint">ĐIỂM SỐ THỰC TẾ</span></div>
+            <div class="scoreboard" id="scoreboard">
+                <div class="score-card"><div class="score-label">Bạn</div><div class="score-value">0</div></div>
+                <div class="score-card"><div class="score-label">Máy</div><div class="score-value">0</div></div>
+            </div>
+        </section>
 
         <div class="battle-zone">
+            <div class="stage-heading" aria-hidden="true"><strong>ĐẤU TRƯỜNG</strong><span>ĐẤU TRÍ · PHẢN XẠ</span></div>
+            <div class="stage-rings" aria-hidden="true"></div>
             <div class="choices-display" id="choicesDisplay">
                 <div class="emoji-box" id="playerChoice">❓</div>
                 <div class="vs-circle">VS</div>
                 <div class="emoji-box" id="computerChoice">❓</div>
             </div>
+            <div class="battle-placeholder" aria-hidden="true"><div class="battle-placeholder-icons"><span>✊</span><span>✌️</span><span>✋</span></div><strong>SẴN SÀNG RA CHIÊU?</strong><small>Chọn một biểu tượng bên dưới để bắt đầu</small></div>
             <div class="online-battle hidden" id="onlineBattle">
                 <div class="round-meta"><span id="roundCounter">Chưa bắt đầu</span><span id="roundTimer">⏱ --</span></div>
+                <div class="rps-roll hidden" id="rpsRoll" aria-live="off" aria-label="Đang chạy hiệu ứng oẳn tù tì">
+                    <div class="rps-roll-tag"><span class="rps-live-dot"></span> ĐANG OẲN TÙ TÌ</div>
+                    <div class="rps-roll-arena">
+                        <div class="rps-hand rps-hand-left" aria-hidden="true">✊</div>
+                        <div class="rps-roll-middle"><span class="rps-roll-count" id="rpsRollCount">3</span></div>
+                        <div class="rps-hand rps-hand-right" aria-hidden="true">✊</div>
+                    </div>
+                    <div class="rps-roll-note" id="rpsRollNote">Tất cả đã chọn · Kết quả vẫn được giữ kín</div>
+                </div>
                 <div class="round-info" id="roundInfo">Đang đợi người chơi vào phòng...</div>
                 <div class="vote-status" id="voteStatus"></div>
                 <div class="round-reveal" id="roundReveal"></div>
             </div>
             <div class="result-text" id="result"></div>
+            <div class="round-winner-names hidden" id="roundWinnerNames" aria-live="polite"></div>
         </div>
 
-        <div class="choices-menu">
-            <button class="choice-btn" onclick="handleChoice('rock')">✊</button>
-            <button class="choice-btn" onclick="handleChoice('scissors')">✌️</button>
-            <button class="choice-btn" onclick="handleChoice('paper')">✋</button>
+        <div class="choice-section-head"><span class="section-id"><span class="section-mark">02</span> CHỌN CHIÊU CỦA BẠN</span><span class="section-hint">CHẠM ĐỂ CHỌN</span></div>
+        <div class="choices-menu" aria-label="Chọn búa, kéo hoặc bao">
+            <button class="choice-btn" type="button" aria-label="Chọn Búa" onclick="handleChoice('rock')"><span class="move-emoji" aria-hidden="true">✊</span></button>
+            <button class="choice-btn" type="button" aria-label="Chọn Kéo" onclick="handleChoice('scissors')"><span class="move-emoji" aria-hidden="true">✌️</span></button>
+            <button class="choice-btn" type="button" aria-label="Chọn Bao" onclick="handleChoice('paper')"><span class="move-emoji" aria-hidden="true">✋</span></button>
         </div>
 
         <div class="actions">
             <button class="btn btn-start-online hidden" id="startOnlineButton" onclick="startOnlineMatch()">▶ Bắt đầu trận</button>
-            <button class="btn btn-reset" id="resetGameButton" onclick="resetGame()">🔄 Đặt lại điểm</button>
             <button class="btn btn-leave hidden" id="leaveMatchButton" onclick="leaveOnlineMatch()">🚪 Rời trận</button>
             <button class="btn btn-dissolve hidden" id="dissolveRoomButton" onclick="dissolveOnlineRoom()">🗑 Giải tán phòng</button>
             <button class="btn btn-secondary" onclick="changeMode()">🎮 Đổi chế độ</button>
-            <a href="game.html" class="btn btn-back">Quay lại</a>
+            <button class="btn assist-hint-btn hidden" type="button" id="aiHintButton" onclick="requestAiHint()" aria-label="Nhận gợi ý AI, tối đa 3 lượt mỗi trận"><span>✨ AI gợi ý</span><span id="aiHintCount">3/3</span></button>
         </div>
+        <div class="assist-result hidden" id="aiHintResult" role="status" aria-live="polite"></div>
         <div class="device-support" id="deviceSupport">Tối ưu hiển thị: Android • iOS • Máy tính</div>
     </main>
     <aside class="online-chat hidden" id="onlineChat" aria-label="Chat trong phòng online">
@@ -1275,7 +2664,7 @@
     </div>
 
     <div class="source-protection-toast" id="sourceProtectionToast" role="status" aria-live="polite">
-        Chức năng xem mã nguồn đã bị khóa trên trang này.
+        Thao tác này đã bị hạn chế trên trang.
     </div>
 
     <audio id="winSound" src="win.mp3"></audio>
@@ -1301,9 +2690,16 @@ const MEMBER_TTL = 38000;
 const MAX_CHAT = 60;
 const MAX_OUTBOX = 30;
 const ROUND_MS = 30000;
-const REVEAL_MS = 4500;
+const REVEAL_MS = 4500; // Between normal rounds
+const RPS_ANIM_MS = 4500; // Shared OAN-TU-TI animation before result
+const FINAL_RESULT_MS = 30000; // Keep the final standings visible for 30 seconds
+const AI_HINT_LIMIT = 3, AI_HISTORY_LIMIT = 24;
 let gameMode = null, targetScore = 10, myAvatarId = null, localPlayerName = 'Bạn';
 let computerScores = [0,0], computerBusy = false, computerFinished = false;
+let computerRestartTimer = null, computerRestartDeadline = 0;
+let computerMatchId = '', computerRoundNumber = 1, computerChoiceHistory = [];
+let assistUsage = {matchKey:'',used:0,rounds:[],lastHint:null};
+let countdownSoundEnabled = true, countdownAudio = null, lastCountdownBeep = '';
 let guideNextAction = 'play', roomList = [], roomListBusy = false, roomListError = '';
 let session = null, roomState = null;
 let directoryTimer = null, syncTimer = null, uiTimer = null;
@@ -1502,7 +2898,29 @@ function memberListApi(code){return `${DIR_API_BASE}/list/${memberNamespace(code
 function inform(text,error=false){const node=$('onlineStatus');node.textContent=text;node.classList.toggle('error',error);}
 function setConnection(text){$('connectionStatus').textContent=text;}
 function showResult(text,kind=''){
-  const el=$('result');el.textContent=text;el.className='result-text'+(kind?' '+kind:'');
+  const el=$('result');
+  el.textContent=text;
+  el.className='result-text'+(kind?' '+kind:'');
+  el.removeAttribute('aria-label');
+  el.removeAttribute('title');
+  const winnerLabel=$('roundWinnerNames');
+  if(winnerLabel){winnerLabel.classList.add('hidden');winnerLabel.textContent='';}
+}
+function showWinnerNames(names,finalMatch=false){
+  const el=$('roundWinnerNames');if(!el)return;
+  const safeNames=Array.isArray(names)?names.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()):[];
+  if(!safeNames.length){el.textContent='';el.classList.add('hidden');return;}
+  el.textContent=(finalMatch?'👑 Vô địch: ':'✨ Người thắng: ')+safeNames.join(', ');
+  el.classList.remove('hidden');
+}
+// All clients use the same published winningChoice to show the winning hand.
+// A tie (no winningChoice) uses the handshake symbol instead.
+function showWinningMove(move,isFinal=false){
+  const info=CHOICE_INFO[move];
+  showResult(info?info.emoji:'🤝','winning-move-icon'+(isFinal?' match-finished':''));
+  const caption=info?`Chiêu ${info.name} thắng`:'Hòa, không có chiêu thắng';
+  $('result').setAttribute('aria-label',caption);
+  $('result').title=caption;
 }
 function modal(id,show){$(id).classList.toggle('open',show);}
 function setChoices(enabled){document.querySelectorAll('.choice-btn').forEach(b=>{b.disabled=!enabled;});}
@@ -1516,20 +2934,49 @@ function clearVisualCache(){lastChatSignature='';lastPlayersSignature='';lastBat
 function showMode(){modal('modeModal',true);modal('onlineModal',false);modal('guideModal',false);}
 function showGuide(next='play'){
   guideNextAction=next;
-  const online=gameMode==='online';
-  $('guideTitle').textContent=online?'🌐 HƯỚNG DẪN ONLINE':'🎮 HƯỚNG DẪN CHƠI';
-  $('guideList').innerHTML=online?`<li><span class="guide-step-number">1</span><span>Tạo phòng, chọn <b>2 / 3 / 4 / 6 / 10 / 20</b> người và gửi mã cho bạn bè.</span></li><li><span class="guide-step-number">2</span><span>Mỗi người có avatar ngẫu nhiên, có thể nhắn tin ngay trong phòng.</span></li><li><span class="guide-step-number">3</span><span>Chủ phòng nhấn <b>Bắt đầu</b> khi đủ ít nhất 2 người. Trong 30 giây mọi người chọn búa, kéo hoặc bao; kết quả chỉ hiện khi mọi người chọn xong hoặc hết giờ.</span></li><li><span class="guide-step-number">4</span><span>Nếu có đúng hai loại chiêu, tất cả người chọn chiêu thắng được cộng 1 điểm. Chọn đủ cả ba loại hoặc chỉ một loại sẽ hòa. Người đạt điểm đích sẽ thắng trận.</span></li>`:
-    `<li><span class="guide-step-number">1</span><span>Nhấn chọn ✊ Búa, ✌️ Kéo hoặc ✋ Bao.</span></li><li><span class="guide-step-number">2</span><span>Máy sẽ chọn chiêu, kết quả được tính theo luật thông thường.</span></li><li><span class="guide-step-number">3</span><span>Đạt <b>${targetScore} điểm</b> để thắng trận.</span></li>`;
+  const intro=next==='intro', online=gameMode==='online';
+  $('guideTitle').textContent=intro?'🎮 HƯỚNG DẪN CHƠI':online?'🌐 HƯỚNG DẪN ONLINE':'🎮 HƯỚNG DẪN CHƠI';
+  $('guideList').innerHTML=intro?
+    `<li><span class="guide-step-number">1</span><span><b>Quy tắc:</b> ✊ Búa thắng ✌️ Kéo, ✌️ Kéo thắng ✋ Bao, ✋ Bao thắng ✊ Búa.</span></li>
+     <li><span class="guide-step-number">2</span><span>Chọn <b>Chơi với máy</b> hoặc <b>Chơi online</b>. Online có phòng từ 2 đến 20 người, mỗi người được nhận một avatar và chat trong phòng.</span></li>
+     <li><span class="guide-step-number">3</span><span>Trong phòng online, mọi người có <b>30 giây</b> để chọn. Lựa chọn được giữ kín; khi tất cả đã chọn, game chạy hiệu ứng oẳn tù tì <b>3 – 2 – 1</b> rồi mới công bố kết quả. Hết giờ, người chưa chọn được tính là bỏ lượt.</span></li>
+     <li><span class="guide-step-number">4</span><span>Nếu có đúng hai loại chiêu, người chọn chiêu thắng được <b>+1 điểm</b>. Nếu cả ba loại cùng xuất hiện, tất cả giống nhau hoặc không ai chọn thì hòa.</span></li>
+     <li><span class="guide-step-number">5</span><span>Mỗi người có <b>3 lượt AI gợi ý/trận</b> (tối đa 1 lượt mỗi vòng). AI chỉ dự đoán theo lịch sử, không chắc chắn thắng. Kết thúc chung cuộc, xem kết quả 30 giây rồi tự chơi lại.</span></li>`:
+    online?
+    `<li><span class="guide-step-number">1</span><span>Tạo hoặc tham gia phòng cho <b>2 / 3 / 4 / 6 / 10 / 20</b> người, rồi chia sẻ mã phòng.</span></li>
+     <li><span class="guide-step-number">2</span><span>Chủ phòng nhấn Bắt đầu khi có ít nhất 2 người. Mọi người chọn trong 30 giây; khi tất cả xong, hiệu ứng oẳn tù tì 3 – 2 – 1 sẽ chạy <b>trước khi</b> hiện kết quả.</span></li>
+     <li><span class="guide-step-number">3</span><span>Có 3 lượt AI gợi ý mỗi trận và chat trong phòng. Kết thúc chung cuộc, chờ 30 giây để tự bắt đầu trận mới.</span></li>`:
+    `<li><span class="guide-step-number">1</span><span>Chọn ✊ Búa, ✌️ Kéo hoặc ✋ Bao. Búa thắng Kéo, Kéo thắng Bao, Bao thắng Búa.</span></li>
+     <li><span class="guide-step-number">2</span><span>Chờ hiệu ứng oẳn tù tì, sau đó xem kết quả và điểm số.</span></li>
+     <li><span class="guide-step-number">3</span><span>Đạt <b>${targetScore} điểm</b> để chiến thắng; có 3 lượt AI gợi ý mỗi trận. Trận mới tự bắt đầu sau 30 giây.</span></li>`;
   $('guideActionButton').textContent=next==='setup'?'Tiếp tục tạo phòng →':'Đã hiểu';
   modal('guideModal',true);
 }
-function closeGuide(){modal('guideModal',false);if(guideNextAction==='setup')modal('onlineModal',true);guideNextAction='play';}
+function closeGuide(){
+  const next=guideNextAction;
+  modal('guideModal',false);
+  guideNextAction='play';
+  if(next==='intro'){
+    const invitedCode=invitedRoomCode();
+    if(invitedCode){
+      selectMode('online');
+      $('onlineRoomType').value='join';
+      handleRoomTypeChange();
+      $('onlineRoomCode').value=invitedCode;
+      inform('Bạn được mời vào phòng '+invitedCode+'. Nhập tên rồi nhấn Tiếp tục để tham gia.');
+    }else showMode();
+  }else if(next==='setup')modal('onlineModal',true);
+}
 function selectMode(mode){
   if(!['online','computer'].includes(mode))return;
   setTargetScore($('targetScoreSelect').value);
+  clearComputerRestartTimer();
   gameMode=mode; computerScores=[0,0];computerBusy=false;computerFinished=false;
+  computerMatchId=createId();computerRoundNumber=1;computerChoiceHistory=[];lastCountdownBeep='';
+  assistUsage={matchKey:'',used:0,rounds:[],lastHint:null};
   clearVisualCache();modal('modeModal',false);stopFireworks();
   $('layoutShell').classList.toggle('online-active',mode==='online');
+  document.body.classList.toggle('online-chat-bottom-right',mode==='online');
   $('scoreboard').classList.toggle('is-multi',mode==='online');
   $('onlineBattle').classList.toggle('hidden',mode!=='online');
   $('choicesDisplay').classList.toggle('hidden',mode==='online');
@@ -1539,18 +2986,20 @@ function selectMode(mode){
   $('startOnlineButton').classList.add('hidden');
   $('leaveMatchButton').classList.add('hidden');
   $('dissolveRoomButton').classList.add('hidden');
-  $('resetGameButton').classList.toggle('hidden',mode==='online');
   $('scoreboard').innerHTML='<div class="score-card"><div class="score-label">Bạn</div><div class="score-value">0</div></div><div class="score-card"><div class="score-label">Máy</div><div class="score-value">0</div></div>';
   $('choicesDisplay').classList.remove('show'); $('playerChoice').textContent='❓'; $('computerChoice').textContent='❓';
-  showResult('');updateTarget();
+  showResult('');updateTarget();updateAssistPanel();
   if(mode==='computer'){
-    localPlayerName='Bạn';setConnection(`🤖 Chơi với máy — Đích ${targetScore} điểm`);setChoices(true);showGuide('play');
+    localPlayerName='Bạn';setConnection(`🤖 Chơi với máy — Đích ${targetScore} điểm`);setChoices(true);
   }else{setConnection('🌐 Chọn tạo phòng hoặc tham gia phòng');setChoices(false);prepareOnlineSetup();modal('onlineModal',true);void refreshOpenRooms(false);}
 }
 async function changeMode(){
+  clearComputerRestartTimer();
   if(session) await quitRoom({dissolve:session.role==='host'});
   gameMode=null;roomState=null;closeMobileChat();
+  lastCountdownBeep='';updateAssistPanel();
   $('layoutShell').classList.remove('online-active');
+  document.body.classList.remove('online-chat-bottom-right');
   $('onlineChat').classList.add('hidden');$('chatFab').classList.add('hidden');
   $('roomToolbar').classList.add('hidden');setChoices(false);stopFireworks();showMode();setConnection('Chưa chọn chế độ');
 }
@@ -1575,7 +3024,7 @@ function handleRoomTypeChange(){
   else $('onlineRoomCode').value='';
 }
 function refreshSetupRoomCode(){if($('onlineRoomType').value==='create'){$('onlineRoomCode').value=randomRoomCode();inform('Đã tạo mã phòng ngẫu nhiên mới.');}}
-function setSetupBusy(busy,text=''){setupBusy=busy;const b=document.querySelector('.setup-footer .btn-continue');b.disabled=busy;b.textContent=busy?'Đang kết nối...':'Tiếp tục →';if(text)inform(text);updateRoomList();}
+function setSetupBusy(busy,text=''){setupBusy=busy;const b=document.querySelector('.setup-footer .btn-continue');if(b){b.disabled=busy;b.classList.toggle('is-busy',busy);b.setAttribute('aria-busy',String(busy));const label=b.querySelector('.nav-text');if(label)label.textContent=busy?'Đang kết nối...':'Tiếp tục';}if(text)inform(text);updateRoomList();}
 function extractPathList(payload,prefix){
   const list=Array.isArray(payload)?payload:Array.isArray(payload?.entries)?payload.entries:[];
   return [...new Set(list.map(item=>typeof item==='string'?item:item?.path).filter(path=>typeof path==='string'&&path.startsWith(prefix)).map(path=>path.slice(prefix.length)))];
@@ -1608,7 +3057,7 @@ function sanitizeRoom(raw){
     score:Math.max(0,Math.min(9999,Number(p.score)||0)),isHost:Boolean(p.isHost),joinedAt:normalizeTimestamp(p.joinedAt)
   })).filter(p=>/^[a-f0-9]{32}$/.test(p.id)):[];
   const maxPlayers=normalMax(raw.maxPlayers);
-  const phase=['waiting','picking','reveal','finished'].includes(raw.phase)?raw.phase:'waiting';
+  const phase=['waiting','picking','animating','reveal','finished'].includes(raw.phase)?raw.phase:'waiting';
   return {
     code, hostId:String(raw.hostId||''), hostName:cleanName(raw.hostName)||'Chủ phòng',hostAvatarId:normalizeAvatarId(raw.hostAvatarId),
     targetScore:normalTarget(raw.targetScore),maxPlayers,playerCount:Math.min(maxPlayers,Math.max(1,Number(raw.playerCount)||players.length||1)),
@@ -1616,8 +3065,13 @@ function sanitizeRoom(raw){
     phase,players,round:Math.max(0,Math.floor(Number(raw.round)||0)),matchId:String(raw.matchId||'').slice(0,40),
     pickedIds:Array.isArray(raw.pickedIds)?raw.pickedIds.slice(0,20).map(String):[],
     lastResult:raw.lastResult&&typeof raw.lastResult==='object'?raw.lastResult:null,
+    choiceHistory:Array.isArray(raw.choiceHistory)?raw.choiceHistory.slice(-AI_HISTORY_LIMIT).map(round=>({
+      round:Math.max(0,Math.floor(Number(round?.round)||0)),
+      choices:Array.isArray(round?.choices)?round.choices.slice(0,20).filter(item=>/^[a-f0-9]{32}$/.test(String(item?.id||''))&&ALLOWED_CHOICES.includes(item?.choice)).map(item=>({id:item.id,choice:item.choice})):[]
+    })):[],
     finalWinners:Array.isArray(raw.finalWinners)?raw.finalWinners.slice(0,20).map(String):[],
-    deadline:normalizeTimestamp(raw.deadline),revealEndsAt:normalizeTimestamp(raw.revealEndsAt),
+    deadline:normalizeTimestamp(raw.deadline),animEndsAt:normalizeTimestamp(raw.animEndsAt),
+    animReason:raw.animReason==='timeout'?'timeout':'all',revealEndsAt:normalizeTimestamp(raw.revealEndsAt),
     chat:Array.isArray(raw.chat)?raw.chat.slice(-MAX_CHAT).map(sanitizeChat).filter(Boolean):[],
     createdAt:normalizeTimestamp(raw.createdAt),lastSeen:normalizeTimestamp(raw.lastSeen),version:Number(raw.version)||0
   };
@@ -1630,7 +3084,7 @@ function sanitizeChat(raw){
   return {id,playerId,text,name:cleanName(raw.name)||'Người chơi',avatarId:normalizeAvatarId(raw.avatarId),time:normalizeTimestamp(raw.time)||Date.now()};
 }
 function statusInfo(room){
-  if(room.phase==='picking'||room.phase==='reveal') return {kind:'playing',label:'🎮 Đang chơi',button:'Đang chơi'};
+  if(['picking','animating','reveal'].includes(room.phase)) return {kind:'playing',label:'🎮 Đang chơi',button:'Đang chơi'};
   if(room.players?.length>=room.maxPlayers||room.playerCount>=room.maxPlayers)return {kind:'full',label:'🔒 Phòng đầy',button:'Phòng đầy'};
   if(room.phase==='finished')return {kind:'playing',label:'🏆 Đã kết thúc',button:'Chờ chủ phòng'};
   return {kind:'waiting',label:'🟢 Đang chờ',button:'Tham gia'};
@@ -1706,7 +3160,7 @@ async function createOnlineRoom(name){
     }
     const id=createId(),now=Date.now();
     const s={role:'host',code,id,name,avatarId:myAvatarId,startedAt:now,hostDirty:false,hostWriteTimer:null,hostWritePromise:null,hostLastError:'',hostLastDiscovery:0,memberIds:[],syncBusy:false,hostChoices:new Map(),processedChats:new Set(),lastSyncAt:0};
-    const initial={code,hostId:id,hostName:name,hostAvatarId:myAvatarId,targetScore:score,maxPlayers,playerCount:1,status:'waiting',phase:'waiting',round:0,matchId:'',players:[{id,name,avatarId:myAvatarId,score:0,isHost:true,joinedAt:now}],pickedIds:[],lastResult:null,finalWinners:[],deadline:0,revealEndsAt:0,chat:[],createdAt:now,lastSeen:now,version:0};
+    const initial={code,hostId:id,hostName:name,hostAvatarId:myAvatarId,targetScore:score,maxPlayers,playerCount:1,status:'waiting',phase:'waiting',round:0,matchId:'',players:[{id,name,avatarId:myAvatarId,score:0,isHost:true,joinedAt:now}],pickedIds:[],lastResult:null,choiceHistory:[],finalWinners:[],deadline:0,animEndsAt:0,animReason:'all',revealEndsAt:0,chat:[],createdAt:now,lastSeen:now,version:0};
     session=s;roomState=initial;hostChoices=new Map();handledChatIds=new Set();memberRecords=new Map();myChoice=null;myOutbox=[];pendingChats.clear();clearVisualCache();
     const saved=await requestHostPublish(true);
     if(!saved)throw new Error('Máy chủ chưa xác nhận lưu phòng. '+(s.hostLastError||''));
@@ -1911,7 +3365,7 @@ async function hostMemberSync(){
     const accepted=roomState.players;
     if(accepted.length===1&&roomState.phase!=='waiting'){
       roomState.phase='waiting';roomState.round=0;roomState.matchId='';roomState.deadline=0;roomState.finalWinners=[];
-      roomState.lastResult=null;roomState.pickedIds=[];hostChoices.clear();changed=true;
+      roomState.lastResult=null;roomState.choiceHistory=[];roomState.pickedIds=[];roomState.animEndsAt=0;roomState.animReason='all';hostChoices.clear();changed=true;
     }
     if(accepted.length===1&&changed){
       roomState.chat=[];handledChatIds.clear();
@@ -1919,7 +3373,7 @@ async function hostMemberSync(){
     if(roomState.phase==='picking'){
       const picked=accepted.filter(p=>hostChoices.has(p.id)).map(p=>p.id);
       if(JSON.stringify(picked)!==JSON.stringify(roomState.pickedIds)){roomState.pickedIds=picked;changed=true;}
-      if(accepted.length>=2&&picked.length===accepted.length){resolveRound();changed=true;}
+      if(accepted.length>=2&&picked.length===accepted.length){startRoundAnimation('all');changed=true;}
     }
     const prevStatus=roomState.status;updateRoomStatus();if(prevStatus!==roomState.status)changed=true;
     if(changed)void requestHostPublish();
@@ -1968,30 +3422,57 @@ async function guestRoomSync(){
 }
 function hostTick(){
   if(!session||session.role!=='host'||!roomState)return;
-  if(roomState.phase==='picking'&&Date.now()>=roomState.deadline)resolveRound();
+  if(roomState.phase==='picking'&&Date.now()>=roomState.deadline)startRoundAnimation('timeout');
+  if(roomState.phase==='animating'&&Date.now()>=roomState.animEndsAt)resolveRound();
   if(roomState.phase==='reveal'&&Date.now()>=roomState.revealEndsAt){
-    if(roomState.finalWinners.length){roomState.phase='finished';}
-    else{
-      roomState.phase='picking';roomState.round++;
-      roomState.deadline=Date.now()+ROUND_MS;
-      roomState.lastResult=null;roomState.pickedIds=[];hostChoices.clear();
+    if(roomState.finalWinners.length){
+      // Host resets the *shared* match state so every device starts together.
+      // If everyone else has left, return to the lobby until another player joins.
+      beginFreshOnlineMatch(roomState.players.length>=2);
+      return;
     }
-    updateRoomStatus();void requestHostPublish();renderRoom();
+    roomState.phase='picking';roomState.round++;
+    roomState.deadline=Date.now()+ROUND_MS;
+    roomState.revealEndsAt=0;roomState.animEndsAt=0;roomState.animReason='all';
+    roomState.lastResult=null;roomState.pickedIds=[];hostChoices.clear();
+    updateRoomStatus();void requestHostPublish(true);renderRoom();
   }
+}
+function beginFreshOnlineMatch(startImmediately){
+  if(!session||session.role!=='host'||!roomState)return;
+  stopFireworks();
+  roomState.players.forEach(p=>p.score=0);
+  const canStart=Boolean(startImmediately&&roomState.players.length>=2);
+  roomState.phase=canStart?'picking':'waiting';
+  roomState.round=canStart?1:0;
+  roomState.matchId=canStart?createId():'';
+  roomState.deadline=canStart?Date.now()+ROUND_MS:0;
+  roomState.revealEndsAt=0;roomState.animEndsAt=0;roomState.animReason='all';
+  roomState.pickedIds=[];roomState.lastResult=null;roomState.choiceHistory=[];roomState.finalWinners=[];
+  hostChoices.clear();myChoice=null;lastCountdownBeep='';
+  assistUsage={matchKey:'',used:0,rounds:[],lastHint:null};
+  updateRoomStatus();void requestHostPublish(true);renderRoom();
 }
 function startOnlineMatch(){
   if(!session||session.role!=='host'||!roomState)return;
-  if(!['waiting','finished'].includes(roomState.phase))return;
+  // Starting from the lobby is manual. Starting after a match is automatic.
+  if(roomState.phase!=='waiting')return;
   if(roomState.players.length<2){showResult('CẦN ÍT NHẤT 2 NGƯỜI ĐỂ BẮT ĐẦU','tie');return;}
-  stopFireworks();
-  roomState.players.forEach(p=>p.score=0);
-  roomState.phase='picking';roomState.round=1;roomState.matchId=createId();
-  roomState.deadline=Date.now()+ROUND_MS;roomState.revealEndsAt=0;
-  roomState.pickedIds=[];roomState.lastResult=null;roomState.finalWinners=[];
-  hostChoices.clear();myChoice=null;updateRoomStatus();void requestHostPublish(true);renderRoom();
+  beginFreshOnlineMatch(true);
+}
+function startRoundAnimation(reason='all'){
+  if(!roomState||roomState.phase!=='picking'||!session||session.role!=='host')return;
+  // The host locks selections, publishes the same deadline to all clients,
+  // and deliberately does NOT calculate or publish any result yet.
+  roomState.pickedIds=roomState.players.filter(p=>hostChoices.has(p.id)).map(p=>p.id);
+  roomState.phase='animating';
+  roomState.animEndsAt=Date.now()+RPS_ANIM_MS;
+  roomState.animReason=reason==='timeout'?'timeout':'all';
+  roomState.deadline=0;
+  updateRoomStatus();void requestHostPublish(true);renderRoom();
 }
 function resolveRound(){
-  if(!roomState||roomState.phase!=='picking'||!session||session.role!=='host')return;
+  if(!roomState||roomState.phase!=='animating'||!session||session.role!=='host')return;
   const participants=roomState.players;
   const unique=[...new Set(participants.map(p=>hostChoices.get(p.id)).filter(Boolean))];
   let winningChoice=null;
@@ -1999,9 +3480,12 @@ function resolveRound(){
   const winners=winningChoice?participants.filter(p=>hostChoices.get(p.id)===winningChoice).map(p=>p.id):[];
   for(const p of participants)if(winners.includes(p.id))p.score++;
   const finalWinners=participants.filter(p=>p.score>=roomState.targetScore).map(p=>p.id);
-  const label=unique.length===0?'Không ai ra chiêu — Hòa!':unique.length===1?'Tất cả chọn giống nhau — Hòa!':unique.length===3?'Xuất hiện cả 3 chiêu — Hòa!':`Chiêu ${CHOICE_INFO[winningChoice]?.name||''} thắng!`;
+  const label=unique.length===0?'Không ai chọn - Hòa!':unique.length===1?'Tất cả chọn giống nhau - Hòa!':unique.length===3?'Xuất hiện cả 3 chiêu - Hòa!':`Chiêu ${CHOICE_INFO[winningChoice]?.name||''} thắng!`;
   roomState.lastResult={round:roomState.round,winners,winningChoice,label,choices:participants.map(p=>({id:p.id,choice:hostChoices.get(p.id)||null})),at:Date.now()};
-  roomState.finalWinners=finalWinners;roomState.phase='reveal';roomState.revealEndsAt=Date.now()+REVEAL_MS;roomState.deadline=0;
+  if(!Array.isArray(roomState.choiceHistory))roomState.choiceHistory=[];
+  roomState.choiceHistory.push({round:roomState.round,choices:roomState.lastResult.choices.filter(item=>ALLOWED_CHOICES.includes(item.choice))});
+  if(roomState.choiceHistory.length>AI_HISTORY_LIMIT)roomState.choiceHistory=roomState.choiceHistory.slice(-AI_HISTORY_LIMIT);
+  roomState.finalWinners=finalWinners;roomState.phase='reveal';roomState.revealEndsAt=Date.now()+(finalWinners.length?FINAL_RESULT_MS:REVEAL_MS);roomState.deadline=0;roomState.animEndsAt=0;
   updateRoomStatus();void requestHostPublish(true);renderRoom();
 }
 async function playOnlineChoice(value){
@@ -2012,7 +3496,7 @@ async function playOnlineChoice(value){
     hostChoices.set(s.id,value);
     roomState.pickedIds=roomState.players.filter(p=>hostChoices.has(p.id)).map(p=>p.id);
     void requestHostPublish();
-    if(roomState.players.length>=2&&roomState.pickedIds.length===roomState.players.length)resolveRound();
+    if(roomState.players.length>=2&&roomState.pickedIds.length===roomState.players.length)startRoundAnimation('all');
     renderRoom();
   }else{
     if(myChoice&&myChoice.matchId===roomState.matchId&&myChoice.round===roomState.round)return;
@@ -2027,6 +3511,7 @@ function handleChoice(choice){
   if(!ALLOWED_CHOICES.includes(choice))return;
   if(gameMode==='computer')playComputer(choice);
   else if(gameMode==='online')void playOnlineChoice(choice);
+  updateAssistPanel();
 }
 function determineResult(me,other){return me===other?'tie':BEATS[me]===other?'win':'lose';}
 function getComputerChoice(choice){
@@ -2042,51 +3527,70 @@ function playComputer(choice){
     if(gameMode!=='computer')return;
     left.classList.remove('shaking');right.classList.remove('shaking');
     const machine=getComputerChoice(choice),result=determineResult(choice,machine);
+    computerChoiceHistory.push(machine);if(computerChoiceHistory.length>AI_HISTORY_LIMIT)computerChoiceHistory.shift();
     left.textContent=CHOICE_INFO[choice].emoji;right.textContent=CHOICE_INFO[machine].emoji;
     if(result==='win')computerScores[0]++;else if(result==='lose')computerScores[1]++;
     const finished=computerScores.some(n=>n>=targetScore);computerFinished=finished;
     if(finished){
       const victory=computerScores[0]>=targetScore;
-      showResult(`${victory?'BẠN':'MÁY'} THẮNG CHUNG CUỘC! 🏆`,victory?'win':'lose');audioPlay(victory?'win':'lose');launchWinnerFireworks();
-      setConnection(`🏆 ${victory?'Bạn':'Máy'} đã đạt ${targetScore} điểm`);
+      showWinningMove(victory?choice:machine,true);
+      showWinnerNames([victory?'Bạn':'Máy'],true);
+      audioPlay(victory?'win':'lose');launchWinnerFireworks();
+      scheduleComputerRestart(victory?'Bạn':'Máy');
     }else{
-      showResult(result==='win'?'CHIẾN THẮNG! 🎉':result==='lose'?'THUA RỒI... 💀':'HÒA! 🤝',result);
-      audioPlay(result);setChoices(true);
+      showWinningMove(result==='win'?choice:result==='lose'?machine:null);
+      showWinnerNames(result==='tie'?[]:[result==='win'?'Bạn':'Máy']);
+      setConnection(result==='win'?`🟢 Bạn thắng vòng này · ${CHOICE_INFO[choice].name}`:
+                    result==='lose'?`🔴 Máy thắng vòng này · ${CHOICE_INFO[machine].name}`:'🟡 Vòng này hòa');
+      audioPlay(result);computerRoundNumber++;setChoices(true);
     }
     const nodes=$('scoreboard').querySelectorAll('.score-value');
     if(nodes[0])nodes[0].textContent=String(computerScores[0]);if(nodes[1])nodes[1].textContent=String(computerScores[1]);
-    computerBusy=false;
+    computerBusy=false;updateAssistPanel();
   },1050);
 }
+// Computer mode also shows its final result for 30 seconds before auto-reset.
+function clearComputerRestartTimer(){
+  if(computerRestartTimer!==null)clearInterval(computerRestartTimer);
+  computerRestartTimer=null;computerRestartDeadline=0;
+}
+function scheduleComputerRestart(winnerName){
+  clearComputerRestartTimer();
+  computerRestartDeadline=Date.now()+FINAL_RESULT_MS;
+  const tick=()=>{
+    if(gameMode!=='computer'||!computerFinished){clearComputerRestartTimer();return;}
+    const seconds=Math.max(0,Math.ceil((computerRestartDeadline-Date.now())/1000));
+    if(seconds===0){resetGame();return;}
+    setConnection(`🏆 ${winnerName} thắng · Tự động chơi lại sau ${seconds} giây`);
+    maybePlayCountdown('computer-final:'+computerMatchId,seconds);
+  };
+  tick();
+  computerRestartTimer=setInterval(tick,250);
+}
+// Internal automatic reset; the manual 'Đặt lại trận' button is not present.
 function resetGame(){
-  if(gameMode==='online'){
-    if(!session||session.role!=='host'||!roomState||roomState.phase==='waiting')return;
-    if(!confirm('Đặt lại điểm và đưa mọi người về sảnh chờ?'))return;
-    stopFireworks();roomState.players.forEach(p=>p.score=0);
-    roomState.phase='waiting';roomState.round=0;roomState.matchId='';
-    roomState.pickedIds=[];roomState.lastResult=null;roomState.finalWinners=[];
-    roomState.deadline=0;roomState.revealEndsAt=0;hostChoices.clear();myChoice=null;
-    updateRoomStatus();void requestHostPublish(true);renderRoom();
-    return;
-  }
+  clearComputerRestartTimer();
+  if(gameMode!=='computer')return;
   stopFireworks();computerBusy=false;computerFinished=false;computerScores=[0,0];
+  computerMatchId=createId();computerRoundNumber=1;computerChoiceHistory=[];lastCountdownBeep='';
+  assistUsage={matchKey:'',used:0,rounds:[],lastHint:null};
   const nodes=$('scoreboard').querySelectorAll('.score-value');nodes.forEach(n=>n.textContent='0');
   $('choicesDisplay').classList.remove('show');$('playerChoice').textContent='❓';$('computerChoice').textContent='❓';
-  showResult('');setChoices(true);setConnection(`🤖 Chơi với máy — Đích ${targetScore} điểm`);
+  showResult('');setChoices(true);setConnection(`🤖 Chơi với máy — Đích ${targetScore} điểm`);updateAssistPanel();
 }
 
 function showRoom(){
   if(!session||!roomState)return;
   $('layoutShell').classList.add('online-active');
+  document.body.classList.add('online-chat-bottom-right');
   $('onlineBattle').classList.remove('hidden');$('choicesDisplay').classList.add('hidden');
   $('scoreboard').classList.add('is-multi');
   $('onlineChat').classList.remove('hidden');$('chatFab').classList.remove('hidden');
   $('roomToolbar').classList.remove('hidden');
-  $('resetGameButton').classList.add('hidden');
   renderRoom();
 }
 function ownChoice(){
-  if(!session||!roomState||roomState.phase!=='picking')return null;
+  if(!session||!roomState||!['picking','animating'].includes(roomState.phase))return null;
   if(session.role==='host')return hostChoices.get(session.id)||null;
   return myChoice?.matchId===roomState.matchId&&myChoice?.round===roomState.round?myChoice.value:null;
 }
@@ -2099,22 +3603,21 @@ function renderRoom(){
   renderChat();
   updateChatComposer();
   updateRoundTimer();
+  updateAssistPanel();
 }
 function updateRoomStatusView(s,r){
   const count=r.players.length;
   const accepted=s.role==='host'||r.players.some(p=>p.id===s.id);
-  const phaseName={waiting:'Đang chờ',picking:'Đang ra chiêu',reveal:'Công bố kết quả',finished:'Đã kết thúc'}[r.phase];
-  $('roomBadge').textContent=`🌐 Mã ${r.code} · ${count}/${r.maxPlayers} người`;
+  const phaseName={waiting:'Đang chờ',picking:'Đang ra chiêu',animating:'Đang oẳn tù tì',reveal:r.finalWinners.length?'Kết quả chung cuộc':'Công bố kết quả',finished:'Đã kết thúc'}[r.phase];
+  $('roomBadge').innerHTML=`<span class="room-code-label">MÃ PHÒNG</span> <strong class="room-code-value">${escapeHTML(r.code)}</strong> · ${count}/${r.maxPlayers} người`;
   $('chatRoomLabel').textContent=`Phòng ${r.code} · ${count}/${r.maxPlayers} người`;
   $('chatOnlineCount').textContent=`🟢 ${count} người`;
   setConnection(!accepted?`🟡 Đang chờ chủ phòng thêm bạn vào ${r.code}`:`🟢 ${phaseName} · Phòng ${r.code} · ${count}/${r.maxPlayers} người`);
-  $('startOnlineButton').classList.toggle('hidden',s.role!=='host'||!['waiting','finished'].includes(r.phase));
-  $('startOnlineButton').textContent=r.phase==='finished'?'🔄 Chơi trận mới':`▶ Bắt đầu trận (${count}/${r.maxPlayers})`;
+  $('startOnlineButton').classList.toggle('hidden',s.role!=='host'||r.phase!=='waiting');
+  $('startOnlineButton').textContent=`▶ Bắt đầu trận (${count}/${r.maxPlayers})`;
   $('startOnlineButton').disabled=count<2;
   $('leaveMatchButton').classList.toggle('hidden',s.role==='host');
   $('dissolveRoomButton').classList.toggle('hidden',s.role!=='host');
-  $('resetGameButton').classList.toggle('hidden', s.role!=='host'||r.phase==='waiting');
-  $('resetGameButton').textContent='🔄 Đặt lại trận';
   const canPick=accepted&&r.phase==='picking'&&!ownChoice();
   setChoices(canPick);
   document.querySelectorAll('.choice-btn').forEach(btn=>{
@@ -2127,8 +3630,8 @@ function renderPlayers(s,r){
   if(signature===lastPlayersSignature)return;
   lastPlayersSignature=signature;
   $('scoreboard').innerHTML=r.players.map((p,i)=>{
-    const mine=p.id===s.id;const picked=r.phase==='picking'&&r.pickedIds.includes(p.id);
-    const label=r.phase==='picking'?(picked?'✓ Đã chọn':'⏳ Đang chọn'):p.isHost?'👑 Chủ phòng':'🎮 Người chơi';
+    const mine=p.id===s.id;const picked=['picking','animating'].includes(r.phase)&&r.pickedIds.includes(p.id);
+    const label=r.phase==='animating'?(picked?'🔒 Đã khóa':'⌛ Bỏ lượt'):r.phase==='picking'?(picked?'✓ Đã chọn':'⏳ Đang chọn'):p.isHost?'👑 Chủ phòng':'🎮 Người chơi';
     const avatar=p.avatarId===null?'':avatarUrl(p.avatarId);
     return `<div class="score-card${mine?' is-me':''}${picked?' has-picked':''}">
       ${avatar?`<img class="avatar-img" src="${avatar}" alt="Avatar ${escapeHTML(p.name)}" loading="lazy">`:'<div class="avatar-img">👤</div>'}
@@ -2139,10 +3642,11 @@ function renderPlayers(s,r){
   }).join('');
 }
 function renderBattle(s,r){
-  const signature=JSON.stringify([r.phase,r.round,r.matchId,r.pickedIds,r.lastResult,r.finalWinners,r.players.map(p=>[p.id,p.name,p.avatarId,p.score]),s.accepted,ownChoice()]);
+  const signature=JSON.stringify([r.phase,r.round,r.matchId,r.pickedIds,r.animEndsAt,r.animReason,r.lastResult,r.finalWinners,r.players.map(p=>[p.id,p.name,p.avatarId,p.score]),s.accepted,ownChoice()]);
   if(signature===lastBattleSignature)return;
   lastBattleSignature=signature;
   const rCounter=$('roundCounter'),info=$('roundInfo'),votes=$('voteStatus'),reveal=$('roundReveal');
+  $('rpsRoll').classList.toggle('hidden',r.phase!=='animating');
   reveal.replaceChildren();
   if(r.phase==='waiting'){
     rCounter.textContent='SẢNH CHỜ · TỐI ĐA '+r.maxPlayers+' NGƯỜI';
@@ -2154,37 +3658,84 @@ function renderBattle(s,r){
     rCounter.textContent=`VÒNG ${r.round}`;
     info.textContent=mine?`Bạn đã chọn ${CHOICE_INFO[mine].emoji} ${CHOICE_INFO[mine].name}. Đang chờ những người khác...`:'Hãy chọn Búa, Kéo hoặc Bao trước khi hết giờ!';
     votes.textContent=`Đã ra chiêu: ${r.pickedIds.length}/${r.players.length} người · Các lựa chọn đang được ẩn`;
-    showResult(mine?'ĐÃ KHÓA LỰA CHỌN ✓':'ĐẾN LƯỢT BẠN RA CHIÊU',mine?'win':'');
+    showResult(mine?'':'ĐẾN LƯỢT BẠN CHỌN');
+  }else if(r.phase==='animating'){
+    rCounter.textContent=`VÒNG ${r.round} · ĐANG OẲN TÙ TÌ`;
+    info.textContent=r.animReason==='timeout'?'Hết giờ chọn! Đang oẳn tù tì...':'Tất cả đã chọn xong! Đang oẳn tù tì...';
+    votes.textContent='Tất cả lựa chọn vẫn được giữ bí mật đến khi hiệu ứng kết thúc.';
+    $('rpsRollNote').textContent=r.animReason==='timeout'?'Hết giờ · Người chưa chọn được tính là bỏ lượt':'Mọi người đã khóa lựa chọn · Đang chờ công bố';
+    showResult('');
+    updateRpsAnimation(r);
   }else if(r.phase==='reveal'){
-    rCounter.textContent=`KẾT QUẢ VÒNG ${r.lastResult?.round||r.round}`;
-    info.textContent=String(r.lastResult?.label||'Kết quả của vòng');
+    const finalResult=r.finalWinners.length>0;
     const ids=new Set(r.lastResult?.winners||[]);
-    votes.textContent=ids.size?`Cộng 1 điểm: ${r.players.filter(p=>ids.has(p.id)).map(p=>p.name).join(', ')}`:'Không ai được cộng điểm ở vòng này.';
-    showResult(ids.has(s.id)?'BẠN THẮNG VÒNG NÀY! 🎉':ids.size?'ĐÃ CÓ KẾT QUẢ':'VÒNG NÀY HÒA 🤝',ids.has(s.id)?'win':ids.size?'lose':'tie');
-    for(const item of r.lastResult?.choices||[]){
-      const p=r.players.find(x=>x.id===item.id);if(!p)continue;
+    if(finalResult){
+      const names=r.players.filter(p=>r.finalWinners.includes(p.id)).map(p=>p.name);
+      const mine=r.finalWinners.includes(s.id);
+      rCounter.textContent='🏆 KẾT QUẢ CHUNG CUỘC';
+      info.textContent=names.length?`Vô địch: ${names.join(', ')}`:'Trận đấu đã kết thúc.';
+      votes.textContent='Kết quả hiển thị 30 giây, sau đó trận mới tự động bắt đầu và điểm về 0.';
+      showWinningMove(r.lastResult?.winningChoice,true);
+      showWinnerNames(names,true);
+      const celebration=r.matchId+'-finished';
+      if(lastRoundCelebration!==celebration){lastRoundCelebration=celebration;audioPlay(mine?'win':'lose');launchWinnerFireworks();}
+    }else{
+      rCounter.textContent=`KẾT QUẢ VÒNG ${r.lastResult?.round||r.round}`;
+      info.textContent=String(r.lastResult?.label||'Kết quả của vòng');
+      votes.textContent=ids.size?`Cộng 1 điểm: ${r.players.filter(p=>ids.has(p.id)).map(p=>p.name).join(', ')}`:'Không ai được cộng điểm ở vòng này.';
+      showWinningMove(r.lastResult?.winningChoice);
+      showWinnerNames(r.players.filter(p=>ids.has(p.id)).map(p=>p.name));
+    }
+    const revealChoices=(r.lastResult?.choices||[]).map(item=>({item,p:r.players.find(x=>x.id===item.id)})).filter(entry=>entry.p);
+    revealChoices.forEach((entry,index)=>{
+      const {item,p}=entry;
       const box=document.createElement('div');box.className='reveal-pill';
       const avatar=document.createElement('img');avatar.src=avatarUrl(p.avatarId);avatar.alt=p.name;
       const name=document.createElement('b');name.textContent=p.id===s.id?'Bạn':p.name;
       const move=document.createElement('span');move.className='gesture';move.textContent=CHOICE_INFO[item.choice]?.emoji||'⌛';
       box.append(avatar,name,move);reveal.append(box);
-    }
+      if(index<revealChoices.length-1){
+        const vs=document.createElement('div');vs.className='reveal-vs';vs.textContent='VS';
+        reveal.append(vs);
+      }
+    });
   }else{
+    // Legacy room state from older versions: await the host's next update.
     rCounter.textContent='🏆 TRẬN ĐẤU KẾT THÚC';
-    const names=r.players.filter(p=>r.finalWinners.includes(p.id)).map(p=>p.name);
-    info.textContent=names.length?`Vô địch: ${names.join(', ')}`:'Trận đấu đã kết thúc.';
-    votes.textContent=s.role==='host'?'Nhấn “Chơi trận mới” để đấu tiếp với mọi người.':'Đợi chủ phòng tổ chức trận tiếp theo.';
-    const mine=r.finalWinners.includes(s.id);
-    showResult(mine?'🏆 BẠN THẮNG CHUNG CUỘC!':`🏆 ${names.join(', ')} CHIẾN THẮNG!`,mine?'win match-finished':'tie match-finished');
-    const celebration=r.matchId+'-finished';
-    if(lastRoundCelebration!==celebration){lastRoundCelebration=celebration;audioPlay(mine?'win':'lose');launchWinnerFireworks();}
+    info.textContent='Đang đồng bộ trận mới...';
+    votes.textContent='';
+    showResult('🏆 KẾT THÚC TRẬN ĐẤU', 'tie');
   }
+}
+function updateRpsAnimation(r){
+  if(!r||r.phase!=='animating')return;
+  const remaining=Math.max(0,r.animEndsAt-Date.now());
+  const elapsed=Math.max(0,RPS_ANIM_MS-remaining);
+  const beat=Math.min(2,Math.floor(elapsed/(RPS_ANIM_MS/3)));
+  $('rpsRollCount').textContent=String(3-beat);
+  const panel=$('rpsRoll');
+  panel.classList.toggle('beat-2',beat===2);
 }
 function updateRoundTimer(){
   const r=roomState;if(!r||!session)return;
   const timer=$('roundTimer');
-  if(r.phase==='picking')timer.textContent='⏱ '+Math.max(0,Math.ceil((r.deadline-Date.now())/1000))+' giây';
-  else if(r.phase==='reveal')timer.textContent='⏳ '+Math.max(0,Math.ceil((r.revealEndsAt-Date.now())/1000))+' giây';
+  if(r.phase==='picking'){
+    const left=Math.max(0,Math.ceil((r.deadline-Date.now())/1000));
+    timer.textContent='⏱ '+left+' giây';
+    maybePlayCountdown('online:'+r.code+':'+r.matchId+':'+r.round+':picking',left);
+  }
+  else if(r.phase==='animating'){
+    const left=Math.max(0,Math.ceil((r.animEndsAt-Date.now())/1000));
+    timer.textContent='🎲 '+left+' giây';
+    updateRpsAnimation(r);
+    maybePlayCountdown('online:'+r.code+':'+r.matchId+':'+r.round+':rolling',left);
+  }
+  else if(r.phase==='reveal'){
+    const left=Math.max(0,Math.ceil((r.revealEndsAt-Date.now())/1000));
+    timer.textContent=r.finalWinners.length?`⏳ Trận mới: ${left}s`:`⏳ ${left} giây`;
+    // Tick during the final-result countdown; normal reveal has no beep.
+    if(r.finalWinners.length)maybePlayCountdown('online:'+r.code+':'+r.matchId+':final',left);
+  }
   else timer.textContent='⏱ --';
 }
 function makeChatRow(item){
@@ -2253,12 +3804,126 @@ function toggleMobileChat(force){
   if(chatOpen){unreadChats=0;updateUnread();requestAnimationFrame(()=>{$('chatMessages').scrollTop=$('chatMessages').scrollHeight;$('chatInput').focus({preventScroll:true});});}
 }
 function closeMobileChat(){chatOpen=false;$('onlineChat').classList.remove('chat-open');$('chatFab').setAttribute('aria-expanded','false');unreadChats=0;updateUnread();}
-function copyRoomCode(){
-  const code=session?.code;if(!code)return;
-  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(code).then(()=>inform('Đã sao chép mã phòng '+code+'.')).catch(()=>fallbackCopy(code));}
-  else fallbackCopy(code);
+// Clipboard: use a synchronous fallback first (works for many local file:// pages).
+// When neither browser method is allowed, show a selectable code instead of a false success message.
+let toastHideTimer=0, copiedButtonTimer=0;
+function showNotice(message, success=false){
+  const toast=$('sourceProtectionToast');
+  toast.textContent=message;
+  toast.classList.toggle('copy-success',success);
+  toast.classList.add('show');
+  clearTimeout(toastHideTimer);
+  toastHideTimer=setTimeout(()=>toast.classList.remove('show'),2900);
 }
-function fallbackCopy(text){const input=document.createElement('textarea');input.value=text;document.body.appendChild(input);input.select();document.execCommand('copy');input.remove();inform('Đã sao chép mã phòng '+text+'.');}
+function fallbackCopy(text){
+  const node=document.createElement('textarea');
+  const previous=document.activeElement;
+  node.value=text;
+  node.setAttribute('aria-hidden','true');
+  node.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;';
+  document.body.appendChild(node);
+  node.focus({preventScroll:true});
+  node.select();
+  node.setSelectionRange(0,node.value.length);
+  let copied=false;
+  try{copied=Boolean(document.execCommand('copy'));}catch(_){copied=false;}
+  node.remove();
+  if(previous&&typeof previous.focus==='function')try{previous.focus({preventScroll:true});}catch(_){}
+  return copied;
+}
+function copiedFeedback(code,button){
+  clearTimeout(copiedButtonTimer);
+  for(const b of [$('copyRoomCodeButton'),$('chatCopyRoomCodeButton')]){
+    if(!b)continue;
+    b.classList.add('copied');
+    b.textContent='✓ Đã sao chép';
+  }
+  showNotice('✓ Đã sao chép mã phòng '+code,true);
+  copiedButtonTimer=setTimeout(()=>{
+    const main=$('copyRoomCodeButton'),chat=$('chatCopyRoomCodeButton');
+    if(main){main.textContent='📋 Sao chép mã';main.classList.remove('copied');}
+    if(chat){chat.textContent='📋 Sao chép';chat.classList.remove('copied');}
+  },2200);
+}
+async function copyRoomCode(button){
+  const code=session?.code||roomState?.code;
+  if(!code){showNotice('Bạn chưa tham gia phòng để sao chép mã.');return;}
+  // Keep the first attempt inside the user's click event: avoids permission issues.
+  if(fallbackCopy(code)){copiedFeedback(code,button);return;}
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(code);
+      copiedFeedback(code,button);return;
+    }
+  }catch(_){/* fall through to a manual, selectable prompt */}
+  showNotice('Trình duyệt không cho tự sao chép. Bạn có thể sao chép mã trong ô hiện ra.');
+  window.prompt('Sao chép mã phòng (Ctrl+C hoặc chạm giữ):',code);
+}
+function shareableRoomUrl(code){
+  if(!validCode(code))return null;
+  // A link to a local HTML file or localhost cannot be opened by friends on other devices.
+  if(!['https:','http:'].includes(location.protocol)||['localhost','127.0.0.1','[::1]'].includes(location.hostname))return null;
+  const url=new URL(location.pathname,location.origin);
+  url.searchParams.set('room',code);
+  return url.href;
+}
+function invitedRoomCode(){
+  try{
+    const candidate=normalCode(new URLSearchParams(location.search).get('room'));
+    return validCode(candidate)?candidate:null;
+  }catch(_){return null;}
+}
+async function shareRoomLink(){
+  const code=session?.code||roomState?.code;
+  if(!code){showNotice('Bạn cần vào phòng trước khi chia sẻ link.');return;}
+  const link=shareableRoomUrl(code);
+  if(!link){
+    showNotice('Hãy đăng HTML lên website có đường dẫn http/https để chia sẻ qua thiết bị khác.');
+    window.prompt('Hiện tại có thể chia sẻ mã phòng này:',code);
+    return;
+  }
+  if(typeof navigator.share==='function'){
+    try{
+      await navigator.share({title:'Búa Kéo Bao - Mời vào phòng '+code,text:'Vào phòng '+code+' chơi Búa Kéo Bao cùng mình!',url:link});
+      return;
+    }catch(err){if(err?.name==='AbortError')return;}
+  }
+  if(fallbackCopy(link)){
+    showNotice('✓ Đã sao chép link mời phòng '+code,true);return;
+  }
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(link);
+      showNotice('✓ Đã sao chép link mời phòng '+code,true);
+      return;
+    }
+  }catch(_){}
+  window.prompt('Sao chép link mời để gửi cho bạn bè:',link);
+}
+function isEditableTarget(target){
+  return target instanceof Element && Boolean(target.closest('input,textarea,select,[contenteditable="true"]'));
+}
+function installSourceShortcutsGuard(){
+  document.addEventListener('contextmenu',event=>{
+    // Chat fields must keep their native paste, select and accessibility actions.
+    if(isEditableTarget(event.target))return;
+    event.preventDefault();
+    showNotice('Chuột phải đã bị hạn chế trên trang này.');
+  },true);
+  document.addEventListener('keydown',event=>{
+    const k=String(event.key||'').toLowerCase();
+    const modifier=event.ctrlKey||event.metaKey;
+    const devtools=modifier&&event.shiftKey&&['i','j','c','k','u'].includes(k);
+    const macDevtools=event.metaKey&&event.altKey&&['i','j','c','k','u'].includes(k);
+    const sourceOrSave=modifier&&!event.shiftKey&&!event.altKey&&['u','s','p'].includes(k);
+    if(k==='f12'||devtools||macDevtools||sourceOrSave){
+      event.preventDefault();
+      event.stopPropagation();
+      showNotice('Phím tắt xem hoặc lưu mã nguồn đã bị hạn chế.');
+    }
+    // Ctrl+C, Ctrl+V, Ctrl+A and normal chat typing remain available.
+  },true);
+}
 async function quitRoom({dissolve=false}={}){
   const s=session;if(!s)return;
   stopSessionSync();stopFireworks();closeMobileChat();
@@ -2409,15 +4074,172 @@ function onPageClose(){
         }
 
 
+
+/* Statistical AI assistant: reads only disclosed previous choices, never current hidden moves. */
+function assistMatchKey(){
+  if(gameMode==='computer'&&computerMatchId)return 'computer:'+computerMatchId;
+  if(gameMode==='online'&&session&&roomState?.matchId)return 'room:'+session.code+':'+roomState.matchId+':'+session.id;
+  return '';
+}
+function assistRoundKey(){
+  if(gameMode==='computer')return 'r'+computerRoundNumber;
+  if(gameMode==='online'&&roomState)return 'r'+roomState.round;
+  return '';
+}
+function ensureAssistUsage(){
+  const key=assistMatchKey();
+  if(assistUsage.matchKey===key)return;
+  assistUsage={matchKey:key,used:0,rounds:[],lastHint:null};
+  if(!key)return;
+  try{
+    const saved=JSON.parse(localStorage.getItem('bkb-ai-hints-v1:'+key)||'null');
+    if(saved&&typeof saved==='object'){
+      assistUsage.used=Math.min(AI_HINT_LIMIT,Math.max(0,Math.floor(Number(saved.used)||0)));
+      assistUsage.rounds=Array.isArray(saved.rounds)?saved.rounds.filter(x=>typeof x==='string').slice(0,AI_HINT_LIMIT):[];
+      if(saved.lastHint&&typeof saved.lastHint==='object'&&ALLOWED_CHOICES.includes(saved.lastHint.choice))assistUsage.lastHint=saved.lastHint;
+    }
+  }catch(_){} // Storage may be disabled on file:// or in private mode; in-memory still works.
+}
+function saveAssistUsage(){
+  if(!assistUsage.matchKey)return;
+  try{localStorage.setItem('bkb-ai-hints-v1:'+assistUsage.matchKey,JSON.stringify({used:assistUsage.used,rounds:assistUsage.rounds,lastHint:assistUsage.lastHint}));}catch(_){}
+}
+function assistAvailable(){
+  if(gameMode==='computer')return !computerBusy&&!computerFinished;
+  return gameMode==='online'&&!!session&&!!roomState&&roomState.phase==='picking'&&
+    roomState.players.some(p=>p.id===session.id)&&!ownChoice();
+}
+function updateAssistPanel(){
+  // Sound toggle stays in the title, independent from active game mode.
+  const sound=$('countdownSoundButton');
+  if(sound){
+    sound.setAttribute('aria-pressed',String(countdownSoundEnabled));
+    sound.setAttribute('aria-label',countdownSoundEnabled?'Tắt âm thanh':'Bật âm thanh');
+    const icon=sound.querySelector('.sound-icon'),text=sound.querySelector('.sound-text');
+    if(icon)icon.textContent=countdownSoundEnabled?'🔊':'🔇';
+    if(text)text.textContent='Âm thanh';
+  }
+  const button=$('aiHintButton'),amount=$('aiHintCount'),result=$('aiHintResult');
+  if(!button||!amount||!result)return;
+  const show=gameMode==='computer'||(gameMode==='online'&&!!session);
+  button.classList.toggle('hidden',!show);
+  if(!show){result.classList.add('hidden');result.textContent='';return;}
+  ensureAssistUsage();
+  const remaining=Math.max(0,AI_HINT_LIMIT-assistUsage.used);
+  amount.textContent=remaining+'/'+AI_HINT_LIMIT;
+  const roundKey=assistRoundKey();
+  const alreadyUsed=assistUsage.rounds.includes(roundKey);
+  button.disabled=!assistAvailable()||remaining===0||alreadyUsed;
+  button.title=remaining===0?'Bạn đã dùng hết 3 lượt gợi ý trong trận':alreadyUsed?'Mỗi vòng chỉ dùng được một lượt gợi ý':'Nhận gợi ý từ những lựa chọn đã công bố';
+  const saved=assistUsage.lastHint;
+  if(saved&&saved.roundKey===roundKey&&ALLOWED_CHOICES.includes(saved.choice)){
+    result.classList.remove('hidden');
+    const name=CHOICE_INFO[saved.choice];
+    result.innerHTML='<span class="assist-result-move">'+name.emoji+' '+name.name.toUpperCase()+'</span> '+
+      '<span class="assist-result-percent">· Xác suất ghi điểm ước tính ≈ '+saved.probability+'%</span>';
+  }else{
+    result.classList.add('hidden');result.textContent='';
+  }
+}
+function estimateAiAdvice(){
+  // Bayesian smoothing (one virtual count per move) avoids 0% and 100% claims.
+  let sequences=[];
+  if(gameMode==='computer')sequences=[computerChoiceHistory.slice(-AI_HISTORY_LIMIT)];
+  else if(roomState&&session){
+    const history=Array.isArray(roomState.choiceHistory)?roomState.choiceHistory.slice(-AI_HISTORY_LIMIT):[];
+    sequences=roomState.players.filter(p=>p.id!==session.id).map(p=>
+      history.flatMap(round=>(round.choices||[]).filter(v=>v.id===p.id&&ALLOWED_CHOICES.includes(v.choice)).map(v=>v.choice))
+    );
+  }
+  const distributions=sequences.map(values=>{
+    const counts={rock:1,paper:1,scissors:1};
+    // Slightly emphasize recent revealed choices, without overfitting the current round.
+    values.slice(-AI_HISTORY_LIMIT).forEach((move,i,arr)=>{counts[move]+=0.8+0.4*(i+1)/arr.length;});
+    const total=counts.rock+counts.paper+counts.scissors;
+    return {p:{rock:counts.rock/total,paper:counts.paper/total,scissors:counts.scissors/total},samples:values.length};
+  });
+  if(!distributions.length)distributions=[{p:{rock:1/3,paper:1/3,scissors:1/3},samples:0}];
+  // To get a point in multiplayer, every other person must choose either my move or
+  // the move I beat, and at least one must choose the latter. This is an estimate
+  // under independent opponent choices, not actual knowledge of concealed picks.
+  const scored=ALLOWED_CHOICES.map(move=>{
+    const beaten=BEATS[move];
+    const onlyMine=distributions.reduce((acc,d)=>acc*d.p[move],1);
+    const noCounterProduct=distributions.reduce((acc,d)=>acc*(d.p[move]+d.p[beaten]),1);
+    const score=Math.max(0,Math.min(.99,noCounterProduct-onlyMine));
+    return {move,score};
+  });
+  // Nearly equal scores should give varied but still evidence-informed suggestions.
+  scored.forEach(item=>{item.rank=item.score+Math.random()*0.006;});
+  scored.sort((a,b)=>b.rank-a.rank);
+  const winner=scored[0];
+  const samples=distributions.reduce((a,d)=>a+d.samples,0);
+  const reason='';
+  return {choice:winner.move,probability:Math.min(95,Math.max(1,Math.round(winner.score*100))),reason};
+}
+function requestAiHint(){
+  ensureAssistUsage();
+  if(!assistAvailable()||!assistUsage.matchKey||assistUsage.used>=AI_HINT_LIMIT)return;
+  const roundKey=assistRoundKey();
+  if(assistUsage.rounds.includes(roundKey))return;
+  const advice=estimateAiAdvice();
+  assistUsage.used+=1;
+  assistUsage.rounds.push(roundKey);
+  assistUsage.lastHint={roundKey,...advice};
+  saveAssistUsage();
+  updateAssistPanel();
+}
+/* Generated beeps require no external audio files. Browsers only allow playback
+   after a genuine user interaction; AudioContext is primed on the first click. */
+function unlockCountdownAudio(){
+  if(!countdownSoundEnabled)return;
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return;
+    if(!countdownAudio)countdownAudio=new Ctx();
+    if(countdownAudio.state==='suspended')void countdownAudio.resume().catch(()=>{});
+  }catch(_){}
+}
+function toggleCountdownSound(){
+  countdownSoundEnabled=!countdownSoundEnabled;
+  if(countdownSoundEnabled)unlockCountdownAudio();
+  updateAssistPanel();
+}
+function maybePlayCountdown(phaseKey,remaining){
+  if(!countdownSoundEnabled||document.hidden||remaining<1||remaining>30)return;
+  const key=phaseKey+':'+remaining;
+  if(lastCountdownBeep===key)return;
+  lastCountdownBeep=key;
+  try{
+    if(!countdownAudio||countdownAudio.state!=='running')return;
+    const now=countdownAudio.currentTime;
+    const urgent=remaining<=5, duration=urgent?0.14:0.055;
+    const tone=countdownAudio.createOscillator(),gain=countdownAudio.createGain();
+    tone.type=urgent?'sine':'triangle';
+    tone.frequency.setValueAtTime(remaining===1?1050:urgent?700:450,now);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(urgent?0.075:0.018,now+0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+duration);
+    tone.connect(gain);gain.connect(countdownAudio.destination);
+    tone.start(now);tone.stop(now+duration+0.01);
+    tone.onended=()=>{try{tone.disconnect();gain.disconnect();}catch(_){}};
+  }catch(_){} // Audio may be unavailable, but game remains fully functional.
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   myAvatarId=randomAvatarId();setAvatar($('ownAvatarPreview'),myAvatarId,'Avatar của bạn');
-  $('modeModal').classList.add('open');setChoices(false);updateTarget();
+  $('modeModal').classList.remove('open');setChoices(false);updateTarget();
   $('deviceSupport').textContent=`Đang hiển thị trên ${mobileLabel()} • Tương thích Android, iOS, máy tính`;
   resizeFireworksCanvas();
   $('openRoomList').addEventListener('click',e=>{
     const btn=e.target.closest('button[data-code]');if(btn&&!btn.disabled)joinListedRoom(btn.dataset.code);
   });
   $('chatForm').addEventListener('submit',sendChatMessage);
+  installSourceShortcutsGuard();
+  document.addEventListener('pointerdown',unlockCountdownAudio,{passive:true});
+  document.addEventListener('keydown',unlockCountdownAudio,{passive:true});
+  updateAssistPanel();
+  showGuide('intro');
   const keys={0:'rock',1:'scissors',2:'paper'};
   document.querySelectorAll('.choice-btn').forEach((b,i)=>{b.dataset.choice=keys[i];});
   $('onlineRoomCode').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();void continueOnlineSetup();}});
