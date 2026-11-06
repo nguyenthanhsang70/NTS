@@ -2630,11 +2630,11 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
             <div class="game-view-switcher" role="group" aria-label="Chế độ hiển thị">
                 <button type="button" id="btnViewBento" class="game-view-option" aria-pressed="true">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                    <span data-i18n="view.grid">Lưới 3D Nổi</span>
+                    <span data-i18n="view.grid">Lưới Nổi</span>
                 </button>
                 <button type="button" id="btnViewCarousel" class="game-view-option" aria-pressed="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="12" rx="9" ry="4.8"/><path d="M12 3c3.5 0 5.5 4 5.5 9s-2 9-5.5 9-5.5-4-5.5-9S8.5 3 12 3Z"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
-                    <span data-i18n="view.orbit">Vòng Xoay 3D</span>
+                    <span data-i18n="view.orbit">Vòng Xoay</span>
                 </button>
             </div>
         </div>
@@ -3771,7 +3771,7 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
     /* 3D view and music controls added to the existing multi-language pipeline. */
     Object.assign(UI_TRANSLATIONS.vi, {
       'view.eyebrow': 'KHÁM PHÁ KHO GAME', 'view.title': 'Mỗi trò chơi, một bất ngờ!',
-      'view.grid': 'Lưới 3D Nổi', 'view.orbit': 'Vòng Xoay 3D',
+      'view.grid': 'Lưới Nổi', 'view.orbit': 'Vòng Xoay',
       'pagination.prev': 'Trước', 'pagination.next': 'Tiếp',
       'pagination.page': 'Trang', 'pagination.summary': 'Hiển thị trang {page}',
       'suggest.categories': 'TỪ KHÓA LIÊN QUAN', 'suggest.games': 'TRÒ CHƠI PHÙ HỢP',
@@ -3785,7 +3785,7 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
     });
     Object.assign(UI_TRANSLATIONS.en, {
       'view.eyebrow': 'EXPLORE THE GAME HUB', 'view.title': 'Every game, a new surprise!',
-      'view.grid': '3D Floating Grid', 'view.orbit': '3D Orbit',
+      'view.grid': 'Floating Grid', 'view.orbit': 'Orbit',
       'pagination.prev': 'Previous', 'pagination.next': 'Next',
       'pagination.page': 'Page', 'pagination.summary': 'Showing page {page}',
       'suggest.categories': 'RELATED SEARCHES', 'suggest.games': 'MATCHING GAMES',
@@ -3799,7 +3799,7 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
     });
     Object.assign(UI_TRANSLATIONS.zh, {
       'view.eyebrow': '探索游戏中心', 'view.title': '每款游戏，都有新惊喜！',
-      'view.grid': '3D 浮动网格', 'view.orbit': '3D 环形旋转',
+      'view.grid': '浮动网格', 'view.orbit': '环形旋转',
       'pagination.prev': '上一页', 'pagination.next': '下一页',
       'pagination.page': '第', 'pagination.summary': '显示第 {page} 页',
       'suggest.categories': '相关搜索', 'suggest.games': '相关游戏',
@@ -5285,7 +5285,7 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
         document.addEventListener('visibilitychange', () => { lastTime=performance.now(); });
         updateAutoUI();
         rebuildFromFilter();
-        setView(safeGet('ntsGameViewMode', 'orbit'));
+        setView('grid'); // Mặc định hiển thị dạng lưới mỗi khi mở trang
 
         // 3D floating response in grid, like the home cards (fine-pointer only).
         if (!reducedMotion && matchMedia('(hover: hover) and (pointer:fine)').matches) {
