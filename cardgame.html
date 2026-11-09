@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080d20">
-  <meta name="description" content="Memory Cards 6 tầng: đếm ngược 10 phút, mỗi lần ghép sai sẽ tăng tốc độ đồng hồ từ ×1 đến ×10.">
+  <meta name="description" content="Memory Cards 8 tầng: 128 cặp hình khác nhau, đồng hồ 10 phút, ghép sai không bị phạt thời gian.">
   <link rel="icon" type="image/png" href="logos3.png">
-  <title>Memory Cards | NTS Play</title>
+  <title>Memory Cards</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -93,7 +93,7 @@
     .eyebrow { color: #7ed9f5; text-transform: uppercase; font-size: 11px; letter-spacing: 3px; font-weight: 800; margin-bottom: 10px; }
     .hero h1 { font-size: clamp(30px, 4.7vw, 52px); letter-spacing: -2.3px; line-height: 1.16; margin: 0; font-weight: 800; white-space: nowrap; }
     .hero h1 span { background: linear-gradient(105deg, #72edec, #8f9dff 55%, #e8a4ff); background-clip: text; -webkit-background-clip: text; color: transparent; }
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
     .stat {
       min-width: 0; display: flex; gap: 12px; align-items: center;
       padding: 14px 17px; border-radius: 17px;
@@ -106,36 +106,15 @@
     .stat:nth-child(4) .stat-icon { background: rgba(255,130,185,.1); color: #ff9abf; }
     .stat small { display: block; font-weight: 600; font-size: 11px; color: var(--muted); line-height: 1.6; white-space: nowrap; }
     .stat strong { display: block; font-size: 20px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
-    /* 10 phút đếm ngược: mỗi lượt sai tăng hệ số tốc độ tích lũy. */
+    /* Đồng hồ 10 phút đếm bình thường. Ghép sai chỉ lật úp, không phạt thời gian. */
     .time-stat { position: relative; transition: border-color .25s ease, box-shadow .25s ease; }
     .time-stat strong { font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
-    .time-delta {
-      position: absolute; top: -12px; right: 8px; z-index: 7; pointer-events: none;
-      padding: 5px 9px; border-radius: 999px; white-space: nowrap;
-      color: #4b091a; background: #ffadb9; border: 1px solid rgba(255,231,238,.9);
-      font-size: 11px; font-weight: 800; opacity: 0; box-shadow: 0 5px 18px rgba(255,100,145,.24);
-    }
-    .time-delta.show { animation: floatTimeDelta 1.65s ease-out both; }
-    @keyframes floatTimeDelta {
-      0% { opacity: 0; transform: translateY(10px) scale(.82); }
-      12%,70% { opacity: 1; transform: translateY(0) scale(1.06); }
-      100% { opacity: 0; transform: translateY(-11px) scale(.98); }
-    }
-    .time-stat.time-loss { border-color: #ff819e; box-shadow: 0 0 0 2px rgba(255,129,158,.1), 0 0 23px rgba(255,79,128,.13); }
-    .speed-stat { position: relative; border-color: rgba(126,229,234,.25); }
-    .speed-stat strong { color: #8cebea; font-size: 24px; }
-    .speed-stat .stat-detail { display: block; margin-top: 2px; font-size: 10px; font-weight: 600; color: #a0b2d0; }
-    .speed-stat.speed-high { border-color: rgba(255,138,166,.65); box-shadow: inset 0 0 24px rgba(255,97,141,.08); }
-    .speed-stat.speed-high strong { color: #ffa3b8; }
-    .speed-stat.speed-up { animation: speedPop .48s ease; }
-    @keyframes speedPop { 0%,100% { transform: scale(1); } 40% { transform: scale(1.035); } }
     .time-stat.time-warning { border-color: rgba(255,188,106,.60); box-shadow: inset 0 0 20px rgba(249,165,65,.07); }
     .time-stat.time-critical { border-color: rgba(255,105,139,.75); background: linear-gradient(140deg, #4b223b, #24192d); animation: dangerPulse 1.3s ease-in-out infinite; }
     .time-stat.time-critical .stat-icon, .time-stat.time-critical strong { color: #ff9cab; }
     @keyframes dangerPulse { 50% { box-shadow: 0 0 25px rgba(255,76,124,.28), inset 0 0 16px rgba(255,72,104,.08); } }
     .board-name { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 9px; }
     .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #60edcf; box-shadow: 0 0 0 4px rgba(96,237,207,.13), 0 0 18px rgba(96,237,207,.7); }
-    .board-badge { padding: 8px 11px; border-radius: 9px; background: #192645; border: 1px solid rgba(161,183,245,.14); font-size: 11px; color: #b5c6e8; font-weight: 700; }
     .board-surface {
       position: relative; isolation: isolate; padding: clamp(8px, 1.9vw, 18px);
       border: 1px solid rgba(156,183,240,.14); border-radius: 20px;
@@ -143,8 +122,7 @@
         linear-gradient(135deg, #090f23, #0d1630 50%, #0a1127);
     }
     .board-surface::before { content: ''; position: absolute; pointer-events: none; inset: 0; border-radius: inherit; border: 1px solid rgba(155,203,255,.045); }
-    /* 6 tầng bài thật: mỗi tầng gồm 4 hàng x 8 thẻ.
-       Mỗi hàng là một chồng 6 tầng, lộ ra phần đầu của 5 tầng dưới. */
+    /* 8 tầng bài thật, mỗi tầng có 4 hàng x 8 thẻ. Từng mép tầng lộ rõ ở phía trên. */
     #gameBoard {
       display: flex; flex-direction: column;
       gap: clamp(15px, 2vw, 24px); position: relative;
@@ -156,7 +134,7 @@
       display: grid;
       grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: var(--gap);
-      padding-top: calc(5 * var(--peek));
+      padding-top: calc(7 * var(--peek));
     }
     /* Giữ đúng chiều cao của một tầng dù các tầng thực tế chồng lên nhau. */
     .stack-row::after {
@@ -165,7 +143,7 @@
     }
     .stack-row::before {
       content: ''; position: absolute; z-index: 0; pointer-events: none;
-      inset: calc(5 * var(--peek) + 5px) -5px -9px 5px;
+      inset: calc(7 * var(--peek) + 5px) -5px -9px 5px;
       border-radius: 12px; background: #090f26;
       border: 1px solid rgba(123,154,255,.36);
       box-shadow: 0 11px 22px rgba(0,0,0,.32), 0 4px 0 rgba(75,95,169,.27);
@@ -194,11 +172,6 @@
       filter: blur(3px) brightness(1.08);
       transform: translateY(-54px) rotateX(-10deg) scale(.97);
     }
-    .stack-row.complete .card-row.is-active {
-      filter: drop-shadow(0 0 10px rgba(93,237,204,.22));
-    }
-    .board-badges { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px; }
-    .layer-chip { border: 1px solid rgba(123,224,232,.26); background: rgba(96,226,225,.08); color: #8deae9; border-radius: 9px; padding: 7px 10px; font-size: 10px; font-weight: 800; }
     .card:disabled { cursor: default; }
     .card:disabled:hover { transform: none; }
     .card {
@@ -235,10 +208,26 @@
     .card-fallback[hidden], .card-image[hidden] { display: none; }
     .fallback-emoji { font-size: clamp(17px, 3.5vw, 46px); line-height: 1.25; }
     .fallback-number { font-weight: 800; font-size: clamp(8px, 1.1vw, 13px); opacity: .7; }
-    .card.matched { cursor: default; pointer-events: none; }
-    .card.matched .card-inner { filter: saturate(.62); opacity: .58; }
-    .card.matched .card-reveal { box-shadow: inset 0 0 0 3px #6ef2d4, 0 0 19px rgba(88,237,197,.3); }
-    .card.matched::after { content: '✓'; position: absolute; z-index: 5; top: 4px; right: 5px; width: clamp(13px, 1.8vw, 21px); aspect-ratio: 1; border-radius: 50%; background: #65e6c3; color: #082135; font-size: clamp(9px, 1.2vw, 14px); font-weight: 800; display: grid; place-items: center; animation: pop .35s ease both; }
+    /* Cặp ghép đúng biến mất, không để lại ảnh hay dấu tích.
+       Nền trống che tầng bên dưới cho đến khi ghép hết cả tầng. */
+    .card.matched {
+      cursor: default;
+      pointer-events: none;
+      background: #0b142b;
+      border-radius: clamp(5px, 1vw, 12px);
+      box-shadow: none;
+    }
+    .card.matched .card-inner {
+      transform: rotateY(180deg) scale(.28);
+      opacity: 0;
+      filter: blur(5px);
+      transition: transform .45s cubic-bezier(.15,.65,.25,1),
+                  opacity .38s ease-out, filter .4s ease-out;
+    }
+    /* Tầng cuối đã hoàn tất: cả chỗ trống cũng hòa vào nền bàn chơi. */
+    .stack-row.complete::before { opacity: 0; transition: opacity .35s ease; }
+    .stack-row.complete .card.matched { background: transparent; }
+    .stack-row.complete .card-row.is-active { filter: none; }
     .card.wrong { animation: shake .32s ease both; }
     @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
     @keyframes pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
@@ -252,32 +241,106 @@
     .action:hover { transform: translateY(-2px); background: #26365d; }
     .action.primary { background: linear-gradient(110deg, #80e8e5, #899dff); color: #07132a; border: none; box-shadow: 0 9px 25px rgba(92,188,235,.18); }
     .action.primary:hover { box-shadow: 0 11px 35px rgba(100,193,238,.3); }
-    .overlay { position: fixed; inset: 0; z-index: 100; padding: 20px; display: grid; place-items: center; background: rgba(5,9,22,.82); backdrop-filter: blur(13px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .3s, visibility .3s; }
+    /* Thông báo kết quả / hướng dẫn kiểu premium */
+    .overlay {
+      position: fixed; inset: 0; z-index: 100; padding: 18px;
+      display: grid; place-items: center; overflow-y: auto;
+      background: rgba(4, 9, 26, .85); backdrop-filter: blur(16px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .32s ease, visibility .32s ease;
+    }
     .overlay.show { opacity: 1; visibility: visible; pointer-events: auto; }
-    .modal { width: min(440px, 100%); border: 1px solid rgba(182,195,255,.25); border-radius: 24px; padding: 30px; background: linear-gradient(145deg, #23335f, #111d38); box-shadow: 0 32px 100px rgba(0,0,0,.55); text-align: center; transform: translateY(18px) scale(.97); transition: transform .3s ease; }
-    .overlay.show .modal { transform: translateY(0) scale(1); }
-    .modal-icon { margin: 0 auto 12px; display: grid; place-items: center; width: 70px; height: 70px; border-radius: 22px; background: rgba(125,231,233,.11); border: 1px solid rgba(123,222,239,.26); font-size: 37px; }
-    .modal h2 { margin: 0 0 11px; font-size: clamp(22px, 4vw, 30px); letter-spacing: -.7px; }
-    .modal p { color: #b9c9e7; font-size: 13px; line-height: 1.9; margin: 0 0 22px; }
-    .modal p strong { color: #8dece9; }
-    .modal .action { width: 100%; }
-    .modal .soft-action { margin-top: 9px; background: transparent; }
+    .modal {
+      --modal-accent: #78e7e4;
+      width: min(470px, 100%); position: relative; overflow: hidden;
+      margin: auto; padding: 29px 29px 25px; border-radius: 26px;
+      text-align: center;
+      border: 1px solid rgba(172, 205, 255, .25);
+      background: linear-gradient(151deg, #243962 0%, #142441 49%, #111b32 100%);
+      box-shadow: 0 32px 95px rgba(0, 0, 0, .64), inset 0 1px 0 rgba(255,255,255,.11);
+      transform: translateY(22px) scale(.945); opacity: .55;
+      transition: transform .46s cubic-bezier(.18,.85,.22,1.08), opacity .35s ease;
+    }
+    .modal::before {
+      content: ''; position: absolute; pointer-events: none; left: -22%; right: -22%; top: -130px;
+      height: 260px; border-radius: 50%;
+      background: radial-gradient(ellipse, color-mix(in srgb, var(--modal-accent) 28%, transparent), transparent 69%);
+    }
+    .modal::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+      border: 1px solid rgba(255,255,255,.04);
+      background: linear-gradient(135deg, rgba(255,255,255,.055), transparent 43%);
+    }
+    .overlay.show .modal { transform: translateY(0) scale(1); opacity: 1; }
+    .modal-win { --modal-accent: #67ebca; }
+    .modal-lose { --modal-accent: #f8ac80; }
+    .modal-help { --modal-accent: #9db4ff; }
+    .modal > * { position: relative; z-index: 1; }
+    .modal-kicker { display: inline-flex; align-items: center; gap: 7px; color: #bacbe8; font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    .modal-kicker::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--modal-accent); box-shadow: 0 0 14px var(--modal-accent); }
+    .modal-icon {
+      display: grid; place-items: center; width: 88px; height: 88px;
+      margin: 19px auto 18px; border-radius: 26px; font-size: 43px;
+      background: linear-gradient(135deg, rgba(255,255,255,.17), rgba(255,255,255,.02));
+      border: 1px solid rgba(225,239,255,.25);
+      box-shadow: 0 0 0 8px rgba(255,255,255,.035), 0 18px 30px rgba(0,0,0,.22), inset 0 0 32px rgba(255,255,255,.05);
+      animation: modalIconFloat 3.5s ease-in-out infinite;
+    }
+    @keyframes modalIconFloat { 50% { transform: translateY(-4px); } }
+    .modal h2 { margin: 0; font-size: clamp(24px, 4vw, 32px); line-height: 1.24; letter-spacing: -1px; }
+    .modal-lead { max-width: 340px; margin: 12px auto 21px; color: #b6c9e7; font-size: 12px; line-height: 1.85; }
+    .modal-lead strong { color: #c8fff4; }
+    .modal-figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 15px; }
+    .modal-figure { padding: 15px 7px; border: 1px solid rgba(185, 209, 255,.12); border-radius: 15px; background: rgba(8,18,43,.52); }
+    .modal-figure b { display: block; color: #f5f9ff; font-size: clamp(15px, 3.2vw, 22px); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .modal-figure small { display: block; margin-top: 7px; color: #96abc9; font-size: 10px; font-weight: 600; }
+    .modal-record { margin: 0 auto 14px; color: #8af8d1; font-size: 12px; font-weight: 800; text-shadow: 0 0 15px rgba(110,240,206,.22); }
+    .modal-record[hidden] { display: none; }
+    .modal-progress { height: 7px; background: #1f3050; border: 1px solid rgba(167,194,244,.09); overflow: hidden; border-radius: 20px; margin: 3px 0 13px; }
+    .modal-progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #74e7e4, #8d98ff); transition: width .5s ease; }
+    .modal-actions { display: grid; gap: 8px; margin-top: 17px; }
+    .modal-actions .action { width: 100%; min-height: 48px; }
+    .modal-actions .soft-action { background: transparent; border-color: transparent; color: #93a7c5; min-height: 38px; }
+    .modal-actions .soft-action:hover { background: rgba(255,255,255,.06); color: white; }
+    .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; text-align: left; margin: 19px 0 4px; }
+    .help-tile { border-radius: 15px; border: 1px solid rgba(177,200,255,.14); background: rgba(8,18,43,.53); padding: 13px; }
+    .help-tile-icon { display: inline-grid; place-items: center; width: 29px; height: 29px; margin-bottom: 8px; border-radius: 9px; background: rgba(118,229,233,.10); font-size: 17px; }
+    .help-tile strong { display: block; color: #f4f7ff; font-size: 11px; line-height: 1.45; }
+    .help-tile small { display: block; color: #9aafce; font-size: 10px; line-height: 1.65; margin-top: 5px; }
+    .help-note { margin-top: 13px; color: #89e8df; font-size: 11px; line-height: 1.7; }
+    /* Thông báo mở tầng, không che hay khóa thao tác lật thẻ */
+    .toast-area { position: fixed; z-index: 85; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; width: min(400px, calc(100% - 24px)); transform: translateX(-50%); pointer-events: none; }
+    .game-toast {
+      display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 17px;
+      border: 1px solid rgba(118, 235, 218, .48);
+      color: #eafffc; background: linear-gradient(130deg, rgba(23,61,78,.98), rgba(21,37,71,.99));
+      box-shadow: 0 16px 42px rgba(0,0,0,.47), 0 0 40px rgba(60,226,198,.12);
+      opacity: 0; visibility: hidden; transform: translateY(23px) scale(.96);
+      transition: opacity .35s ease, transform .45s cubic-bezier(.18,.85,.22,1), visibility .35s ease;
+    }
+    .game-toast.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .toast-icon { display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; border-radius: 12px; font-size: 22px; color: #1b3650; background: linear-gradient(130deg, #77ead2, #9bb9ff); }
+    .toast-copy { display: grid; gap: 3px; }
+    .toast-copy strong { font-size: 12px; letter-spacing: .1px; }
+    .toast-copy small { color: #b8d1e5; line-height: 1.5; font-size: 11px; }
+    @media (max-width: 430px) {
+      .modal { padding: 24px 17px 20px; border-radius: 22px; }
+      .modal-icon { width: 74px; height: 74px; margin: 15px auto; font-size: 37px; }
+      .modal-figure { padding: 12px 4px; }
+      .help-tile { padding: 10px; }
+    }
     #confetti { position: fixed; inset: 0; z-index: 99; pointer-events: none; width: 100%; height: 100%; }
     @media (max-width: 760px) {
       .shell { width: min(100% - 22px, 660px); padding-top: 13px; }
       .hero { margin-bottom: 21px; }
-      .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
       .stat { padding: 10px 12px; gap: 8px; border-radius: 13px; }
       .stat-icon { width: 33px; height: 33px; flex-basis: 33px; border-radius: 10px; font-size: 16px; }
       .stat strong { font-size: 17px; }
-      .speed-stat strong { font-size: 21px; }
-      .time-delta { top: -9px; right: 4px; font-size: 10px; padding: 4px 7px; }
       .game-panel { border-radius: 18px; padding: 9px; }
       .board-surface { border-radius: 13px; }
       .board-heading { padding: 5px 4px 12px; }
-      .board-badge { font-size: 10px; padding: 7px; }
-      .layer-chip { font-size: 9px; padding: 7px; }
-      .stack-row { --peek: 5px; }
+      .stack-row { --peek: 4.5px; }
       .stack-row::before { left: 3px; right: -3px; }
       .card { border-radius: 5px; }
       .card-cover { border-width: 1px; }
@@ -301,8 +364,6 @@
       .eyebrow { font-size: 8px; letter-spacing: 1px; margin-bottom: 6px; }
       .stat small { font-size: 10px; }
       .card-mark { box-shadow: none; }
-      .board-badges { gap: 4px; }
-      .layer-chip { display: none; }
       .action { min-width: 115px; padding: 11px 13px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -330,16 +391,14 @@
     </header>
 
     <section class="stats" aria-label="Thống kê trò chơi">
-      <div class="stat"><span class="stat-icon" aria-hidden="true">✦</span><div><small>Cặp đã tìm</small><strong id="pairs">0/96</strong></div></div>
-      <div class="stat time-stat" id="timerStat"><span class="stat-icon" aria-hidden="true">⌛</span><div><small>Thời gian còn lại</small><strong id="timer">10:00</strong></div><span class="time-delta" id="timeDelta" role="status" aria-live="polite" aria-atomic="true"></span></div>
-      <div class="stat"><span class="stat-icon" aria-hidden="true">↻</span><div><small>Lượt thử</small><strong id="moves">0</strong></div></div>
-      <div class="stat speed-stat" id="speedStat"><span class="stat-icon" aria-hidden="true">⚡</span><div><small>Tốc độ đồng hồ</small><strong id="speed">×1</strong><span class="stat-detail" id="mistakes">Sai 0 lần</span></div></div>
+      <div class="stat"><span class="stat-icon" aria-hidden="true">✦</span><div><small>Cặp đã tìm</small><strong id="pairs">0/128</strong></div></div>
+      <div class="stat time-stat" id="timerStat"><span class="stat-icon" aria-hidden="true">⌛</span><div><small>Thời gian còn lại</small><strong id="timer">10:00</strong></div></div>
     </section>
 
     <section class="game-panel" aria-label="Bàn chơi lật thẻ">
       <div class="board-heading">
         <div class="board-name"><span class="live-dot" aria-hidden="true"></span> Bàn chơi của bạn</div>
-        <div class="board-badges"><span class="layer-chip">◇ 6 TẦNG XẾP CHỒNG</span><div class="board-badge" id="rowBadge">6 tầng · 4 × 8</div></div>
+
       </div>
       <div class="board-surface">
         <div id="gameBoard" role="group" aria-label="Bàn thẻ trí nhớ 8 cột"></div>
@@ -351,31 +410,54 @@
     </div>
   </main>
 
+  <div class="toast-area" role="status" aria-live="polite" aria-atomic="true">
+    <div class="game-toast" id="gameToast"><span class="toast-icon" aria-hidden="true">✦</span><span class="toast-copy"><strong id="toastTitle"></strong><small id="toastText"></small></span></div>
+  </div>
+
   <div class="overlay" id="winMessage" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="winHeading">
-    <div class="modal">
+    <div class="modal modal-win">
+      <span class="modal-kicker">THỬ THÁCH HOÀN TẤT</span>
       <div class="modal-icon" aria-hidden="true">🏆</div>
-      <h2 id="winHeading">Xuất sắc!</h2>
-      <p id="winStats"></p>
-      <button id="playAgainBtn" class="action primary" type="button">↻ Chơi lại ngay</button>
-      <a href="game.html" class="action soft-action">Về danh sách trò chơi</a>
+      <h2 id="winHeading">Chinh phục xuất sắc!</h2>
+      <p class="modal-lead">Tất cả <strong>128 cặp của 8 tầng</strong> đã được giải mã. Trí nhớ của bạn thật đáng nể!</p>
+      <div class="modal-figures" id="winStats"></div>
+      <p class="modal-record" id="newRecord" hidden>✧ KỶ LỤC CÁ NHÂN MỚI ✧</p>
+      <div class="modal-actions">
+        <button id="playAgainBtn" class="action primary" type="button">↻ Chinh phục lần nữa</button>
+        <a href="game.html" class="action soft-action">← Về danh sách trò chơi</a>
+      </div>
     </div>
   </div>
+
   <div class="overlay" id="helpMessage" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="helpHeading">
-    <div class="modal">
+    <div class="modal modal-help">
+      <span class="modal-kicker">HƯỚNG DẪN NHANH</span>
       <div class="modal-icon" aria-hidden="true">🧠</div>
-      <h2 id="helpHeading">Cách chơi</h2>
-      <p>Trò chơi có <strong>6 tầng chồng nhau</strong>, mỗi tầng <strong>4 hàng × 8 thẻ</strong>. Ghép đủ 4 cặp của một hàng để mở tầng bên dưới. Đồng hồ bắt đầu từ <strong>10 phút</strong> và chỉ chạy khi lật thẻ đầu tiên. Ban đầu đếm ở tốc độ <strong>×1</strong>; mỗi lần ghép sai sẽ tăng vĩnh viễn thêm <strong>1 cấp</strong> (×2, ×3, … đến tối đa ×10). Ví dụ ở ×3, mỗi giây thực đồng hồ mất 3 giây. Ghép đúng <strong>không cộng thời gian</strong> và không giảm hệ số. Ghép đủ <strong>96 cặp trước khi hết giờ</strong> để chiến thắng!</p>
-      <button id="closeHelpBtn" class="action primary" type="button">Đã hiểu</button>
+      <h2 id="helpHeading">Chinh phục 8 tầng</h2>
+      <p class="modal-lead">Lật thẻ, tìm điểm giống nhau và ghi nhớ vị trí của những hình đã xuất hiện.</p>
+      <div class="help-grid">
+        <div class="help-tile"><span class="help-tile-icon">🃏</span><strong>Ghép hai thẻ</strong><small>Mỗi hình xuất hiện đúng 2 lần. Ghép đúng để thẻ biến mất.</small></div>
+        <div class="help-tile"><span class="help-tile-icon">🪜</span><strong>Vượt 8 tầng</strong><small>16 cặp mỗi tầng, nằm rải trên 4 hàng. Hoàn tất để mở tầng dưới.</small></div>
+        <div class="help-tile"><span class="help-tile-icon">⏳</span><strong>10 phút thử thách</strong><small>Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.</small></div>
+        <div class="help-tile"><span class="help-tile-icon">✨</span><strong>Sai không bị phạt</strong><small>Ghép sai chỉ úp lại thẻ, không bị trừ thêm thời gian.</small></div>
+      </div>
+      <p class="help-note">128 hình khác nhau · 256 thẻ · Mỗi lần chơi xáo trộn hoàn toàn</p>
+      <div class="modal-actions"><button id="closeHelpBtn" class="action primary" type="button">Đã hiểu · Tiếp tục chơi</button></div>
     </div>
   </div>
 
   <div class="overlay" id="loseMessage" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="loseHeading">
-    <div class="modal">
+    <div class="modal modal-lose">
+      <span class="modal-kicker">KẾT THÚC THỬ THÁCH</span>
       <div class="modal-icon" aria-hidden="true">⌛</div>
-      <h2 id="loseHeading">Hết giờ mất rồi!</h2>
-      <p id="loseStats">Đồng hồ đã về 00:00.</p>
-      <button id="retryBtn" class="action primary" type="button">↻ Thử lại</button>
-      <a href="game.html" class="action soft-action">Về danh sách trò chơi</a>
+      <h2 id="loseHeading">Thời gian đã hết!</h2>
+      <p class="modal-lead">Một lần nữa, một bộ bài mới. Bạn đã tiến rất gần tới đích rồi!</p>
+      <div class="modal-figures" id="loseStats"></div>
+      <div class="modal-progress"><div class="modal-progress-fill" id="loseProgressFill"></div></div>
+      <div class="modal-actions">
+        <button id="retryBtn" class="action primary" type="button">↻ Thử sức lần nữa</button>
+        <a href="game.html" class="action soft-action">← Về danh sách trò chơi</a>
+      </div>
     </div>
   </div>
   <audio id="soundFlip" src="flip.mp3" preload="none"></audio>
@@ -385,33 +467,80 @@
   <script>
   'use strict';
   // Giữ nguyên tên ảnh và âm thanh của phiên bản gốc.
-  const cardImages = [
+  const ORIGINAL_IMAGES = [
     'thẻ1.jpg', 'the2.jpg', 'the3.jpg', 'the4.jpg',
     'the5.jpg', 'thẻ6.png', 'thẻ7.jpg', 'thẻ8.png',
     'thẻ9.jpg', 'thẻ10.jpg', 'thẻ11.jpg', 'thẻ12.jpg',
     'thẻ13.png', 'thẻ14.png', 'thẻ15.jpg', 'thẻ16.jpg',
     'thẻ17.jpg', 'thẻ18.jpg', 'thẻ19.png', 'thẻ20.jpg'
   ];
-  const fallbackEmojis = ['🌙','🌈','🦋','🍓','⭐','🐳','🎀','🍀','💎','🌻','🪐','🍉','🐱','🦄','🎮','🌸','🧸','🌊','⚡','🍄'];
+
+  // 128 hình khác nhau, mỗi hình chỉ xuất hiện ở một cặp gồm 2 thẻ.
+  // The first 20 paths above keep the original photos if those files exist.
+  // Bổ sung 108 hình SVG nhúng sẵn nếu chưa có bộ ảnh mở rộng.
+  const ILLUSTRATION_ICONS = ["🐱", "🐶", "🐼", "🦊", "🐻", "🐨", "🐯", "🦁", "🐰", "🐵", "🐸", "🐙", "🐢", "🦋", "🐧", "🦄", "🐝", "🦜", "🐳", "🦩", "🍎", "🍓", "🍉", "🍍", "🥝", "🍇", "🍒", "🍊", "🍋", "🥥", "🍑", "🍌", "🥑", "🥕", "🌽", "🍄", "🥨", "🥐", "🍩", "🧁", "🚗", "🚕", "🚲", "🛵", "🚀", "🚂", "🛫", "🚁", "⛵", "🚜", "🚒", "🛸", "🚌", "🚑", "🛶", "🚤", "⚽", "🏀", "🎾", "🎸", "🎹", "🎺", "🎻", "🎨", "🎮", "🎯", "🎲", "🎧", "📸", "🪁", "🎈", "🎁", "🌙", "☀", "⭐", "🌈", "🌻", "🌵", "🌷", "🍀", "🌴", "🌊", "🔥", "❄", "⚡", "☁", "🌼", "🌹", "💎", "🔮", "🧸", "🪩", "👑", "🪄", "🧩", "🧿", "🦉", "🦝", "🦔", "🦦", "🐺", "🦓", "🐘", "🦒", "🦏", "🦛", "🦘", "🦥", "🦡", "🐿️", "🐟", "🐡", "🦈", "🦞", "🐚", "🦚", "🪿", "🦆", "🦢", "🪸", "🦃", "🐓", "🦇", "🪲", "🪷", "🌾", "🌲", "🌺"];
+  const CARD_PALETTES = [
+    ['#172554','#6366f1'], ['#053a4a','#16b8ac'], ['#52214b','#f472b6'],
+    ['#653314','#f6a342'], ['#173a37','#73cf78'], ['#1d3557','#70b8fc'],
+    ['#39205c','#ad8cff'], ['#4b2535','#ff8598'], ['#22443c','#4fd6af'],
+    ['#4b2c6f','#8b8cf6'], ['#2c3b5a','#77bbeb'], ['#493b25','#f2c45c']
+  ];
+  function makeIllustration(id) {
+    const symbol = ILLUSTRATION_ICONS[id];
+    const palette = CARD_PALETTES[id % CARD_PALETTES.length];
+    const accent = palette[1];
+    const offset = 35 + (id * 29) % 95;
+    // Vector image contains an independent recognizable object and artwork.
+    // Do not show a matching number on the face so memory is visual, not numeric.
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="${palette[0]}"/><stop offset="1" stop-color="${accent}"/>
+        </linearGradient>
+        <radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="500" height="600" rx="28" fill="url(#bg)"/>
+      <circle cx="${offset + 90}" cy="120" r="178" fill="url(#glow)"/>
+      <circle cx="425" cy="490" r="180" fill="#0a1024" opacity=".16"/>
+      <g fill="none" stroke="#fff" stroke-opacity=".17" stroke-width="3">
+        <rect x="24" y="24" width="452" height="552" rx="24"/>
+        <circle cx="250" cy="288" r="166"/><circle cx="250" cy="288" r="144"/>
+      </g>
+      <g fill="#fff" opacity=".56">
+        <circle cx="66" cy="101" r="5"/><circle cx="424" cy="155" r="6"/>
+        <circle cx="98" cy="504" r="7"/><circle cx="415" cy="480" r="4"/>
+      </g>
+      <text x="250" y="366" font-size="220" text-anchor="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">${symbol}</text>
+      <path d="M152 485H348" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+    </svg>`;
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+  const fallbackArtworks = ILLUSTRATION_ICONS.map((_, id) => makeIllustration(id));
+  const cardImages = ILLUSTRATION_ICONS.map((_, id) => ORIGINAL_IMAGES[id] || fallbackArtworks[id]);
   const ROWS = 4;
   const PAIRS_PER_ROW = 4;
   const CARDS_PER_ROW = 8;
-  const LAYERS = 6;                  // Tầng 1 (đáy) -> tầng 6 (trên cùng)
-  const TOTAL_PAIRS = ROWS * PAIRS_PER_ROW * LAYERS;  // 96 cặp, 192 thẻ
+  const PAIRS_PER_LAYER = ROWS * PAIRS_PER_ROW;  // 16 cặp trộn trên cả 4 hàng
+  const LAYERS = 8;                  // Tầng 1 (đáy) -> tầng 8 (trên cùng)
+  const TOTAL_PAIRS = ROWS * PAIRS_PER_ROW * LAYERS;  // 128 cặp, 256 thẻ
   const START_TIME_MS = 10 * 60 * 1000;
-  const MAX_SPEED = 10;
-  const BEST_KEY = 'nts-memory-cards-6layer-10min-speed-v1';
+  if (cardImages.length !== TOTAL_PAIRS || new Set(cardImages).size !== TOTAL_PAIRS) {
+    throw new Error('Game cần 128 hình khác nhau.');
+  }
+  const BEST_KEY = 'nts-memory-cards-8layer-10min-no-penalty-v1';
 
   const el = {
     board: document.getElementById('gameBoard'), pairs: document.getElementById('pairs'),
-    timer: document.getElementById('timer'), moves: document.getElementById('moves'),
-    speed: document.getElementById('speed'), speedStat: document.getElementById('speedStat'),
-    mistakes: document.getElementById('mistakes'), rowBadge: document.getElementById('rowBadge'),
+    timer: document.getElementById('timer'), timerStat: document.getElementById('timerStat'),
     winModal: document.getElementById('winMessage'), winStats: document.getElementById('winStats'),
+    newRecord: document.getElementById('newRecord'),
     helpModal: document.getElementById('helpMessage'), confetti: document.getElementById('confetti'),
     soundBtn: document.getElementById('soundBtn'), soundIcon: document.getElementById('soundIcon'),
-    timerStat: document.getElementById('timerStat'), timeDelta: document.getElementById('timeDelta'),
-    loseModal: document.getElementById('loseMessage'), loseStats: document.getElementById('loseStats')
+    loseModal: document.getElementById('loseMessage'), loseStats: document.getElementById('loseStats'),
+    loseProgressFill: document.getElementById('loseProgressFill'),
+    toast: document.getElementById('gameToast'),
+    toastTitle: document.getElementById('toastTitle'), toastText: document.getElementById('toastText')
   };
   const clips = {
     flip: document.getElementById('soundFlip'),
@@ -465,27 +594,72 @@
     node.setAttribute('aria-hidden', String(!isOpen));
   }
 
-  function generateRows() {
-    // Mỗi hàng nhận 5 ảnh riêng trong bộ 20 ảnh. Các hàng khác nhau không trùng
-    // hình, giúp người chơi không nhầm cặp ảnh khi các hàng đang ở tầng khác nhau.
-    const pool = shuffle(cardImages.map((_, index) => index));
-    return Array.from({ length: ROWS }, (_, rowIndex) => {
-      const group = shuffle(pool.slice(rowIndex * 5, rowIndex * 5 + 5));
-      const layers = Array.from({ length: LAYERS }, (_, layerIndex) => {
-        // Ở mỗi tầng dùng 4/5 ảnh riêng của hàng này; số 5 được đổi luân phiên.
-        const excluded = layerIndex % group.length;
-        const ids = shuffle(group.filter((_, i) => i !== excluded));
-        const cards = shuffle(ids.flatMap(imageId => [
-          { pairId: `${rowIndex}-${layerIndex}-${imageId}`, imageId, copy: 1 },
-          { pairId: `${rowIndex}-${layerIndex}-${imageId}`, imageId, copy: 2 }
-        ]));
-        return { index: layerIndex, cards, matched: 0 };
-      });
-      return {
-        id: rowIndex, layers,
-        current: LAYERS - 1, transitioning: false, finished: false
-      };
+  // Trộn 16 cặp trên CẢ 4 HÀNG của từng tầng, không chia 4 cặp cố định/hàng.
+  // Hai lá cùng ảnh luôn ở HAI HÀNG KHÁC NHAU, tránh dễ đoán / kề nhau.
+  // Mỗi ảnh chỉ dùng trong một tầng và xuất hiện đúng hai lần trong cả trò chơi.
+  function makeMixedLayer(imageIds) {
+    const origins = imageIds.map((imageId, i) => ({ imageId, sourceRow: Math.floor(i / PAIRS_PER_ROW) }));
+    const destinationSlots = Array.from({ length: ROWS }, (_, row) =>
+      Array(PAIRS_PER_ROW).fill(row)).flat();
+    let destinations;
+
+    // Xáo các hàng đích, mỗi hàng nhận đúng 4 lá từ những hàng khác.
+    // Có sẵn phương án dự phòng bảo đảm không có cặp nằm cùng một hàng.
+    for (let attempt = 0; attempt < 2000; attempt++) {
+      const candidate = shuffle(destinationSlots);
+      if (candidate.every((row, i) => row !== origins[i].sourceRow)) {
+        destinations = candidate;
+        break;
+      }
+    }
+    destinations ||= origins.map(({ sourceRow }) => (sourceRow + 1) % ROWS);
+
+    const rowCards = Array.from({ length: ROWS }, () => []);
+    origins.forEach(({ imageId, sourceRow }, i) => {
+      const pairId = `image-${imageId}`;
+      rowCards[sourceRow].push({ pairId, imageId, copy: 1 });
+      rowCards[destinations[i]].push({ pairId, imageId, copy: 2 });
     });
+
+    // Không đặt hai hình cùng cặp thẳng cột / sát cột ở hai hàng gần nhau.
+    // Trộn lại vị trí mỗi hàng để không lộ quy luật qua các lần chơi.
+    let mixed = rowCards.map(shuffle);
+    for (let attempt = 0; attempt < 1000; attempt++) {
+      const candidate = rowCards.map(shuffle);
+      const positions = new Map();
+      let tooNear = false;
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < CARDS_PER_ROW; col++) {
+          const id = candidate[row][col].pairId;
+          if (positions.has(id)) {
+            const previous = positions.get(id);
+            const distance = Math.abs(row - previous.row) + Math.abs(col - previous.col);
+            if (distance < 3) { tooNear = true; break; }
+          } else {
+            positions.set(id, { row, col });
+          }
+        }
+        if (tooNear) break;
+      }
+      mixed = candidate;
+      if (!tooNear) break;
+    }
+    return mixed;
+  }
+
+  function generateRows() {
+    const imagePool = shuffle(Array.from({ length: TOTAL_PAIRS }, (_, id) => id));
+    // layerCards[layer][row] có 8 thẻ, không có cặp nào cùng hàng.
+    const layerCards = Array.from({ length: LAYERS }, (_, layerIndex) =>
+      makeMixedLayer(imagePool.slice(layerIndex * PAIRS_PER_LAYER,
+                                     (layerIndex + 1) * PAIRS_PER_LAYER)));
+    return Array.from({ length: ROWS }, (_, rowIndex) => ({
+      id: rowIndex,
+      layers: Array.from({ length: LAYERS }, (_, layerIndex) => ({
+        index: layerIndex, cards: layerCards[layerIndex][rowIndex]
+      })),
+      current: LAYERS - 1
+    }));
   }
 
   function buildCardRow(row, layer) {
@@ -514,7 +688,7 @@
           <span class="card-face card-reveal">
             <img class="card-image" alt="Ảnh thẻ ${card.imageId + 1}" loading="lazy">
             <span class="card-fallback" hidden style="--hue:${(card.imageId * 47 + 195) % 360}">
-              <span class="fallback-emoji" aria-hidden="true">${fallbackEmojis[card.imageId]}</span>
+              <span class="fallback-emoji" aria-hidden="true">${ILLUSTRATION_ICONS[card.imageId]}</span>
               <span class="fallback-number">${String(card.imageId + 1).padStart(2, '0')}</span>
             </span>
           </span>
@@ -523,7 +697,16 @@
       const fallback = button.querySelector('.card-fallback');
       // Tầng chưa đến lượt không tải ảnh; giảm tải trình duyệt trên điện thoại.
       image.dataset.src = cardImages[card.imageId];
-      image.onerror = () => { image.hidden = true; fallback.hidden = false; };
+      image.onerror = () => {
+        // Photos not provided? Display its own unique SVG image instead.
+        if (!image.dataset.usedFallback) {
+          image.dataset.usedFallback = '1';
+          image.src = fallbackArtworks[card.imageId];
+        } else {
+          image.hidden = true;
+          fallback.hidden = false;
+        }
+      };
       if (isActive) image.src = image.dataset.src;
       button.addEventListener('click', () => flipCard(button, row, layer.index));
       grid.appendChild(button);
@@ -536,7 +719,7 @@
     stack.dataset.rowId = String(row.id);
     stack.dataset.currentLayer = String(LAYERS);
     stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${LAYERS}`);
-    // Tầng 1 tạo trước, tầng 6 tạo sau, thể hiện đúng thứ tự chồng.
+    // Tầng 1 tạo trước, tầng 6 tạo sau; mỗi tầng trộn cặp trên 4 hàng.
     stack.append(...row.layers.map(layer => buildCardRow(row, layer)));
     return stack;
   }
@@ -547,11 +730,6 @@
   }
   function updateUI() {
     el.pairs.textContent = `${state.matchedPairs}/${TOTAL_PAIRS}`;
-    el.moves.textContent = String(state.moves);
-    el.rowBadge.textContent = `${LAYERS} tầng · ${ROWS} × ${CARDS_PER_ROW}`;
-    el.speed.textContent = `×${state.speed}`;
-    el.mistakes.textContent = `Sai ${state.mistakes} lần`;
-    el.speedStat.classList.toggle('speed-high', state.speed >= 6);
   }
   function setClockStatus(secondsLeft) {
     const warning = state.started && !state.finished && secondsLeft <= 90;
@@ -569,12 +747,11 @@
       playSound('tick');
     }
   }
-  // Áp dụng chính xác thời gian đã trôi ở hệ số hiện tại trước khi thay đổi hệ số.
-  // Giúp đồng hồ vẫn chuẩn khi trình duyệt giảm tần suất setInterval ở tab nền.
+  // Trừ đúng thời gian thật đã trôi, KHÔNG nhân hệ số khi ghép sai.
   function consumeElapsed(now = performance.now()) {
     if (!state || !state.started || state.paused || state.finished) return;
     const elapsed = Math.max(0, now - state.lastClockAt);
-    state.remainingMs = Math.max(0, state.remainingMs - elapsed * state.speed);
+    state.remainingMs = Math.max(0, state.remainingMs - elapsed);
     state.lastClockAt = now;
   }
   function tickClock() {
@@ -591,34 +768,15 @@
     clearInterval(timerId);
     timerId = null;
   }
-  // Ghép sai: KHÔNG trừ giây tức thời, KHÔNG cộng giây khi đúng.
-  // Mỗi lỗi tăng hệ số ×1 → ×2 → ... → ×10 và duy trì đến khi chơi lại.
-  function increaseSpeed() {
-    if (!state.started || state.finished) return;
-    tickClock();   // Khấu trừ khoảng thời gian đã chạy theo cấp tốc độ cũ.
-    if (state.finished) return;
-    state.mistakes++;
-    state.speed = Math.min(MAX_SPEED, state.speed + 1);
-    const badge = el.timeDelta;
-    badge.classList.remove('show');
-    el.timerStat.classList.remove('time-loss');
-    el.speedStat.classList.remove('speed-up');
-    badge.textContent = state.speed < MAX_SPEED
-      ? `TĂNG TỐC ×${state.speed}` : `TỐC ĐỘ ×${state.speed} (TỐI ĐA)`;
-    void badge.offsetWidth;
-    badge.classList.add('show');
-    el.timerStat.classList.add('time-loss');
-    el.speedStat.classList.add('speed-up');
-    const token = ++state.timeDeltaToken;
-    schedule(() => {
-      if (state.timeDeltaToken === token) {
-        badge.classList.remove('show');
-        el.timerStat.classList.remove('time-loss');
-        el.speedStat.classList.remove('speed-up');
-      }
-    }, 1650);
-    updateUI();
-    paintClock();
+  // Thông báo đẹp khi qua tầng. Không ảnh hưởng thời gian hay thao tác.
+  function showToast(title, detail) {
+    el.toastTitle.textContent = title;
+    el.toastText.textContent = detail;
+    el.toast.classList.remove('show');
+    void el.toast.offsetWidth;
+    el.toast.classList.add('show');
+    const seq = ++state.toastSeq;
+    schedule(() => { if (seq === state.toastSeq) el.toast.classList.remove('show'); }, 2800);
   }
   function pauseClock() {
     if (!state || !state.started || state.paused || state.finished) return false;
@@ -655,17 +813,18 @@
     stopConfetti();
     stopClock();
     state = {
-      rows: generateRows(), selected: [], matchedPairs: 0, moves: 0, mistakes: 0, speed: 1,
+      rows: generateRows(), selected: [], matchedPairs: 0, layerMatched: 0,
+      currentLayer: LAYERS - 1, transitioning: false,
       started: false, startedAt: 0, lastClockAt: 0, paused: false, pausedAt: 0, pausedMs: 0,
       remainingMs: START_TIME_MS, locked: false, finished: false,
-      lastTick: null, timeDeltaToken: 0
+      lastTick: null, toastSeq: 0
     };
     el.board.replaceChildren(...state.rows.map(buildStack));
     [el.winModal, el.loseModal, el.helpModal].forEach(modal => setModal(modal, false));
-    el.timeDelta.textContent = '';
-    el.timeDelta.className = 'time-delta';
-    el.timerStat.classList.remove('time-loss', 'time-warning', 'time-critical');
-    el.speedStat.classList.remove('speed-high', 'speed-up');
+    el.toast.classList.remove('show');
+    el.newRecord.hidden = true;
+    el.loseProgressFill.style.width = '0%';
+    el.timerStat.classList.remove('time-warning', 'time-critical');
     paintClock();
     updateUI();
   }
@@ -688,14 +847,19 @@
     el.timer.textContent = '00:00';
     setClockStatus(0);
     setModal(el.helpModal, false);
-    el.loseStats.innerHTML = `Bạn đã tìm được <strong>${state.matchedPairs}/${TOTAL_PAIRS} cặp</strong> sau <strong>${state.moves} lượt thử</strong>, ghép sai <strong>${state.mistakes} lần</strong>. Đồng hồ đã tăng đến <strong>×${state.speed}</strong>. Hãy thử lại để giữ tốc độ thấp hơn!`;
+    const completedLayers = Math.floor(state.matchedPairs / PAIRS_PER_LAYER);
+    el.loseStats.innerHTML = `
+      <div class="modal-figure"><b>${state.matchedPairs}/${TOTAL_PAIRS}</b><small>Cặp đã tìm</small></div>
+      <div class="modal-figure"><b>${completedLayers}/${LAYERS}</b><small>Tầng vượt qua</small></div>
+      <div class="modal-figure"><b>${Math.round(100 * state.matchedPairs / TOTAL_PAIRS)}%</b><small>Tiến độ</small></div>`;
+    el.loseProgressFill.style.width = `${100 * state.matchedPairs / TOTAL_PAIRS}%`;
     setModal(el.loseModal, true);
     document.getElementById('retryBtn').focus();
     playSound('lose');
   }
   function flipCard(button, row, layerIndex) {
-    if (state.locked || state.finished || state.paused || row.transitioning || row.finished ||
-        row.current !== layerIndex || button.disabled ||
+    if (state.locked || state.finished || state.paused || state.transitioning ||
+        row.current !== layerIndex || state.currentLayer !== layerIndex || button.disabled ||
         button.classList.contains('flipped') || button.classList.contains('matched')) return;
     startTimer();
     button.classList.add('flipped');
@@ -704,41 +868,32 @@
     state.selected.push({ button, row, layerIndex, pairId: button.dataset.pairId });
     if (state.selected.length !== 2) return;
     state.locked = true;
-    state.moves++;
     updateUI();
     const [first, second] = state.selected;
     if (first.pairId === second.pairId) {
       schedule(() => {
         [first, second].forEach(item => {
           item.button.classList.add('matched');
-          item.button.setAttribute('aria-label', 'Đã ghép đúng');
+          item.button.setAttribute('aria-label', 'Cặp đã tìm, ô trống');
           item.button.disabled = true;
         });
-        first.row.layers[first.layerIndex].matched++;
         state.matchedPairs++;
+        state.layerMatched++;
         state.selected = [];
         state.locked = false;
         playSound('match');
-        const completedThisLayer = first.row.layers[first.layerIndex].matched === PAIRS_PER_ROW;
-        // Ghép đúng không cộng thời gian và không đặt lại tốc độ đã tăng.
         if (state.finished) return;
-        if (completedThisLayer) {
-          if (first.layerIndex > 0) {
-            first.row.transitioning = true;
-            schedule(() => revealNextLayer(first.row), 430);
-          } else {
-            first.row.finished = true;
-            const stack = el.board.querySelector(`[data-row-id="${first.row.id}"]`);
-            if (stack) stack.classList.add('complete');
-          }
+        // Ghép đủ 16 cặp nằm rải rác ở bốn hàng mới mở tầng tiếp theo.
+        if (state.layerMatched === PAIRS_PER_LAYER && state.currentLayer > 0) {
+          state.transitioning = true;
+          schedule(revealNextLayer, 430);
         }
         updateUI();
-        // Chốt chiến thắng ngay khi tìm đủ cặp, tránh mất oan 1 giây do hiệu ứng.
+        // Chốt chiến thắng ngay khi tìm đủ cặp, tránh mất oan do hiệu ứng.
         if (state.matchedPairs === TOTAL_PAIRS) finishGame();
       }, 330);
     } else {
       schedule(() => {
-        increaseSpeed();
         if (state.finished) return;
         [first, second].forEach(item => item.button.classList.add('wrong'));
         schedule(() => {
@@ -752,38 +907,49 @@
       }, 660);
     }
   }
-  function revealNextLayer(row) {
-    if (row.current <= 0 || state.finished) return;
-    const stack = el.board.querySelector(`[data-row-id="${row.id}"]`);
-    if (!stack) return;
-    const departing = stack.querySelector(`[data-layer-index="${row.current}"]`);
-    const next = stack.querySelector(`[data-layer-index="${row.current - 1}"]`);
-    if (!departing || !next) return;
-    departing.classList.remove('is-active');
-    departing.classList.add('departing');
-    departing.setAttribute('aria-hidden', 'true');
-    departing.inert = true;
-    // Tầng đã ghép đủ bay lên; mép của 5 tầng bên dưới vốn đang nhô ra.
-    // Khi tầng cũ biến mất, cả chồng tầng còn lại tiến lên một bậc.
+  function revealNextLayer() {
+    if (!state || state.finished || !state.transitioning || state.currentLayer <= 0) return;
+    const current = state.currentLayer;
+    const transitioning = [];
+    state.rows.forEach(row => {
+      const stack = el.board.querySelector(`[data-row-id="${row.id}"]`);
+      if (!stack) return;
+      const departing = stack.querySelector(`[data-layer-index="${current}"]`);
+      const next = stack.querySelector(`[data-layer-index="${current - 1}"]`);
+      if (!departing || !next) return;
+      departing.classList.remove('is-active');
+      departing.classList.add('departing');
+      departing.setAttribute('aria-hidden', 'true');
+      departing.inert = true;
+      transitioning.push({ row, stack, departing, next });
+    });
+    // Cả bốn hàng chuyển đồng thời để không có cặp nào bị khóa giữa chừng.
     schedule(() => {
-      departing.remove();
-      row.current--;
-      const removed = LAYERS - 1 - row.current;
-      stack.querySelectorAll('.card-row').forEach(grid => {
-        const index = Number(grid.dataset.layerIndex);
-        grid.style.setProperty('--layer-slot', String(index + removed));
+      const nextLayer = current - 1;
+      transitioning.forEach(({ row, stack, departing, next }) => {
+        departing.remove();
+        row.current = nextLayer;
+        const removed = LAYERS - 1 - nextLayer;
+        stack.querySelectorAll('.card-row').forEach(grid => {
+          const index = Number(grid.dataset.layerIndex);
+          grid.style.setProperty('--layer-slot', String(index + removed));
+        });
+        next.classList.add('is-active');
+        next.removeAttribute('aria-hidden');
+        next.inert = false;
+        next.querySelectorAll('.card').forEach(button => { button.disabled = false; });
+        loadLayerImages(next);
+        stack.dataset.currentLayer = String(nextLayer + 1);
+        stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${nextLayer + 1}`);
       });
-      next.classList.add('is-active');
-      next.removeAttribute('aria-hidden');
-      next.inert = false;
-      next.querySelectorAll('.card').forEach(button => { button.disabled = false; });
-      loadLayerImages(next);
-      stack.dataset.currentLayer = String(row.current + 1);
-      stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${row.current + 1}`);
-      row.transitioning = false;
+      state.currentLayer = nextLayer;
+      state.layerMatched = 0;
+      state.transitioning = false;
       updateUI();
+      showToast(`✨ MỞ KHÓA TẦNG ${nextLayer + 1}`, `Tiến thêm một bước! Còn ${nextLayer + 1} tầng cần chinh phục.`);
     }, 580);
   }
+
   function finishGame() {
     if (state.finished) return;
     const now = performance.now();
@@ -798,7 +964,11 @@
     const newBest = oldBest === null || elapsed < oldBest;
     if (newBest) saveBest(elapsed);
     paintClock();
-    el.winStats.innerHTML = `Bạn đã vượt qua <strong>${LAYERS} tầng, ${TOTAL_PAIRS} cặp thẻ</strong> trong <strong>${formatTime(elapsed)}</strong> với <strong>${state.moves} lượt thử</strong> và <strong>${state.mistakes} lần sai</strong>. Tốc độ đồng hồ đạt <strong>×${state.speed}</strong>, còn lại <strong>${formatTime(Math.ceil(state.remainingMs / 1000))}</strong>.${newBest ? '<br>🌟 Kỷ lục mới!' : ''}`;
+    el.winStats.innerHTML = `
+      <div class="modal-figure"><b>${TOTAL_PAIRS}/${TOTAL_PAIRS}</b><small>Cặp hoàn thành</small></div>
+      <div class="modal-figure"><b>${formatTime(elapsed)}</b><small>Thời gian chơi</small></div>
+      <div class="modal-figure"><b>${formatTime(Math.ceil(state.remainingMs / 1000))}</b><small>Thời gian dư</small></div>`;
+    el.newRecord.hidden = !newBest;
     setModal(el.helpModal, false);
     setModal(el.winModal, true);
     document.getElementById('playAgainBtn').focus();
@@ -890,7 +1060,7 @@
     if (event.key !== 'Escape') return;
     if (el.helpModal.classList.contains('show')) closeHelp();
   });
-  // Tính thời gian theo performance.now để đúng tốc độ ×1 đến ×10 kể cả khi tab chạy nền.
+  // Tính thời gian thật đã trôi kể cả khi trình duyệt chạy nền.
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tickClock(); });
   createBoard();
   </script>
