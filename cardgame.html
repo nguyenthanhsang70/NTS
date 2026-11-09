@@ -184,6 +184,12 @@
     .card:active:not(.matched):not(:disabled) { transform: translateY(-1px) scale(.98); }
     .card-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .57s cubic-bezier(.18, .74, .25, 1); }
     .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+    /* Khong de bieu tuong ngoi sao o mat sau xuyen qua hinh khi lat bai. */
+    .card.flipped .card-cover .card-mark,
+    .card.matched .card-cover .card-mark {
+      opacity: 0;
+      visibility: hidden;
+    }
     .card-face {
       position: absolute; inset: 0; border-radius: clamp(5px, 1vw, 12px);
       backface-visibility: hidden; -webkit-backface-visibility: hidden;
