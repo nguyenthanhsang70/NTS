@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080d20">
-  <meta name="description" content="Memory Cards 8 tầng: 128 cặp hình khác nhau, đồng hồ 10 phút, ghép sai không bị phạt thời gian.">
+  <meta name="description" content="Memory Cards 40 tầng: 640 cặp hình, lựa chọn phòng 2–20 người, 10 phút chơi một mình, 4 phút chơi với bạn, tối ưu trên điện thoại.">
   <link rel="icon" type="image/png" href="logos3.png">
   <title>Memory Cards</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,7 +122,7 @@
         linear-gradient(135deg, #090f23, #0d1630 50%, #0a1127);
     }
     .board-surface::before { content: ''; position: absolute; pointer-events: none; inset: 0; border-radius: inherit; border: 1px solid rgba(155,203,255,.045); }
-    /* 8 tầng bài thật, mỗi tầng có 4 hàng x 8 thẻ. Từng mép tầng lộ rõ ở phía trên. */
+    /* 40 tầng dữ liệu; chỉ dựng DOM của tầng hiện tại (32 lá), vẽ lớp bên dưới bằng CSS. */
     #gameBoard {
       display: flex; flex-direction: column;
       gap: clamp(15px, 2vw, 24px); position: relative;
@@ -143,17 +143,24 @@
     }
     .stack-row::before {
       content: ''; position: absolute; z-index: 0; pointer-events: none;
-      inset: calc(7 * var(--peek) + 5px) -5px -9px 5px;
-      border-radius: 12px; background: #090f26;
+      inset: calc((7 - var(--remaining-depth, 7)) * var(--peek)) -5px -9px 5px;
+      border-radius: 12px;
+      background:
+        linear-gradient(to bottom,
+          transparent 0,
+          transparent calc(var(--remaining-depth, 7) * var(--peek)),
+          #111d38 calc(var(--remaining-depth, 7) * var(--peek)),
+          #111d38 100%),
+        repeating-linear-gradient(to bottom, #263963 0, #90a6e1 1px, #1a2853 3px, #1a2853 var(--peek));
       border: 1px solid rgba(123,154,255,.36);
       box-shadow: 0 11px 22px rgba(0,0,0,.32), 0 4px 0 rgba(75,95,169,.27);
     }
     .card-row {
       position: absolute; left: 0; right: 0;
-      top: calc(var(--layer-slot) * var(--peek));
+      top: calc(7 * var(--peek));
       display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: var(--gap); width: 100%; min-width: 0;
-      z-index: calc(var(--layer-index) + 1);
+      z-index: 2;
       transform-origin: 50% 75%; pointer-events: none;
       filter: brightness(.72) saturate(.84);
       transition: top .72s cubic-bezier(.2,.8,.22,1),
@@ -169,8 +176,14 @@
     .card-row.is-active { z-index: 24; pointer-events: auto; filter: none; }
     .card-row.departing {
       z-index: 40; pointer-events: none; opacity: 0;
-      filter: blur(3px) brightness(1.08);
+      filter: brightness(1.08);
       transform: translateY(-54px) rotateX(-10deg) scale(.97);
+    }
+    .stack-row { contain: layout style; }
+    .card-row { will-change: auto; }
+    @media (hover: none), (pointer: coarse) {
+      .card:not(.matched):not(:disabled):hover { transform: none; }
+      .card-cover { box-shadow: inset 0 1px rgba(255,255,255,.17); }
     }
     .card:disabled { cursor: default; }
     .card:disabled:hover { transform: none; }
@@ -375,6 +388,225 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
+    /* ===== CHOI VOI BAN: giao dien phong Memory Cards ===== */
+    .mc-modes {display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;margin:-9px 0 17px}
+    .mc-mode-btn {min-height:43px;padding:10px 17px;border-radius:13px;border:1px solid rgba(181,198,255,.2);background:#17223e;color:#c9d7f1;font-weight:800;cursor:pointer;transition:background .2s,transform .2s,border-color .2s}
+    .mc-mode-btn:hover{background:#25365b;transform:translateY(-2px)}
+    .mc-mode-btn.active{background:linear-gradient(120deg,#79e8e7,#98a4ff);border-color:transparent;color:#08172d;box-shadow:0 8px 25px rgba(118,229,233,.14)}
+    .mc-room-panel{margin:0 0 16px;padding:13px 15px;border-radius:18px;border:1px solid rgba(129,205,248,.22);background:linear-gradient(130deg,rgba(22,45,74,.92),rgba(21,25,56,.9));box-shadow:0 14px 35px rgba(0,0,0,.15)}
+    .mc-room-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .mc-room-head strong{font-size:13px}
+    .mc-room-state{display:inline-flex;align-items:center;gap:7px;color:#a8dfe8;font-weight:800;font-size:11px}
+    .mc-room-state:before{content:'';width:8px;height:8px;border-radius:50%;background:#ffcf77;box-shadow:0 0 12px rgba(255,207,119,.4)}
+    .mc-room-state.connected:before{background:#64ebc1;box-shadow:0 0 12px rgba(100,235,193,.55)}
+    .mc-player-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}
+    .mc-player{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 12px;border:1px solid rgba(171,198,255,.13);background:rgba(5,15,37,.43);border-radius:14px}
+    .mc-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#47d8c4,#7e89ff);padding:2px}
+    .mc-avatar img,.mc-chat-avatar img,.mc-list-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+    .mc-avatar-pending{display:grid;place-items:center;color:#c7d9f8;font-size:20px;background:#263856}
+    .mc-player-info{min-width:0}.mc-player-name{display:block;font-weight:800;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-player-info small{color:#9badcd;font-size:10px;line-height:1.6}.mc-score{margin-left:auto;font-size:19px;font-weight:900;color:#80ece1;font-variant-numeric:tabular-nums}
+    .mc-vs{font-weight:900;color:#adbbdf;font-size:11px;letter-spacing:1px}
+    .mc-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+    .mc-code-label{margin-right:auto;color:#b3c4e3;font-size:12px}.mc-code-label b{color:#ffe3a1;letter-spacing:1.3px}
+    .mc-mini-btn{min-height:36px;border-radius:10px;padding:7px 11px;border:1px solid rgba(164,194,255,.22);background:rgba(255,255,255,.07);color:#e2edff;font-weight:800;font-size:11px;cursor:pointer}
+    .mc-mini-btn:hover{background:rgba(255,255,255,.13)}
+    .mc-mini-btn.danger{border-color:rgba(255,112,139,.5);background:rgba(248,83,116,.14);color:#ffb1bf}
+    .mc-hint{display:block;margin-top:9px;color:#a0b4d1;font-size:11px;line-height:1.7}
+    .mc-wait-note{padding:10px 12px;text-align:center;color:#ffe0ac;background:rgba(247,166,78,.075);border:1px dashed rgba(247,166,78,.3);border-radius:12px;font-size:12px;margin:0 0 13px}
+    .mc-room-chat{margin-top:12px;border:1px solid rgba(159,190,245,.14);border-radius:16px;background:rgba(4,13,32,.52);overflow:hidden}
+    .mc-chat-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 14px;font-size:12px;font-weight:800;background:rgba(85,137,209,.1)}
+    .mc-chat-count{font-weight:600;color:#99aacb;font-size:11px}
+    .mc-chat-list{height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px;scrollbar-width:thin}
+    .mc-chat-empty{color:#8397ba;font-size:11px;text-align:center;margin:auto;line-height:1.5}
+    .mc-chat-line{display:flex;align-items:flex-end;gap:7px;max-width:100%}.mc-chat-line.mine{flex-direction:row-reverse}
+    .mc-chat-avatar{height:27px;width:27px;flex:0 0 27px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#34d6c8,#8794ff)}
+    .mc-chat-content{max-width:75%;min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+    .mc-chat-line.mine .mc-chat-content{align-items:flex-end}
+    .mc-chat-nick{color:#a6bbd5;font-size:10px;font-weight:800;padding:0 4px}
+    .mc-chat-bubble{padding:8px 10px;border-radius:12px 12px 12px 3px;background:#23344e;color:#f0f7ff;font-size:11px;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.5}
+    .mc-chat-line.mine .mc-chat-bubble{border-radius:12px 12px 3px 12px;background:linear-gradient(135deg,#136c92,#425ad6)}
+    .mc-chat-form{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(159,190,245,.13)}
+    .mc-chat-input{flex:1;min-width:0;min-height:38px;padding:8px 10px;border:1px solid rgba(163,187,232,.25);border-radius:10px;background:rgba(255,255,255,.07);color:#fff;outline:0;font-size:12px}
+    .mc-chat-input:focus{border-color:#7cdbf0}.mc-chat-send{border:0;border-radius:10px;background:linear-gradient(120deg,#58bddd,#697ff1);padding:0 15px;color:#07162a;font-weight:900;cursor:pointer}
+    .mc-chat-send:disabled,.mc-chat-input:disabled{opacity:.5;cursor:not-allowed}
+    .mc-chat-bubble-toggle{display:none}
+    .mc-lobby{position:fixed;z-index:180;inset:0;padding:16px;display:none;align-items:center;justify-content:center;background:rgba(3,9,23,.85);backdrop-filter:blur(13px)}
+    .mc-lobby.open{display:flex}
+    .mc-lobby-box{width:min(710px,100%);max-height:min(94vh,850px);overflow-y:auto;scrollbar-width:thin;padding:24px;border-radius:24px;border:1px solid rgba(180,210,255,.24);background:linear-gradient(142deg,#182b4c,#101b35 70%,#11192f);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+    .mc-lobby-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .mc-lobby-head h2{margin:0;font-size:clamp(19px,4vw,26px);letter-spacing:-.5px}.mc-lobby-head p{color:#a5b9d7;font-size:12px;line-height:1.6;margin:8px 0 0}
+    .mc-close{flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.07);color:white;border:1px solid rgba(180,210,255,.18);font-size:18px;cursor:pointer}
+    .mc-lobby-label{display:block;margin:14px 0 7px;color:#b9cae2;font-size:11px;letter-spacing:.5px;font-weight:800}
+    .mc-input{width:100%;min-height:44px;border-radius:12px;padding:10px 12px;border:1px solid rgba(180,210,255,.25);background:#0b1730;color:white;outline:0;font:inherit;font-size:13px}
+    .mc-input:focus{border-color:#7ae4e7;box-shadow:0 0 0 3px rgba(106,229,233,.09)}
+    .mc-select-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:15px 0 10px}
+    .mc-tab{padding:12px;border:1px solid rgba(180,210,255,.17);border-radius:13px;background:rgba(255,255,255,.04);color:#d7e5fa;font-size:12px;font-weight:800;cursor:pointer}
+    .mc-tab.selected{background:rgba(105,226,229,.14);border-color:#76e4e8;color:#8cf5f0}
+    .mc-input-line{display:flex;align-items:center;gap:7px}.mc-input-line .mc-input{flex:1;min-width:0}
+    .mc-primary{min-height:43px;padding:10px 16px;border:0;border-radius:12px;background:linear-gradient(115deg,#78e6e4,#98a3fa);color:#091931;font-weight:900;cursor:pointer;font-size:13px}
+    .mc-primary:disabled{opacity:.5;cursor:not-allowed}
+    .mc-muted{color:#9bafcc;font-size:11px;line-height:1.6}
+    .mc-room-directory{border:1px solid rgba(166,191,245,.2);background:rgba(4,15,34,.45);border-radius:16px;margin-top:17px;padding:13px}
+    .mc-directory-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.mc-directory-head strong{font-size:12px}
+    .mc-room-list{display:grid;gap:9px;max-height:240px;overflow:auto;padding-right:2px}
+    .mc-list-empty{padding:17px 12px;color:#98a9c4;font-size:12px;border:1px dashed rgba(170,196,242,.18);border-radius:12px;text-align:center;line-height:1.6}
+    .mc-list-item{padding:11px;border-radius:12px;border:1px solid rgba(163,198,252,.15);background:rgba(255,255,255,.04)}
+    .mc-list-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .mc-list-host{display:flex;gap:8px;align-items:center;min-width:0;font-size:12px;font-weight:800;overflow:hidden}
+    .mc-list-host span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-list-avatar{width:31px;height:31px;flex:0 0 31px;border-radius:50%;overflow:hidden;padding:2px;background:linear-gradient(125deg,#45cfc4,#9993fb)}
+    .mc-list-code{color:#ffe0a7;font-weight:900;font-size:11px;letter-spacing:1px}
+    .mc-list-meta{font-size:10px;color:#93a9c9;margin:7px 0 9px}
+    .mc-list-join{min-height:34px;width:100%;border:0;border-radius:9px;background:linear-gradient(115deg,#13a8b9,#5b67c9);color:#fff;font-size:11px;font-weight:900;cursor:pointer}
+    .mc-list-join:disabled{opacity:.45;cursor:not-allowed;background:#42526b}
+    .mc-lobby-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+    .mc-small-note{font-size:10px;color:#879bbd;line-height:1.65;margin:10px 0 0}
+    .mc-notify{position:fixed;z-index:190;bottom:18px;left:50%;width:max-content;max-width:calc(100vw - 35px);transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:12px 17px;background:#193354;color:#e8f7ff;font-size:12px;line-height:1.55;border-radius:12px;border:1px solid rgba(100,214,238,.36);box-shadow:0 15px 45px rgba(0,0,0,.35);transition:opacity .2s,transform .2s}
+    .mc-notify.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:640px){
+      .mc-modes{margin:-4px 0 13px}.mc-mode-btn{flex:1;font-size:11px;padding:10px;min-height:41px}
+      .mc-room-panel{padding:11px}.mc-player-row{gap:6px}.mc-player{gap:6px;padding:8px 6px}.mc-avatar{width:34px;height:34px;flex-basis:34px}
+      .mc-player-name{font-size:10px}.mc-player-info small{font-size:9px}.mc-score{font-size:15px}.mc-vs{font-size:9px}
+      .mc-actions{gap:6px}.mc-code-label{width:100%;margin:0}.mc-mini-btn{flex:1}
+      .mc-lobby-box{padding:17px;border-radius:19px}.mc-lobby{padding:9px}.mc-lobby-head p{font-size:11px}
+      .mc-chat-bubble-toggle{display:flex;align-items:center;justify-content:center;position:fixed;z-index:88;right:15px;bottom:max(18px,env(safe-area-inset-bottom));width:49px;height:49px;border-radius:50%;border:1px solid rgba(162,220,255,.45);background:linear-gradient(135deg,#186f9f,#5366bd);color:white;font-size:21px;box-shadow:0 8px 27px rgba(0,0,0,.4);cursor:pointer}
+      .mc-room-chat{display:none;position:fixed;z-index:89;right:13px;bottom:max(76px,calc(env(safe-area-inset-bottom) + 76px));width:min(370px,calc(100vw - 26px));margin:0;background:#101e37;box-shadow:0 15px 65px rgba(0,0,0,.6);border-color:#467caf}
+      .mc-room-chat.expanded{display:block}.mc-chat-list{height:min(42vh,270px)}
+    }
+
+    /* Chọn chế độ ngay khi bắt đầu game */
+    .mc-mode-screen{position:fixed;z-index:170;inset:0;padding:24px 16px;display:none;align-items:center;justify-content:center;overflow-y:auto;overscroll-behavior:contain;background:radial-gradient(circle at 50% 18%,rgba(55,98,164,.32),transparent 55%),rgba(4,9,23,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .mc-mode-screen.open{display:flex}
+    body:has(.mc-mode-screen.open){overflow:hidden}
+    .mc-mode-screen-inner{width:min(780px,100%);margin:auto;text-align:center;padding:34px clamp(13px,3vw,31px) 25px;border:1px solid rgba(162,192,251,.24);border-radius:30px;background:linear-gradient(155deg,#1a2b4b,#101b33 53%,#11192d);box-shadow:0 25px 95px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07)}
+    .mc-mode-symbol{width:59px;height:59px;border-radius:19px;display:grid;place-items:center;margin:0 auto 18px;background:linear-gradient(145deg,#4dd7d3,#8078ef);color:#0b1530;font-size:37px;box-shadow:0 10px 29px rgba(82,176,221,.28)}
+    .mc-mode-eyebrow{color:#88e3e8;font-size:10px;font-weight:900;letter-spacing:2.6px;margin:0 0 10px}
+    .mc-mode-screen h2{font-size:clamp(25px,4.5vw,39px);letter-spacing:-1px;line-height:1.2;margin:0;outline:0}
+    .mc-mode-screen h2 span{background:linear-gradient(105deg,#75ece7,#b9a7ff);background-clip:text;-webkit-background-clip:text;color:transparent}
+    .mc-mode-subtitle{font-size:13px;color:#aec0de;line-height:1.7;margin:11px auto 18px;max-width:570px}
+    .mc-mode-invite{margin:0 auto 17px;padding:10px 12px;border-radius:12px;max-width:570px;color:#ffdea6;font-size:12px;font-weight:800;background:rgba(250,186,92,.09);border:1px solid rgba(250,186,92,.2)}
+    .mc-mode-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:15px}
+    .mc-mode-choice{text-align:left;display:flex;flex-direction:column;gap:14px;min-height:232px;padding:20px;border-radius:22px;background:linear-gradient(140deg,rgba(52,91,133,.4),rgba(24,36,72,.57));border:1px solid rgba(164,198,251,.23);color:#f5f9ff;cursor:pointer;transition:transform .22s,box-shadow .22s,border-color .22s}
+    .mc-mode-choice.online{background:linear-gradient(140deg,rgba(62,61,129,.5),rgba(28,33,69,.68))}
+    .mc-mode-choice:hover{transform:translateY(-4px);border-color:#74dbe5;box-shadow:0 16px 35px rgba(0,0,0,.25)}
+    .mc-mode-choice:focus-visible{outline:3px solid #86e9f0;outline-offset:4px}
+    .mc-mode-choice-art{height:57px;width:57px;border-radius:17px;font-size:30px;display:grid;place-items:center;background:rgba(108,223,227,.13);border:1px solid rgba(134,239,238,.19)}
+    .mc-mode-choice-art.online{background:rgba(159,143,253,.17);border-color:rgba(167,149,255,.22)}
+    .mc-mode-choice-copy{display:flex;flex-direction:column;gap:9px;flex:1}
+    .mc-mode-choice-copy strong{font-size:19px;letter-spacing:-.4px}
+    .mc-mode-choice-copy small{font-size:12px;font-weight:500;line-height:1.6;color:#afc1dc}
+    .mc-mode-choice-cta{margin-top:auto;padding-top:7px;font-size:12px;font-weight:900;color:#89eeee;display:flex;justify-content:space-between;align-items:center}
+    .mc-mode-choice-cta span{font-size:22px;line-height:1}
+    .mc-mode-choice.online .mc-mode-choice-cta{color:#c4b5fd}
+    .mc-mode-footer{font-size:11px;color:#8da2c2;margin:18px 0 10px}
+    .mc-mode-back{display:inline-block;color:#a7bedf;font-size:11px;font-weight:700;text-decoration:none;padding:8px 12px}
+    .mc-mode-back:hover{text-decoration:underline;color:#fff}
+
+    /* Bong bóng chat nổi dùng cho CẢ máy tính và điện thoại */
+    .mc-chat-bubble-toggle{position:fixed;z-index:90;right:24px;bottom:max(24px,env(safe-area-inset-bottom));width:61px;height:61px;border-radius:20px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(158,227,245,.52);background:linear-gradient(135deg,#147c9e,#655acb);box-shadow:0 14px 33px rgba(0,0,0,.48),0 0 0 5px rgba(91,173,232,.08),inset 0 1px rgba(255,255,255,.25);color:#fff;font-size:26px;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}
+    .mc-chat-bubble-toggle:hover{transform:translateY(-3px);box-shadow:0 18px 39px rgba(0,0,0,.53),0 0 0 6px rgba(91,173,232,.12)}
+    .mc-chat-bubble-toggle[aria-expanded="true"]{background:linear-gradient(135deg,#294a77,#3d447b);border-radius:18px}
+    .mc-chat-toggle-icon{display:grid;place-items:center;width:100%;height:100%;line-height:1}
+    .mc-chat-unread{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:#ff527b;border:2px solid #13213c;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center}
+    .mc-room-chat{position:fixed;z-index:89;right:24px;bottom:max(98px,calc(env(safe-area-inset-bottom) + 98px));width:min(390px,calc(100vw - 32px));height:min(475px,calc(100dvh - 145px));min-height:200px;margin:0;display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(111,169,241,.52);border-radius:22px;background:linear-gradient(170deg,#152744,#0a172b);box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(63,142,209,.06);animation:mcChatPop .2s ease both}
+    .mc-room-chat.expanded{display:flex}
+    @keyframes mcChatPop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .mc-room-chat .mc-chat-header{padding:14px;flex:0 0 auto;justify-content:flex-start;border-bottom:1px solid rgba(129,170,234,.14);background:linear-gradient(110deg,rgba(27,90,150,.39),rgba(75,74,165,.2))}
+    .mc-chat-heading{display:inline-flex;align-items:center;gap:9px;margin-right:auto;font-size:13px;font-weight:900;color:#f4f7ff}
+    .mc-chat-heading-icon{width:32px;height:32px;display:grid;place-items:center;font-size:18px;border-radius:10px;background:rgba(111,190,238,.17)}
+    .mc-room-chat .mc-chat-count{font-size:10px;color:#b3c9e4;white-space:nowrap}
+    .mc-room-chat .mc-chat-list{flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;padding:13px;gap:12px}
+    .mc-room-chat .mc-chat-form{flex:0 0 auto;padding:12px;border-top:1px solid rgba(129,170,234,.15);background:rgba(4,12,27,.46)}
+    .mc-room-chat .mc-chat-input{font-size:13px;min-height:44px}
+    .mc-room-chat .mc-chat-send{padding:0 16px;font-size:12px}
+    .mc-room-chat #mcChatClose{flex:0 0 32px;width:32px;height:32px;min-height:32px;padding:0;display:grid;place-items:center;border-radius:9px;background:rgba(255,255,255,.08)}
+    /* Mui ten xuong trong thanh tieu de: thu gon cua so chat ve bong bong */
+    .mc-chat-header-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+    .mc-chat-heading{min-width:0}
+    .mc-chat-heading > span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .mc-room-chat #mcChatMinimize{width:34px;height:34px;min-height:34px;padding:0;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;border:1px solid rgba(151,211,251,.32);background:rgba(90,160,221,.14);color:#d9f3ff;cursor:pointer;transition:background .18s,transform .18s}
+    .mc-room-chat #mcChatMinimize:hover{background:rgba(90,160,221,.28);transform:translateY(1px)}
+    .mc-room-chat #mcChatMinimize svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    /* Mui ten trong khung tin nhan: cuon ve tin nhan moi nhat */
+    .mc-chat-stream{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+    .mc-chat-stream .mc-chat-list{flex:1 1 auto;min-height:0;height:auto}
+    .mc-chat-scroll-down{position:absolute;right:13px;bottom:12px;z-index:3;width:39px;height:39px;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(163,222,251,.5);color:#fff;background:linear-gradient(145deg,#22799c,#4858aa);box-shadow:0 5px 20px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s,opacity .15s}
+    .mc-chat-scroll-down:hover{transform:translateY(2px)}
+    .mc-chat-scroll-down svg{height:20px;width:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .mc-chat-scroll-down[hidden]{display:none!important}
+    .mc-room-chat .mc-chat-bubble{font-size:12px;line-height:1.5;padding:9px 12px;border-radius:14px 14px 14px 4px}
+    .mc-room-chat .mc-chat-line.mine .mc-chat-bubble{border-radius:14px 14px 4px 14px}
+    @media(max-width:640px){
+      .mc-mode-screen{padding:12px 10px;align-items:flex-start}
+      .mc-mode-screen-inner{border-radius:23px;padding:20px 15px 14px}
+      .mc-mode-symbol{width:48px;height:48px;border-radius:14px;font-size:28px;margin-bottom:12px}
+      .mc-mode-eyebrow{font-size:9px;letter-spacing:1.5px}
+      .mc-mode-screen h2{font-size:clamp(23px,7vw,31px)}
+      .mc-mode-subtitle{font-size:11px;margin-bottom:12px}
+      .mc-mode-card-grid{grid-template-columns:1fr;gap:9px;margin-top:10px}
+      .mc-mode-choice{min-height:0;flex-direction:row;align-items:center;gap:13px;padding:14px;border-radius:16px}
+      .mc-mode-choice-art{width:53px;height:53px;flex:0 0 53px;font-size:25px;border-radius:14px}
+      .mc-mode-choice-copy{gap:5px}
+      .mc-mode-choice-copy strong{font-size:15px}
+      .mc-mode-choice-copy small{font-size:10px}
+      .mc-mode-choice-cta{padding-top:0;font-size:10px}
+      .mc-mode-choice-cta span{font-size:18px}
+      .mc-mode-footer{font-size:10px;margin:13px 0 6px}
+      .mc-chat-bubble-toggle{right:15px;bottom:max(16px,env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;font-size:23px}
+      .mc-room-chat{right:10px;bottom:max(84px,calc(env(safe-area-inset-bottom) + 84px));width:calc(100vw - 20px);height:min(465px,calc(100dvh - 135px));min-height:160px;border-radius:20px}
+    }
+    @media(max-height:580px){.mc-mode-screen-inner{padding-top:14px;padding-bottom:10px}.mc-mode-symbol{display:none}.mc-mode-footer{margin-top:8px}.mc-mode-back{padding:4px}}
+    /* Phòng online hỗ trợ 2 đến 20 người */
+    .mc-room-capacity{width:100%;margin-bottom:4px;appearance:auto;-webkit-appearance:auto;color:#f4f7ff;background:#13223e;border:1px solid rgba(151,190,247,.45);cursor:pointer;font-weight:800}
+    .mc-room-capacity option{color:#111c36;background:#eff5ff}
+    .mc-layer-indicator{display:inline-flex;align-items:center;flex-shrink:0;padding:6px 10px;border:1px solid rgba(124,222,229,.25);background:rgba(108,228,222,.07);border-radius:10px;color:#94f1e8;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+    .board-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0;padding-bottom:12px}
+    .board-name{min-width:0;overflow-wrap:anywhere}
+    @media(max-width:380px){.mc-layer-indicator{font-size:10px;padding:5px 7px}.board-name{font-size:12px}}
+    .mc-players-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin-top:11px;margin-bottom:11px;max-height:248px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#527197 transparent}
+    .mc-players-grid .mc-player{min-width:0;display:flex;align-items:center;gap:9px;border:1px solid rgba(150,184,250,.19);border-radius:13px;padding:10px;background:rgba(255,255,255,.04)}
+    .mc-players-grid .mc-player.you{border-color:rgba(92,238,213,.7);background:rgba(48,190,169,.1)}
+    .mc-players-grid .mc-player-name{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-players-grid .mc-avatar{width:36px;height:36px;flex:0 0 36px;border-radius:50%;overflow:hidden}
+    .mc-players-grid .mc-score{margin-left:auto;font-size:17px;flex:0 0 auto}
+    .mc-players-grid .mc-player-info{min-width:0;flex:1;display:flex;flex-direction:column}
+    .mc-players-grid .mc-player-info small{font-size:10px;color:#9cafcf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    @media(max-width:620px){.mc-players-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:190px;gap:6px}.mc-players-grid .mc-player{gap:5px;padding:6px}.mc-players-grid .mc-avatar{width:28px;height:28px;flex-basis:28px}.mc-players-grid .mc-player-name{font-size:10px}.mc-players-grid .mc-score{font-size:14px}}
+    [hidden]{display:none!important}
+
+/* VÒNG QUAY MAY MẮN: tách biệt với bàn thẻ, hỗ trợ desktop / mobile */
+.mc-wheel-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-3px 0 14px;padding:10px 14px;border-radius:14px;background:linear-gradient(115deg,rgba(105,74,172,.26),rgba(38,120,146,.2));border:1px solid rgba(172,161,255,.3);color:#d6e5ff;font-size:12px;font-weight:700}
+.mc-wheel-status strong{color:#a8ffea}.mc-wheel-status[hidden]{display:none!important}
+.mc-wheel-fab{position:fixed;z-index:102;bottom:max(174px,calc(env(safe-area-inset-bottom) + 174px));right:24px;min-height:49px;padding:9px 15px;border-radius:999px;background:linear-gradient(125deg,#ffe09d,#f99dbf 60%,#bbadff);color:#271432;border:2px solid rgba(255,255,255,.75);box-shadow:0 13px 32px rgba(0,0,0,.37);font-weight:900;font-size:12px;cursor:pointer;animation:mcWheelFloat 2.4s ease-in-out infinite}
+.mc-wheel-fab[hidden]{display:none!important}.mc-wheel-fab:disabled{filter:grayscale(.8);opacity:.7;cursor:not-allowed;animation:none}
+@keyframes mcWheelFloat{50%{transform:translateY(-5px)}}
+.mc-wheel-backdrop{position:fixed;z-index:151;inset:0;padding:15px;background:rgba(3,8,24,.87);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;overflow-y:auto}
+.mc-wheel-backdrop.open{display:flex}.mc-wheel-dialog{width:min(900px,100%);max-height:calc(100dvh - 30px);overflow-y:auto;overscroll-behavior:contain;border-radius:25px;padding:22px;position:relative;border:1px solid rgba(214,191,255,.35);background:radial-gradient(circle at 20% 10%,rgba(113,76,180,.44),transparent 50%),linear-gradient(150deg,#162447,#101b34 58%,#12162b);box-shadow:0 30px 95px rgba(0,0,0,.65)}
+.mc-wheel-head{display:flex;align-items:start;justify-content:space-between;gap:10px;margin-bottom:13px}.mc-wheel-head h2{margin:0;font-size:clamp(21px,3.5vw,31px);letter-spacing:-.8px}.mc-wheel-kicker{font-size:10px;letter-spacing:2px;color:#8ef5e9;font-weight:900;margin:0 0 5px}.mc-wheel-close{width:38px;height:38px;flex:0 0 38px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.08);border-radius:12px;color:#fff;font-weight:900;font-size:19px;cursor:pointer}
+.mc-wheel-content{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:center}
+.mc-wheel-left{min-width:0;text-align:center}
+.mc-wheel-disc-wrap{position:relative;width:min(100%,392px);aspect-ratio:1;margin:0 auto 12px;border-radius:50%;padding:9px;background:linear-gradient(145deg,#fff4bd,#cfa1ff,#58cfd4);box-shadow:0 0 0 5px rgba(194,168,255,.14),0 18px 38px rgba(0,0,0,.5),inset 0 2px 5px rgba(255,255,255,.65)}
+.mc-wheel-disc{width:100%;height:100%;display:block;border-radius:50%;transform:rotate(0deg);will-change:transform;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+.mc-wheel-pointer{position:absolute;top:-13px;left:50%;transform:translateX(-50%);z-index:3;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:29px solid #ffe9ad;filter:drop-shadow(0 3px 3px rgba(0,0,0,.7))}
+.mc-wheel-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 32% 25%,#fffbd6,#ffbd7f 62%,#b66d78);border:4px solid #fbe5c4;color:#713a62;font-size:26px;box-shadow:0 4px 13px rgba(0,0,0,.42);pointer-events:none}
+.mc-wheel-action{width:min(100%,300px);min-height:48px;border:0;border-radius:13px;background:linear-gradient(110deg,#ffe2a4,#ff98bc,#b7a2ff);color:#2a183c;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 9px 23px rgba(203,118,211,.24)}.mc-wheel-action:disabled{opacity:.5;cursor:not-allowed}
+.mc-wheel-result{min-height:65px;padding:11px 12px;margin:13px 0 0;background:rgba(7,14,37,.65);border:1px solid rgba(197,176,254,.22);border-radius:13px;color:#e5eaff;line-height:1.5;font-size:12px}
+.mc-wheel-result b{display:block;margin-bottom:3px;font-size:15px;color:#fff1bd}
+.mc-wheel-reroll{margin-top:10px;padding:9px 17px;border:1px solid rgba(142,234,217,.6);background:rgba(58,189,167,.18);color:#a5fff1;border-radius:12px;font-weight:850;cursor:pointer}
+.mc-wheel-reroll[hidden]{display:none!important}
+.mc-wheel-right h3{margin:0 0 10px;font-size:13px;color:#e1e8ff}.mc-wheel-effects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:390px;overflow-y:auto;padding-right:3px}
+.mc-wheel-effect{padding:8px 9px;border:1px solid rgba(171,190,255,.15);border-radius:11px;background:rgba(255,255,255,.05)}.mc-wheel-effect b{display:block;font-size:10px;line-height:1.4;color:#fff}.mc-wheel-effect small{display:block;margin-top:3px;font-size:9px;line-height:1.5;color:#aebcde}
+.mc-wheel-help{margin:11px 0 0;font-size:10px;color:#b6c4e5;line-height:1.65}
+.card.mc-wheel-peek:not(.matched):not(.flipped) .card-inner{transform:rotateY(180deg)!important}
+.card.mc-wheel-peek .card-reveal{outline:2px solid #ffe082;outline-offset:-2px;box-shadow:0 0 12px rgba(255,210,85,.55)}
+@media(max-width:680px){.mc-wheel-backdrop{padding:8px}.mc-wheel-dialog{max-height:calc(100dvh - 16px);padding:14px;border-radius:19px}.mc-wheel-content{grid-template-columns:1fr;gap:10px}.mc-wheel-disc-wrap{width:min(72vw,295px);margin-bottom:10px}.mc-wheel-hub{width:44px;height:44px;font-size:20px}.mc-wheel-effects{grid-template-columns:repeat(2,minmax(0,1fr));max-height:210px}.mc-wheel-result{min-height:50px;margin-top:8px}.mc-wheel-fab{right:10px;bottom:max(156px,calc(env(safe-area-inset-bottom) + 156px));padding:8px 11px;font-size:11px}.mc-wheel-status{font-size:10px;padding:9px 10px}}
+@media(max-height:660px){.mc-wheel-disc-wrap{width:min(64vw,255px)}.mc-wheel-effects{max-height:145px}}
+@media(prefers-reduced-motion:reduce){.mc-wheel-fab{animation:none}}
+
+    .mc-name-error{font-size:12px;color:#ffbdcd;margin:7px 0 11px;line-height:1.6;font-weight:600;}
+    .mc-name-error[hidden]{display:none!important;}
+    .mc-input[aria-invalid="true"]{border-color:#fb7185!important;box-shadow:0 0 0 3px rgba(251,113,133,.12)!important;}
   </style>
 </head>
 <body>
@@ -396,14 +628,35 @@
       </div>
     </header>
 
+    <nav class="mc-modes" aria-label="Chọn chế độ chơi">
+      <button id="mcSoloMode" class="mc-mode-btn active" type="button">🃏 Chơi một mình</button>
+      <button id="mcOnlineMode" class="mc-mode-btn" type="button">👥 Chơi cùng bạn bè</button>
+    </nav>
+
+    <section class="mc-room-panel" id="mcRoomPanel" hidden aria-label="Phòng chơi cùng bạn">
+      <div class="mc-room-head"><strong>👥 PHÒNG THỬ THÁCH BẠN BÈ</strong><span class="mc-room-state" id="mcRoomState">Đang chờ người chơi</span></div>
+      <div class="mc-players-grid" id="mcPlayerGrid" aria-label="Danh sách người chơi và điểm số"></div>
+      <div class="mc-actions">
+        <span class="mc-code-label">Mã phòng: <b id="mcCurrentCode">—</b></span>
+        <button type="button" class="mc-mini-btn" id="mcCopyCode">📋 Sao chép mã</button>
+        <button type="button" class="mc-mini-btn" id="mcShareLink">🔗 Chia sẻ link</button>
+        <button type="button" class="mc-mini-btn danger" id="mcLeaveRoom">Rời phòng</button>
+      </div>
+      <p class="mc-hint" id="mcRoomHint">Các người chơi cùng khám phá 40 tầng trên một bàn thẻ.</p>
+    </section>
+    <p class="mc-wait-note" id="mcWaitNote" hidden>⏳ Đang chờ thêm người tham gia. Trận bắt đầu khi có ít nhất 2 người.</p>
+
     <section class="stats" aria-label="Thống kê trò chơi">
-      <div class="stat"><span class="stat-icon" aria-hidden="true">✦</span><div><small>Cặp đã tìm</small><strong id="pairs">0/128</strong></div></div>
+      <div class="stat"><span class="stat-icon" aria-hidden="true">✦</span><div><small>Cặp đã tìm</small><strong id="pairs">0/640</strong></div></div>
       <div class="stat time-stat" id="timerStat"><span class="stat-icon" aria-hidden="true">⌛</span><div><small>Thời gian còn lại</small><strong id="timer">10:00</strong></div></div>
     </section>
 
+  <div id="mcWheelStatus" class="mc-wheel-status" hidden aria-live="polite"><span id="mcWheelStatusText">🎡 Vòng quay đầu tiên sau 00:59</span><strong id="mcWheelEffectText"></strong></div>
+
     <section class="game-panel" aria-label="Bàn chơi lật thẻ">
       <div class="board-heading">
-        <div class="board-name"><span class="live-dot" aria-hidden="true"></span> Bàn chơi của bạn</div>
+        <div class="board-name" id="mcBoardName"><span class="live-dot" aria-hidden="true"></span> Bàn chơi của bạn</div>
+        <span class="mc-layer-indicator" id="mcLayerCounter" aria-live="off">Tầng 40 / 40</span>
 
       </div>
       <div class="board-surface">
@@ -411,9 +664,6 @@
       </div>
     </section>
 
-    <div class="buttons">
-      <button id="restartBtn" class="action primary" type="button"><span aria-hidden="true">↻</span> Chơi mới</button>
-    </div>
   </main>
 
   <div class="toast-area" role="status" aria-live="polite" aria-atomic="true">
@@ -425,13 +675,14 @@
       <span class="modal-kicker">THỬ THÁCH HOÀN TẤT</span>
       <div class="modal-icon" aria-hidden="true">🏆</div>
       <h2 id="winHeading">Chinh phục xuất sắc!</h2>
-      <p class="modal-lead">Tất cả <strong>128 cặp của 8 tầng</strong> đã được giải mã. Trí nhớ của bạn thật đáng nể!</p>
+      <p class="modal-lead">Tất cả <strong>640 cặp của 40 tầng</strong> đã được giải mã. Trí nhớ của bạn thật đáng nể!</p>
       <div class="modal-figures" id="winStats"></div>
       <p class="modal-record" id="newRecord" hidden>✧ KỶ LỤC CÁ NHÂN MỚI ✧</p>
       <div class="modal-actions">
         <button id="playAgainBtn" class="action primary" type="button">↻ Chinh phục lần nữa</button>
         <a href="game.html" class="action soft-action">← Về danh sách trò chơi</a>
       </div>
+      <p class="mc-hint" id="mcWinRanking"></p>
     </div>
   </div>
 
@@ -439,15 +690,15 @@
     <div class="modal modal-help">
       <span class="modal-kicker">HƯỚNG DẪN NHANH</span>
       <div class="modal-icon" aria-hidden="true">🧠</div>
-      <h2 id="helpHeading">Chinh phục 8 tầng</h2>
+      <h2 id="helpHeading">Chinh phục 40 tầng</h2>
       <p class="modal-lead">Lật thẻ, tìm điểm giống nhau và ghi nhớ vị trí của những hình đã xuất hiện.</p>
       <div class="help-grid">
         <div class="help-tile"><span class="help-tile-icon">🃏</span><strong>Ghép hai thẻ</strong><small>Mỗi hình xuất hiện đúng 2 lần. Ghép đúng để thẻ biến mất.</small></div>
-        <div class="help-tile"><span class="help-tile-icon">🪜</span><strong>Vượt 8 tầng</strong><small>16 cặp mỗi tầng, nằm rải trên 4 hàng. Hoàn tất để mở tầng dưới.</small></div>
-        <div class="help-tile"><span class="help-tile-icon">⏳</span><strong>10 phút thử thách</strong><small>Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.</small></div>
+        <div class="help-tile"><span class="help-tile-icon">🪜</span><strong>Vượt 40 tầng</strong><small>16 cặp mỗi tầng, nằm rải trên 4 hàng. Hoàn tất để mở tầng dưới.</small></div>
+        <div class="help-tile"><span class="help-tile-icon">⏳</span><strong id="mcTimerHelpTitle">10 phút thử thách</strong><small id="mcTimerHelpText">Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.</small></div>
         <div class="help-tile"><span class="help-tile-icon">✨</span><strong>Sai không bị phạt</strong><small>Ghép sai chỉ úp lại thẻ, không bị trừ thêm thời gian.</small></div>
       </div>
-      <p class="help-note">128 hình khác nhau · 256 thẻ · Mỗi lần chơi xáo trộn hoàn toàn</p>
+      <p class="help-note">40 tầng · 640 cặp · Mỗi tầng có 16 cặp với hình được xáo trộn. Các hình có thể lặp lại giữa các tầng. Chơi cùng bạn bè: cùng lật thẻ trên một bàn, mỗi cặp đúng ghi điểm cho người hoàn thành.</p>
       <div class="modal-actions"><button id="closeHelpBtn" class="action primary" type="button">Đã hiểu · Tiếp tục chơi</button></div>
     </div>
   </div>
@@ -460,15 +711,90 @@
       <p class="modal-lead">Một lần nữa, một bộ bài mới. Bạn đã tiến rất gần tới đích rồi!</p>
       <div class="modal-figures" id="loseStats"></div>
       <div class="modal-progress"><div class="modal-progress-fill" id="loseProgressFill"></div></div>
+      <p class="mc-hint" id="mcLoseRanking"></p>
       <div class="modal-actions">
         <button id="retryBtn" class="action primary" type="button">↻ Thử sức lần nữa</button>
         <a href="game.html" class="action soft-action">← Về danh sách trò chơi</a>
       </div>
     </div>
   </div>
+      <section class="mc-room-chat" id="mcChatPanel" aria-label="Chat trong phòng" aria-hidden="true">
+        <div class="mc-chat-header"><span class="mc-chat-heading"><span class="mc-chat-heading-icon" aria-hidden="true">💬</span><span>Trò chuyện cùng bạn</span></span><span class="mc-chat-count" id="mcChatCount">1 người</span><span class="mc-chat-header-actions"><button type="button" id="mcChatMinimize" aria-label="Thu gọn chat" title="Thu gọn chat về bong bóng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="mc-mini-btn" id="mcChatClose" aria-label="Đóng chat" title="Đóng chat">✕</button></span></div>
+        <div class="mc-chat-stream"><div class="mc-chat-list" id="mcChatList" role="log" aria-live="polite"><div class="mc-chat-empty">Chưa có tin nhắn, hãy gửi lời chào!</div></div><button type="button" id="mcChatScrollToBottom" class="mc-chat-scroll-down" title="Cuộn xuống tin nhắn mới nhất" aria-label="Cuộn xuống tin nhắn mới nhất" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button></div>
+        <form class="mc-chat-form" id="mcChatForm" autocomplete="off"><input class="mc-chat-input" id="mcChatInput" type="text" maxlength="400" placeholder="Nhập tin nhắn..." aria-label="Tin nhắn trong phòng"><button class="mc-chat-send" type="submit" id="mcChatSend">Gửi</button></form>
+      </section>
+  <button type="button" id="mcChatToggle" class="mc-chat-bubble-toggle" title="Mở chat phòng" aria-label="Mở chat phòng" aria-controls="mcChatPanel" aria-expanded="false" hidden><span class="mc-chat-toggle-icon" id="mcChatToggleIcon" aria-hidden="true">💬</span><span class="mc-chat-unread" id="mcChatUnread" hidden>0</span></button>
+  <div class="mc-mode-screen open" id="mcModeScreen" role="dialog" aria-modal="true" aria-hidden="false" aria-labelledby="mcModeHeading">
+    <div class="mc-mode-screen-inner">
+      <div class="mc-mode-symbol" aria-hidden="true">✦</div>
+      <p class="mc-mode-eyebrow">MEMORY CARDS • 40 TẦNG THỬ THÁCH</p>
+      <h2 id="mcModeHeading" tabindex="-1">Bạn muốn chơi <span>thế nào?</span></h2>
+      <p class="mc-mode-subtitle">Chọn chế độ để khám phá 40 tầng và 640 cặp thẻ.</p>
+      <p class="mc-mode-invite" id="mcModeInvite" hidden></p>
+      <div class="mc-mode-card-grid">
+        <button class="mc-mode-choice" type="button" id="mcModeChooseSolo">
+          <span class="mc-mode-choice-art solo" aria-hidden="true">🃏</span>
+          <span class="mc-mode-choice-copy"><strong>Chơi một mình</strong><small>Tự thử thách trí nhớ, chinh phục 40 tầng bài trong 10 phút.</small><span class="mc-mode-choice-cta">Bắt đầu chơi <span aria-hidden="true">→</span></span></span>
+        </button>
+        <button class="mc-mode-choice online" type="button" id="mcModeChooseOnline">
+          <span class="mc-mode-choice-art online" aria-hidden="true">👥</span>
+          <span class="mc-mode-choice-copy"><strong>Chơi cùng bạn bè</strong><small>Tạo phòng, mời bạn cùng lật thẻ, so điểm và chinh phục 40 tầng.</small><span class="mc-mode-choice-cta">Tạo / vào phòng <span aria-hidden="true">→</span></span></span>
+        </button>
+      </div>
+      <p class="mc-mode-footer">Bạn có thể đổi chế độ sau bằng thanh chọn phía trên bàn chơi.</p>
+      <a class="mc-mode-back" href="game.html">← Trở về danh sách trò chơi</a>
+    </div>
+  </div>
+  <div class="mc-notify" id="mcNotify" role="status" aria-live="polite"></div>
+  <div class="mc-lobby" id="mcLobby" role="dialog" aria-modal="true" aria-label="Chơi với bạn" aria-hidden="true">
+    <div class="mc-lobby-box">
+      <div class="mc-lobby-head"><div><h2>👥 Cùng bạn bè chinh phục Memory Cards</h2><p>Tạo phòng hoặc nhập mã để cùng tranh tài trên một bàn thẻ.</p></div><button type="button" class="mc-close" id="mcCloseLobby" aria-label="Đóng">✕</button></div>
+      <label class="mc-lobby-label" for="mcPlayerInput">TÊN CỦA BẠN</label>
+      <input class="mc-input" type="text" id="mcPlayerInput" maxlength="20" placeholder="Nhập tên người chơi" autocomplete="nickname" aria-describedby="mcPlayerNameError">
+      <p id="mcPlayerNameError" class="mc-name-error" role="alert" hidden></p>
+      <div class="mc-select-options">
+        <button type="button" class="mc-tab selected" id="mcTabCreate">➕ Tạo phòng mới</button>
+        <button type="button" class="mc-tab" id="mcTabJoin">🚪 Tham gia phòng</button>
+      </div>
+      <div id="mcCreateArea">
+        <label class="mc-lobby-label" for="mcCodeCreate">MÃ PHÒNG CỦA BẠN</label>
+        <div class="mc-input-line"><input class="mc-input" type="text" id="mcCodeCreate" readonly maxlength="8"><button type="button" class="mc-mini-btn" id="mcNewCode" title="Tạo mã phòng khác">↻ Mã mới</button></div>
+        <label class="mc-lobby-label" for="mcMaxPlayers">SỐ LƯỢNG NGƯỜI CHƠI TỐI ĐA</label>
+        <select id="mcMaxPlayers" class="mc-input mc-room-capacity" aria-label="Số người chơi tối đa">
+          <option value="2" selected>2 người</option><option value="4">4 người</option><option value="6">6 người</option><option value="8">8 người</option><option value="10">10 người</option><option value="20">20 người</option>
+        </select>
+      </div>
+      <div id="mcJoinArea" hidden>
+        <label class="mc-lobby-label" for="mcCodeJoin">NHẬP MÃ PHÒNG</label>
+        <input class="mc-input" type="text" id="mcCodeJoin" maxlength="8" placeholder="Ví dụ: MEM12345" autocapitalize="characters" autocomplete="off">
+      </div>
+      <div class="mc-lobby-footer"><button type="button" class="mc-primary" id="mcRoomSubmit">Tạo phòng &amp; chờ bạn</button></div>
+      <div class="mc-room-directory">
+        <div class="mc-directory-head"><strong>📋 DANH SÁCH PHÒNG MEMORY CARDS</strong><button type="button" class="mc-mini-btn" id="mcRefreshRooms">↻ Làm mới</button></div>
+        <div class="mc-room-list" id="mcRoomList"><div class="mc-list-empty">Đang tải danh sách phòng...</div></div>
+      </div>
+    </div>
+  </div>
+
   <audio id="soundFlip" src="flip.mp3" preload="none"></audio>
   <audio id="soundMatch" src="match.mp3" preload="none"></audio>
   <audio id="soundWin" src="win.mp3" preload="none"></audio>
+
+  <button type="button" id="mcWheelFab" class="mc-wheel-fab" hidden aria-label="Mở vòng quay may mắn">🎡 VÒNG QUAY</button>
+  <div id="mcWheelModal" class="mc-wheel-backdrop" role="dialog" aria-modal="true" aria-labelledby="mcWheelTitle" aria-hidden="true">
+    <div class="mc-wheel-dialog">
+      <div class="mc-wheel-head"><div><p class="mc-wheel-kicker">VÒNG QUAY MỖI 59 GIÂY</p><h2 id="mcWheelTitle">🎡 Vòng quay may mắn</h2></div><button type="button" id="mcWheelClose" class="mc-wheel-close" aria-label="Thu gọn vòng quay">✕</button></div>
+      <div class="mc-wheel-content">
+        <section class="mc-wheel-left">
+          <div class="mc-wheel-disc-wrap"><div class="mc-wheel-pointer" aria-hidden="true"></div><canvas id="mcWheelCanvas" class="mc-wheel-disc" width="800" height="800" role="img" aria-label="Vòng quay 14 phần thưởng và hình phạt"></canvas><div class="mc-wheel-hub" aria-hidden="true">✦</div></div>
+          <button type="button" class="mc-wheel-action" id="mcWheelSpin">QUAY NGAY!</button>
+          <div id="mcWheelResult" class="mc-wheel-result" role="status" aria-live="polite"><b>1 lượt quay / người / đợt</b>Mỗi 59 giây mở một đợt quay mới. Phần thưởng và hình phạt áp dụng theo luật của cả phòng.</div>
+          <button type="button" id="mcWheelReroll" class="mc-wheel-reroll" hidden>↻ ĐỔI VẬN · QUAY LẠI</button>
+        </section>
+        <aside class="mc-wheel-right"><h3>14 phần thưởng & thử thách</h3><div id="mcWheelEffects" class="mc-wheel-effects"></div><p class="mc-wheel-help">Vòng quay xuất hiện mỗi 59 giây trong trận chơi với bạn bè. Các hiệu ứng thời gian tác động lên đồng hồ chung. Mắt thần và Siêu trí nhớ chỉ hiện thẻ trên máy người nhận; Bão thời gian và Làm chậm có hiệu lực trong 20 giây. Đổi vận cho phép quay lại một lần.</p></aside>
+      </div>
+    </div>
+  </div>
 
   <script>
   'use strict';
@@ -481,9 +807,9 @@
     'thẻ17.jpg', 'thẻ18.jpg', 'thẻ19.png', 'thẻ20.jpg'
   ];
 
-  // 128 hình khác nhau, mỗi hình chỉ xuất hiện ở một cặp gồm 2 thẻ.
-  // The first 20 paths above keep the original photos if those files exist.
-  // Bổ sung 108 hình SVG nhúng sẵn nếu chưa có bộ ảnh mở rộng.
+  // Kho 128 mẫu hình được tái sử dụng theo từng nhóm 8 tầng.
+  // Trong cùng một tầng, không có hai cặp trùng hình.
+  // Giữ các đường dẫn ảnh gốc; SVG chỉ khởi tạo khi thực sự cần hiển thị.
   const ILLUSTRATION_ICONS = ["🐱", "🐶", "🐼", "🦊", "🐻", "🐨", "🐯", "🦁", "🐰", "🐵", "🐸", "🐙", "🐢", "🦋", "🐧", "🦄", "🐝", "🦜", "🐳", "🦩", "🍎", "🍓", "🍉", "🍍", "🥝", "🍇", "🍒", "🍊", "🍋", "🥥", "🍑", "🍌", "🥑", "🥕", "🌽", "🍄", "🥨", "🥐", "🍩", "🧁", "🚗", "🚕", "🚲", "🛵", "🚀", "🚂", "🛫", "🚁", "⛵", "🚜", "🚒", "🛸", "🚌", "🚑", "🛶", "🚤", "⚽", "🏀", "🎾", "🎸", "🎹", "🎺", "🎻", "🎨", "🎮", "🎯", "🎲", "🎧", "📸", "🪁", "🎈", "🎁", "🌙", "☀", "⭐", "🌈", "🌻", "🌵", "🌷", "🍀", "🌴", "🌊", "🔥", "❄", "⚡", "☁", "🌼", "🌹", "💎", "🔮", "🧸", "🪩", "👑", "🪄", "🧩", "🧿", "🦉", "🦝", "🦔", "🦦", "🐺", "🦓", "🐘", "🦒", "🦏", "🦛", "🦘", "🦥", "🦡", "🐿️", "🐟", "🐡", "🦈", "🦞", "🐚", "🦚", "🪿", "🦆", "🦢", "🪸", "🦃", "🐓", "🦇", "🪲", "🪷", "🌾", "🌲", "🌺"];
   const CARD_PALETTES = [
     ['#172554','#6366f1'], ['#053a4a','#16b8ac'], ['#52214b','#f472b6'],
@@ -522,19 +848,34 @@
     </svg>`;
     return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
   }
-  const fallbackArtworks = ILLUSTRATION_ICONS.map((_, id) => makeIllustration(id));
-  const cardImages = ILLUSTRATION_ICONS.map((_, id) => ORIGINAL_IMAGES[id] || fallbackArtworks[id]);
+  // Khởi tạo ảnh SVG theo nhu cầu: tránh tạo sẵn hàng trăm data-URI khi mở game.
+  const ARTWORK_BANK_SIZE = ILLUSTRATION_ICONS.length;
+  const fallbackArtworks = new Array(ARTWORK_BANK_SIZE);
+  function getFallbackArtwork(imageId) {
+    const base = imageId % ARTWORK_BANK_SIZE;
+    return fallbackArtworks[base] ||= makeIllustration(base);
+  }
+  function getCardImage(imageId) {
+    const base = imageId % ARTWORK_BANK_SIZE;
+    return ORIGINAL_IMAGES[base] || getFallbackArtwork(base);
+  }
   const ROWS = 4;
   const PAIRS_PER_ROW = 4;
   const CARDS_PER_ROW = 8;
-  const PAIRS_PER_LAYER = ROWS * PAIRS_PER_ROW;  // 16 cặp trộn trên cả 4 hàng
-  const LAYERS = 8;                  // Tầng 1 (đáy) -> tầng 8 (trên cùng)
-  const TOTAL_PAIRS = ROWS * PAIRS_PER_ROW * LAYERS;  // 128 cặp, 256 thẻ
-  const START_TIME_MS = 10 * 60 * 1000;
-  if (cardImages.length !== TOTAL_PAIRS || new Set(cardImages).size !== TOTAL_PAIRS) {
-    throw new Error('Game cần 128 hình khác nhau.');
+  const PAIRS_PER_LAYER = ROWS * PAIRS_PER_ROW;
+  const LAYERS = 40;
+  const TOTAL_PAIRS = PAIRS_PER_LAYER * LAYERS; // 640 cặp / 1.280 thẻ, chỉ hiển thị 32 thẻ mỗi lần
+  const SOLO_START_TIME_MS = 10 * 60 * 1000;
+  const ONLINE_START_TIME_MS = 4 * 60 * 1000;
+  // Luật hai chế độ độc lập: solo 10 phút, phòng online 4 phút.
+  function currentRoundDuration() {
+    return typeof playMode !== 'undefined' && playMode === 'online'
+      ? ONLINE_START_TIME_MS : SOLO_START_TIME_MS;
   }
-  const BEST_KEY = 'nts-memory-cards-8layer-10min-no-penalty-v1';
+  if (ARTWORK_BANK_SIZE < PAIRS_PER_LAYER) {
+    throw new Error('Không đủ mẫu hình để tạo tầng mới.');
+  }
+  const BEST_KEY = 'nts-memory-cards-40layer-10min-no-penalty-v1';
 
   const el = {
     board: document.getElementById('gameBoard'), pairs: document.getElementById('pairs'),
@@ -605,20 +946,9 @@
   // Mỗi ảnh chỉ dùng trong một tầng và xuất hiện đúng hai lần trong cả trò chơi.
   function makeMixedLayer(imageIds) {
     const origins = imageIds.map((imageId, i) => ({ imageId, sourceRow: Math.floor(i / PAIRS_PER_ROW) }));
-    const destinationSlots = Array.from({ length: ROWS }, (_, row) =>
-      Array(PAIRS_PER_ROW).fill(row)).flat();
-    let destinations;
-
-    // Xáo các hàng đích, mỗi hàng nhận đúng 4 lá từ những hàng khác.
-    // Có sẵn phương án dự phòng bảo đảm không có cặp nằm cùng một hàng.
-    for (let attempt = 0; attempt < 2000; attempt++) {
-      const candidate = shuffle(destinationSlots);
-      if (candidate.every((row, i) => row !== origins[i].sourceRow)) {
-        destinations = candidate;
-        break;
-      }
-    }
-    destinations ||= origins.map(({ sourceRow }) => (sourceRow + 1) % ROWS);
+    // Dịch hàng ngẫu nhiên (1..3): phân bổ đúng 4 lá/hàng, không cần thử 2.000 lần.
+    const shift = 1 + Math.floor(Math.random() * (ROWS - 1));
+    const destinations = origins.map(({ sourceRow }) => (sourceRow + shift) % ROWS);
 
     const rowCards = Array.from({ length: ROWS }, () => []);
     origins.forEach(({ imageId, sourceRow }, i) => {
@@ -630,7 +960,7 @@
     // Không đặt hai hình cùng cặp thẳng cột / sát cột ở hai hàng gần nhau.
     // Trộn lại vị trí mỗi hàng để không lộ quy luật qua các lần chơi.
     let mixed = rowCards.map(shuffle);
-    for (let attempt = 0; attempt < 1000; attempt++) {
+    for (let attempt = 0; attempt < 70; attempt++) {
       const candidate = rowCards.map(shuffle);
       const positions = new Map();
       let tooNear = false;
@@ -654,8 +984,13 @@
   }
 
   function generateRows() {
-    const imagePool = shuffle(Array.from({ length: TOTAL_PAIRS }, (_, id) => id));
-    // layerCards[layer][row] có 8 thẻ, không có cặp nào cùng hàng.
+    // Xáo trộn từng nhóm tối đa 128 hình. Tại mỗi tầng có 16 hình khác nhau,
+    // dù một hình có thể quay lại ở một tầng sau.
+    const imagePool = [];
+    for (let batch = 0; imagePool.length < TOTAL_PAIRS; batch++) {
+      const ids = shuffle(Array.from({ length: ARTWORK_BANK_SIZE }, (_, id) => batch * ARTWORK_BANK_SIZE + id));
+      imagePool.push(...ids.slice(0, TOTAL_PAIRS - imagePool.length));
+    }
     const layerCards = Array.from({ length: LAYERS }, (_, layerIndex) =>
       makeMixedLayer(imagePool.slice(layerIndex * PAIRS_PER_LAYER,
                                      (layerIndex + 1) * PAIRS_PER_LAYER)));
@@ -668,8 +1003,19 @@
     }));
   }
 
+  function importRoomRows(layout) {
+    if (!Array.isArray(layout) || layout.length !== ROWS) throw new Error('Bố cục phòng không hợp lệ');
+    return layout.map((rowLayers, rowIndex) => ({
+      id: rowIndex, current: LAYERS - 1,
+      layers: rowLayers.map((ids, layerIndex) => ({
+        index: layerIndex,
+        cards: ids.map(id => ({ imageId: id, pairId: `image-${id}`, copy: 1 }))
+      }))
+    }));
+  }
+
   function buildCardRow(row, layer) {
-    const isActive = layer.index === LAYERS - 1;
+    const isActive = layer.index === row.current;
     const grid = document.createElement('div');
     grid.className = `card-row${isActive ? ' is-active' : ''}`;
     grid.dataset.layerIndex = String(layer.index);
@@ -681,11 +1027,14 @@
       grid.setAttribute('aria-hidden', 'true');
       grid.inert = true;
     }
-    layer.cards.forEach(card => {
+    layer.cards.forEach((card,col) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'card';
       button.dataset.pairId = card.pairId;
+      button.dataset.row = String(row.id);
+      button.dataset.layer = String(layer.index);
+      button.dataset.col = String(col);
       button.disabled = !isActive;
       button.setAttribute('aria-label', `Lật thẻ, hàng ${row.id + 1} tầng ${layer.index + 1}`);
       button.innerHTML = `
@@ -694,7 +1043,7 @@
           <span class="card-face card-reveal">
             <img class="card-image" alt="Ảnh thẻ ${card.imageId + 1}" loading="lazy">
             <span class="card-fallback" hidden style="--hue:${(card.imageId * 47 + 195) % 360}">
-              <span class="fallback-emoji" aria-hidden="true">${ILLUSTRATION_ICONS[card.imageId]}</span>
+              <span class="fallback-emoji" aria-hidden="true">${ILLUSTRATION_ICONS[card.imageId % ARTWORK_BANK_SIZE]}</span>
               <span class="fallback-number">${String(card.imageId + 1).padStart(2, '0')}</span>
             </span>
           </span>
@@ -702,12 +1051,12 @@
       const image = button.querySelector('img');
       const fallback = button.querySelector('.card-fallback');
       // Tầng chưa đến lượt không tải ảnh; giảm tải trình duyệt trên điện thoại.
-      image.dataset.src = cardImages[card.imageId];
+      image.dataset.src = getCardImage(card.imageId);
       image.onerror = () => {
         // Photos not provided? Display its own unique SVG image instead.
         if (!image.dataset.usedFallback) {
           image.dataset.usedFallback = '1';
-          image.src = fallbackArtworks[card.imageId];
+          image.src = getFallbackArtwork(card.imageId);
         } else {
           image.hidden = true;
           fallback.hidden = false;
@@ -723,10 +1072,11 @@
     const stack = document.createElement('div');
     stack.className = 'stack-row';
     stack.dataset.rowId = String(row.id);
-    stack.dataset.currentLayer = String(LAYERS);
-    stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${LAYERS}`);
-    // Tầng 1 tạo trước, tầng 6 tạo sau; mỗi tầng trộn cặp trên 4 hàng.
-    stack.append(...row.layers.map(layer => buildCardRow(row, layer)));
+    stack.dataset.currentLayer = String(row.current + 1);
+    stack.style.setProperty('--remaining-depth', String(Math.min(7, row.current)));
+    stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${row.current + 1}`);
+    // Virtualization: chỉ 8 thẻ của tầng đang chơi được gắn vào DOM của mỗi hàng.
+    stack.appendChild(buildCardRow(row, row.layers[row.current]));
     return stack;
   }
   function loadLayerImages(grid) {
@@ -735,7 +1085,13 @@
     });
   }
   function updateUI() {
-    el.pairs.textContent = `${state.matchedPairs}/${TOTAL_PAIRS}`;
+    const pairText = `${state.matchedPairs}/${TOTAL_PAIRS}`;
+    if (el.pairs.textContent !== pairText) el.pairs.textContent = pairText;
+    const layerCounter = document.getElementById('mcLayerCounter');
+    if (layerCounter) {
+      const layerText = `Tầng ${state.currentLayer + 1} / ${LAYERS}`;
+      if (layerCounter.textContent !== layerText) layerCounter.textContent = layerText;
+    }
   }
   function setClockStatus(secondsLeft) {
     const warning = state.started && !state.finished && secondsLeft <= 90;
@@ -746,7 +1102,8 @@
   function paintClock() {
     if (!state) return;
     const secondsLeft = Math.max(0, Math.ceil(state.remainingMs / 1000));
-    el.timer.textContent = formatTime(secondsLeft);
+    const clockText = formatTime(secondsLeft);
+    if (el.timer.textContent !== clockText) el.timer.textContent = clockText;
     setClockStatus(secondsLeft);
     if (state.started && !state.paused && !state.finished && secondsLeft <= 10 && secondsLeft > 0 && state.lastTick !== secondsLeft) {
       state.lastTick = secondsLeft;
@@ -754,16 +1111,32 @@
     }
   }
   // Trừ đúng thời gian thật đã trôi, KHÔNG nhân hệ số khi ghép sai.
+  function clockDrainBetween(startAt,endAt) {
+    const w=state?.wheel;
+    const elapsed=Math.max(0,endAt-startAt);
+    if(!w || playMode!=='online' || w.rate===1 || !w.rateUntil)return elapsed;
+    const enhanced=Math.min(elapsed,Math.max(0,Math.min(endAt,w.rateUntil)-startAt));
+    return enhanced*w.rate+(elapsed-enhanced);
+  }
   function consumeElapsed(now = performance.now()) {
     if (!state || !state.started || state.paused || state.finished) return;
     const elapsed = Math.max(0, now - state.lastClockAt);
-    state.remainingMs = Math.max(0, state.remainingMs - elapsed);
+    const wallNow=Date.now();
+    const previousWall=state.lastClockWallAt || wallNow-elapsed;
+    state.remainingMs = Math.max(0, state.remainingMs - clockDrainBetween(previousWall,wallNow));
+    if(playMode==='online' && state.wheel)state.wheel.elapsedMs+=elapsed;
+    state.lastClockWallAt=wallNow;
     state.lastClockAt = now;
   }
   function tickClock() {
     if (!state || !state.started || state.paused || state.finished) return;
     consumeElapsed();
+    if (playMode==='online') {
+      if (typeof wheelHostTick === 'function') wheelHostTick();
+      if (typeof wheelUpdateUI === 'function' && roomNet.role!=='host') wheelUpdateUI();
+    }
     if (state.remainingMs <= 0) {
+      if (playMode === 'online' && roomNet.role === 'guest') { paintClock(); return; }
       if (state.matchedPairs === TOTAL_PAIRS) finishGame();
       else expireGame();
       return;
@@ -801,11 +1174,19 @@
     state.pausedMs += now - state.pausedAt;
     state.paused = false;
     state.lastClockAt = now;
-    timerId = setInterval(tickClock, 100);
+    state.lastClockWallAt=Date.now();
+    timerId = setInterval(tickClock, 250);
     paintClock();
   }
   function openHelp() {
-    if (state && state.started && !state.finished && !state.paused) pauseClock();
+    const online = typeof playMode !== 'undefined' && playMode === 'online';
+    const title = document.getElementById('mcTimerHelpTitle');
+    const desc = document.getElementById('mcTimerHelpText');
+    if (title) title.textContent = online ? '4 phút chơi với bạn' : '10 phút thử thách';
+    if (desc) desc.textContent = online
+      ? 'Cả phòng có chung 4 phút, đồng hồ bắt đầu khi lật thẻ đầu tiên.'
+      : 'Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.';
+    if (playMode === 'solo' && state && state.started && !state.finished && !state.paused) pauseClock();
     setModal(el.helpModal, true);
     document.getElementById('closeHelpBtn').focus();
   }
@@ -813,16 +1194,17 @@
     setModal(el.helpModal, false);
     if (state && state.paused) resumeClock();
   }
-  function createBoard() {
+  function createBoard(layout = null) {
     runId++;
     clearTasks();
     stopConfetti();
     stopClock();
     state = {
-      rows: generateRows(), selected: [], matchedPairs: 0, layerMatched: 0,
+      rows: layout ? importRoomRows(layout) : generateRows(), selected: [], matchedPairs: 0, layerMatched: 0,
+      playerMatches: {host:0}, outcome: '', wheel: (typeof wheelDefaultState==='function'?wheelDefaultState():{elapsedMs:0,unlocked:false,used:{},rerollReady:{},banAll:false,locks:{},opponents:null,doom:{},rate:1,rateUntil:0,lastEvent:null}),
       currentLayer: LAYERS - 1, transitioning: false,
-      started: false, startedAt: 0, lastClockAt: 0, paused: false, pausedAt: 0, pausedMs: 0,
-      remainingMs: START_TIME_MS, locked: false, finished: false,
+      started: false, startedAt: 0, lastClockAt: 0, lastClockWallAt: 0, paused: false, pausedAt: 0, pausedMs: 0,
+      remainingMs: currentRoundDuration(), locked: false, finished: false,
       lastTick: null, toastSeq: 0
     };
     el.board.replaceChildren(...state.rows.map(buildStack));
@@ -833,20 +1215,24 @@
     el.timerStat.classList.remove('time-warning', 'time-critical');
     paintClock();
     updateUI();
+    if (typeof updateRoomUI === 'function') updateRoomUI();
+    if (typeof wheelResetUI === 'function') wheelResetUI();
   }
   function startTimer() {
     if (state.started || state.finished) return;
     state.started = true;
     state.startedAt = performance.now();
     state.lastClockAt = state.startedAt;
+    state.lastClockWallAt=Date.now();
     stopClock();
-    timerId = setInterval(tickClock, 100);
+    timerId = setInterval(tickClock, 250);
     paintClock();
   }
   function expireGame() {
     if (!state || state.finished) return;
     state.remainingMs = 0;
     state.finished = true;
+    state.outcome = 'lose';
     state.locked = true;
     stopClock();
     clearTasks();
@@ -862,16 +1248,29 @@
     setModal(el.loseModal, true);
     document.getElementById('retryBtn').focus();
     playSound('lose');
+    if(typeof wheelClose==='function') wheelClose();
+    if (typeof updateRoundResult === 'function') updateRoundResult();
+    if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('end');
   }
-  function flipCard(button, row, layerIndex) {
+  function flipCard(button, row, layerIndex, options = {}) {
     if (state.locked || state.finished || state.paused || state.transitioning ||
         row.current !== layerIndex || state.currentLayer !== layerIndex || button.disabled ||
         button.classList.contains('flipped') || button.classList.contains('matched')) return;
+    const actor = typeof options.actor === 'string' && /^[a-z0-9]{1,30}$/i.test(options.actor) ? options.actor : (playMode==='online' && roomNet.role==='guest' ? roomNet.ownId : 'host');
+    if(playMode==='online' && !options.remote && typeof wheelCanFlip==='function' && !wheelCanFlip(actor,actor===roomNet.ownId)) return;
+    if (playMode === 'online' && !options.remote) {
+      if (!roomNet.role || !roomNet.ready || !roomNet.connected) return;
+      if (roomNet.role === 'guest') { sendRoomFlipRequest(button, row, layerIndex); return; }
+    }
     startTimer();
     button.classList.add('flipped');
     button.setAttribute('aria-label', 'Thẻ đã lật');
     playSound('flip');
     state.selected.push({ button, row, layerIndex, pairId: button.dataset.pairId });
+    if (playMode === 'online' && roomNet.role === 'host' && roomNet.ready) {
+      sendRoomPacket({type:'flip',roundId:roomNet.roundId,row:row.id,layer:layerIndex,col:Number(button.dataset.col),
+        actor,remainingMs:Math.round(state.remainingMs),at:Date.now()});
+    }
     if (state.selected.length !== 2) return;
     state.locked = true;
     updateUI();
@@ -885,6 +1284,10 @@
         });
         state.matchedPairs++;
         state.layerMatched++;
+        if (playMode === 'online') {
+          state.playerMatches[actor] = (state.playerMatches[actor] || 0) + 1;
+          if(typeof wheelOnMatch==='function') wheelOnMatch(actor);
+        }
         state.selected = [];
         state.locked = false;
         playSound('match');
@@ -895,6 +1298,7 @@
           schedule(revealNextLayer, 430);
         }
         updateUI();
+        if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('match');
         // Chốt chiến thắng ngay khi tìm đủ cặp, tránh mất oan do hiệu ứng.
         if (state.matchedPairs === TOTAL_PAIRS) finishGame();
       }, 330);
@@ -909,6 +1313,7 @@
           });
           state.selected = [];
           state.locked = false;
+          if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('wrong');
         }, 260);
       }, 660);
     }
@@ -920,31 +1325,22 @@
     state.rows.forEach(row => {
       const stack = el.board.querySelector(`[data-row-id="${row.id}"]`);
       if (!stack) return;
-      const departing = stack.querySelector(`[data-layer-index="${current}"]`);
-      const next = stack.querySelector(`[data-layer-index="${current - 1}"]`);
-      if (!departing || !next) return;
+      const departing = stack.querySelector('.card-row.is-active');
+      if (!departing) return;
       departing.classList.remove('is-active');
       departing.classList.add('departing');
       departing.setAttribute('aria-hidden', 'true');
       departing.inert = true;
-      transitioning.push({ row, stack, departing, next });
+      transitioning.push({row, stack, departing});
     });
-    // Cả bốn hàng chuyển đồng thời để không có cặp nào bị khóa giữa chừng.
+    // Kết thúc hiệu ứng: hủy tầng cũ, dựng 8 thẻ/từng hàng của tầng kế tiếp.
     schedule(() => {
       const nextLayer = current - 1;
-      transitioning.forEach(({ row, stack, departing, next }) => {
+      transitioning.forEach(({row, stack, departing}) => {
         departing.remove();
         row.current = nextLayer;
-        const removed = LAYERS - 1 - nextLayer;
-        stack.querySelectorAll('.card-row').forEach(grid => {
-          const index = Number(grid.dataset.layerIndex);
-          grid.style.setProperty('--layer-slot', String(index + removed));
-        });
-        next.classList.add('is-active');
-        next.removeAttribute('aria-hidden');
-        next.inert = false;
-        next.querySelectorAll('.card').forEach(button => { button.disabled = false; });
-        loadLayerImages(next);
+        stack.style.setProperty('--remaining-depth', String(Math.min(7, nextLayer)));
+        stack.appendChild(buildCardRow(row, row.layers[nextLayer]));
         stack.dataset.currentLayer = String(nextLayer + 1);
         stack.setAttribute('aria-label', `Hàng ${row.id + 1} đang ở tầng ${nextLayer + 1}`);
       });
@@ -952,6 +1348,7 @@
       state.layerMatched = 0;
       state.transitioning = false;
       updateUI();
+      if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('layer');
       showToast(`✨ MỞ KHÓA TẦNG ${nextLayer + 1}`, `Tiến thêm một bước! Còn ${nextLayer + 1} tầng cần chinh phục.`);
     }, 580);
   }
@@ -962,12 +1359,13 @@
     consumeElapsed(now);
     if (state.remainingMs <= 0) { expireGame(); return; }
     state.finished = true;
+    state.outcome = 'win';
     state.locked = true;
     stopClock();
     const pausedExtra = state.paused ? now - state.pausedAt : 0;
     const elapsed = state.started ? Math.floor((now - state.startedAt - state.pausedMs - pausedExtra) / 1000) : 0;
     const oldBest = getBest();
-    const newBest = oldBest === null || elapsed < oldBest;
+    const newBest = playMode === 'solo' && (oldBest === null || elapsed < oldBest);
     if (newBest) saveBest(elapsed);
     paintClock();
     el.winStats.innerHTML = `
@@ -980,6 +1378,9 @@
     document.getElementById('playAgainBtn').focus();
     playSound('win');
     startConfetti();
+    if(typeof wheelClose==='function') wheelClose();
+    if (typeof updateRoundResult === 'function') updateRoundResult();
+    if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('end');
   }
   function synthSound(type) {
     const Context = window.AudioContext || window.webkitAudioContext;
@@ -1056,9 +1457,8 @@
     animationId = requestAnimationFrame(animate);
   }
 
-  document.getElementById('restartBtn').addEventListener('click', createBoard);
-  document.getElementById('playAgainBtn').addEventListener('click', createBoard);
-  document.getElementById('retryBtn').addEventListener('click', createBoard);
+  document.getElementById('playAgainBtn').addEventListener('click', () => requestReplay());
+  document.getElementById('retryBtn').addEventListener('click', () => requestReplay());
   document.getElementById('soundBtn').addEventListener('click', toggleSound);
   document.getElementById('helpBtn').addEventListener('click', openHelp);
   document.getElementById('closeHelpBtn').addEventListener('click', closeHelp);
@@ -1069,6 +1469,1500 @@
   // Tính thời gian thật đã trôi kể cả khi trình duyệt chạy nền.
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tickClock(); });
   createBoard();
+  </script>
+  <script>
+/* ===== 100,000,000 PROCEDURAL AVATARS =====
+   Eight independently rendered base-10 features => exactly 10^8 combinations.
+   Only the numeric ID is sent over the network. SVG is rebuilt deterministically
+   on every device, preserving the same portrait in players, lobby and chat.
+*/
+const AVATAR_COUNT = 100000000;
+const avatarUrlCache = new Map();
+
+function normalizeAvatarId(value){
+  if(value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isSafeInteger(n) && n >= 0 && n < AVATAR_COUNT ? n : null;
+}
+
+function randomAvatarId(except = null){
+  let result;
+  do{
+    if(window.crypto && typeof window.crypto.getRandomValues === 'function'){
+      const bytes = new Uint32Array(1);
+      window.crypto.getRandomValues(bytes);
+      result = bytes[0] % AVATAR_COUNT;
+    }else{
+      result = Math.floor(Math.random() * AVATAR_COUNT);
+    }
+  }while(result === except);
+  return result;
+}
+
+function svgAvatar(id){
+  const n = normalizeAvatarId(id);
+  if(n === null) return '';
+  let digitsLeft = n;
+  const digits = [];
+  for(let i = 0; i < 8; i++){
+    digits.push(digitsLeft % 10);
+    digitsLeft = Math.floor(digitsLeft / 10);
+  }
+  const [backgroundIdx,skinIdx,hairColorIdx,hairIdx,eyesIdx,mouthIdx,shirtIdx,accessoryIdx] = digits;
+  const backgrounds = [
+    ['#274b62','#0c283d'],['#8c675d','#51374d'],['#2a756e','#0e394e'],
+    ['#654a85','#32234f'],['#d7a45a','#705541'],['#5685a8','#233d65'],
+    ['#b66577','#5a3458'],['#507953','#264f55'],['#ce7f6a','#673d5b'],['#65789f','#33345c']
+  ];
+  const skinTones = ['#f6d9b6','#e9b78e','#e5aa7d','#d69665','#c78559','#ad704c','#98613f','#774c38','#f3c3a1','#dca47d'];
+  const hairColors = ['#382d33','#77503c','#ba7b4b','#171c32','#a45b43','#dbba76','#583b69','#1f6267','#92535f','#b3b4c1'];
+  const shirts = ['#e8597b','#3b7db9','#f0a947','#37ad8e','#7464d1','#b85653','#e0d8c9','#529b66','#a56ac5','#23577b'];
+  const bg = backgrounds[backgroundIdx];
+  const skin = skinTones[skinIdx];
+  const hair = hairColors[hairColorIdx];
+  const shirt = shirts[shirtIdx];
+  const frontHair = [
+    '<path d="M22 40Q21 18 42 17Q66 11 78 35L75 44Q65 29 55 29Q36 44 22 40Z"/>',
+    '<path d="M20 42L23 21L31 30L37 14L47 26L57 11L67 27L77 19L80 43Q58 29 45 36Q30 45 20 42Z"/>',
+    '<path d="M20 41Q14 15 48 14Q82 13 81 42Q64 28 46 33Q31 49 20 41Z"/><path d="M18 38Q26 50 32 51L28 30Z"/>',
+    '<path d="M18 43Q21 16 49 16Q74 12 81 42Q55 42 43 29Q38 44 18 43Z"/>',
+    '<circle cx="27" cy="28" r="12"/><circle cx="42" cy="18" r="12"/><circle cx="58" cy="19" r="13"/><circle cx="73" cy="31" r="12"/>',
+    '<path d="M20 37Q22 14 49 15Q78 14 81 39L78 44L65 35L55 44L43 34L32 44L20 37Z"/>',
+    '<path d="M24 32Q27 19 50 19Q72 19 76 32L73 36Q49 25 26 38Z"/>',
+    '<path d="M18 42Q19 18 46 14Q70 12 79 37Q63 29 47 30L24 44Z"/><path d="M20 31Q12 53 23 56Q29 48 29 31Z"/>',
+    '<path d="M38 35L41 9Q52 1 60 10L66 35Q54 29 38 35Z"/><path d="M25 37Q50 29 75 37L74 42Q50 35 26 42Z"/>',
+    '<circle cx="23" cy="23" r="12"/><circle cx="76" cy="23" r="12"/><path d="M21 43Q24 20 50 20Q75 20 80 43Q63 31 50 36Q37 30 21 43Z"/>'
+  ];
+  const backHair = [
+    '', '', '<path d="M22 34Q12 57 16 79L33 80L36 37Z"/><path d="M67 34L82 79L66 81L65 35Z"/>',
+    '', '<path d="M17 38Q13 62 18 76L29 75L27 36Z"/><path d="M72 37L84 76L73 77Z"/>',
+    '', '', '<path d="M76 34Q93 48 86 67Q82 74 73 73Z"/>', '', ''
+  ];
+  const eyes = [
+    '<circle cx="38" cy="49" r="2.6"/><circle cx="61" cy="49" r="2.6"/>',
+    '<ellipse cx="38" cy="49" rx="3.3" ry="4.6"/><ellipse cx="61" cy="49" rx="3.3" ry="4.6"/>',
+    '<path d="M33 49Q38 43 44 49M56 49Q61 43 67 49" fill="none" stroke="#32232c" stroke-width="2.8" stroke-linecap="round"/>',
+    '<path d="M33 49Q38 53 44 49M56 49Q61 53 67 49" fill="none" stroke="#32232c" stroke-width="2.8" stroke-linecap="round"/>',
+    '<circle cx="38" cy="49" r="4"/><circle cx="61" cy="49" r="4"/><circle cx="39" cy="48" r="1" fill="white"/><circle cx="62" cy="48" r="1" fill="white"/>',
+    '<path d="M33 49Q38 47 44 49" fill="none" stroke="#32232c" stroke-width="3" stroke-linecap="round"/><circle cx="61" cy="49" r="2.8"/>',
+    '<circle cx="38" cy="49" r="2"/><path d="M56 49Q61 46 67 49" fill="none" stroke="#32232c" stroke-width="2.5" stroke-linecap="round"/>',
+    '<ellipse cx="38" cy="49" rx="2" ry="4"/><ellipse cx="61" cy="49" rx="2" ry="4"/>',
+    '<path d="M33 47L43 50M56 50L67 47" fill="none" stroke="#32232c" stroke-width="3" stroke-linecap="round"/>',
+    '<ellipse cx="38" cy="50" rx="3.6" ry="2.4"/><ellipse cx="61" cy="50" rx="3.6" ry="2.4"/>'
+  ];
+  const mouths = [
+    '<path d="M43 65Q50 72 58 65" fill="none" stroke="#8d434d" stroke-width="2.6" stroke-linecap="round"/>',
+    '<path d="M42 64Q50 75 59 64Z" fill="#8d434d" stroke="#723c47" stroke-width="1"/>',
+    '<ellipse cx="50" cy="65" rx="5" ry="6" fill="#8d434d"/>',
+    '<path d="M44 66L57 66" fill="none" stroke="#8d434d" stroke-width="2.5" stroke-linecap="round"/>',
+    '<path d="M43 64Q50 68 58 64L55 70L47 70Z" fill="#fff7e8" stroke="#8d434d" stroke-width="1"/>',
+    '<path d="M44 65Q51 61 57 65" fill="none" stroke="#8d434d" stroke-width="2.3" stroke-linecap="round"/>',
+    '<path d="M43 63Q50 74 59 63Q51 65 43 63Z" fill="#bf5d63"/>',
+    '<path d="M44 65Q50 70 56 65" fill="none" stroke="#8d434d" stroke-width="3.3" stroke-linecap="round"/>',
+    '<path d="M42 65Q48 66 51 64Q55 66 59 64" fill="none" stroke="#8d434d" stroke-width="2" stroke-linecap="round"/>',
+    '<path d="M44 64Q50 67 57 64" fill="none" stroke="#8d434d" stroke-width="2.4" stroke-linecap="round"/><path d="M49 68H53" stroke="#8d434d" stroke-width="1.6"/>'
+  ];
+  const accessories = [
+    '<circle cx="33" cy="59" r="1.2" fill="#a15f58"/><circle cx="38" cy="60" r="1.2" fill="#a15f58"/><circle cx="62" cy="60" r="1.2" fill="#a15f58"/><circle cx="67" cy="59" r="1.2" fill="#a15f58"/>',
+    '<g fill="none" stroke="#405770" stroke-width="2.8"><rect x="29" y="43" width="18" height="13" rx="5"/><rect x="53" y="43" width="18" height="13" rx="5"/><path d="M47 48Q50 46 53 48"/></g>',
+    '<path d="M29 46H47L44 55H33Z M53 46H71L67 55H56Z" fill="#344356" stroke="#172f45" stroke-width="1.5"/><path d="M47 48H53" stroke="#344356" stroke-width="2.5"/>',
+    '<circle cx="23" cy="55" r="3.2" fill="#facc15"/><circle cx="77" cy="55" r="3.2" fill="#facc15"/>',
+    '<path d="M19 35Q19 14 48 13Q76 11 82 35L22 36Z" fill="#2d6fa3"/><path d="M22 35Q47 29 78 36" fill="none" stroke="#e8f4f5" stroke-width="4" stroke-linecap="round"/>',
+    '<path d="M20 46Q19 13 50 13Q81 13 80 46" fill="none" stroke="#e9ad50" stroke-width="6"/><rect x="15" y="42" width="10" height="18" rx="5" fill="#e9ad50"/><rect x="75" y="42" width="10" height="18" rx="5" fill="#e9ad50"/>',
+    '<path d="M18 25l4 5 6-4-2 7 4 4-7-1-4 5-1-8-6-3Z" fill="#ffe17c"/><path d="M78 24l3 5 6 0-3 5 2 6-6-3-5 3 1-7-4-3Z" fill="#ffe17c"/>',
+    '<path d="M59 26l2 5 5 1-4 3 1 5-4-3-4 2 1-5-4-3 5-1Z" fill="#ff80a4"/>',
+    '<path d="M41 62Q45 57 50 63Q56 57 61 62Q55 67 50 64Q46 67 41 62Z" fill="#483038"/>',
+    '<path d="M21 45Q14 15 49 15Q83 13 80 48" fill="none" stroke="#4cc2bc" stroke-width="5"/><rect x="16" y="43" width="9" height="16" rx="4" fill="#4cc2bc"/><rect x="75" y="43" width="9" height="16" rx="4" fill="#4cc2bc"/><path d="M79 57Q77 67 66 65" fill="none" stroke="#4cc2bc" stroke-width="2.5"/><circle cx="65" cy="65" r="3" fill="#f1e2b4"/>'
+  ];
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 100 100" aria-hidden="true">
+    <defs><linearGradient id="portrait" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient><clipPath id="circle"><circle cx="50" cy="50" r="49"/></clipPath></defs>
+    <g clip-path="url(#circle)">
+      <rect width="100" height="100" fill="url(#portrait)"/>
+      <circle cx="21" cy="17" r="36" fill="#ffffff" opacity=".08"/>
+      <path d="M8 100Q12 78 34 76L50 83L66 76Q89 77 93 100Z" fill="${shirt}"/>
+      <path d="M30 78L49 93L67 78" fill="none" stroke="#ffffff" stroke-opacity=".21" stroke-width="3"/>
+      <path d="M43 70L43 82Q50 88 57 82L57 70Z" fill="${skin}"/>
+      <g fill="${hair}">${backHair[hairIdx]}</g>
+      <ellipse cx="24" cy="54" rx="6" ry="9" fill="${skin}"/>
+      <ellipse cx="76" cy="54" rx="6" ry="9" fill="${skin}"/>
+      <path d="M24 42Q24 25 50 25Q76 25 76 42L75 62Q72 78 50 79Q28 78 25 62Z" fill="${skin}"/>
+      <path d="M29 61Q33 69 41 71" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="2"/>
+      <path d="M34 42Q38 40 43 42M57 42Q61 40 66 42" fill="none" stroke="${hair}" stroke-width="2.5" stroke-linecap="round"/>
+      <g fill="#32232c">${eyes[eyesIdx]}</g>
+      <path d="M50 51L47 59Q50 61 53 59" fill="none" stroke="#8c5142" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>
+      ${mouths[mouthIdx]}
+      <g fill="${hair}">${frontHair[hairIdx]}</g>
+      ${accessories[accessoryIdx]}
+    </g><circle cx="50" cy="50" r="48.5" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
+  </svg>`;
+}
+
+function avatarUrl(id){
+  const normalized = normalizeAvatarId(id);
+  if(normalized === null) return '';
+  if(avatarUrlCache.has(normalized)) return avatarUrlCache.get(normalized);
+  const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgAvatar(normalized));
+  if(avatarUrlCache.size >= 220) avatarUrlCache.delete(avatarUrlCache.keys().next().value);
+  avatarUrlCache.set(normalized,url);
+  return url;
+}
+
+function setAvatar(element, avatarId, label = 'Người chơi'){
+  if(!element) return;
+  const id = normalizeAvatarId(avatarId);
+  const nextKey = id === null ? 'pending' : String(id);
+  if(element.dataset.avatarId === nextKey) return;
+  element.dataset.avatarId = nextKey;
+  element.replaceChildren();
+  element.classList.toggle('avatar-pending',id === null);
+  element.title = id === null ? label + ' đang chờ avatar' : label + ' · Avatar #' + String(id).padStart(8,'0');
+  if(id === null){
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-user';
+    element.appendChild(icon);
+    return;
+  }
+  const img = document.createElement('img');
+  img.src = avatarUrl(id);
+  img.alt = label + ' - avatar #' + String(id).padStart(8,'0');
+  img.draggable = false;
+  element.appendChild(img);
+}
+/* ===== END GENERATED AVATARS ===== */
+  /* MEMORY CARDS ONLINE - PHONG 2..20 NGUOI (host authoritative) */
+  'use strict';
+  const MC_API_BASE='https://mantledb.sh/v2';
+  const MC_NAMESPACE='memory-cards-zhaowen-multi-room-40layers-2026-nov-v3';
+  const MC_CAPACITIES=[2,4,6,8,10,20];
+  const MC_TTL=45000, MC_STALE=35000, MC_ROOM_POLL=10000;
+  const MC_PEER_URLS=[
+    'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js',
+    'https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'
+  ];
+  const mc=id=>document.getElementById(id);
+  let playMode='solo',initialModeSelected=false,chatUnread=0,mcToastTimeout=null;
+  const roomNet={
+    role:null,code:'',ownId:'',hostName:'',hostAvatar:null,guestName:'',guestAvatar:null,
+    maxPlayers:2,players:new Map(),roster:[],clients:new Map(),peer:null,conn:null,
+    connected:false,ready:false,receivedInit:false,cloudFallback:false,
+    phase:'waiting',roundId:'',version:0,lastVersion:0,createdAt:0,
+    chat:[],chatIds:new Set(),lastChatAt:0,roomList:[],cloudError:'',
+    lobbyMode:'create',lobbyBusy:false,listBusy:false,roomBusy:false,pollBusy:false,
+    directoryTimer:null,heartbeat:null,stateTimer:null,helloTimer:null,joinTimer:null,
+    publishTimer:null,publishChain:Promise.resolve(),roomGonePolls:0,
+    hostCloud:null,guestCloud:null,peerScriptPromise:null,rosterSignature:'',lastRosterSignature:'',
+    directoryLastAt:0,rosterRevision:0,lastRosterRevision:0,
+    directoryPublished:false,directOnly:false,peerAvailable:false
+  };
+  function uniqueRoomId(){return crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random().toString(36).slice(2,10);}
+  function makePlayerId(){return uniqueRoomId().replace(/[^A-Za-z0-9]/g,'').slice(0,20).toLowerCase();}
+  function cleanRoomName(value){return String(value||'').trim().replace(/\s+/g,' ').slice(0,20);}
+  // Chỉ tên khác nhau thực sự mới được tham gia, không phân biệt hoa/thường,
+  // dấu cách thừa hay biến thể Unicode (ví dụ "Sang" và " sang ").
+  function nameKey(value){return cleanRoomName(value).normalize('NFKC').toLocaleLowerCase('vi-VN');}
+  function usedPlayerName(name,people,exceptId=''){
+    const key=nameKey(name);
+    return Boolean(key&&Array.from(people||[]).some(p=>p&&p.id!==exceptId&&nameKey(p.name)===key));
+  }
+  function setPlayerNameError(message=''){
+    const label=mc('mcPlayerNameError'),input=mc('mcPlayerInput');
+    label.textContent=message;label.hidden=!message;
+    input.setAttribute('aria-invalid',String(Boolean(message)));
+  }
+  function normalizeRoomCode(value){return String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);}
+  function escapeRoomText(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function validCapacity(value){const n=Number(value);return MC_CAPACITIES.includes(n)?n:2;}
+  function notifyRoom(message){const el=mc('mcNotify');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(mcToastTimeout);mcToastTimeout=setTimeout(()=>el.classList.remove('show'),3200);}
+  function updateChatUnread(){const badge=mc('mcChatUnread');badge.hidden=chatUnread<1;badge.textContent=chatUnread>99?'99+':String(chatUnread);}
+  function updateChatScrollButton(){
+    const list=mc('mcChatList'),button=mc('mcChatScrollToBottom');
+    if(!list||!button)return;
+    const fromBottom=list.scrollHeight-list.clientHeight-list.scrollTop;
+    button.hidden=!mc('mcChatPanel').classList.contains('expanded')||fromBottom<75;
+  }
+  function setRoomChatOpen(open,focus=false){
+    const visible=Boolean(open&&roomNet.role&&playMode==='online'),panel=mc('mcChatPanel'),btn=mc('mcChatToggle');
+    panel.classList.toggle('expanded',visible);panel.setAttribute('aria-hidden',String(!visible));
+    btn.setAttribute('aria-expanded',String(visible));btn.title=visible?'Đóng chat phòng':'Mở chat phòng';
+    btn.setAttribute('aria-label',btn.title);mc('mcChatToggleIcon').textContent=visible?'✕':'💬';
+    if(visible){chatUnread=0;updateChatUnread();requestAnimationFrame(()=>{const list=mc('mcChatList');list.scrollTop=list.scrollHeight;updateChatScrollButton();});if(focus)mc('mcChatInput').focus();}
+    else updateChatScrollButton();
+  }
+  function showEntryMode(){mc('mcModeScreen').classList.add('open');mc('mcModeScreen').setAttribute('aria-hidden','false');document.querySelector('main.shell').inert=true;mc('mcModeHeading').focus({preventScroll:true});}
+  function hideEntryMode(){mc('mcModeScreen').classList.remove('open');mc('mcModeScreen').setAttribute('aria-hidden','true');document.querySelector('main.shell').inert=false;}
+  function chooseEntryMode(mode){hideEntryMode();if(mode==='solo'){initialModeSelected=true;playMode='solo';updateRoomUI();}else{openLobby();mc('mcPlayerInput').focus();}}
+  function roomCodeNew(){let number=Math.floor(Math.random()*100000);if(crypto?.getRandomValues){let n=new Uint32Array(1);crypto.getRandomValues(n);number=n[0]%100000;}mc('mcCodeCreate').value='MEM'+String(number).padStart(5,'0');}
+  function roomPath(code){return MC_API_BASE+'/'+MC_NAMESPACE+'/rooms/'+encodeURIComponent(normalizeRoomCode(code));}
+  function listPath(){return MC_API_BASE+'/list/'+MC_NAMESPACE;}
+  function hostCloudPath(code){return MC_API_BASE+'/'+MC_NAMESPACE+'/relay-'+normalizeRoomCode(code)+'-host';}
+  function guestCloudPath(code,id){return MC_API_BASE+'/'+MC_NAMESPACE+'/relay-'+normalizeRoomCode(code)+'-guest-'+encodeURIComponent(String(id).slice(0,24));}
+  async function fetchJsonResponse(url,options={}){
+    const {timeoutMs=6500,signal:externalSignal,...request}=options;
+    const method=String(request.method||'GET').toUpperCase();
+    const controller=new AbortController();let timedOut=false;
+    const forwardAbort=()=>controller.abort();
+    if(externalSignal){
+      if(externalSignal.aborted)controller.abort();
+      else externalSignal.addEventListener('abort',forwardAbort,{once:true});
+    }
+    const timer=setTimeout(()=>{timedOut=true;controller.abort();},timeoutMs);
+    try{
+      const res=await fetch(url,{cache:'no-store',...request,signal:controller.signal,
+        headers:{Accept:'application/json',...(request.body?{'Content-Type':'application/json'}:{}),...(request.headers||{})}});
+      if(res.status===404&&method==='GET')return null;
+      const body=await res.text();let data=null;try{if(body)data=JSON.parse(body);}catch(_){ }
+      if(!res.ok||(data&&typeof data==='object'&&data.success===false)){
+        const detail=data?.error||data?.message||'';
+        throw new Error('HTTP '+res.status+(detail?': '+String(detail).slice(0,100):''));
+      }
+      return data;
+    }catch(e){
+      if(e.name==='AbortError'&&timedOut){const error=new Error('Dịch vụ phòng phản hồi chậm');error.code='ROOM_TIMEOUT';throw error;}
+      if(e.name==='AbortError')throw e;
+      if(e instanceof TypeError){const error=new Error('Không kết nối được dịch vụ phòng');error.code='ROOM_OFFLINE';throw error;}
+      throw e;
+    }finally{clearTimeout(timer);externalSignal?.removeEventListener('abort',forwardAbort);}
+  }
+  function sanitizedRoom(raw){
+    if(!raw||typeof raw!=='object')return null;
+    const code=normalizeRoomCode(raw.code),lastSeen=Number(raw.lastSeen||0);
+    if(code.length<4||!Number.isFinite(lastSeen))return null;
+    const maxPlayers=validCapacity(raw.maxPlayers);
+    const playerCount=Math.max(1,Math.min(maxPlayers,Math.floor(Number(raw.playerCount)||1)));
+    const status=playerCount>=maxPlayers?'full':raw.status==='playing'?'playing':'waiting';
+    return {code,lastSeen,createdAt:Number(raw.createdAt||lastSeen),hostName:cleanRoomName(raw.hostName)||'Chủ phòng',
+      hostAvatarId:normalizeAvatarId(raw.hostAvatarId),maxPlayers,playerCount,status,
+      roster:Array.isArray(raw.roster)?raw.roster.slice(0,maxPlayers).map(p=>({
+        id:String(p?.id||'').slice(0,25),name:cleanRoomName(p?.name)||'Người chơi',
+        avatarId:normalizeAvatarId(p?.avatarId)
+      })):[]};
+  }
+  function directoryPaths(payload){const a=Array.isArray(payload)?payload:Array.isArray(payload?.entries)?payload.entries:[];return [...new Set(a.map(x=>typeof x==='string'?x:x?.path).filter(x=>typeof x==='string'))];}
+  function drawRoomList(){
+    const list=mc('mcRoomList'),now=Date.now();
+    const rooms=roomNet.roomList.filter(r=>now-r.lastSeen<MC_TTL).sort((a,b)=>b.createdAt-a.createdAt);
+    if(!rooms.length){list.innerHTML='<div class="mc-list-empty">Hiện tại không có phòng</div>';return;}
+    list.innerHTML=rooms.map(r=>{
+      const own=roomNet.role==='host'&&roomNet.code===r.code,open=r.playerCount<r.maxPlayers;
+      const img=r.hostAvatarId===null?'👤':'<img src="'+avatarUrl(r.hostAvatarId)+'" alt="Avatar chủ phòng">';
+      const status=open?(r.status==='playing'?'🟣 Đang chơi · Còn chỗ':'🟢 Đang chờ'):'🔒 Phòng đầy';
+      return '<div class="mc-list-item"><div class="mc-list-top"><div class="mc-list-host"><div class="mc-list-avatar">'+img+'</div><span>'+escapeRoomText(r.hostName)+'</span></div><b class="mc-list-code">'+escapeRoomText(r.code)+'</b></div>'+
+        '<div class="mc-list-meta">'+status+' · '+r.playerCount+'/'+r.maxPlayers+' người · 640 cặp / 40 tầng</div>'+
+        '<button class="mc-list-join" type="button" data-room="'+escapeRoomText(r.code)+'" '+(open&&!own?'':'disabled')+'>'+(own?'Phòng của bạn':open?'Tham gia phòng':'Phòng đã đầy')+'</button></div>';
+    }).join('');
+  }
+  async function refreshRoomList(manual=false){
+    if(roomNet.listBusy)return;roomNet.listBusy=true;mc('mcRefreshRooms').disabled=true;
+    try{
+      const index=await fetchJsonResponse(listPath()+'?t='+Date.now());
+      const codes=directoryPaths(index).filter(p=>p.startsWith('rooms/')).map(p=>normalizeRoomCode(p.slice(6))).filter(Boolean).slice(0,120);
+      const results=await Promise.allSettled(codes.map(code=>fetchJsonResponse(roomPath(code)+'?t='+Date.now())));
+      const now=Date.now();roomNet.roomList=results.flatMap(r=>r.status==='fulfilled'?[sanitizedRoom(r.value)]:[]).filter(r=>r&&now-r.lastSeen<MC_TTL);
+      roomNet.cloudError='';drawRoomList();if(manual)notifyRoom(roomNet.roomList.length?'Đã cập nhật '+roomNet.roomList.length+' phòng.':'Hiện tại không có phòng');
+    }catch(e){roomNet.cloudError=String(e.message||e);console.warn('[Memory Cards] Không tải được danh sách phòng:',e);roomNet.roomList=[];drawRoomList();if(manual)notifyRoom('Hiện tại không có phòng');}
+    finally{roomNet.listBusy=false;mc('mcRefreshRooms').disabled=false;}
+  }
+  function roomCodeInUrl(){try{return normalizeRoomCode(new URL(location.href).searchParams.get('room'));}catch(_){return '';}}
+  function openLobby(){if(roomNet.role){notifyRoom('Hãy rời phòng đang chơi trước.');return;}setPlayerNameError();void ensurePeerLibrary();mc('mcLobby').classList.add('open');mc('mcLobby').setAttribute('aria-hidden','false');void refreshRoomList();clearInterval(roomNet.directoryTimer);roomNet.directoryTimer=setInterval(()=>{if(mc('mcLobby').classList.contains('open')&&!document.hidden)void refreshRoomList();},MC_ROOM_POLL);}
+  function closeLobby(){mc('mcLobby').classList.remove('open');mc('mcLobby').setAttribute('aria-hidden','true');clearInterval(roomNet.directoryTimer);roomNet.directoryTimer=null;if(!initialModeSelected&&!roomNet.role)showEntryMode();}
+  function chooseRoomTab(mode){roomNet.lobbyMode=mode;const create=mode==='create';mc('mcTabCreate').classList.toggle('selected',create);mc('mcTabJoin').classList.toggle('selected',!create);mc('mcCreateArea').hidden=!create;mc('mcJoinArea').hidden=create;mc('mcRoomSubmit').textContent=create?'Tạo phòng & chờ bạn':'Vào phòng';}
+  function updateRoomUI(){
+    const online=playMode==='online'&&!!roomNet.role;
+    mc('mcRoomPanel').hidden=!online;mc('mcSoloMode').classList.toggle('active',!online);mc('mcOnlineMode').classList.toggle('active',online);
+    mc('mcChatToggle').hidden=!online;mc('mcWaitNote').hidden=!online||roomNet.ready;
+    if(!online){mc('mcBoardName').innerHTML='<span class="live-dot" aria-hidden="true"></span> Bàn chơi của bạn';setRoomChatOpen(false);if(typeof wheelUpdateUI==='function')wheelUpdateUI();return;}
+    const people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
+    const n=Math.max(1,people.length),max=roomNet.maxPlayers;
+    const connected=roomNet.role==='host'?n>1:roomNet.connected;
+    roomNet.connected=connected;
+    mc('mcBoardName').innerHTML='<span class="live-dot" aria-hidden="true"></span> Bàn chơi chung của '+n+' người';
+    mc('mcCurrentCode').textContent=roomNet.code;
+    mc('mcRoomState').classList.toggle('connected',roomNet.ready&&connected);
+    mc('mcRoomState').textContent=(roomNet.ready?'Đang chơi':'Đang chờ')+' · '+n+'/'+max+' người';
+    const signature=JSON.stringify(people.map(p=>[p.id,p.name,p.avatarId,state?.playerMatches?.[p.id]||0]))+'|'+roomNet.ownId;
+    if(signature!==roomNet.lastRosterSignature){
+      roomNet.lastRosterSignature=signature;
+      const fragment=document.createDocumentFragment();
+      for(const person of people){
+        const item=document.createElement('div');item.className='mc-player'+(person.id===roomNet.ownId?' you':'');
+        const avatar=document.createElement('div');avatar.className='mc-avatar';setRoomAvatar(avatar,person.avatarId,person.name);
+        const body=document.createElement('div');body.className='mc-player-info';
+        const name=document.createElement('span');name.className='mc-player-name';name.textContent=person.name;
+        const sub=document.createElement('small');sub.textContent=(person.id==='host'?'👑 Chủ phòng':'Người tham gia')+(person.id===roomNet.ownId?' · Bạn':'');
+        body.append(name,sub);
+        const score=document.createElement('span');score.className='mc-score';score.textContent=String(state?.playerMatches?.[person.id]||0);
+        item.append(avatar,body,score);fragment.append(item);
+      }
+      mc('mcPlayerGrid').replaceChildren(fragment);
+    }
+    mc('mcLeaveRoom').textContent=roomNet.role==='host'?'🗑 Giải tán phòng':'↪ Rời phòng';
+    mc('mcRoomHint').textContent=roomNet.directOnly
+      ? 'Phòng kết nối trực tiếp: hãy gửi mã phòng cho bạn bè nhập để tham gia. Khi dịch vụ danh sách phòng gián đoạn, phòng không hiện trong danh sách.'
+      : 'Mỗi cặp đúng được 1 điểm. Cả phòng dùng chung đồng hồ 4 phút.';
+    mc('mcChatCount').textContent=n+'/'+max+' người';
+    mc('mcChatInput').disabled=!roomNet.role;mc('mcChatSend').disabled=!roomNet.role;
+    if(typeof wheelUpdateUI==='function')wheelUpdateUI();
+  }
+  function setRoomAvatar(target,id,name){
+    const key=normalizeAvatarId(id),label=key===null?'pending':String(key);
+    if(target.dataset.avatarKey===label)return;target.dataset.avatarKey=label;target.replaceChildren();
+    target.classList.toggle('mc-avatar-pending',key===null);
+    if(key===null){target.textContent='👤';return;}
+    const img=document.createElement('img');img.src=avatarUrl(key);img.alt='Avatar '+(name||'người chơi');img.draggable=false;target.append(img);
+  }
+  function chatReset(){roomNet.chat=[];roomNet.chatIds=new Set();roomNet.lastChatAt=0;chatUnread=0;updateChatUnread();renderRoomChat();}
+  function cleanChat(raw){
+    if(!raw||typeof raw!=='object')return null;
+    const msg={id:String(raw.id||'').slice(0,90),room:normalizeRoomCode(raw.room),senderId:String(raw.senderId||'').slice(0,25),
+      role:raw.role==='host'?'host':'guest',name:cleanRoomName(raw.name),avatarId:normalizeAvatarId(raw.avatarId),
+      text:String(raw.text||'').trim().slice(0,400),time:Number(raw.time)||Date.now()};
+    if(!msg.id||!msg.senderId||!msg.text||msg.room!==roomNet.code)return null;
+    return msg;
+  }
+  function appendRoomChat(raw){
+    const msg=cleanChat(raw);if(!msg||roomNet.chatIds.has(msg.id))return false;
+    roomNet.chatIds.add(msg.id);roomNet.chat.push(msg);roomNet.chat.sort((a,b)=>a.time-b.time);
+    if(roomNet.chat.length>80){const old=roomNet.chat.splice(0,roomNet.chat.length-80);old.forEach(m=>roomNet.chatIds.delete(m.id));}
+    if(msg.senderId!==roomNet.ownId&&!mc('mcChatPanel').classList.contains('expanded')){chatUnread=Math.min(999,chatUnread+1);updateChatUnread();}
+    renderRoomChat();return true;
+  }
+  function renderRoomChat(){
+    const list=mc('mcChatList');if(!list)return;const atBottom=list.scrollHeight-list.scrollTop-list.clientHeight<80;
+    if(!roomNet.chat.length){list.innerHTML='<div class="mc-chat-empty">Chưa có tin nhắn, hãy gửi lời chào!</div>';updateChatScrollButton();return;}
+    const nodes=document.createDocumentFragment();
+    for(const msg of roomNet.chat){
+      const line=document.createElement('div');line.className='mc-chat-line'+(msg.senderId===roomNet.ownId?' mine':'');
+      const avatar=document.createElement('div');avatar.className='mc-chat-avatar';setRoomAvatar(avatar,msg.avatarId,msg.name);
+      const body=document.createElement('div');body.className='mc-chat-content';
+      const nick=document.createElement('div');nick.className='mc-chat-nick';nick.textContent=msg.senderId===roomNet.ownId?'Bạn':msg.name;
+      const bubble=document.createElement('div');bubble.className='mc-chat-bubble';bubble.textContent=msg.text;
+      body.append(nick,bubble);line.append(avatar,body);nodes.append(line);
+    }
+    list.replaceChildren(nodes);requestAnimationFrame(()=>{if(atBottom)list.scrollTop=list.scrollHeight;updateChatScrollButton();});
+  }
+  function handleChatSubmit(event){
+    event.preventDefault();if(!roomNet.role||!roomNet.ready){notifyRoom('Hãy vào phòng và kết nối trước khi chat.');return;}
+    const input=mc('mcChatInput'),text=input.value.trim().slice(0,400);if(!text)return;
+    if(Date.now()-roomNet.lastChatAt<350){notifyRoom('Bạn đang gửi tin nhắn quá nhanh.');return;}
+    roomNet.lastChatAt=Date.now();input.value='';
+    const player=roomNet.role==='host'?roomNet.players.get('host'):roomNet.roster.find(p=>p.id===roomNet.ownId);
+    const msg={id:uniqueRoomId(),room:roomNet.code,senderId:roomNet.ownId,role:roomNet.role,
+      name:player?.name||(roomNet.role==='host'?roomNet.hostName:roomNet.guestName),avatarId:player?.avatarId,time:Date.now(),text};
+    appendRoomChat(msg);sendRoomPacket({type:'chat',message:msg});
+  }
+  function roomShareUrl(){try{const url=new URL(location.href);url.searchParams.set('room',roomNet.code);url.hash='';return url.toString();}catch(_){return roomNet.code;}}
+  async function copyRoomText(text){try{await navigator.clipboard.writeText(text);notifyRoom('Đã sao chép!');}catch(_){const a=document.createElement('textarea');a.value=text;a.style.position='fixed';a.style.opacity='0';document.body.append(a);a.select();try{document.execCommand('copy');notifyRoom('Đã sao chép!');}catch(_){notifyRoom('Mã phòng: '+roomNet.code);}a.remove();}}
+  function getRoomButton(row,layer,col){
+    if(![row,layer,col].every(Number.isInteger)||row<0||row>=ROWS||layer<0||layer>=LAYERS||col<0||col>=CARDS_PER_ROW)return null;
+    return el.board.querySelector('[data-row-id="'+row+'"] [data-layer-index="'+layer+'"] .card[data-col="'+col+'"]');
+  }
+  function serializedLayout(){return state.rows.map(row=>row.layers.map(layer=>layer.cards.map(card=>card.imageId)));}
+  function normalizeScores(scores){
+    const out={};if(!scores||typeof scores!=='object')return out;
+    for(const [key,value] of Object.entries(scores).slice(0,22))if(/^(host|[a-z0-9]{1,25})$/i.test(key))out[key]=Math.min(999,Math.max(-999,Number(value)||0));
+    return out;
+  }
+  function makeGameSnapshot(includeLayout = true){
+    if(!state)return null;
+    return {roundId:roomNet.roundId,version:roomNet.version,at:Date.now(),
+      ...(includeLayout ? {layout:serializedLayout()} : {}),
+      currentLayer:state.currentLayer,layerMatched:state.layerMatched,matchedPairs:state.matchedPairs,
+      matchedCells:[...el.board.querySelectorAll('.card-row.is-active .card.matched')].map(b=>({row:Number(b.dataset.row),layer:Number(b.dataset.layer),col:Number(b.dataset.col)})),
+      selected:state.selected.map(x=>({row:x.row.id,layer:x.layerIndex,col:Number(x.button.dataset.col)})),
+      locked:state.locked,started:state.started,remainingMs:Math.round(state.remainingMs),
+      playerMatches:normalizeScores(state.playerMatches),finished:state.finished,outcome:state.outcome||'',
+      wheel:typeof wheelExportState==='function'?wheelExportState():null};
+  }
+  function validateGameLayout(layout){
+    if(!Array.isArray(layout)||layout.length!==ROWS)return false;
+    const counts=new Map();
+    for(const row of layout){if(!Array.isArray(row)||row.length!==LAYERS)return false;
+      for(const layer of row){if(!Array.isArray(layer)||layer.length!==CARDS_PER_ROW)return false;
+        for(const id of layer){if(!Number.isInteger(id)||id<0||id>=TOTAL_PAIRS)return false;counts.set(id,(counts.get(id)||0)+1);}
+      }
+    }
+    return counts.size===TOTAL_PAIRS&&[...counts.values()].every(n=>n===2);
+  }
+  function syncClockFromHost(ms,at){
+    if(!state||!state.started||!Number.isFinite(Number(ms)))return;
+    const age=Math.min(9000,Math.max(0,Date.now()-Number(at||Date.now())));
+    const newMs=Math.max(0,Number(ms)-clockDrainBetween(Date.now()-age,Date.now()));
+    if(Math.abs(newMs-state.remainingMs)>750){state.remainingMs=newMs;state.lastClockAt=performance.now();state.lastClockWallAt=Date.now();paintClock();}
+  }
+  function applyGameSnapshot(snapshot,force=false){
+    if(roomNet.role!=='guest'||!roomNet.receivedInit||!snapshot)return false;
+    const layer=Number(snapshot.currentLayer),version=Number(snapshot.version||0),roundId=String(snapshot.roundId||'').slice(0,130);
+    // Gói nhỏ bỏ layout khi trong cùng trận; gói đầu trận / người vào sau mang layout đầy đủ.
+    if(snapshot.layout && !validateGameLayout(snapshot.layout))return false;
+    if(!snapshot.layout && roomNet.roundId!==roundId)return false;
+    if(!Number.isInteger(layer)||layer<0||layer>=LAYERS||!roundId)return false;
+    if(!force&&roomNet.roundId===roundId&&version<=roomNet.lastVersion)return false;
+    const newRound=roomNet.roundId!==roundId;
+    const selected=Array.isArray(snapshot.selected)?snapshot.selected.slice(0,2):[];
+    const localSelected=state.selected.map(x=>({row:x.row.id,layer:x.layerIndex,col:Number(x.button.dataset.col)}));
+    const same=!newRound&&state.currentLayer===layer&&state.matchedPairs===Number(snapshot.matchedPairs)&&JSON.stringify(localSelected)===JSON.stringify(selected);
+    if(!force&&same){
+      roomNet.lastVersion=Math.max(version,roomNet.lastVersion);state.playerMatches=normalizeScores(snapshot.playerMatches);
+      if(snapshot.wheel&&typeof wheelImportState==='function')wheelImportState(snapshot.wheel,snapshot.at);
+      if(state.started)syncClockFromHost(snapshot.remainingMs,snapshot.at);
+      else if(snapshot.started){state.started=true;state.lastClockAt=performance.now();state.startedAt=performance.now();state.remainingMs=Math.max(0,Number(snapshot.remainingMs)||0);state.lastClockWallAt=Date.now();stopClock();timerId=setInterval(tickClock,250);}
+      if(snapshot.finished&&!state.finished){state.remainingMs=Math.max(0,Number(snapshot.remainingMs)||0);if(snapshot.outcome==='win')finishGame();else expireGame();}
+      updateRoomUI();return true;
+    }
+    if(!newRound&&!force&&state.locked)return false;
+    createBoard(snapshot.layout || serializedLayout());
+    roomNet.roundId=roundId;roomNet.lastVersion=Math.max(version,roomNet.lastVersion);
+    if(snapshot.wheel&&typeof wheelImportState==='function')wheelImportState(snapshot.wheel,snapshot.at);
+    state.currentLayer=layer;state.matchedPairs=Math.min(TOTAL_PAIRS,Math.max(0,Number(snapshot.matchedPairs)||0));
+    state.layerMatched=Math.min(PAIRS_PER_LAYER,Math.max(0,Number(snapshot.layerMatched)||0));
+    state.playerMatches=normalizeScores(snapshot.playerMatches);
+    state.rows.forEach(row=> { row.current = layer; });
+    // Chỉ tạo DOM cho 32 thẻ của tầng hiện hành, không bao giờ giữ 1.280 thẻ trên trang.
+    el.board.replaceChildren(...state.rows.map(buildStack));
+    for(const item of Array.isArray(snapshot.matchedCells)?snapshot.matchedCells:[]){
+      const b=getRoomButton(Number(item.row),Number(item.layer),Number(item.col));if(b){b.classList.add('matched');b.disabled=true;}
+    }
+    state.selected=[];
+    for(const item of selected){
+      const r=Number(item.row),l=Number(item.layer),c=Number(item.col);
+      const row=state.rows[r],b=getRoomButton(r,l,c);
+      if(row&&b&&!b.classList.contains('matched')){b.classList.add('flipped');state.selected.push({button:b,row,layerIndex:l,pairId:b.dataset.pairId});}
+    }
+    state.locked=Boolean(snapshot.locked);state.started=Boolean(snapshot.started);
+    if(state.started){const age=Math.max(0,Math.min(8000,Date.now()-Number(snapshot.at||Date.now())));
+      state.remainingMs=Math.max(0,(Number(snapshot.remainingMs)||0)-clockDrainBetween(Date.now()-age,Date.now()));state.startedAt=performance.now()-(currentRoundDuration()-state.remainingMs);state.lastClockAt=performance.now();state.lastClockWallAt=Date.now();
+      if(state.remainingMs>0)timerId=setInterval(tickClock,250);
+    }
+    state.outcome=String(snapshot.outcome||'');updateUI();paintClock();
+    if(snapshot.finished){if(snapshot.outcome==='win')finishGame();else expireGame();}
+    roomNet.ready=true;updateRoomUI();return true;
+  }
+  function onMemoryNetworkChange(reason){
+    if(roomNet.role!=='host'||!roomNet.ready)return;
+    roomNet.version=Math.max(Date.now(),roomNet.version+1);
+    if(['round','layer','end','match','wrong','wheel'].includes(reason)){
+      sendRoomPacket({type:'snapshot',snapshot:makeGameSnapshot(reason==='round')});
+      scheduleRoomPublish(reason==='end'?0:100);
+    }
+    updateRoomUI();
+  }
+  function updateRoundResult(){
+    if(!roomNet.role){mc('mcWinRanking').textContent='';mc('mcLoseRanking').textContent='';mc('playAgainBtn').textContent='↻ Chinh phục lần nữa';mc('retryBtn').textContent='↻ Thử sức lần nữa';return;}
+    const people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
+    const standings=people.map(p=>({name:p.name,score:Number(state?.playerMatches?.[p.id]||0)})).sort((a,b)=>b.score-a.score);
+    const summary=standings.slice(0,5).map((p,i)=>(i+1)+'. '+p.name+' ('+p.score+')').join(' · ');
+    mc('mcWinRanking').textContent='🏆 Bảng xếp hạng: '+summary;
+    mc('mcLoseRanking').textContent='🏆 Bảng xếp hạng: '+summary;
+    mc('playAgainBtn').textContent=roomNet.role==='host'?'↻ Mở trận mới':'↻ Đề nghị chơi lại';
+    mc('retryBtn').textContent=roomNet.role==='host'?'↻ Thử lại cùng bạn':'↻ Đề nghị chơi lại';
+  }
+  function applyRoster(raw,revision=0){
+    if(!Array.isArray(raw))return;
+    const incoming=Number(revision)||0;
+    if(incoming&&incoming<roomNet.lastRosterRevision)return;
+    if(incoming)roomNet.lastRosterRevision=incoming;
+    const list=[];const seen=new Set();
+    for(const item of raw.slice(0,20)){
+      if(!item||typeof item!=='object')continue;
+      const id=String(item.id||'').replace(/[^a-zA-Z0-9]/g,'').slice(0,25);
+      if(!id||seen.has(id))continue;seen.add(id);
+      list.push({id,name:cleanRoomName(item.name)||'Người chơi',avatarId:normalizeAvatarId(item.avatarId)});
+    }
+    if(!list.some(x=>x.id==='host'))list.unshift({id:'host',name:roomNet.hostName,avatarId:roomNet.hostAvatar});
+    roomNet.roster=list;roomNet.lastRosterSignature='';updateRoomUI();
+  }
+  function hostRoster(){return [...roomNet.players.values()].map(({id,name,avatarId})=>({id,name,avatarId}));}
+  async function removeCloudRoom(code){try{const res=await fetch(roomPath(code),{method:'DELETE',keepalive:true,cache:'no-store'});return res.ok||res.status===404;}catch(_){return false;}}
+  function roomMetadata(){
+    const count=roomNet.players.size,capacity=roomNet.maxPlayers;
+    return {code:roomNet.code,hostName:roomNet.hostName,hostAvatarId:roomNet.hostAvatar,
+      maxPlayers:capacity,playerCount:count,status:count>=capacity?'full':roomNet.ready?'playing':'waiting',
+      createdAt:roomNet.createdAt,lastSeen:Date.now(),roster:hostRoster(),rosterRevision:roomNet.rosterRevision,
+      gameSnapshot:roomNet.ready?makeGameSnapshot():null};
+  }
+  async function publishRoom(){
+    if(roomNet.role!=='host'||!roomNet.code)return false;
+    const code=roomNet.code;
+    roomNet.publishChain=roomNet.publishChain.catch(()=>false).then(async()=>{
+      if(roomNet.role!=='host'||roomNet.code!==code)return false;
+      try{const result=await fetchJsonResponse(roomPath(code),{method:'POST',body:JSON.stringify(roomMetadata()),timeoutMs:4400});
+        if(!result||typeof result!=='object')throw new Error('Máy chủ chưa xác nhận lưu phòng');roomNet.cloudError='';return true;}
+      catch(e){roomNet.cloudError=String(e.message||e);console.warn('[Memory Cards] Ghi phòng thất bại:',e);return false;}
+    });return roomNet.publishChain;
+  }
+  function scheduleRoomPublish(delay=120){if(roomNet.role!=='host'||!roomNet.directoryPublished)return;clearTimeout(roomNet.publishTimer);roomNet.publishTimer=setTimeout(()=>{roomNet.publishTimer=null;void publishRoom();},delay);}
+  function startHostHeartbeat(){clearInterval(roomNet.heartbeat);roomNet.heartbeat=setInterval(()=>{if(roomNet.role==='host'&&roomNet.code)void publishRoom();},10000);}
+  /* One cloud mailbox per guest. Host broadcasts through one room-wide mailbox. */
+  function cloudHostQueue(packet,to=null){
+    const session=roomNet.hostCloud;if(!session||session.stopped)return;
+    session.seq++;session.messages.push({seq:session.seq,to,packet,at:Date.now()});
+    if(session.messages.length>100)session.messages.splice(0,session.messages.length-100);
+    if(!session.flushTimer)session.flushTimer=setTimeout(()=>{session.flushTimer=null;void cloudHostWrite(session);},35);
+  }
+  function cloudHostWrite(session=roomNet.hostCloud){
+    if(!session||session.stopped)return Promise.resolve(false);
+    const body={code:session.code,role:'host',sessionId:session.sessionId,updatedAt:Date.now(),closed:false,messages:session.messages.slice(-100)};
+    session.chain=session.chain.catch(()=>false).then(()=>fetchJsonResponse(hostCloudPath(session.code),{method:'POST',body:JSON.stringify(body)}))
+      .then(()=>true).catch(e=>{console.warn('[Memory Cards] Ghi tín hiệu phòng:',e);return false;});
+    return session.chain;
+  }
+  function cloudGuestWrite(session=roomNet.guestCloud){
+    if(!session||session.stopped)return Promise.resolve(false);
+    const body={code:session.code,role:'guest',playerId:session.id,name:roomNet.guestName,avatarId:roomNet.guestAvatar,
+      sessionId:session.sessionId,updatedAt:Date.now(),closed:session.closed,messages:session.messages.slice(-45)};
+    session.chain=session.chain.catch(()=>false).then(()=>fetchJsonResponse(guestCloudPath(session.code,session.id),{method:'POST',body:JSON.stringify(body)}))
+      .then(()=>true).catch(e=>{console.warn('[Memory Cards] Gửi dữ liệu người tham gia:',e);return false;});
+    return session.chain;
+  }
+  function cloudGuestQueue(packet){
+    const session=roomNet.guestCloud;if(!session||session.stopped)return false;
+    session.seq++;session.messages.push({seq:session.seq,packet,at:Date.now()});
+    if(session.messages.length>45)session.messages.splice(0,session.messages.length-45);
+    if(!session.flushTimer)session.flushTimer=setTimeout(()=>{session.flushTimer=null;void cloudGuestWrite(session);},35);
+    return true;
+  }
+  function hostUsesCloud(){return [...roomNet.clients.values()].some(c=>c.kind==='cloud');}
+  function sendRoomPacket(packet,to=null){
+    if(!roomNet.role)return false;
+    if(roomNet.role==='host'){
+      let sent=false,cloud=false;
+      for(const [id,client] of roomNet.clients){
+        if(to&&id!==to)continue;
+        if(client.kind==='peer'&&client.conn?.open){try{client.conn.send(packet);sent=true;}catch(e){console.warn('[Memory Cards] WebRTC:',e);}}
+        else if(client.kind==='cloud')cloud=true;
+      }
+      // A join rejection may target someone who has not yet been admitted.
+      if(cloud||(to&&!roomNet.clients.has(to))){
+        // Tránh nhân 1 bản layout 40 tầng (~1.280 vị trí) lên mỗi kết nối cloud.
+        // Khách lấy bố cục đầy đủ một lần từ bản ghi phòng, còn hộp thư chỉ gửi tín hiệu gọn.
+        let cloudPacket = packet;
+        if(packet.type==='init' && packet.snapshot?.layout){
+          cloudPacket = {...packet,snapshot:{...packet.snapshot}};
+          delete cloudPacket.snapshot.layout;
+        }
+        cloudHostQueue(cloudPacket,to);sent=true;
+      }
+      return sent;
+    }
+    if(!roomNet.cloudFallback&&roomNet.conn?.open){try{roomNet.conn.send(packet);return true;}catch(e){console.warn('[Memory Cards] WebRTC gửi:',e);}}
+    return cloudGuestQueue(packet);
+  }
+  function startHostCloud(code){
+    stopHostCloud();
+    const s={code,sessionId:uniqueRoomId(),seq:0,messages:[],chain:Promise.resolve(),flushTimer:null,
+      heartbeat:null,watchTimer:null,watchBusy:false,seen:new Map(),stopped:false};
+    roomNet.hostCloud=s;void cloudHostWrite(s);
+    s.heartbeat=setInterval(()=>{if(!s.stopped)void cloudHostWrite(s);},11000);
+    s.watchTimer=setInterval(()=>void watchCloudGuests(s),1800);
+    void watchCloudGuests(s);
+  }
+  function stopHostCloud(){
+    const s=roomNet.hostCloud;if(!s)return;
+    roomNet.hostCloud=null;s.stopped=true;clearTimeout(s.flushTimer);clearInterval(s.heartbeat);clearInterval(s.watchTimer);
+    // Cloud records are cleaned after closing a room; no global guest data gets overwritten here.
+  }
+  async function watchCloudGuests(session=roomNet.hostCloud){
+    if(!session||session.stopped||session.watchBusy||roomNet.role!=='host'||roomNet.code!==session.code)return;
+    session.watchBusy=true;
+    try{
+      const directory=await fetchJsonResponse(listPath()+'?t='+Date.now());
+      const prefix='relay-'+session.code+'-guest-';
+      const ids=directoryPaths(directory).filter(path=>path.startsWith(prefix))
+        .map(path=>path.slice(prefix.length)).filter(id=>/^[a-z0-9]{1,25}$/i.test(id)).slice(0,32);
+      // Bounded batches keep the client responsive even with 50-100 guests.
+      for(let i=0;i<ids.length;i+=12){
+        if(session.stopped)break;
+        const group=ids.slice(i,i+12);
+        const payloads=await Promise.allSettled(group.map(id=>fetchJsonResponse(guestCloudPath(session.code,id)+'?t='+Date.now())));
+        for(let j=0;j<group.length;j++){
+          const id=group[j],r=payloads[j];if(r.status!=='fulfilled')continue;
+          const data=r.value;if(!data||data.code!==session.code||data.playerId!==id)continue;
+          const fresh=Date.now()-Number(data.updatedAt||0)<MC_STALE;
+          let seen=session.seen.get(id);
+          if(!seen||seen.sessionId!==String(data.sessionId||'')){
+            seen={sessionId:String(data.sessionId||''),seq:0,lastSeen:Date.now()};session.seen.set(id,seen);
+          }
+          if(fresh&&!data.closed)seen.lastSeen=Date.now();
+          const msgs=Array.isArray(data.messages)?data.messages:[];
+          msgs.filter(x=>Number(x?.seq)>seen.seq).sort((a,b)=>Number(a.seq)-Number(b.seq)).forEach(msg=>{
+            seen.seq=Math.max(seen.seq,Number(msg.seq)||0);
+            if(fresh&&!data.closed)handleRoomPacket(msg.packet,{id,kind:'cloud',sessionId:seen.sessionId});
+          });
+          const existing=roomNet.clients.get(id);
+          if(existing?.kind==='cloud'&&(!fresh||data.closed))removeHostGuest(id,'Mất kết nối');
+        }
+      }
+      for(const [id,client] of roomNet.clients){
+        if(client.kind==='cloud'&&(!session.seen.has(id)||Date.now()-(session.seen.get(id)?.lastSeen||0)>MC_STALE))removeHostGuest(id,'Mất kết nối');
+      }
+    }catch(e){console.warn('[Memory Cards] Lấy kết nối người chơi:',e);}
+    finally{session.watchBusy=false;}
+  }
+  function stopGuestCloud(){
+    const s=roomNet.guestCloud;if(!s)return;roomNet.guestCloud=null;
+    clearInterval(s.heartbeat);clearTimeout(s.pollTimer);clearTimeout(s.flushTimer);
+    s.closed=true;void cloudGuestWrite(s).finally(()=>{s.stopped=true;});
+  }
+  function startGuestCloud(code){
+    if(roomNet.role!=='guest'||roomNet.code!==code)return;
+    if(roomNet.guestCloud)return;
+    roomNet.cloudFallback=true;clearTimeout(roomNet.joinTimer);roomNet.joinTimer=null;
+    if(roomNet.conn){try{roomNet.conn.close();}catch(_){ }roomNet.conn=null;}
+    if(roomNet.peer){try{roomNet.peer.destroy();}catch(_){ }roomNet.peer=null;}
+    roomNet.connected=false;roomNet.receivedInit=false;
+    const s={id:roomNet.ownId,code,sessionId:uniqueRoomId(),seq:0,remoteSeq:0,remoteSession:'',
+      messages:[],chain:Promise.resolve(),stopped:false,closed:false,flushTimer:null,
+      heartbeat:null,pollTimer:null,busy:false,errors:0};
+    roomNet.guestCloud=s;
+    void cloudGuestWrite(s);s.heartbeat=setInterval(()=>{if(!s.stopped)void cloudGuestWrite(s);},11000);
+    void pollCloudHost(s);updateRoomUI();
+  }
+  async function pollCloudHost(session=roomNet.guestCloud){
+    if(!session||session.stopped||roomNet.guestCloud!==session||session.busy)return;
+    session.busy=true;
+    try{
+      const data=await fetchJsonResponse(hostCloudPath(session.code)+'?t='+Date.now());
+      session.errors=0;
+      if(data&&data.code===session.code){
+        const id=String(data.sessionId||'');
+        if(session.remoteSession!==id){session.remoteSession=id;session.remoteSeq=0;}
+        const fresh=Date.now()-Number(data.updatedAt||0)<MC_STALE&&!data.closed;
+        if(fresh&&!roomNet.connected){roomNet.connected=true;sendGuestHello();updateRoomUI();}
+        if(!fresh&&roomNet.connected){roomNet.connected=false;updateRoomUI();}
+        const messages=Array.isArray(data.messages)?data.messages:[];
+        messages.filter(m=>Number(m?.seq)>session.remoteSeq).sort((a,b)=>Number(a.seq)-Number(b.seq)).forEach(m=>{
+          session.remoteSeq=Math.max(session.remoteSeq,Number(m.seq)||0);
+          if(!m.to||m.to===roomNet.ownId)handleRoomPacket(m.packet,{id:'host',kind:'cloud'});
+        });
+        if(fresh&&!roomNet.receivedInit)sendGuestHello();
+      }
+    }catch(e){session.errors=Math.min(6,session.errors+1);}
+    finally{session.busy=false;if(roomNet.guestCloud===session&&!session.stopped){
+      const delay=Math.min(9000,(document.hidden?3200:1150)*(1+session.errors));
+      session.pollTimer=setTimeout(()=>void pollCloudHost(session),delay);
+    }}
+  }
+  function startGuestStatePoll(){stopGuestStatePoll();if(roomNet.role!=='guest')return;roomNet.stateTimer=setInterval(()=>void pollGuestState(),3000);void pollGuestState();}
+  function stopGuestStatePoll(){clearInterval(roomNet.stateTimer);roomNet.stateTimer=null;roomNet.pollBusy=false;}
+  async function pollGuestState(){
+    if(roomNet.role!=='guest'||!roomNet.code||roomNet.pollBusy)return;
+    roomNet.pollBusy=true;const code=roomNet.code;
+    try{
+      const raw=await fetchJsonResponse(roomPath(code)+'?t='+Date.now());
+      if(roomNet.role!=='guest'||roomNet.code!==code)return;
+      if(!raw){if(++roomNet.roomGonePolls>=2)handleRoomDissolved('Chủ phòng đã giải tán hoặc rời phòng.');return;}
+      roomNet.roomGonePolls=0;
+      if(Date.now()-Number(raw.lastSeen||0)>MC_TTL){handleRoomDissolved('Phòng đã hết hạn.');return;}
+      roomNet.maxPlayers=validCapacity(raw.maxPlayers);roomNet.hostName=cleanRoomName(raw.hostName)||roomNet.hostName;
+      if(Array.isArray(raw.roster))applyRoster(raw.roster,raw.rosterRevision);
+      const accepted=roomNet.roster.some(p=>p.id===roomNet.ownId);
+      if(roomNet.receivedInit&&raw.gameSnapshot)applyGameSnapshot(raw.gameSnapshot);
+      else if(accepted&&raw.gameSnapshot){roomNet.receivedInit=true;roomNet.ready=true;roomNet.phase='playing';applyGameSnapshot(raw.gameSnapshot,true);stopGuestHello();}
+      updateRoomUI();
+    }catch(e){console.warn('[Memory Cards] Tạm mất kết nối dữ liệu phòng:',e);}
+    finally{roomNet.pollBusy=false;}
+  }
+  /* PeerJS: one host connection per guest, no two-player limit. */
+  function loadPeerScript(url){
+    if(window.Peer)return Promise.resolve(true);
+    return new Promise(resolve=>{
+      const script=document.createElement('script');let done=false;
+      const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(Boolean(ok&&window.Peer));};
+      const timer=setTimeout(()=>finish(false),4400);
+      script.src=url;script.async=true;script.onload=()=>finish(true);script.onerror=()=>finish(false);document.head.append(script);
+    });
+  }
+  async function ensurePeerLibrary(){
+    if(window.Peer)return true;
+    if(!roomNet.peerScriptPromise)roomNet.peerScriptPromise=Promise.any(
+      MC_PEER_URLS.map(src=>loadPeerScript(src).then(ok=>ok?true:Promise.reject(new Error('CDN unavailable'))))
+    ).catch(()=>false);
+    const ok=await roomNet.peerScriptPromise;if(!ok)roomNet.peerScriptPromise=null;return ok;
+  }
+  function newPeer(id){
+    const cfg={host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0,pingInterval:5000,
+      config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+    return id?new Peer(id,cfg):new Peer(cfg);
+  }
+  function hostPeerId(code){return 'memory-cards-multi-'+code.toLowerCase();}
+  // Đăng ký mã phòng trực tiếp với máy chủ tín hiệu PeerJS. Trả về kết quả
+  // thực sự thay vì coi việc nạp thư viện là đã tạo phòng thành công.
+  async function startHostPeer(code){
+    const loaded=await ensurePeerLibrary();
+    if(!loaded||roomNet.role!=='host'||roomNet.code!==code)return false;
+    if(roomNet.peer?.open&&roomNet.peer.id===hostPeerId(code))return true;
+    return new Promise(resolve=>{
+      let peer,settled=false;
+      const finish=ok=>{
+        if(settled)return;settled=true;clearTimeout(timeout);
+        if(!ok&&peer){try{peer.destroy();}catch(_){ }if(roomNet.peer===peer)roomNet.peer=null;}
+        if(ok)roomNet.peerAvailable=true;
+        resolve(ok);
+      };
+      const timeout=setTimeout(()=>finish(false),6000);
+      try{
+        peer=newPeer(hostPeerId(code));roomNet.peer=peer;
+        peer.on('open',()=>finish(roomNet.role==='host'&&roomNet.code===code));
+        peer.on('connection',conn=>{
+          if(roomNet.role!=='host'||roomNet.code!==code){try{conn.close();}catch(_){ }return;}
+          conn.on('data',packet=>handleRoomPacket(packet,{kind:'peer',conn,id:conn._mcId||''}));
+          conn.on('close',()=>{if(conn._mcId&&roomNet.clients.get(conn._mcId)?.conn===conn)removeHostGuest(conn._mcId,'Đã rời phòng');});
+          conn.on('error',()=>{if(conn._mcId&&roomNet.clients.get(conn._mcId)?.conn===conn)removeHostGuest(conn._mcId,'Mất kết nối');});
+        });
+        peer.on('error',err=>{
+          console.warn('[Memory Cards] Kết nối trực tiếp chủ phòng:',err?.type||err);
+          if(!settled)finish(false);
+          else if(roomNet.peer===peer)roomNet.peerAvailable=false;
+        });
+        peer.on('disconnected',()=>{if(roomNet.peer===peer)roomNet.peerAvailable=false;});
+      }catch(e){console.warn('[Memory Cards] Không thể đăng ký WebRTC:',e);finish(false);}
+    });
+  }
+  function failGuestConnection(code,message='Không kết nối được với chủ phòng. Hãy kiểm tra mã phòng và kết nối Internet.'){
+    if(roomNet.role!=='guest'||roomNet.code!==code)return;
+    leaveOnline(false);chooseRoomTab('join');mc('mcCodeJoin').value=code;
+    openLobby();notifyRoom(message);
+  }
+  function guestCloudOrFail(code){
+    if(roomNet.role!=='guest'||roomNet.code!==code)return;
+    if(roomNet.directOnly){failGuestConnection(code);return;}
+    startGuestCloud(code);
+  }
+  function startGuestPeer(code){
+    clearTimeout(roomNet.joinTimer);
+    // Khi PeerJS mở kết nối thành công phải hủy timeout này, tránh tự rơi sang
+    // cloud relay sau 5 giây dù hai người đã kết nối trực tiếp.
+    roomNet.joinTimer=setTimeout(()=>guestCloudOrFail(code),8500);
+    void ensurePeerLibrary().then(ok=>{
+      if(roomNet.role!=='guest'||roomNet.code!==code||roomNet.cloudFallback)return;
+      if(!ok){guestCloudOrFail(code);return;}
+      try{
+        const peer=newPeer();roomNet.peer=peer;
+        peer.on('open',()=>{
+          if(roomNet.role!=='guest'||roomNet.code!==code||roomNet.cloudFallback)return;
+          const conn=peer.connect(hostPeerId(code),{reliable:true,serialization:'json'});roomNet.conn=conn;
+          conn.on('open',()=>{
+            if(roomNet.conn!==conn||roomNet.cloudFallback)return;
+            clearTimeout(roomNet.joinTimer);roomNet.joinTimer=null;
+            roomNet.connected=true;startGuestHello();updateRoomUI();
+          });
+          conn.on('data',packet=>handleRoomPacket(packet,{id:'host',kind:'peer'}));
+          conn.on('close',()=>{if(roomNet.role==='guest'&&!roomNet.cloudFallback)guestCloudOrFail(code);});
+          conn.on('error',()=>{if(roomNet.role==='guest'&&!roomNet.cloudFallback)guestCloudOrFail(code);});
+        });
+        peer.on('error',()=>{if(roomNet.role==='guest'&&!roomNet.cloudFallback)guestCloudOrFail(code);});
+        peer.on('disconnected',()=>{if(roomNet.role==='guest'&&!roomNet.cloudFallback)guestCloudOrFail(code);});
+      }catch(e){guestCloudOrFail(code);}
+    });
+  }
+  function sendGuestHello(){
+    if(roomNet.role!=='guest'||!roomNet.code||!roomNet.connected||roomNet.receivedInit)return;
+    sendRoomPacket({type:'hello',id:roomNet.ownId,name:roomNet.guestName,avatarId:roomNet.guestAvatar});
+  }
+  function startGuestHello(){stopGuestHello();sendGuestHello();roomNet.helloTimer=setInterval(()=>{
+    if(roomNet.role!=='guest'||roomNet.receivedInit||!roomNet.connected){stopGuestHello();return;}sendGuestHello();
+  },1700);}
+  function stopGuestHello(){clearInterval(roomNet.helloTimer);roomNet.helloTimer=null;}
+  function sendRoomFlipRequest(button,row,layer){
+    if(roomNet.role!=='guest'||!roomNet.ready||!roomNet.connected){notifyRoom('Bạn chưa kết nối xong với phòng.');return;}
+    sendRoomPacket({type:'flip_request',row:row.id,layer,col:Number(button.dataset.col),roundId:roomNet.roundId});
+  }
+  function hostStartRound(){
+    if(roomNet.role!=='host'||roomNet.players.size<2)return;
+    roomNet.roundId=uniqueRoomId();roomNet.version=Math.max(Date.now(),roomNet.version+1);
+    roomNet.phase='playing';roomNet.ready=true;createBoard();
+    state.playerMatches={};for(const id of roomNet.players.keys())state.playerMatches[id]=0;
+    const payload={type:'init',hostName:roomNet.hostName,maxPlayers:roomNet.maxPlayers,roster:hostRoster(),rosterRevision:roomNet.rosterRevision,snapshot:makeGameSnapshot()};
+    sendRoomPacket(payload);updateRoomUI();scheduleRoomPublish(0);
+  }
+  function removeHostGuest(id,reason=''){ // A guest left; other participants remain in the same round.
+    if(roomNet.role!=='host'||id==='host'||!roomNet.players.has(id))return;
+    const client=roomNet.clients.get(id);roomNet.clients.delete(id);roomNet.players.delete(id);
+    roomNet.rosterRevision=Math.max(Date.now(),roomNet.rosterRevision+1);
+    if(client?.kind==='peer'&&client.conn?.open){try{client.conn.close();}catch(_){ }}
+    if(roomNet.players.size===1){
+      roomNet.ready=false;roomNet.connected=false;roomNet.phase='waiting';roomNet.roundId='';
+      roomNet.version=Math.max(Date.now(),roomNet.version+1);
+      chatReset();createBoard();notifyRoom('Đang chờ người chơi mới vào phòng.');
+    }else{roomNet.connected=true;}
+    sendRoomPacket({type:'roster',roster:hostRoster(),maxPlayers:roomNet.maxPlayers,rosterRevision:roomNet.rosterRevision});
+    roomNet.lastRosterSignature='';updateRoomUI();scheduleRoomPublish(0);
+  }
+  function ensureRoomGuest(id,raw,source){
+    if(roomNet.role!=='host'||!roomNet.code||!/^[a-z0-9]{3,25}$/i.test(id))return false;
+    let known=roomNet.players.has(id);
+    if(!known&&roomNet.players.size>=roomNet.maxPlayers){
+      const reject={type:'join_rejected',reason:'full'};
+      if(source.kind==='peer'&&source.conn?.open){try{source.conn.send(reject);}catch(_){ }}
+      else cloudHostQueue(reject,id);
+      return false;
+    }
+    const current=roomNet.players.get(id);
+    const name=cleanRoomName(raw.name)||current?.name||'Người chơi';
+    if(usedPlayerName(name,roomNet.players.values(),id)){
+      const reject={type:'join_rejected',reason:'duplicate_name',name};
+      if(source.kind==='peer'&&source.conn?.open){try{source.conn.send(reject);}catch(_){ }}
+      else cloudHostQueue(reject,id);
+      return false;
+    }
+    const avatarId=normalizeAvatarId(raw.avatarId)??current?.avatarId??randomAvatarId();
+    const player={id,name,avatarId};roomNet.players.set(id,player);
+    if(!known||current?.name!==name||current?.avatarId!==avatarId)roomNet.rosterRevision=Math.max(Date.now(),roomNet.rosterRevision+1);
+    if(source.kind==='peer'){
+      source.conn._mcId=id;
+      const previous=roomNet.clients.get(id);
+      if(previous?.kind==='peer'&&previous.conn!==source.conn){try{previous.conn.close();}catch(_){ }}
+      roomNet.clients.set(id,{kind:'peer',conn:source.conn});
+    }else roomNet.clients.set(id,{kind:'cloud',sessionId:source.sessionId});
+    const firstGuest=!roomNet.ready&&roomNet.players.size>=2;
+    if(firstGuest)hostStartRound();
+    else{
+      sendRoomPacket({type:'init',hostName:roomNet.hostName,maxPlayers:roomNet.maxPlayers,roster:hostRoster(),rosterRevision:roomNet.rosterRevision,snapshot:makeGameSnapshot()},id);
+      sendRoomPacket({type:'chat_history',messages:roomNet.chat.slice(-80)},id);
+      sendRoomPacket({type:'roster',roster:hostRoster(),maxPlayers:roomNet.maxPlayers,rosterRevision:roomNet.rosterRevision});
+      scheduleRoomPublish(0);
+    }
+    roomNet.connected=roomNet.players.size>=2;
+    roomNet.lastRosterSignature='';updateRoomUI();
+    return true;
+  }
+  function handleRoomPacket(packet,source={}){
+    if(!packet||typeof packet!=='object'||typeof packet.type!=='string')return;
+    if(packet.type.startsWith('wheel_') && typeof wheelHandlePacket==='function' && wheelHandlePacket(packet,source))return;
+    if(roomNet.role==='host'){
+      if(packet.type==='hello'){
+        const id=String(packet.id||source.id||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,25);
+        if(source.kind==='cloud'&&id!==source.id)return;
+        ensureRoomGuest(id,packet,source);return;
+      }
+      const id=source.kind==='peer'?source.conn?._mcId:source.id;
+      if(!id||!roomNet.players.has(id)||!roomNet.clients.has(id))return;
+      if(packet.type==='flip_request'&&roomNet.ready&&packet.roundId===roomNet.roundId){
+        const row=Number(packet.row),layer=Number(packet.layer),col=Number(packet.col);
+        const b=getRoomButton(row,layer,col);
+        if(b&&state.rows[row])flipCard(b,state.rows[row],layer,{actor:id});return;
+      }
+      if(packet.type==='chat'){
+        const p=roomNet.players.get(id),raw=cleanChat(packet.message);
+        if(!raw)return;
+        const msg={...raw,senderId:id,name:p.name,avatarId:p.avatarId,role:'guest'};
+        if(appendRoomChat(msg))sendRoomPacket({type:'chat',message:msg});return;
+      }
+      if(packet.type==='participant_left'){removeHostGuest(id,'Đã rời phòng');return;}
+      if(packet.type==='rematch_request'){notifyRoom(roomNet.players.get(id).name+' đề nghị mở trận mới.');return;}
+      return;
+    }
+    if(roomNet.role!=='guest')return;
+    if(packet.type==='init'){
+      roomNet.hostName=cleanRoomName(packet.hostName)||roomNet.hostName;
+      roomNet.maxPlayers=validCapacity(packet.maxPlayers);roomNet.receivedInit=true;roomNet.phase='playing';
+      // Với relay cloud, gói init không chứa layout. Giữ trạng thái đang đồng bộ
+      // tới khi tải xong bản ghi phòng, để khách không lật bộ thẻ ngẫu nhiên riêng.
+      roomNet.ready=roomNet.ready && Boolean(roomNet.roundId) || Boolean(packet.snapshot?.layout);
+      if(Array.isArray(packet.roster))applyRoster(packet.roster,packet.rosterRevision);
+      stopGuestHello();clearTimeout(roomNet.joinTimer);roomNet.joinTimer=null;
+      if(packet.snapshot?.layout)applyGameSnapshot(packet.snapshot,roomNet.roundId!==packet.snapshot.roundId);
+      else void pollGuestState();
+      updateRoomUI();return;
+    }
+    if(packet.type==='roster'){if(Array.isArray(packet.roster))applyRoster(packet.roster,packet.rosterRevision);roomNet.maxPlayers=validCapacity(packet.maxPlayers);return;}
+    if(packet.type==='chat'){const msg=cleanChat(packet.message);if(msg&&msg.senderId!==roomNet.ownId)appendRoomChat(msg);return;}
+    if(packet.type==='chat_history'){for(const raw of Array.isArray(packet.messages)?packet.messages:[])appendRoomChat(raw);return;}
+    if(packet.type==='flip'&&roomNet.ready&&packet.roundId===roomNet.roundId){
+      const row=Number(packet.row),layer=Number(packet.layer),col=Number(packet.col),b=getRoomButton(row,layer,col);
+      if(b&&state.rows[row])flipCard(b,state.rows[row],layer,{remote:true,actor:String(packet.actor||'host')});
+      syncClockFromHost(packet.remainingMs,packet.at);return;
+    }
+    if(packet.type==='snapshot'&&roomNet.receivedInit){applyGameSnapshot(packet.snapshot);return;}
+    if(packet.type==='join_rejected'){
+      const conflict=packet.reason==='duplicate_name';
+      const message=conflict?'Tên người chơi đã được sử dụng trong phòng. Vui lòng chọn tên khác.'
+        :packet.reason==='full'?'Phòng đã đủ số người chơi.':'Không thể tham gia phòng.';
+      const previousCode=roomNet.code;
+      leaveOnline(false);chooseRoomTab('join');mc('mcCodeJoin').value=previousCode;openLobby();
+      if(conflict){setPlayerNameError(message);mc('mcPlayerInput').focus();}
+      notifyRoom(message);return;
+    }
+    if(packet.type==='room_dissolved')handleRoomDissolved('Chủ phòng đã giải tán phòng.');
+  }
+  function handleRoomDissolved(text){if(roomNet.role!=='guest')return;leaveOnline(false);notifyRoom(text);chooseRoomTab('join');openLobby();}
+  function stopRoomNetwork(){
+    stopGuestHello();stopGuestStatePoll();clearTimeout(roomNet.joinTimer);roomNet.joinTimer=null;
+    clearInterval(roomNet.heartbeat);roomNet.heartbeat=null;clearTimeout(roomNet.publishTimer);roomNet.publishTimer=null;
+    stopGuestCloud();stopHostCloud();
+    if(roomNet.conn){const conn=roomNet.conn;roomNet.conn=null;try{conn.close();}catch(_){ }}
+    if(roomNet.peer){try{roomNet.peer.destroy();}catch(_){ }roomNet.peer=null;}
+    for(const client of roomNet.clients.values())if(client.kind==='peer'){try{client.conn.close();}catch(_){ }}
+    roomNet.clients.clear();roomNet.connected=false;roomNet.ready=false;
+  }
+  function leaveOnline(removeRoom=true){
+    const role=roomNet.role,code=roomNet.code;if(!role)return;
+    if(role==='guest')sendRoomPacket({type:'participant_left'});
+    else if(removeRoom)sendRoomPacket({type:'room_dissolved'});
+    stopRoomNetwork();
+    roomNet.role=null;roomNet.code='';roomNet.ownId='';roomNet.players.clear();roomNet.roster=[];
+    roomNet.hostName='';roomNet.guestName='';roomNet.hostAvatar=null;roomNet.guestAvatar=null;
+    roomNet.phase='waiting';roomNet.roundId='';roomNet.receivedInit=false;roomNet.cloudFallback=false;
+    roomNet.version=0;roomNet.lastVersion=0;roomNet.roomGonePolls=0;roomNet.lastRosterSignature='';
+    roomNet.directoryPublished=false;roomNet.directOnly=false;roomNet.peerAvailable=false;
+    playMode='solo';chatReset();createBoard();updateRoomUI();updateRoundResult();
+    if(role==='host'&&removeRoom){
+      void roomNet.publishChain.catch(()=>null).then(()=>removeCloudRoom(code));
+      setTimeout(()=>{void fetch(hostCloudPath(code),{method:'DELETE',cache:'no-store',keepalive:true}).catch(()=>null);},4000);
+    }
+  }
+  async function submitRoom(){
+    if(roomNet.lobbyBusy)return;
+    const name=cleanRoomName(mc('mcPlayerInput').value);
+    setPlayerNameError();
+    if(!name){setPlayerNameError('Vui lòng nhập tên của bạn.');mc('mcPlayerInput').focus();return;}
+    const create=roomNet.lobbyMode!=='join';
+    const code=normalizeRoomCode(create?mc('mcCodeCreate').value:mc('mcCodeJoin').value);
+    if(code.length<4){notifyRoom('Mã phòng cần ít nhất 4 ký tự.');return;}
+    roomNet.lobbyBusy=true;mc('mcRoomSubmit').disabled=true;mc('mcRoomSubmit').textContent='Đang kết nối...';
+    try{
+      // Kiểm tra phòng trong tối đa 3 giây; nếu dịch vụ phòng không phản hồi,
+      // thử kết nối PeerJS trực tiếp thay vì chặn nút Tạo phòng suốt 8,5 giây.
+      let remote=null,directoryReachable=true;
+      try{remote=sanitizedRoom(await fetchJsonResponse(roomPath(code)+'?t='+Date.now(),{timeoutMs:3000}));}
+      catch(e){directoryReachable=false;roomNet.cloudError=String(e?.message||e);}
+      if(create){
+        if(remote&&Date.now()-remote.lastSeen<MC_TTL){notifyRoom('Mã phòng đã tồn tại. Hãy tạo mã phòng khác.');roomCodeNew();return;}
+        roomNet.role='host';roomNet.code=code;roomNet.ownId='host';roomNet.hostName=name;
+        roomNet.hostAvatar=randomAvatarId();roomNet.maxPlayers=validCapacity(mc('mcMaxPlayers').value);
+        roomNet.players=new Map([['host',{id:'host',name,avatarId:roomNet.hostAvatar}]]);
+        roomNet.rosterRevision=Date.now();roomNet.lastRosterRevision=0;
+        roomNet.roster=hostRoster();roomNet.clients=new Map();roomNet.createdAt=Date.now();
+        roomNet.version=Date.now();roomNet.lastVersion=0;roomNet.roundId='';roomNet.ready=false;
+        roomNet.receivedInit=false;roomNet.connected=false;roomNet.cloudFallback=false;
+        roomNet.lastRosterSignature='';roomNet.peerAvailable=false;roomNet.directoryPublished=false;
+        roomNet.directOnly=!directoryReachable;
+        playMode='online';createBoard();updateRoomUI();
+        const peerReady=startHostPeer(code).catch(()=>false);
+        const published=directoryReachable?publishRoom().then(saved=>{
+          if(saved&&roomNet.role==='host'&&roomNet.code===code){
+            roomNet.directoryPublished=true;roomNet.directOnly=false;
+            startHostHeartbeat();startHostCloud(code);updateRoomUI();
+          }
+          return saved;
+        }):Promise.resolve(false);
+        // Cả chế độ trực tiếp và dịch vụ danh sách đều hợp lệ; chỉ công bố phòng
+        // thành công sau khi ít nhất MỘT đường truyền xác nhận.
+        const ready=await Promise.any([
+          peerReady.then(ok=>ok?'peer':Promise.reject(new Error('PeerJS unavailable'))),
+          published.then(ok=>ok?'cloud':Promise.reject(new Error('Directory unavailable')))
+        ]).catch(()=>null);
+        if(!ready){
+          const detail=roomNet.cloudError?'Dịch vụ danh sách phòng tạm thời không khả dụng.':'Không thể kết nối dịch vụ phòng.';
+          leaveOnline(false);notifyRoom('Không thể tạo phòng: '+detail+' Kiểm tra Internet và thử lại.');return;
+        }
+        roomNet.directOnly=!roomNet.directoryPublished;
+        updateRoomUI();
+        try{localStorage.setItem('memory-online-player-name',name);}catch(_){ }
+        initialModeSelected=true;closeLobby();
+        notifyRoom(roomNet.directOnly?'Đã tạo phòng trực tiếp '+code+'. Hãy mời bạn bằng mã phòng.':
+          'Đã tạo phòng '+code+' · '+roomNet.maxPlayers+' người.');
+      }else{
+        if(directoryReachable&&remote&&Date.now()-remote.lastSeen>=MC_TTL){
+          notifyRoom('Phòng trong danh sách đã hết hạn. Đang thử kết nối theo mã...');
+          remote=null;
+        }
+        if(remote){
+          if(remote.playerCount>=remote.maxPlayers){notifyRoom('Phòng đã đủ '+remote.maxPlayers+' người.');return;}
+          if(usedPlayerName(name,remote.roster)){
+            setPlayerNameError('Tên này đã có người sử dụng trong phòng. Hãy chọn tên khác.');
+            mc('mcPlayerInput').focus();return;
+          }
+        }
+        // Nếu không đọc được danh sách vẫn có thể vào phòng theo mã PeerJS.
+        // Chủ phòng sẽ xác nhận tên duy nhất và số người tối đa.
+        roomNet.role='guest';roomNet.code=code;roomNet.ownId=makePlayerId();roomNet.guestName=name;
+        roomNet.hostName=remote?.hostName||'Chủ phòng';roomNet.hostAvatar=remote?.hostAvatarId??null;
+        roomNet.guestAvatar=randomAvatarId(remote?.hostAvatarId??null);roomNet.maxPlayers=remote?.maxPlayers||2;
+        roomNet.roster=remote?.roster?.length?[...remote.roster]:[{id:'host',name:roomNet.hostName,avatarId:roomNet.hostAvatar}];
+        roomNet.roster.push({id:roomNet.ownId,name,avatarId:roomNet.guestAvatar});
+        roomNet.version=0;roomNet.lastVersion=0;roomNet.roundId='';roomNet.ready=false;
+        roomNet.receivedInit=false;roomNet.connected=false;roomNet.cloudFallback=false;
+        roomNet.roomGonePolls=0;roomNet.lastRosterSignature='';roomNet.lastRosterRevision=0;
+        roomNet.directOnly=!remote;roomNet.directoryPublished=Boolean(remote);
+        playMode='online';createBoard();updateRoomUI();
+        try{localStorage.setItem('memory-online-player-name',name);}catch(_){ }
+        initialModeSelected=true;closeLobby();
+        if(remote)startGuestStatePoll();
+        startGuestPeer(code);
+        notifyRoom('Đang kết nối phòng '+code+'...');
+      }
+    }catch(e){
+      console.warn('[Memory Cards] Không thể kết nối phòng:',e);
+      if(roomNet.role)leaveOnline(false);
+      notifyRoom('Không thể kết nối phòng. Kiểm tra Internet rồi thử lại.');
+    }finally{
+      roomNet.lobbyBusy=false;mc('mcRoomSubmit').disabled=false;
+      mc('mcRoomSubmit').textContent=roomNet.lobbyMode==='join'?'Vào phòng':'Tạo phòng & chờ bạn';
+    }
+  }
+  function requestReplay(){
+    if(roomNet.role==='host'){if(roomNet.players.size<2){notifyRoom('Cần ít nhất 2 người để bắt đầu trận.');return;}hostStartRound();}
+    else if(roomNet.role==='guest'){sendRoomPacket({type:'rematch_request'});notifyRoom('Đã gửi yêu cầu chơi lại cho chủ phòng.');}
+    else createBoard();
+  }
+  function leaveRoomClick(){
+    if(!roomNet.role)return;
+    const host=roomNet.role==='host';
+    if(host&&!confirm('Giải tán phòng '+roomNet.code+'? Mọi người sẽ bị đưa ra khỏi phòng.'))return;
+    leaveOnline(true);notifyRoom(host?'Đã giải tán phòng.':'Đã rời phòng.');
+  }
+  mc('mcModeChooseSolo').addEventListener('click',()=>chooseEntryMode('solo'));
+  mc('mcModeChooseOnline').addEventListener('click',()=>chooseEntryMode('online'));
+  mc('mcSoloMode').addEventListener('click',()=>{
+    if(roomNet.role){if(confirm('Rời phòng hiện tại và chơi một mình?'))leaveOnline(true);}
+    else{playMode='solo';updateRoomUI();}
+  });
+  mc('mcOnlineMode').addEventListener('click',()=>{if(roomNet.role)notifyRoom('Bạn đang ở trong phòng '+roomNet.code+'.');else openLobby();});
+  mc('mcCloseLobby').addEventListener('click',closeLobby);
+  mc('mcTabCreate').addEventListener('click',()=>chooseRoomTab('create'));
+  mc('mcTabJoin').addEventListener('click',()=>chooseRoomTab('join'));
+  mc('mcNewCode').addEventListener('click',roomCodeNew);
+  mc('mcPlayerInput').addEventListener('input',()=>setPlayerNameError());
+  mc('mcRoomSubmit').addEventListener('click',()=>void submitRoom());
+  mc('mcRefreshRooms').addEventListener('click',()=>void refreshRoomList(true));
+  mc('mcRoomList').addEventListener('click',event=>{
+    const btn=event.target.closest('button[data-room]');if(!btn||btn.disabled)return;
+    const name=cleanRoomName(mc('mcPlayerInput').value);
+    if(!name){notifyRoom('Vui lòng nhập tên trước khi vào phòng.');mc('mcPlayerInput').focus();return;}
+    chooseRoomTab('join');mc('mcCodeJoin').value=btn.dataset.room;void submitRoom();
+  });
+  mc('mcLeaveRoom').addEventListener('click',leaveRoomClick);
+  mc('mcCopyCode').addEventListener('click',()=>void copyRoomText(roomNet.code));
+  mc('mcShareLink').addEventListener('click',()=>{
+    if(location.protocol==='file:'){void copyRoomText(roomNet.code);notifyRoom('Đã sao chép mã phòng.');}
+    else void copyRoomText(roomShareUrl());
+  });
+  mc('mcChatForm').addEventListener('submit',handleChatSubmit);
+  mc('mcChatToggle').addEventListener('click',()=>setRoomChatOpen(!mc('mcChatPanel').classList.contains('expanded'),true));
+  mc('mcChatClose').addEventListener('click',()=>{setRoomChatOpen(false);mc('mcChatToggle').focus();});
+  mc('mcChatMinimize').addEventListener('click',()=>{setRoomChatOpen(false);mc('mcChatToggle').focus();});
+  mc('mcChatList').addEventListener('scroll',updateChatScrollButton,{passive:true});
+  mc('mcChatScrollToBottom').addEventListener('click',()=>{
+    const list=mc('mcChatList');
+    list.scrollTo({top:list.scrollHeight,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    updateChatScrollButton();
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    if(mc('mcChatPanel').classList.contains('expanded')){setRoomChatOpen(false);mc('mcChatToggle').focus();}
+    else if(mc('mcLobby').classList.contains('open'))closeLobby();
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&roomNet.role==='guest')void pollGuestState();
+    if(!document.hidden&&mc('mcLobby').classList.contains('open'))void refreshRoomList();
+  });
+  window.addEventListener('pagehide',()=>{
+    if(roomNet.role==='host'&&roomNet.code){try{fetch(roomPath(roomNet.code),{method:'DELETE',cache:'no-store',keepalive:true});}catch(_){ }}
+    else if(roomNet.role==='guest')sendRoomPacket({type:'participant_left'});
+  });
+  try{mc('mcPlayerInput').value=localStorage.getItem('memory-online-player-name')||'';}catch(_){ }
+  roomCodeNew();chooseRoomTab('create');
+  const invited=roomCodeInUrl();
+  if(invited){chooseRoomTab('join');mc('mcCodeJoin').value=invited;mc('mcModeInvite').hidden=false;mc('mcModeInvite').textContent='🔗 Bạn được mời vào phòng '+invited+'. Chọn "Chơi cùng bạn bè" để tham gia.';}
+  updateRoomUI();renderRoomChat();updateChatUnread();showEntryMode();
+
+  </script>
+  <script>
+/* ===== VÒNG QUAY MAY MẮN - CHỈ CHẾ ĐỘ ONLINE, HOST QUYẾT ĐỊNH KẾT QUẢ ===== */
+const MC_WHEEL_ITEMS = [
+  {key:'add30',icon:'⏱',label:'Thêm thời gian',short:'+30 GIÂY',detail:'Cộng 30 giây đồng hồ chung',colors:['#24c7a5','#146d80']},
+  {key:'rescue',icon:'🛟',label:'Cứu trợ',short:'CỨU TRỢ',detail:'Cộng 60 giây đồng hồ chung',colors:['#378de3','#324ca1']},
+  {key:'eye',icon:'👁',label:'Mắt thần',short:'MẮT THẦN',detail:'Hiện 2 cặp đúng trong 6 giây',colors:['#9c64fa','#602f9c']},
+  {key:'banOpponents',icon:'🚫',label:'Cấm lượt đối thủ',short:'CẤM LƯỢT',detail:'Đối thủ không được lật thẻ trong 40 giây',colors:['#e65c70','#ac3452']},
+  {key:'minus30',icon:'⌛',label:'Mất thời gian',short:'-30 GIÂY',detail:'Trừ 30 giây đồng hồ chung',colors:['#e68b40','#a34a35']},
+  {key:'lockSelf',icon:'🔒',label:'Khóa thẻ',short:'KHÓA THẺ',detail:'Bạn không được lật thẻ trong 10 giây',colors:['#dc626b','#8f3647']},
+  {key:'destiny',icon:'🎲',label:'Định mệnh',short:'ĐỊNH MỆNH',detail:'Ngẫu nhiên cộng hoặc trừ 60 giây',colors:['#aa5cdc','#6a3991']},
+  {key:'storm',icon:'🌪',label:'Bão thời gian',short:'BÃO 4×',detail:'Đồng hồ chạy nhanh gấp 4 trong 20 giây',colors:['#e36c55','#b83f4c']},
+  {key:'slow',icon:'🐢',label:'Làm chậm thời gian',short:'CHẬM 2×',detail:'Đồng hồ chạy bằng 1/2 trong 20 giây',colors:['#419ace','#25678e']},
+  {key:'memory',icon:'🧠',label:'Siêu trí nhớ',short:'SIÊU TRÍ NHỚ',detail:'Hiện tất cả thẻ chưa ghép trong 10 giây',colors:['#2eb5a8','#285f85']},
+  {key:'banSpins',icon:'⛔',label:'Cấm quay',short:'CẤM QUAY',detail:'Khóa lượt quay còn lại của cả phòng',colors:['#de4b66','#802e57']},
+  {key:'reroll',icon:'♻️',label:'Đổi vận',short:'ĐỔI VẬN',detail:'Bạn được quay lại 1 lần',colors:['#e8b54c','#a96640']},
+  {key:'subtractAll',icon:'📉',label:'Trừ điểm tất cả',short:'-10 ĐIỂM',detail:'Mỗi người chơi bị trừ 10 điểm',colors:['#d45a82','#863c6d']},
+  {key:'death',icon:'💀',label:'Thử thách sinh tử',short:'SINH TỬ',detail:'Không ghép đúng trong 20 giây sẽ mất 40 giây',colors:['#855ed4','#463a93']}
+];
+const MC_WHEEL_INTERVAL_MS = 59000;
+const MC_WHEEL_ANIMATION_MS = 3900;
+const wheelView = {
+  rotation:0, spinning:false, awaiting:false, busyTimer:0,
+  pendingSpins:new Map(), resultTimer:0, revealed:new Set(), peekTimer:0,
+  hasOpenedForRound:'', cycleShown:0, autoOpening:false, modalLastFocus:null,
+  lastAppliedEvent:'', lastResultEvent:'', lastHint:''
+};
+function wheelState(){return state && state.wheel ? state.wheel : null;}
+function wheelMine(){return roomNet.role==='host'?'host':roomNet.ownId;}
+function wheelName(id){
+  const people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
+  return people.find(p=>p.id===id)?.name || (id==='host'?roomNet.hostName:'Người chơi');
+}
+function wheelReady(){return playMode==='online'&&!!roomNet.role&&roomNet.ready&&state?.started&&!state.finished;}
+function wheelCanSpin(actor=wheelMine(), reroll=false){
+  const w=wheelState();
+  return Boolean(w&&wheelReady()&&w.unlocked&&w.cycle>0&&!w.banAll&&actor&&
+    (reroll?Boolean(w.rerollReady[actor]):!w.used[actor]));
+}
+function wheelCanFlip(actor=wheelMine(), notify=false){
+  const w=wheelState();if(!w||playMode!=='online'||!state.started||state.finished)return true;
+  const now=Date.now();let why='';
+  if(Number(w.locks[actor]||0)>now)why='Bạn đang bị khóa thẻ trong '+Math.ceil((w.locks[actor]-now)/1000)+' giây.';
+  if(w.opponents&&w.opponents.by!==actor&&Number(w.opponents.until)>now)why='Đối thủ đã cấm lượt của bạn: '+Math.ceil((w.opponents.until-now)/1000)+' giây.';
+  if(why){if(notify)notifyRoom(why);return false;}return true;
+}
+function wheelDefaultState(){
+  return {elapsedMs:0,cycle:0,unlocked:false,used:{},rerollReady:{},banAll:false,locks:{},opponents:null,
+    doom:{},rate:1,rateUntil:0,lastEvent:null};
+}
+function wheelResetUI(){
+  if(!document.getElementById('mcWheelModal'))return;
+  clearTimeout(wheelView.peekTimer);clearTimeout(wheelView.resultTimer);clearTimeout(wheelView.busyTimer);
+  wheelView.spinning=false;wheelView.awaiting=false;wheelView.pendingSpins.clear();wheelView.lastAppliedEvent='';
+  wheelView.lastResultEvent='';wheelView.autoOpening=false;wheelView.hasOpenedForRound='';wheelView.cycleShown=0;
+  for(const b of wheelView.revealed)b.classList.remove('mc-wheel-peek');wheelView.revealed.clear();
+  wheelClose();wheelUpdateUI();
+  document.getElementById('mcWheelResult').innerHTML='<b>1 lượt quay mỗi đợt</b>Mỗi 59 giây, bạn được nhận một lượt quay mới khi đang chơi cùng bạn bè.';
+}
+function wheelClose(){
+  const modal=document.getElementById('mcWheelModal');if(!modal)return;
+  modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+}
+function wheelOpen(auto=false){
+  const modal=document.getElementById('mcWheelModal');if(!modal||!wheelReady())return;
+  if(!wheelCanSpin()&&!wheelCanSpin(wheelMine(),true)&&!wheelView.spinning&&!wheelView.awaiting)return;
+  if(document.getElementById('mcLobby')?.classList.contains('open'))return;
+  if(document.getElementById('mcModeScreen')?.classList.contains('open'))return;
+  if(auto&&document.querySelector('.overlay.show'))return;
+  wheelView.modalLastFocus=document.activeElement;
+  modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+  wheelUpdateUI();
+}
+function wheelResultText(html){const node=document.getElementById('mcWheelResult');if(node)node.innerHTML=html;}
+function wheelTimerText(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function wheelUpdateUI(){
+  const w=wheelState(),status=document.getElementById('mcWheelStatus'),fab=document.getElementById('mcWheelFab');
+  if(!status||!fab)return;
+  const online=playMode==='online'&&!!roomNet.role;
+  status.hidden=!online;const active=wheelReady();
+  if(!online){fab.hidden=true;wheelClose();return;}
+  const myId=wheelMine(),can=wheelCanSpin(),reroll=wheelCanSpin(myId,true);
+  fab.hidden=!active||(!can&&!reroll&&!wheelView.spinning&&!wheelView.awaiting);
+  fab.disabled=!w?.unlocked||w?.banAll;
+  const banner=document.getElementById('mcWheelStatusText'),effect=document.getElementById('mcWheelEffectText');
+  const cycle=Math.max(0,Number(w?.cycle)||0);
+  const nextMs=Math.max(0,MC_WHEEL_INTERVAL_MS*(cycle+1)-(Number(w?.elapsedMs)||0));
+  const countdown=wheelTimerText(nextMs);
+  let label='🎡 Vòng quay đầu tiên sau 00:59';
+  if(w&&active){
+    if(!w.unlocked||cycle===0)label='🎡 Vòng quay đầu tiên sau '+countdown;
+    else if(w.banAll)label='⛔ Lượt quay đợt '+cycle+' đã bị khóa · Đợt mới sau '+countdown;
+    else if(reroll)label='♻️ Đợt '+cycle+': Bạn có lượt Đổi vận';
+    else if(w.used[myId])label='🎡 Đã quay đợt '+cycle+' · Đợt mới sau '+countdown;
+    else label='🎡 Đợt '+cycle+' đã mở · Bạn có 1 lượt quay!';
+  }else if(w)label='⏳ Chờ bắt đầu trận để mở vòng quay';
+  if(banner.textContent!==label)banner.textContent=label;
+  const now=Date.now(),notes=[];
+  if(w){
+    if(w.rate!==1&&w.rateUntil>now)notes.push('⏱ '+(w.rate===4?'×4':'×0,5')+' · '+Math.ceil((w.rateUntil-now)/1000)+'s');
+    if(w.locks[myId]>now)notes.push('🔒 '+Math.ceil((w.locks[myId]-now)/1000)+'s');
+    if(w.opponents?.by!==myId&&w.opponents?.until>now)notes.push('🚫 '+Math.ceil((w.opponents.until-now)/1000)+'s');
+    if(w.doom[myId]>now)notes.push('💀 '+Math.ceil((w.doom[myId]-now)/1000)+'s');
+  }
+  effect.textContent=notes.join(' · ');
+  const spin=document.getElementById('mcWheelSpin'),redo=document.getElementById('mcWheelReroll');
+  if(spin){
+    spin.disabled=!can||wheelView.spinning||wheelView.awaiting;
+    spin.textContent=wheelView.spinning?'ĐANG QUAY…':wheelView.awaiting?'ĐANG KẾT NỐI…':w?.banAll?'ĐÃ BỊ CẤM QUAY':w?.used[myId]?'ĐÃ DÙNG LƯỢT ĐỢT NÀY':w?.unlocked?'QUAY NGAY!':'CHƯA ĐẾN GIỜ';
+  }
+  if(redo){redo.hidden=!reroll;redo.disabled=wheelView.spinning||wheelView.awaiting;}
+  // Đợt quay mới sẽ hiện lại trên máy từng người; không giữ trạng thái "đã mở" của đợt trước.
+  if(w&&active&&cycle>0&&wheelView.cycleShown!==cycle){
+    wheelView.cycleShown=cycle;
+    if(!wheelView.spinning&&!wheelView.awaiting)wheelResultText('<b>🎡 Lượt quay đợt '+cycle+' đã mở!</b>Mỗi người được quay một lần trong đợt này. Đợt mới sau 59 giây.');
+  }
+  const autoKey=roomNet.roundId+':'+cycle;
+  if(w&&active&&cycle>0&&!w.banAll&&!w.used[myId]&&wheelView.hasOpenedForRound!==autoKey&&roomNet.roundId){
+    if(!document.hidden){wheelView.hasOpenedForRound=autoKey;wheelOpen(true);}
+  }
+  if(w?.banAll&&document.getElementById('mcWheelModal')?.classList.contains('open')&&!wheelView.spinning){
+    // Luật 'Cấm quay' khiến không ai còn được quay, đóng vòng quay chưa sử dụng.
+    wheelClose();
+  }
+}
+function wheelDraw(){
+  const canvas=document.getElementById('mcWheelCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');if(!ctx)return;
+  const W=canvas.width,H=canvas.height,center=W/2,radius=W*.485,step=Math.PI*2/MC_WHEEL_ITEMS.length;
+  ctx.clearRect(0,0,W,H);
+  MC_WHEEL_ITEMS.forEach((item,i)=>{
+    const a=-Math.PI/2+i*step,b=a+step;
+    const grad=ctx.createLinearGradient(0,0,W,H);grad.addColorStop(0,item.colors[0]);grad.addColorStop(1,item.colors[1]);
+    ctx.beginPath();ctx.moveTo(center,center);ctx.arc(center,center,radius,a,b);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle='rgba(255,245,210,.55)';ctx.stroke();
+    ctx.save();ctx.translate(center,center);ctx.rotate(a+step/2);
+    ctx.font='700 43px "Segoe UI Emoji", sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(item.icon,radius*.64, -25);
+    ctx.font='900 18px "Be Vietnam Pro",sans-serif';ctx.lineWidth=3.6;ctx.strokeStyle='rgba(17,25,56,.45)';ctx.fillStyle='#fff9ed';
+    ctx.strokeText(item.short,radius*.68,20,140);ctx.fillText(item.short,radius*.68,20,140);
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(center,center,radius-3,0,Math.PI*2);ctx.lineWidth=12;ctx.strokeStyle='rgba(255,228,155,.82)';ctx.stroke();
+  ctx.beginPath();ctx.arc(center,center,72,0,Math.PI*2);ctx.fillStyle='#b66d89';ctx.fill();
+  const list=document.getElementById('mcWheelEffects');if(list){
+    list.replaceChildren(...MC_WHEEL_ITEMS.map(item=>{
+      const element=document.createElement('div');element.className='mc-wheel-effect';
+      const b=document.createElement('b'),small=document.createElement('small');
+      b.textContent=item.icon+' '+item.label;small.textContent=item.detail;element.append(b,small);return element;
+    }));
+  }
+}
+function wheelRandom(max){
+  if(window.crypto&&window.crypto.getRandomValues){const a=new Uint32Array(1);window.crypto.getRandomValues(a);return a[0]%max;}
+  return Math.floor(Math.random()*max);
+}
+function wheelSpinClick(reroll=false){
+  if(wheelView.spinning||wheelView.awaiting)return;
+  if(!wheelCanSpin(wheelMine(),reroll)){notifyRoom('Bạn chưa được phép quay lúc này.');return;}
+  wheelView.awaiting=true;wheelUpdateUI();
+  wheelResultText('<b>🎡 Đang nhận lượt quay…</b>Máy chủ sẽ chọn ngẫu nhiên và đồng bộ kết quả cho cả phòng.');
+  if(roomNet.role==='host')wheelHostSpin('host',reroll);
+  else sendRoomPacket({type:reroll?'wheel_reroll_request':'wheel_spin_request',roundId:roomNet.roundId,cycle:wheelState()?.cycle});
+  clearTimeout(wheelView.busyTimer);
+  wheelView.busyTimer=setTimeout(()=>{
+    if(wheelView.awaiting){wheelView.awaiting=false;wheelResultText('<b>Chưa nhận được kết quả</b>Kiểm tra kết nối và thử lại.');wheelUpdateUI();}
+  },10000);
+}
+function wheelHostSpin(actor,reroll,requestCycle=wheelState()?.cycle){
+  const currentCycle=Number(wheelState()?.cycle)||0;
+  if(roomNet.role!=='host'||!roomNet.players.has(actor)||Number(requestCycle)!==currentCycle||!wheelCanSpin(actor,reroll)){
+    if(actor!== 'host')sendRoomPacket({type:'wheel_error',text:'Đợt quay đã hết hoặc lượt quay không hợp lệ. Hãy thử lại trong đợt mới.'},actor);
+    else{wheelView.awaiting=false;wheelUpdateUI();}
+    return;
+  }
+  if([...wheelView.pendingSpins.values()].some(spin=>spin.actor===actor)){
+    if(actor==='host'){wheelView.awaiting=false;notifyRoom('Vòng quay của bạn đang chạy.');wheelUpdateUI();}
+    else sendRoomPacket({type:'wheel_error',text:'Bạn đang quay, hãy đợi kết quả.'},actor);
+    return;
+  }
+  const w=wheelState(),options=MC_WHEEL_ITEMS.map((_,i)=>i).filter(i=>!reroll||MC_WHEEL_ITEMS[i].key!=='reroll');
+  const index=options[wheelRandom(options.length)];
+  if(reroll)delete w.rerollReady[actor];
+  else w.used[actor]=true;
+  if(MC_WHEEL_ITEMS[index].key==='reroll')w.rerollReady[actor]=true;
+  const spinId=uniqueRoomId();wheelView.pendingSpins.set(spinId,{spinId,actor,index,cycle:currentCycle,roundId:roomNet.roundId,until:Date.now()+MC_WHEEL_ANIMATION_MS});
+  const packet={type:'wheel_result',roundId:roomNet.roundId,spinId,actor,index,cycle:currentCycle,reroll};
+  sendRoomPacket(packet);wheelIncomingResult(packet);
+  onMemoryNetworkChange('wheel');
+}
+function wheelIncomingResult(packet){
+  if(!wheelReady()||packet.roundId!==roomNet.roundId||wheelView.lastResultEvent===packet.spinId)return;
+  const item=MC_WHEEL_ITEMS[Number(packet.index)];if(!item)return;
+  wheelView.lastResultEvent=packet.spinId;
+  if(packet.actor!==wheelMine()){
+    notifyRoom('🎡 '+wheelName(packet.actor)+' đang quay vòng may mắn…');return;
+  }
+  clearTimeout(wheelView.busyTimer);wheelView.awaiting=false;wheelView.spinning=true;
+  wheelOpen();
+  const degrees=360/MC_WHEEL_ITEMS.length;
+  const desired=-(Number(packet.index)+.5)*degrees;
+  const delta=((desired-(wheelView.rotation%360))%360+360)%360;
+  wheelView.rotation+=5*360+delta;
+  const canvas=document.getElementById('mcWheelCanvas');
+  if(canvas){canvas.style.transition='transform '+MC_WHEEL_ANIMATION_MS+'ms cubic-bezier(.08,.77,.13,1)';canvas.style.transform='rotate('+wheelView.rotation+'deg)';}
+  playSound('flip');
+  wheelResultText('<b>✨ Vòng quay đang xoay!</b>Chờ kim dừng lại để nhận hiệu ứng…');wheelUpdateUI();
+  clearTimeout(wheelView.resultTimer);
+  const currentRun=runId;
+  wheelView.resultTimer=setTimeout(()=>{
+    if(currentRun!==runId)return;
+    wheelView.spinning=false;
+    const applied=wheelState()?.lastEvent;
+    const detail=applied?.id===packet.spinId ? applied.detail : item.detail;
+    wheelResultText('<b>'+item.icon+' '+item.label+'</b>'+detail+(item.key==='reroll'?'. Bạn có thể chọn quay lại một lần.':'.'));
+    playSound('match');wheelUpdateUI();
+  },MC_WHEEL_ANIMATION_MS+130);
+}
+function wheelActivePairs(){
+  const groups=new Map();
+  for(const b of el.board.querySelectorAll('.card-row.is-active .card:not(.matched)')){
+    const id=b.dataset.pairId;const positions=groups.get(id)||[];positions.push({row:Number(b.dataset.row),layer:Number(b.dataset.layer),col:Number(b.dataset.col)});groups.set(id,positions);
+  }
+  return [...groups.values()].filter(arr=>arr.length===2);
+}
+function wheelShowPeek(positions,duration){
+  clearTimeout(wheelView.peekTimer);
+  for(const b of wheelView.revealed)b.classList.remove('mc-wheel-peek');wheelView.revealed.clear();
+  for(const pos of positions||[]){
+    const b=getRoomButton(Number(pos.row),Number(pos.layer),Number(pos.col));
+    if(b&&!b.classList.contains('matched')){b.classList.add('mc-wheel-peek');wheelView.revealed.add(b);}
+  }
+  notifyRoom('👁 Đang hiển thị thẻ hỗ trợ trong '+Math.round(duration/1000)+' giây!');
+  const originalRun=runId;
+  wheelView.peekTimer=setTimeout(()=>{
+    if(originalRun!==runId)return;
+    for(const b of wheelView.revealed)b.classList.remove('mc-wheel-peek');wheelView.revealed.clear();
+  },duration);
+}
+function wheelHostPeek(actor,all=false){
+  const pairs=wheelActivePairs();
+  let positions;
+  if(all)positions=pairs.flat();
+  else positions=shuffle(pairs).slice(0,2).flat();
+  const duration=all?10000:6000;
+  if(actor==='host')wheelShowPeek(positions,duration);
+  else sendRoomPacket({type:'wheel_peek',roundId:roomNet.roundId,positions,duration},actor);
+}
+function wheelHostApply(spin){
+  if(roomNet.role!=='host'||!spin||spin.roundId!==roomNet.roundId||!state||state.finished)return;
+  const w=wheelState(),item=MC_WHEEL_ITEMS[spin.index];if(!item)return;
+  const now=Date.now(),actor=spin.actor;
+  consumeElapsed();let detail=item.detail;
+  switch(item.key){
+    case 'add30':state.remainingMs+=30000;break;
+    case 'rescue':state.remainingMs+=60000;break;
+    case 'minus30':state.remainingMs=Math.max(0,state.remainingMs-30000);break;
+    case 'eye':wheelHostPeek(actor,false);break;
+    case 'banOpponents':w.opponents={by:actor,until:now+40000};break;
+    case 'lockSelf':w.locks[actor]=now+10000;break;
+    case 'destiny':{
+      const plus=wheelRandom(2)===0;state.remainingMs=Math.max(0,state.remainingMs+(plus?60000:-60000));
+      detail=plus?'Định mệnh: +60 giây cho cả phòng':'Định mệnh: -60 giây của cả phòng';break;
+    }
+    case 'storm':w.rate=4;w.rateUntil=now+20000;break;
+    case 'slow':w.rate=.5;w.rateUntil=now+20000;break;
+    case 'memory':wheelHostPeek(actor,true);break;
+    case 'banSpins':if(spin.cycle===w.cycle){w.banAll=true;w.rerollReady={};}break;
+    case 'reroll':detail='Bạn có quyền quay lại 1 lần nếu muốn';break;
+    case 'subtractAll':{
+      for(const person of roomNet.players.values())state.playerMatches[person.id]=(Number(state.playerMatches[person.id])||0)-10;
+      break;
+    }
+    case 'death':w.doom[actor]=now+20000;break;
+  }
+  const event={id:spin.spinId,actor,index:spin.index,detail,at:now};w.lastEvent=event;
+  const packet={type:'wheel_applied',roundId:roomNet.roundId,event,wheel:wheelExportState(),remainingMs:Math.round(state.remainingMs)};
+  sendRoomPacket(packet);wheelIncomingApplied(packet);onMemoryNetworkChange('wheel');paintClock();
+}
+function wheelHostTick(){
+  if(roomNet.role!=='host'||playMode!=='online'||!state?.started||!roomNet.ready||state.finished)return;
+  const w=wheelState(),now=Date.now();
+  // Đếm theo thời gian thực từ lúc bắt đầu ván; không chịu tác động của tăng/giảm tốc đồng hồ.
+  // Mỗi 59 giây cấp lượt quay mới và hủy trạng thái Cấm quay của đợt cũ.
+  const reachedCycle=Math.max(0,Math.floor(w.elapsedMs/MC_WHEEL_INTERVAL_MS));
+  if(reachedCycle>w.cycle){
+    w.cycle=reachedCycle;w.unlocked=true;w.used={};w.rerollReady={};w.banAll=false;
+    sendRoomPacket({type:'wheel_unlock',roundId:roomNet.roundId,cycle:w.cycle,elapsedMs:Math.round(w.elapsedMs)});
+    onMemoryNetworkChange('wheel');notifyRoom('🎡 Đợt '+w.cycle+' đã mở! Mỗi người có 1 lượt quay mới.');
+  }
+  // Cho phép các người chơi quay đồng thời, tránh phải chờ 3,9 giây/người khi phòng đông.
+  for(const [spinId,spin] of wheelView.pendingSpins){
+    if(now<spin.until)continue;
+    wheelView.pendingSpins.delete(spinId);
+    wheelHostApply(spin);
+  }
+  if(w.rate!==1&&now>=w.rateUntil){
+    w.rate=1;w.rateUntil=0;onMemoryNetworkChange('wheel');
+  }
+  for(const [actor,deadline] of Object.entries(w.doom)){
+    if(now<deadline)continue;
+    delete w.doom[actor];state.remainingMs=Math.max(0,state.remainingMs-40000);
+    const notice={type:'wheel_notice',roundId:roomNet.roundId,text:'💀 '+wheelName(actor)+' không tìm được cặp trong 20 giây: phòng mất 40 giây.'};
+    sendRoomPacket(notice);notifyRoom(notice.text);onMemoryNetworkChange('wheel');
+  }
+  wheelUpdateUI();
+}
+function wheelOnMatch(actor){
+  if(playMode!=='online'||roomNet.role!=='host')return;
+  const w=wheelState();if(w?.doom?.[actor]&&Date.now()<=w.doom[actor]){
+    delete w.doom[actor];
+    const msg='🛡 '+wheelName(actor)+' đã vượt Thử thách sinh tử!';
+    sendRoomPacket({type:'wheel_notice',roundId:roomNet.roundId,text:msg});notifyRoom(msg);
+    onMemoryNetworkChange('wheel');
+  }
+}
+function wheelExportState(){
+  const w=wheelState();if(!w)return null;
+  return {elapsedMs:Math.round(w.elapsedMs),cycle:Math.max(0,Number(w.cycle)||0),unlocked:Boolean(w.unlocked),
+    used:{...w.used},rerollReady:{...w.rerollReady},banAll:Boolean(w.banAll),locks:{...w.locks},
+    opponents:w.opponents?{...w.opponents}:null,doom:{...w.doom},rate:Number(w.rate)||1,rateUntil:Number(w.rateUntil)||0,lastEvent:w.lastEvent||null};
+}
+function wheelImportState(raw,at=Date.now()){
+  const w=wheelState();if(!w||!raw||typeof raw!=='object')return;
+  // Đồng bộ trạng thái qua snapshot/relay. Quyền quay và tác dụng chỉ do chủ phòng ghi.
+  const age=Math.max(0,Math.min(15000,Date.now()-Number(at||Date.now())));
+  const nextCycle=Math.max(0,Math.floor(Number(raw.cycle)||0));
+  if(nextCycle<(w.cycle||0))return;
+  w.cycle=nextCycle;
+  w.elapsedMs=Math.max(w.elapsedMs,Math.max(0,Number(raw.elapsedMs)||0)+(state.started?age:0));
+  w.unlocked=Boolean(raw.unlocked);w.used={...(raw.used||{})};w.rerollReady={...(raw.rerollReady||{})};
+  w.banAll=Boolean(raw.banAll);w.locks={...(raw.locks||{})};w.opponents=raw.opponents||null;
+  w.doom={...(raw.doom||{})};w.rate=[.5,1,4].includes(Number(raw.rate))?Number(raw.rate):1;
+  w.rateUntil=Number(raw.rateUntil)||0;w.lastEvent=raw.lastEvent||null;
+  wheelUpdateUI();
+}
+function wheelIncomingApplied(packet){
+  if(!packet||packet.roundId!==roomNet.roundId)return;
+  if(packet.wheel&&roomNet.role==='guest')wheelImportState(packet.wheel,packet.event?.at);
+  if(packet.event?.id&&packet.event.id===wheelView.lastAppliedEvent)return;
+  if(packet.event?.id)wheelView.lastAppliedEvent=packet.event.id;
+  const event=packet.event;if(!event)return;
+  const item=MC_WHEEL_ITEMS[Number(event.index)];if(!item)return;
+  const summary=event.detail||item.detail;
+  // Mắt thần / Siêu trí nhớ phải trả màn hình về bàn thẻ để nhìn thấy hình trong thời gian thưởng.
+  if(event.actor===wheelMine() && ['eye','memory'].includes(item.key))wheelClose();
+  notifyRoom('🎡 '+wheelName(event.actor)+' — '+item.label+': '+summary);
+  if(event.actor===wheelMine()&&!wheelView.spinning){
+    wheelResultText('<b>'+item.icon+' '+item.label+'</b>'+summary);
+  }
+  if(roomNet.role==='guest'&&Number.isFinite(Number(packet.remainingMs))){
+    state.remainingMs=Math.max(0,Number(packet.remainingMs));state.lastClockAt=performance.now();state.lastClockWallAt=Date.now();paintClock();
+  }
+  updateRoomUI();wheelUpdateUI();
+}
+function wheelHandlePacket(packet,source={}){
+  if(!packet||typeof packet.type!=='string'||!packet.type.startsWith('wheel_'))return false;
+  if(roomNet.role==='host'){
+    if(!['wheel_spin_request','wheel_reroll_request'].includes(packet.type))return true;
+    const id=source.kind==='peer'?source.conn?._mcId:source.id;
+    if(id&&roomNet.players.has(id)&&packet.roundId===roomNet.roundId)wheelHostSpin(id,packet.type==='wheel_reroll_request',packet.cycle);
+    return true;
+  }
+  if(roomNet.role!=='guest'||packet.roundId!==roomNet.roundId)return true;
+  if(packet.type==='wheel_unlock'){
+    const w=wheelState(),newCycle=Math.max(0,Math.floor(Number(packet.cycle)||0));
+    if(w&&newCycle>(w.cycle||0)){
+      w.cycle=newCycle;w.unlocked=true;w.used={};w.rerollReady={};w.banAll=false;
+      w.elapsedMs=Math.max(w.elapsedMs,Number(packet.elapsedMs)||0);wheelUpdateUI();
+    }
+    return true;
+  }
+  if(packet.type==='wheel_result'){wheelIncomingResult(packet);return true;}
+  if(packet.type==='wheel_applied'){wheelIncomingApplied(packet);return true;}
+  if(packet.type==='wheel_peek'){
+    const list=Array.isArray(packet.positions)?packet.positions.slice(0,32):[];
+    wheelShowPeek(list,Math.min(10000,Math.max(1000,Number(packet.duration)||6000)));return true;
+  }
+  if(packet.type==='wheel_notice'){notifyRoom(String(packet.text||'').slice(0,180));return true;}
+  if(packet.type==='wheel_error'){
+    clearTimeout(wheelView.busyTimer);wheelView.awaiting=false;wheelView.spinning=false;
+    wheelResultText('<b>⚠️ Không quay được</b>'+String(packet.text||'Hãy thử lại.').replace(/[<>]/g,''));wheelUpdateUI();return true;
+  }
+  return true;
+}
+document.getElementById('mcWheelFab').addEventListener('click',()=>wheelOpen());
+document.getElementById('mcWheelClose').addEventListener('click',()=>{
+  wheelClose();if(wheelView.modalLastFocus?.focus)wheelView.modalLastFocus.focus();
+});
+document.getElementById('mcWheelSpin').addEventListener('click',()=>wheelSpinClick(false));
+document.getElementById('mcWheelReroll').addEventListener('click',()=>wheelSpinClick(true));
+document.getElementById('mcWheelModal').addEventListener('click',e=>{if(e.target.id==='mcWheelModal')wheelClose();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('mcWheelModal').classList.contains('open'))wheelClose();});
+wheelDraw();wheelUpdateUI();
+/* ===== KẾT THÚC VÒNG QUAY ===== */
+
   </script>
 </body>
 </html>
