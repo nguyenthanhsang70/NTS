@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080d20">
-  <meta name="description" content="Memory Cards 40 tầng: 640 cặp hình, lựa chọn phòng 2–20 người, 10 phút chơi một mình, 4 phút chơi với bạn, tối ưu trên điện thoại.">
+  <meta name="description" content="Memory Cards 40 tầng: 640 cặp hình, lựa chọn phòng 2–20 người, 10 phút chơi với máy, 4 phút chơi với bạn, tối ưu trên điện thoại.">
   <link rel="icon" type="image/png" href="logos3.png">
   <title>Memory Cards</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -225,8 +225,8 @@
       color: #edf5ff; background: linear-gradient(135deg, hsl(var(--hue) 60% 50%), hsl(var(--hue) 67% 29%));
     }
     .card-fallback[hidden], .card-image[hidden] { display: none; }
-    .fallback-emoji { font-size: clamp(17px, 3.5vw, 46px); line-height: 1.25; }
-    .fallback-number { font-weight: 800; font-size: clamp(8px, 1.1vw, 13px); opacity: .7; }
+    .fallback-label { font-size: clamp(7px, 1vw, 10px); font-weight: 700; line-height: 1.4; }
+    .fallback-number { display: block; font-weight: 800; font-size: clamp(16px, 2.5vw, 24px); opacity: .92; }
     /* Cặp ghép đúng biến mất, không để lại ảnh hay dấu tích.
        Nền trống che tầng bên dưới cho đến khi ghép hết cả tầng. */
     .card.matched {
@@ -394,6 +394,144 @@
     .mc-mode-btn:hover{background:#25365b;transform:translateY(-2px)}
     .mc-mode-btn.active{background:linear-gradient(120deg,#79e8e7,#98a4ff);border-color:transparent;color:#08172d;box-shadow:0 8px 25px rgba(118,229,233,.14)}
     .mc-room-panel{margin:0 0 16px;padding:13px 15px;border-radius:18px;border:1px solid rgba(129,205,248,.22);background:linear-gradient(130deg,rgba(22,45,74,.92),rgba(21,25,56,.9));box-shadow:0 14px 35px rgba(0,0,0,.15)}
+
+    /* Premium 10-second turn panel shared by multiplayer and computer mode. */
+    .mc-turn-banner,.mc-bot-turn{
+      --mc-turn-accent:#65ead3; --mc-turn-accent-rgb:101,234,211;
+      position:relative; isolation:isolate; overflow:hidden;
+      display:grid; grid-template-columns:minmax(0,1fr) 94px;
+      grid-template-areas:"person clock" "footer footer";
+      align-items:center; column-gap:16px; row-gap:11px;
+      padding:15px 17px 12px; margin:12px 0 14px;
+      border:1px solid rgba(114,217,235,.30); border-radius:19px;
+      background:radial-gradient(circle at 91% 0%,rgba(102,150,253,.15),transparent 38%),
+        linear-gradient(118deg,rgba(14,42,64,.96),rgba(19,28,60,.98));
+      box-shadow:0 14px 28px rgba(1,7,23,.24),inset 0 1px 0 rgba(255,255,255,.07);
+      transition:border-color .25s ease,background-color .25s ease;
+    }
+    .mc-turn-banner[hidden],.mc-bot-turn[hidden]{display:none!important}
+    .mc-turn-banner:before,.mc-bot-turn:before{
+      content:"";position:absolute;inset:0 auto 0 0;width:3px;
+      background:linear-gradient(180deg,var(--mc-turn-accent),transparent);
+      pointer-events:none;
+    }
+    .mc-turn-banner.is-waiting,.mc-bot-turn.is-waiting{
+      --mc-turn-accent:#f4ca7a;--mc-turn-accent-rgb:244,202,122;
+      border-color:rgba(244,202,122,.35);
+    }
+    .mc-turn-banner.is-urgent,.mc-bot-turn.is-urgent{
+      --mc-turn-accent:#ff728e;--mc-turn-accent-rgb:255,114,142;
+      border-color:rgba(255,114,142,.47);
+    }
+    .mc-turn-person{grid-area:person;display:flex;align-items:center;gap:13px;min-width:0}
+    .mc-turn-symbol{width:45px;height:45px;flex:0 0 45px;display:grid;place-items:center;
+      border-radius:15px;background:linear-gradient(140deg,rgba(var(--mc-turn-accent-rgb),.24),rgba(87,123,219,.11));
+      border:1px solid rgba(var(--mc-turn-accent-rgb),.28);color:var(--mc-turn-accent);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+    .mc-turn-symbol svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+    .mc-turn-copy{min-width:0;display:flex;flex-direction:column;gap:4px}
+    .mc-turn-label{display:flex;gap:7px;align-items:center;color:var(--mc-turn-accent);
+      font-size:10px;font-weight:850;letter-spacing:1.1px;line-height:1.4}
+    .mc-turn-label:before{content:"";width:6px;height:6px;flex:0 0 6px;border-radius:50%;
+      background:var(--mc-turn-accent);box-shadow:0 0 10px rgba(var(--mc-turn-accent-rgb),.5)}
+    .mc-turn-player{display:block;max-width:100%;color:#f5fbff;font-size:clamp(15px,1.9vw,19px);
+      font-weight:900;line-height:1.32;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-turn-detail{color:#a9bed5;font-size:11px;line-height:1.5;max-width:100%}
+    .mc-turn-timer{grid-area:clock;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+    .mc-turn-timer-label{color:#a4bfd3;font-size:9px;line-height:1.4;letter-spacing:.6px;font-weight:800;white-space:nowrap}
+    .mc-turn-dial{--mc-turn-progress:100%;position:relative;display:grid;place-items:center;
+      width:66px;height:66px;border-radius:50%;
+      background:conic-gradient(var(--mc-turn-accent) var(--mc-turn-progress),rgba(119,144,188,.22) 0);
+      box-shadow:0 0 22px rgba(var(--mc-turn-accent-rgb),.08)}
+    .mc-turn-dial:before{content:"";position:absolute;inset:6px;border-radius:50%;
+      background:linear-gradient(145deg,#101f36,#13213d);box-shadow:inset 0 0 0 1px rgba(166,205,246,.12)}
+    .mc-turn-clock{position:relative;z-index:1;display:block;color:#f4fbff;font-size:27px;
+      line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+    .mc-turn-footer{grid-area:footer;display:flex;align-items:center;gap:12px;min-width:0}
+    .mc-turn-track{flex:1;min-width:50px;height:5px;overflow:hidden;border-radius:99px;
+      background:rgba(135,163,217,.17)}
+    .mc-turn-progress-fill{width:100%;height:100%;border-radius:inherit;
+      background:linear-gradient(90deg,var(--mc-turn-accent),#84a6ff);
+      transition:width .13s linear;box-shadow:0 0 12px rgba(var(--mc-turn-accent-rgb),.24)}
+    .mc-turn-next{flex:0 1 auto;max-width:52%;font-size:10px;color:#9aacc8;font-weight:650;
+      text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-turn-banner.is-my-turn{border-color:rgba(99,237,210,.52);box-shadow:0 15px 35px rgba(1,7,23,.25),0 0 0 1px rgba(99,237,210,.065)}
+
+    /* Dong ho theo luot: xuat hien khi thanh luot goc da cuon khoi man hinh.
+       Chi la ban sao hien thi, khong tao bo dem moi va khong can thiep logic game. */
+    .mc-follow-turn {
+      --mc-turn-accent:#65ead3;
+      --mc-turn-accent-rgb:101,234,211;
+      position:fixed;
+      z-index:76;
+      top:max(9px,env(safe-area-inset-top));
+      left:50%;
+      transform:translate(-50%,0);
+      width:min(515px,calc(100% - 24px));
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:9px 11px 9px 14px;
+      border:1px solid rgba(111,235,217,.4);
+      border-radius:17px;
+      background:linear-gradient(125deg,rgba(12,35,56,.96),rgba(20,27,59,.97));
+      box-shadow:0 9px 34px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.1);
+      backdrop-filter:blur(15px);
+      -webkit-backdrop-filter:blur(15px);
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .mc-follow-turn[hidden]{display:none!important}
+    .mc-follow-turn:before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--mc-turn-accent)}
+    .mc-follow-turn.is-urgent{--mc-turn-accent:#ff728e;--mc-turn-accent-rgb:255,114,142;border-color:rgba(255,114,142,.7)}
+    .mc-follow-turn.is-waiting{--mc-turn-accent:#f4ca7a;--mc-turn-accent-rgb:244,202,122;border-color:rgba(244,202,122,.55)}
+    .mc-follow-turn-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+    .mc-follow-turn-caption{color:var(--mc-turn-accent);font-size:9px;font-weight:850;letter-spacing:1px;line-height:1.4}
+    .mc-follow-turn-name{font-size:13px;font-weight:900;color:#f7faff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.42}
+    .mc-follow-turn-next{color:#a9bcd7;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mc-follow-turn .mc-turn-dial{width:47px;height:47px;flex:0 0 47px;box-shadow:none}
+    .mc-follow-turn .mc-turn-dial:before{inset:4px}
+    .mc-follow-turn .mc-turn-clock{font-size:20px;letter-spacing:-.5px}
+    .mc-follow-turn .mc-follow-turn-unit{font-size:9px;color:#b7c9df;font-weight:800;flex:0 0 auto}
+    .mc-follow-turn-line{position:absolute;bottom:0;left:0;height:3px;width:100%;background:var(--mc-turn-accent);transform-origin:left center;transform:scaleX(1)}
+    @media(max-width:640px){
+      .mc-follow-turn{top:max(5px,env(safe-area-inset-top));gap:8px;width:min(390px,calc(100% - 16px));padding:6px 8px 7px 11px;border-radius:14px}
+      .mc-follow-turn-name{font-size:12px}.mc-follow-turn-next{font-size:9px}
+      .mc-follow-turn-caption{font-size:8px}
+      .mc-follow-turn .mc-turn-dial{width:40px;height:40px;flex-basis:40px}
+      .mc-follow-turn .mc-turn-clock{font-size:18px}
+      .mc-follow-turn .mc-follow-turn-unit{display:none}
+    }
+    .mc-bot-panel{margin-bottom:14px;padding:12px;border-radius:18px;border:1px solid rgba(132,185,250,.25);
+      background:linear-gradient(135deg,rgba(24,46,85,.88),rgba(16,28,58,.95))}
+    .mc-bot-panel[hidden]{display:none!important}
+    .mc-bot-scores{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center}
+    .mc-bot-player{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 12px;border-radius:12px;
+      border:1px solid rgba(171,198,255,.16);background:rgba(255,255,255,.03)}
+    .mc-bot-player.is-active{border-color:rgba(91,239,202,.62);background:rgba(40,132,125,.19)}
+    .mc-bot-avatar{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
+      background:rgba(111,159,247,.16);font-size:21px}
+    .mc-bot-player-name{font-size:12px;font-weight:800;white-space:nowrap}
+    .mc-bot-player-score{margin-left:auto;color:#9cefe3;font-size:24px;font-weight:900;font-variant-numeric:tabular-nums}
+    .mc-bot-versus{color:#9ab6e0;font-size:12px;font-weight:900}
+    .mc-bot-turn{margin:11px 0 0}
+    .mc-players-grid .mc-player.turn-active{border-color:rgba(111,243,206,.78)!important;box-shadow:inset 0 0 0 1px rgba(111,243,206,.17);background:rgba(44,152,135,.18)!important}
+    .mc-players-grid .mc-player.turn-next{border-color:rgba(255,211,122,.48)!important}
+    @media(max-width:640px){
+      .mc-turn-banner,.mc-bot-turn{grid-template-columns:minmax(0,1fr) 72px;
+        column-gap:8px;row-gap:9px;padding:12px 11px 11px;border-radius:16px}
+      .mc-turn-person{gap:8px}.mc-turn-symbol{width:36px;height:36px;flex-basis:36px;border-radius:12px}
+      .mc-turn-symbol svg{width:20px;height:20px}
+      .mc-turn-player{font-size:15px}.mc-turn-detail{font-size:10px;line-height:1.45}
+      .mc-turn-label{font-size:9px;letter-spacing:.65px}
+      .mc-turn-dial{width:57px;height:57px}.mc-turn-dial:before{inset:5px}
+      .mc-turn-clock{font-size:23px}.mc-turn-timer-label{font-size:8px}
+      .mc-turn-next{font-size:9px;max-width:56%}
+    }
+    @media(max-width:390px){.mc-turn-symbol{display:none}.mc-turn-banner,.mc-bot-turn{column-gap:6px}}
+    @media(max-width:520px){.mc-bot-player{padding:8px 7px;gap:5px}.mc-bot-avatar{width:26px;height:26px;flex-basis:26px;font-size:16px}
+      .mc-bot-player-name{font-size:11px}.mc-bot-player-score{font-size:17px}.mc-bot-versus{font-size:10px}}
+    @media(prefers-reduced-motion:reduce){.mc-turn-progress-fill{transition:none}}
     .mc-room-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
     .mc-room-head strong{font-size:13px}
     .mc-room-state{display:inline-flex;align-items:center;gap:7px;color:#a8dfe8;font-weight:800;font-size:11px}
@@ -627,13 +765,57 @@
     </header>
 
     <nav class="mc-modes" aria-label="Chọn chế độ chơi">
-      <button id="mcSoloMode" class="mc-mode-btn active" type="button">🃏 Chơi một mình</button>
+      <button id="mcSoloMode" class="mc-mode-btn active" type="button">🤖 Chơi với máy</button>
       <button id="mcOnlineMode" class="mc-mode-btn" type="button">👥 Chơi cùng bạn bè</button>
     </nav>
 
+
+    <section class="mc-bot-panel" id="mcBotPanel" hidden aria-label="Ch&#417;i &#273;&#7889;i kh&#225;ng v&#7899;i m&#225;y">
+      <div class="mc-bot-scores">
+        <div class="mc-bot-player is-active" id="mcBotHumanCard"><span class="mc-bot-avatar">&#128100;</span><span class="mc-bot-player-name">B&#7841;n</span><strong class="mc-bot-player-score" id="mcBotHumanScore">0</strong></div>
+        <span class="mc-bot-versus">VS</span>
+        <div class="mc-bot-player" id="mcBotMachineCard"><span class="mc-bot-avatar">&#129302;</span><span class="mc-bot-player-name">M&#225;y</span><strong class="mc-bot-player-score" id="mcBotMachineScore">0</strong></div>
+      </div>
+      <div class="mc-bot-turn">
+        <div class="mc-turn-person">
+          <span class="mc-turn-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></span>
+          <div class="mc-turn-copy">
+            <span class="mc-turn-label" id="mcBotTurnPhase">LƯỢT HIỆN TẠI</span>
+            <strong class="mc-turn-player" id="mcBotTurnText" aria-live="polite">Đang chờ bắt đầu...</strong>
+            <span class="mc-turn-detail" id="mcBotTurnDetail">Mỗi lượt có 10 giây để ghép 2 thẻ.</span>
+          </div>
+        </div>
+        <div class="mc-turn-timer" aria-label="Thời gian còn lại">
+          <span class="mc-turn-timer-label" id="mcBotTurnTimerLabel">GIÂY CÒN LẠI</span>
+          <div class="mc-turn-dial" id="mcBotTurnDial"><span class="mc-turn-clock" id="mcBotTurnClock">10</span></div>
+        </div>
+        <div class="mc-turn-footer">
+          <div class="mc-turn-track" aria-hidden="true"><div class="mc-turn-progress-fill" id="mcBotTurnProgress"></div></div>
+          <span class="mc-turn-next" id="mcBotTurnNext">10 giây / lượt</span>
+        </div>
+      </div>
+    </section>
     <section class="mc-room-panel" id="mcRoomPanel" hidden aria-label="Phòng chơi cùng bạn">
       <div class="mc-room-head"><strong>👥 PHÒNG THỬ THÁCH BẠN BÈ</strong><span class="mc-room-state" id="mcRoomState">Đang chờ người chơi</span></div>
       <div class="mc-players-grid" id="mcPlayerGrid" aria-label="Danh sách người chơi và điểm số"></div>
+      <div class="mc-turn-banner" id="mcTurnBanner" hidden role="group" aria-label="Thông tin lượt chơi">
+        <div class="mc-turn-person">
+          <span class="mc-turn-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></span>
+          <div class="mc-turn-copy">
+            <span class="mc-turn-label" id="mcTurnPhase">LƯỢT HIỆN TẠI</span>
+            <strong class="mc-turn-player" id="mcTurnText" aria-live="polite">Đang chờ bắt đầu...</strong>
+            <span class="mc-turn-detail" id="mcTurnDetail">Mỗi lượt có 10 giây để ghép 2 thẻ.</span>
+          </div>
+        </div>
+        <div class="mc-turn-timer" aria-label="Thời gian còn lại">
+          <span class="mc-turn-timer-label" id="mcTurnTimerLabel">GIÂY CÒN LẠI</span>
+          <div class="mc-turn-dial" id="mcTurnDial"><span class="mc-turn-clock" id="mcTurnClock">10</span></div>
+        </div>
+        <div class="mc-turn-footer">
+          <div class="mc-turn-track" aria-hidden="true"><div class="mc-turn-progress-fill" id="mcTurnProgress"></div></div>
+          <span class="mc-turn-next" id="mcTurnNext">10 giây / lượt</span>
+        </div>
+      </div>
       <div class="mc-actions">
         <span class="mc-code-label">Mã phòng: <b id="mcCurrentCode">—</b></span>
         <button type="button" class="mc-mini-btn" id="mcCopyCode">📋 Sao chép mã</button>
@@ -696,7 +878,7 @@
         <div class="help-tile"><span class="help-tile-icon">⏳</span><strong id="mcTimerHelpTitle">10 phút thử thách</strong><small id="mcTimerHelpText">Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.</small></div>
         <div class="help-tile"><span class="help-tile-icon">✨</span><strong>Sai không bị phạt</strong><small>Ghép sai chỉ úp lại thẻ, không bị trừ thêm thời gian.</small></div>
       </div>
-      <p class="help-note">40 tầng · 640 cặp · Mỗi tầng có 16 cặp với hình được xáo trộn. Các hình có thể lặp lại giữa các tầng. Chơi cùng bạn bè: cùng lật thẻ trên một bàn, mỗi cặp đúng ghi điểm cho người hoàn thành.</p>
+      <p class="help-note">40 t&#7847;ng &#183; 640 c&#7863;p. Ch&#417;i v&#7899;i m&#225;y v&#224; Ch&#417;i c&#249;ng b&#7841;n b&#232;: m&#7895;i ng&#432;&#7901;i c&#243; 10 gi&#226;y t&#236;m c&#7863;p; h&#7871;t gi&#7901; ch&#432;a gh&#233;p &#273;&#250;ng s&#7869; m&#7845;t l&#432;&#7907;t. &#272;&#7891;ng h&#7891; tr&#7853;n: 10 ph&#250;t v&#7899;i m&#225;y, 4 ph&#250;t c&#249;ng b&#7841;n.</p>
       <div class="modal-actions"><button id="closeHelpBtn" class="action primary" type="button">Đã hiểu · Tiếp tục chơi</button></div>
     </div>
   </div>
@@ -730,8 +912,8 @@
       <p class="mc-mode-invite" id="mcModeInvite" hidden></p>
       <div class="mc-mode-card-grid">
         <button class="mc-mode-choice" type="button" id="mcModeChooseSolo">
-          <span class="mc-mode-choice-art solo" aria-hidden="true">🃏</span>
-          <span class="mc-mode-choice-copy"><strong>Chơi một mình</strong><small>Tự thử thách trí nhớ, chinh phục 40 tầng bài trong 10 phút.</small><span class="mc-mode-choice-cta">Bắt đầu chơi <span aria-hidden="true">→</span></span></span>
+          <span class="mc-mode-choice-art solo" aria-hidden="true">🤖</span>
+          <span class="mc-mode-choice-copy"><strong>Chơi với máy</strong><small>Thi đấu luân phiên cùng máy. Mỗi lượt có 10 giây, trận đấu 10 phút.</small><span class="mc-mode-choice-cta">Bắt đầu chơi <span aria-hidden="true">→</span></span></span>
         </button>
         <button class="mc-mode-choice online" type="button" id="mcModeChooseOnline">
           <span class="mc-mode-choice-art online" aria-hidden="true">👥</span>
@@ -795,66 +977,152 @@
 
   <script>
   'use strict';
-  // Giữ nguyên tên ảnh và âm thanh của phiên bản gốc.
-  const ORIGINAL_IMAGES = [
-    'thẻ1.jpg', 'the2.jpg', 'the3.jpg', 'the4.jpg',
-    'the5.jpg', 'thẻ6.png', 'thẻ7.jpg', 'thẻ8.png',
-    'thẻ9.jpg', 'thẻ10.jpg', 'thẻ11.jpg', 'thẻ12.jpg',
-    'thẻ13.png', 'thẻ14.png', 'thẻ15.jpg', 'thẻ16.jpg',
-    'thẻ17.jpg', 'thẻ18.jpg', 'thẻ19.png', 'thẻ20.jpg'
+  // DANH SÁCH LINK ẢNH THẺ: mỗi dòng ứng với một hình (001–128).
+  // Bạn có thể thay từng URL bằng link .jpg/.png/.webp của mình.
+  // Cần link cố định, công khai để mọi người trong phòng đều xem cùng hình.
+  // 40 tầng tái sử dụng 128 hình theo từng nhóm 8 tầng để tải nhanh.
+  // Các link mẫu bên dưới dùng ảnh chụp từ Lorem Picsum (cần Internet).
+  const CARD_IMAGE_URLS = [
+    // Nhóm hình 001 - 016
+    'thẻ1.jpg',
+    'thẻ2.jpg',
+    'thẻ3.jpg',
+    'https://picsum.photos/seed/memorycard-004/360/432',
+    'https://picsum.photos/seed/memorycard-005/360/432',
+    'https://picsum.photos/seed/memorycard-006/360/432',
+    'https://picsum.photos/seed/memorycard-007/360/432',
+    'https://picsum.photos/seed/memorycard-008/360/432',
+    'https://picsum.photos/seed/memorycard-009/360/432',
+    'https://picsum.photos/seed/memorycard-010/360/432',
+    'https://picsum.photos/seed/memorycard-011/360/432',
+    'https://picsum.photos/seed/memorycard-012/360/432',
+    'https://picsum.photos/seed/memorycard-013/360/432',
+    'https://picsum.photos/seed/memorycard-014/360/432',
+    'https://picsum.photos/seed/memorycard-015/360/432',
+    'https://picsum.photos/seed/memorycard-016/360/432',
+    // Nhóm hình 017 - 032
+    'https://picsum.photos/seed/memorycard-017/360/432',
+    'https://picsum.photos/seed/memorycard-018/360/432',
+    'https://picsum.photos/seed/memorycard-019/360/432',
+    'https://picsum.photos/seed/memorycard-020/360/432',
+    'https://picsum.photos/seed/memorycard-021/360/432',
+    'https://picsum.photos/seed/memorycard-022/360/432',
+    'https://picsum.photos/seed/memorycard-023/360/432',
+    'https://picsum.photos/seed/memorycard-024/360/432',
+    'https://picsum.photos/seed/memorycard-025/360/432',
+    'https://picsum.photos/seed/memorycard-026/360/432',
+    'https://picsum.photos/seed/memorycard-027/360/432',
+    'https://picsum.photos/seed/memorycard-028/360/432',
+    'https://picsum.photos/seed/memorycard-029/360/432',
+    'https://picsum.photos/seed/memorycard-030/360/432',
+    'https://picsum.photos/seed/memorycard-031/360/432',
+    'https://picsum.photos/seed/memorycard-032/360/432',
+    // Nhóm hình 033 - 048
+    'https://picsum.photos/seed/memorycard-033/360/432',
+    'https://picsum.photos/seed/memorycard-034/360/432',
+    'https://picsum.photos/seed/memorycard-035/360/432',
+    'https://picsum.photos/seed/memorycard-036/360/432',
+    'https://picsum.photos/seed/memorycard-037/360/432',
+    'https://picsum.photos/seed/memorycard-038/360/432',
+    'https://picsum.photos/seed/memorycard-039/360/432',
+    'https://picsum.photos/seed/memorycard-040/360/432',
+    'https://picsum.photos/seed/memorycard-041/360/432',
+    'https://picsum.photos/seed/memorycard-042/360/432',
+    'https://picsum.photos/seed/memorycard-043/360/432',
+    'https://picsum.photos/seed/memorycard-044/360/432',
+    'https://picsum.photos/seed/memorycard-045/360/432',
+    'https://picsum.photos/seed/memorycard-046/360/432',
+    'https://picsum.photos/seed/memorycard-047/360/432',
+    'https://picsum.photos/seed/memorycard-048/360/432',
+    // Nhóm hình 049 - 064
+    'https://picsum.photos/seed/memorycard-049/360/432',
+    'https://picsum.photos/seed/memorycard-050/360/432',
+    'https://picsum.photos/seed/memorycard-051/360/432',
+    'https://picsum.photos/seed/memorycard-052/360/432',
+    'https://picsum.photos/seed/memorycard-053/360/432',
+    'https://picsum.photos/seed/memorycard-054/360/432',
+    'https://picsum.photos/seed/memorycard-055/360/432',
+    'https://picsum.photos/seed/memorycard-056/360/432',
+    'https://picsum.photos/seed/memorycard-057/360/432',
+    'https://picsum.photos/seed/memorycard-058/360/432',
+    'https://picsum.photos/seed/memorycard-059/360/432',
+    'https://picsum.photos/seed/memorycard-060/360/432',
+    'https://picsum.photos/seed/memorycard-061/360/432',
+    'https://picsum.photos/seed/memorycard-062/360/432',
+    'https://picsum.photos/seed/memorycard-063/360/432',
+    'https://picsum.photos/seed/memorycard-064/360/432',
+    // Nhóm hình 065 - 080
+    'https://picsum.photos/seed/memorycard-065/360/432',
+    'https://picsum.photos/seed/memorycard-066/360/432',
+    'https://picsum.photos/seed/memorycard-067/360/432',
+    'https://picsum.photos/seed/memorycard-068/360/432',
+    'https://picsum.photos/seed/memorycard-069/360/432',
+    'https://picsum.photos/seed/memorycard-070/360/432',
+    'https://picsum.photos/seed/memorycard-071/360/432',
+    'https://picsum.photos/seed/memorycard-072/360/432',
+    'https://picsum.photos/seed/memorycard-073/360/432',
+    'https://picsum.photos/seed/memorycard-074/360/432',
+    'https://picsum.photos/seed/memorycard-075/360/432',
+    'https://picsum.photos/seed/memorycard-076/360/432',
+    'https://picsum.photos/seed/memorycard-077/360/432',
+    'https://picsum.photos/seed/memorycard-078/360/432',
+    'https://picsum.photos/seed/memorycard-079/360/432',
+    'https://picsum.photos/seed/memorycard-080/360/432',
+    // Nhóm hình 081 - 096
+    'https://picsum.photos/seed/memorycard-081/360/432',
+    'https://picsum.photos/seed/memorycard-082/360/432',
+    'https://picsum.photos/seed/memorycard-083/360/432',
+    'https://picsum.photos/seed/memorycard-084/360/432',
+    'https://picsum.photos/seed/memorycard-085/360/432',
+    'https://picsum.photos/seed/memorycard-086/360/432',
+    'https://picsum.photos/seed/memorycard-087/360/432',
+    'https://picsum.photos/seed/memorycard-088/360/432',
+    'https://picsum.photos/seed/memorycard-089/360/432',
+    'https://picsum.photos/seed/memorycard-090/360/432',
+    'https://picsum.photos/seed/memorycard-091/360/432',
+    'https://picsum.photos/seed/memorycard-092/360/432',
+    'https://picsum.photos/seed/memorycard-093/360/432',
+    'https://picsum.photos/seed/memorycard-094/360/432',
+    'https://picsum.photos/seed/memorycard-095/360/432',
+    'https://picsum.photos/seed/memorycard-096/360/432',
+    // Nhóm hình 097 - 112
+    'https://picsum.photos/seed/memorycard-097/360/432',
+    'https://picsum.photos/seed/memorycard-098/360/432',
+    'https://picsum.photos/seed/memorycard-099/360/432',
+    'https://picsum.photos/seed/memorycard-100/360/432',
+    'https://picsum.photos/seed/memorycard-101/360/432',
+    'https://picsum.photos/seed/memorycard-102/360/432',
+    'https://picsum.photos/seed/memorycard-103/360/432',
+    'https://picsum.photos/seed/memorycard-104/360/432',
+    'https://picsum.photos/seed/memorycard-105/360/432',
+    'https://picsum.photos/seed/memorycard-106/360/432',
+    'https://picsum.photos/seed/memorycard-107/360/432',
+    'https://picsum.photos/seed/memorycard-108/360/432',
+    'https://picsum.photos/seed/memorycard-109/360/432',
+    'https://picsum.photos/seed/memorycard-110/360/432',
+    'https://picsum.photos/seed/memorycard-111/360/432',
+    'https://picsum.photos/seed/memorycard-112/360/432',
+    // Nhóm hình 113 - 128
+    'https://picsum.photos/seed/memorycard-113/360/432',
+    'https://picsum.photos/seed/memorycard-114/360/432',
+    'https://picsum.photos/seed/memorycard-115/360/432',
+    'https://picsum.photos/seed/memorycard-116/360/432',
+    'https://picsum.photos/seed/memorycard-117/360/432',
+    'https://picsum.photos/seed/memorycard-118/360/432',
+    'https://picsum.photos/seed/memorycard-119/360/432',
+    'https://picsum.photos/seed/memorycard-120/360/432',
+    'https://picsum.photos/seed/memorycard-121/360/432',
+    'https://picsum.photos/seed/memorycard-122/360/432',
+    'https://picsum.photos/seed/memorycard-123/360/432',
+    'https://picsum.photos/seed/memorycard-124/360/432',
+    'https://picsum.photos/seed/memorycard-125/360/432',
+    'https://picsum.photos/seed/memorycard-126/360/432',
+    'https://picsum.photos/seed/memorycard-127/360/432',
+    'https://picsum.photos/seed/memorycard-128/360/432'
   ];
-
-  // Kho 128 mẫu hình được tái sử dụng theo từng nhóm 8 tầng.
-  // Trong cùng một tầng, không có hai cặp trùng hình.
-  // Giữ các đường dẫn ảnh gốc; SVG chỉ khởi tạo khi thực sự cần hiển thị.
-  const ILLUSTRATION_ICONS = ["🐱", "🐶", "🐼", "🦊", "🐻", "🐨", "🐯", "🦁", "🐰", "🐵", "🐸", "🐙", "🐢", "🦋", "🐧", "🦄", "🐝", "🦜", "🐳", "🦩", "🍎", "🍓", "🍉", "🍍", "🥝", "🍇", "🍒", "🍊", "🍋", "🥥", "🍑", "🍌", "🥑", "🥕", "🌽", "🍄", "🥨", "🥐", "🍩", "🧁", "🚗", "🚕", "🚲", "🛵", "🚀", "🚂", "🛫", "🚁", "⛵", "🚜", "🚒", "🛸", "🚌", "🚑", "🛶", "🚤", "⚽", "🏀", "🎾", "🎸", "🎹", "🎺", "🎻", "🎨", "🎮", "🎯", "🎲", "🎧", "📸", "🪁", "🎈", "🎁", "🌙", "☀", "⭐", "🌈", "🌻", "🌵", "🌷", "🍀", "🌴", "🌊", "🔥", "❄", "⚡", "☁", "🌼", "🌹", "💎", "🔮", "🧸", "🪩", "👑", "🪄", "🧩", "🧿", "🦉", "🦝", "🦔", "🦦", "🐺", "🦓", "🐘", "🦒", "🦏", "🦛", "🦘", "🦥", "🦡", "🐿️", "🐟", "🐡", "🦈", "🦞", "🐚", "🦚", "🪿", "🦆", "🦢", "🪸", "🦃", "🐓", "🦇", "🪲", "🪷", "🌾", "🌲", "🌺"];
-  const CARD_PALETTES = [
-    ['#172554','#6366f1'], ['#053a4a','#16b8ac'], ['#52214b','#f472b6'],
-    ['#653314','#f6a342'], ['#173a37','#73cf78'], ['#1d3557','#70b8fc'],
-    ['#39205c','#ad8cff'], ['#4b2535','#ff8598'], ['#22443c','#4fd6af'],
-    ['#4b2c6f','#8b8cf6'], ['#2c3b5a','#77bbeb'], ['#493b25','#f2c45c']
-  ];
-  function makeIllustration(id) {
-    const symbol = ILLUSTRATION_ICONS[id];
-    const palette = CARD_PALETTES[id % CARD_PALETTES.length];
-    const accent = palette[1];
-    const offset = 35 + (id * 29) % 95;
-    // Vector image contains an independent recognizable object and artwork.
-    // Do not show a matching number on the face so memory is visual, not numeric.
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="${palette[0]}"/><stop offset="1" stop-color="${accent}"/>
-        </linearGradient>
-        <radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-      </defs>
-      <rect width="500" height="600" rx="28" fill="url(#bg)"/>
-      <circle cx="${offset + 90}" cy="120" r="178" fill="url(#glow)"/>
-      <circle cx="425" cy="490" r="180" fill="#0a1024" opacity=".16"/>
-      <g fill="none" stroke="#fff" stroke-opacity=".17" stroke-width="3">
-        <rect x="24" y="24" width="452" height="552" rx="24"/>
-        <circle cx="250" cy="288" r="166"/><circle cx="250" cy="288" r="144"/>
-      </g>
-      <g fill="#fff" opacity=".56">
-        <circle cx="66" cy="101" r="5"/><circle cx="424" cy="155" r="6"/>
-        <circle cx="98" cy="504" r="7"/><circle cx="415" cy="480" r="4"/>
-      </g>
-      <text x="250" y="366" font-size="220" text-anchor="middle"
-        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">${symbol}</text>
-      <path d="M152 485H348" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
-    </svg>`;
-    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
-  }
-  // Khởi tạo ảnh SVG theo nhu cầu: tránh tạo sẵn hàng trăm data-URI khi mở game.
-  const ARTWORK_BANK_SIZE = ILLUSTRATION_ICONS.length;
-  const fallbackArtworks = new Array(ARTWORK_BANK_SIZE);
-  function getFallbackArtwork(imageId) {
-    const base = imageId % ARTWORK_BANK_SIZE;
-    return fallbackArtworks[base] ||= makeIllustration(base);
-  }
+  const ARTWORK_BANK_SIZE = CARD_IMAGE_URLS.length;
   function getCardImage(imageId) {
-    const base = imageId % ARTWORK_BANK_SIZE;
-    return ORIGINAL_IMAGES[base] || getFallbackArtwork(base);
+    return CARD_IMAGE_URLS[imageId % ARTWORK_BANK_SIZE];
   }
   const ROWS = 4;
   const PAIRS_PER_ROW = 4;
@@ -1038,10 +1306,10 @@
         <span class="card-inner">
           <span class="card-face card-cover"><span class="card-mark" aria-hidden="true">✦</span></span>
           <span class="card-face card-reveal">
-            <img class="card-image" alt="Ảnh thẻ ${card.imageId + 1}" loading="lazy">
+            <img class="card-image" alt="Ảnh thẻ ${card.imageId + 1}" loading="eager" decoding="async">
             <span class="card-fallback" hidden style="--hue:${(card.imageId * 47 + 195) % 360}">
-              <span class="fallback-emoji" aria-hidden="true">${ILLUSTRATION_ICONS[card.imageId % ARTWORK_BANK_SIZE]}</span>
-              <span class="fallback-number">${String(card.imageId + 1).padStart(2, '0')}</span>
+              <span class="fallback-label">Ảnh chưa tải</span>
+              <span class="fallback-number">${String(card.imageId % ARTWORK_BANK_SIZE + 1).padStart(3, '0')}</span>
             </span>
           </span>
         </span>`;
@@ -1050,14 +1318,9 @@
       // Tầng chưa đến lượt không tải ảnh; giảm tải trình duyệt trên điện thoại.
       image.dataset.src = getCardImage(card.imageId);
       image.onerror = () => {
-        // Photos not provided? Display its own unique SVG image instead.
-        if (!image.dataset.usedFallback) {
-          image.dataset.usedFallback = '1';
-          image.src = getFallbackArtwork(card.imageId);
-        } else {
-          image.hidden = true;
-          fallback.hidden = false;
-        }
+        // Link hỏng / mất mạng: vẫn cho người chơi nhận diện cùng cặp bằng mã ảnh.
+        image.hidden = true;
+        fallback.hidden = false;
       };
       if (isActive) image.src = image.dataset.src;
       button.addEventListener('click', () => flipCard(button, row, layer.index));
@@ -1129,9 +1392,12 @@
     if (!state || !state.started || state.paused || state.finished) return;
     consumeElapsed();
     if (playMode==='online') {
+      if (roomNet.role==='host') hostAdvanceTurn();
+      updateTurnUI();
       if (typeof wheelHostTick === 'function') wheelHostTick();
       if (typeof wheelUpdateUI === 'function' && roomNet.role!=='host') wheelUpdateUI();
     }
+    if (playMode==='solo' && initialModeSelected && typeof botTickTurn==='function') botTickTurn();
     if (state.remainingMs <= 0) {
       if (playMode === 'online' && roomNet.role === 'guest') { paintClock(); return; }
       if (state.matchedPairs === TOTAL_PAIRS) finishGame();
@@ -1159,6 +1425,7 @@
     const now = performance.now();
     consumeElapsed(now);
     if (state.remainingMs <= 0) { expireGame(); return false; }
+    if(playMode==='solo' && typeof botPauseTurn==='function') botPauseTurn();
     state.paused = true;
     state.pausedAt = now;
     stopClock();
@@ -1172,6 +1439,7 @@
     state.paused = false;
     state.lastClockAt = now;
     state.lastClockWallAt=Date.now();
+    if(playMode==='solo' && typeof botResumeTurn==='function') botResumeTurn();
     timerId = setInterval(tickClock, 250);
     paintClock();
   }
@@ -1179,10 +1447,10 @@
     const online = typeof playMode !== 'undefined' && playMode === 'online';
     const title = document.getElementById('mcTimerHelpTitle');
     const desc = document.getElementById('mcTimerHelpText');
-    if (title) title.textContent = online ? '4 phút chơi với bạn' : '10 phút thử thách';
+    if (title) title.textContent = online ? '4 phút chơi với bạn' : '10 phút đối đầu với máy';
     if (desc) desc.textContent = online
-      ? 'Cả phòng có chung 4 phút, đồng hồ bắt đầu khi lật thẻ đầu tiên.'
-      : 'Đồng hồ đếm từ lúc lật thẻ đầu tiên, tốc độ luôn bình thường.';
+      ? 'C\u1ea3 ph\u00f2ng c\u00f3 4 ph\u00fat; m\u1ed7i ng\u01b0\u1eddi c\u00f3 10 gi\u00e2y t\u00ecm c\u1eb7p. H\u1ebft 10 gi\u00e2y ch\u01b0a gh\u00e9p th\u00e0nh c\u00f4ng s\u1ebd m\u1ea5t l\u01b0\u1ee3t.'
+      : 'B\u1ea1n v\u00e0 m\u00e1y l\u1ea7n l\u01b0\u1ee3t t\u00ecm c\u1eb7p, m\u1ed7i l\u01b0\u1ee3t 10 gi\u00e2y. To\u00e0n tr\u1eadn 10 ph\u00fat.';
     if (playMode === 'solo' && state && state.started && !state.finished && !state.paused) pauseClock();
     setModal(el.helpModal, true);
     document.getElementById('closeHelpBtn').focus();
@@ -1198,6 +1466,7 @@
     stopClock();
     state = {
       rows: layout ? importRoomRows(layout) : generateRows(), selected: [], matchedPairs: 0, layerMatched: 0,
+      turn: {activeId:'host',nextId:'',pendingUntil:0,deadlineAt:0,revision:0},
       playerMatches: {host:0}, outcome: '', wheel: (typeof wheelDefaultState==='function'?wheelDefaultState():{elapsedMs:0,unlocked:false,used:{},rerollReady:{},banAll:false,locks:{},opponents:null,doom:{},rate:1,rateUntil:0,lastEvent:null}),
       currentLayer: LAYERS - 1, transitioning: false,
       started: false, startedAt: 0, lastClockAt: 0, lastClockWallAt: 0, paused: false, pausedAt: 0, pausedMs: 0,
@@ -1254,6 +1523,9 @@
         row.current !== layerIndex || state.currentLayer !== layerIndex || button.disabled ||
         button.classList.contains('flipped') || button.classList.contains('matched')) return;
     const actor = typeof options.actor === 'string' && /^[a-z0-9]{1,30}$/i.test(options.actor) ? options.actor : (playMode==='online' && roomNet.role==='guest' ? roomNet.ownId : 'host');
+    if(playMode==='solo' && initialModeSelected && !options.remote && !botCanFlip(actor))return;
+    // Chu phong quyet dinh luot. Khach chi duoc gui yeu cau khi toi luot minh.
+    if(playMode==='online' && !options.remote && !turnCanFlip(actor,actor===roomNet.ownId)) return;
     if(playMode==='online' && !options.remote && typeof wheelCanFlip==='function' && !wheelCanFlip(actor,actor===roomNet.ownId)) return;
     if (playMode === 'online' && !options.remote) {
       if (!roomNet.role || !roomNet.ready || !roomNet.connected) return;
@@ -1263,6 +1535,7 @@
     button.classList.add('flipped');
     button.setAttribute('aria-label', 'Thẻ đã lật');
     playSound('flip');
+    if(playMode==='solo' && typeof botRememberCard==='function')botRememberCard(button);
     state.selected.push({ button, row, layerIndex, pairId: button.dataset.pairId });
     if (playMode === 'online' && roomNet.role === 'host' && roomNet.ready) {
       sendRoomPacket({type:'flip',roundId:roomNet.roundId,row:row.id,layer:layerIndex,col:Number(button.dataset.col),
@@ -1287,6 +1560,12 @@
         }
         state.selected = [];
         state.locked = false;
+        if (playMode==='online' && roomNet.role==='host' && state.matchedPairs<TOTAL_PAIRS) hostFinishTurn(actor);
+        if (playMode==='solo' && initialModeSelected) {
+          state.playerMatches[actor]=(state.playerMatches[actor]||0)+1;
+          botFinishTurn(actor);
+          updateBotUI();
+        }
         playSound('match');
         if (state.finished) return;
         // Ghép đủ 16 cặp nằm rải rác ở bốn hàng mới mở tầng tiếp theo.
@@ -1310,6 +1589,8 @@
           });
           state.selected = [];
           state.locked = false;
+          if (playMode==='online' && roomNet.role==='host') hostFinishTurn(actor);
+          if (playMode==='solo' && initialModeSelected) botFinishTurn(actor);
           if (typeof onMemoryNetworkChange === 'function') onMemoryNetworkChange('wrong');
         }, 260);
       }, 660);
@@ -1639,6 +1920,148 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
   ];
   const mc=id=>document.getElementById(id);
   let playMode='solo',initialModeSelected=false,chatUnread=0,mcToastTimeout=null;
+
+  /* LOCAL BOT MODE: same ten-second turn window as multiplayer. */
+  const mcBotBrain={memory:new Map(),generation:0,pausedDeadline:0,pausedPending:0};
+  function botRememberCard(button){
+    if(playMode!=='solo'||!button?.isConnected)return;
+    const key=String(button.dataset.pairId||''),place=[button.dataset.row,button.dataset.layer,button.dataset.col].join(':');
+    if(!key)return;
+    if(!mcBotBrain.memory.has(key))mcBotBrain.memory.set(key,new Set());
+    mcBotBrain.memory.get(key).add(place);
+  }
+  function startComputerMatch(){
+    if(roomNet.role)return;
+    initialModeSelected=true;playMode='solo';mcBotBrain.generation++;mcBotBrain.memory.clear();
+    createBoard();state.turn={activeId:'host',nextId:'',pendingUntil:0,
+      deadlineAt:Date.now()+MC_TURN_LIMIT_MS,revision:1};
+    state.playerMatches={host:0,bot:0};startTimer();updateRoomUI();updateBotUI();
+  }
+  function botCanFlip(actor){
+    if(!initialModeSelected||!state||state.finished||state.paused)return false;
+    const t=state.turn;
+    return !!t&&!t.pendingUntil&&t.deadlineAt>Date.now()&&t.activeId===actor;
+  }
+  function updateBotUI(){
+    const active=playMode==='solo'&&initialModeSelected&&!roomNet.role;
+    const panel=mc('mcBotPanel');if(!panel)return;panel.hidden=!active;
+    if(!active||!state)return;
+    mc('mcBotHumanScore').textContent=String(state.playerMatches?.host||0);
+    mc('mcBotMachineScore').textContent=String(state.playerMatches?.bot||0);
+    const t=state.turn||{},waiting=!!t.pendingUntil;
+    mc('mcBotHumanCard').classList.toggle('is-active',!waiting&&t.activeId==='host');
+    mc('mcBotMachineCard').classList.toggle('is-active',!waiting&&t.activeId==='bot');
+    const left=Math.max(0,Number(t.deadlineAt||0)-Date.now());
+    const seconds=Math.ceil(left/1000);
+    const box=panel.querySelector('.mc-bot-turn');
+    const mine=!waiting&&t.activeId==='host';
+    box.classList.toggle('is-my-turn',mine);
+    box.classList.toggle('is-urgent',!waiting&&seconds<=3);
+    box.classList.toggle('is-waiting',waiting);
+    mc('mcBotTurnClock').textContent=waiting?'\u21bb':String(seconds).padStart(2,'0');
+    mc('mcBotTurnDial').style.setProperty('--mc-turn-progress',waiting?'0%':(100*left/MC_TURN_LIMIT_MS).toFixed(1)+'%');
+    const phase=waiting?'\u0110ANG CHUY\u1ec2N L\u01af\u1ee2T':mine?'L\u01af\u1ee2T C\u1ee6A B\u1ea0N':'M\u00c1Y \u0110ANG CH\u01a0I';
+    const title=waiting?'S\u1eafp \u0111\u1ebfn l\u01b0\u1ee3t '+(t.nextId==='bot'?'M\u00e1y':'B\u1ea1n'):
+      mine?'\u0110\u1ebfn l\u01b0\u1ee3t b\u1ea1n!':'\u0110\u1ebfn l\u01b0\u1ee3t M\u00e1y';
+    const detail=waiting?'\u0110ang chu\u1ea9n b\u1ecb l\u01b0\u1ee3t ti\u1ebfp theo...':
+      mine?'Ch\u1ecdn 2 th\u1ebb trong 10 gi\u00e2y \u0111\u1ec3 t\u00ecm m\u1ed9t c\u1eb7p \u0111\u00fang.':
+      'Quan s\u00e1t th\u1ebb M\u00e1y l\u1eadt v\u00e0 ghi nh\u1edb v\u1ecb tr\u00ed.';
+    if(mc('mcBotTurnPhase').textContent!==phase)mc('mcBotTurnPhase').textContent=phase;
+    if(mc('mcBotTurnText').textContent!==title)mc('mcBotTurnText').textContent=title;
+    if(mc('mcBotTurnDetail').textContent!==detail)mc('mcBotTurnDetail').textContent=detail;
+    mc('mcBotTurnProgress').style.width=waiting?'0%':(100*left/MC_TURN_LIMIT_MS).toFixed(1)+'%';
+    const next=waiting?'S\u1eafp ch\u01a1i: '+(t.nextId==='bot'?'M\u00e1y':'B\u1ea1n'):
+      'Ti\u1ebfp theo: '+(t.activeId==='host'?'M\u00e1y':'B\u1ea1n');
+    if(mc('mcBotTurnNext').textContent!==next)mc('mcBotTurnNext').textContent=next;
+    mc('mcBotTurnTimerLabel').textContent=waiting?'CHUY\u1ec2N L\u01af\u1ee2T':'GI\u00c2Y C\u00d2N L\u1ea0I';
+    el.board.classList.toggle('mc-turn-blocked',waiting||t.activeId!=='host'||seconds<=0);
+  }
+  function botCancelActions(){mcBotBrain.generation++;}
+  function botPauseTurn(){
+    if(!state?.turn)return;
+    mcBotBrain.pausedDeadline=Math.max(0,state.turn.deadlineAt-Date.now());
+    mcBotBrain.pausedPending=Math.max(0,state.turn.pendingUntil-Date.now());
+    botCancelActions();
+    if(state.turn.activeId==='bot'&&state.selected.length===1){
+      for(const item of state.selected)item.button.classList.remove('flipped');
+      state.selected=[];
+    }
+  }
+  function botResumeTurn(){
+    const t=state?.turn;if(!t)return;
+    if(t.deadlineAt)t.deadlineAt=Date.now()+mcBotBrain.pausedDeadline;
+    if(t.pendingUntil)t.pendingUntil=Date.now()+mcBotBrain.pausedPending;
+    if(t.activeId==='bot'&&!t.pendingUntil)botStartActions();
+    updateBotUI();
+  }
+  function botFinishTurn(actor){
+    if(playMode!=='solo'||state.finished||!state.turn||state.turn.activeId!==actor||state.turn.pendingUntil)return;
+    botCancelActions();
+    state.turn.nextId=actor==='host'?'bot':'host';
+    state.turn.deadlineAt=0;
+    state.turn.pendingUntil=Date.now()+(state.layerMatched===PAIRS_PER_LAYER?1350:420);
+    state.turn.revision++;updateBotUI();
+  }
+  function botExpireTurn(){
+    const actor=state.turn.activeId;
+    if(state.selected.length){
+      for(const item of state.selected){item.button.classList.remove('flipped','wrong');item.button.setAttribute('aria-label','L\u1eadt th\u1ebb');}
+      state.selected=[];
+    }
+    botFinishTurn(actor);
+    notifyRoom((actor==='host'?'B\u1ea1n':'M\u00e1y')+' h\u1ebft 10 gi\u00e2y v\u00e0 m\u1ea5t l\u01b0\u1ee3t.');
+  }
+  function botTickTurn(){
+    if(!state||state.finished||state.paused||!state.turn)return;
+    const t=state.turn,now=Date.now();
+    if(t.pendingUntil){
+      if(now<t.pendingUntil||state.transitioning)return;
+      t.activeId=t.nextId||'host';t.nextId='';t.pendingUntil=0;
+      t.deadlineAt=now+MC_TURN_LIMIT_MS;t.revision++;
+      updateBotUI();if(t.activeId==='bot')botStartActions();return;
+    }
+    if(t.deadlineAt&&now>=t.deadlineAt&&!state.locked)botExpireTurn();
+    updateBotUI();
+  }
+  function botSelectCards(){
+    const cards=[...el.board.querySelectorAll('.card-row.is-active .card:not(.matched):not(:disabled)')];
+    if(cards.length<2)return [];
+    const activeLayer=String(state.currentLayer),positions=new Map();
+    for(const card of cards)positions.set([card.dataset.row,activeLayer,card.dataset.col].join(':'),card);
+    for(const set of mcBotBrain.memory.values()){
+      const seen=[...set].map(p=>positions.get(p)).filter(Boolean);
+      if(seen.length>=2&&Math.random()<.85)return seen.slice(0,2);
+    }
+    // A few lucky guesses keep the machine competitive, but it can be wrong.
+    if(Math.random()<.32){
+      const pairs=new Map();for(const card of cards){
+        if(!pairs.has(card.dataset.pairId))pairs.set(card.dataset.pairId,[]);
+        pairs.get(card.dataset.pairId).push(card);
+      }
+      const known=[...pairs.values()].filter(pair=>pair.length===2);
+      if(known.length)return known[Math.floor(Math.random()*known.length)];
+    }
+    const first=cards[Math.floor(Math.random()*cards.length)];
+    const remembered=[...(mcBotBrain.memory.get(first.dataset.pairId)||[])].map(p=>positions.get(p)).filter(card=>card&&card!==first);
+    const second=remembered[0]||cards.filter(c=>c!==first)[Math.floor(Math.random()*(cards.length-1))];
+    return [first,second];
+  }
+  function botStartActions(){
+    if(!botCanFlip('bot'))return;
+    const chosen=botSelectCards();if(chosen.length!==2)return;
+    const version=mcBotBrain.generation,run=runId;
+    schedule(()=>{
+      if(version!==mcBotBrain.generation||run!==runId||!botCanFlip('bot'))return;
+      const button=chosen[0],row=state.rows[Number(button.dataset.row)];
+      flipCard(button,row,state.currentLayer,{actor:'bot'});
+    },480+Math.floor(Math.random()*270));
+    schedule(()=>{
+      if(version!==mcBotBrain.generation||run!==runId||!botCanFlip('bot'))return;
+      const button=chosen[1],row=state.rows[Number(button.dataset.row)];
+      flipCard(button,row,state.currentLayer,{actor:'bot'});
+    },1780+Math.floor(Math.random()*750));
+  }
+
   const roomNet={
     role:null,code:'',ownId:'',hostName:'',hostAvatar:null,guestName:'',guestAvatar:null,
     maxPlayers:2,players:new Map(),roster:[],clients:new Map(),peer:null,conn:null,
@@ -1688,7 +2111,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
   }
   function showEntryMode(){mc('mcModeScreen').classList.add('open');mc('mcModeScreen').setAttribute('aria-hidden','false');document.querySelector('main.shell').inert=true;mc('mcModeHeading').focus({preventScroll:true});}
   function hideEntryMode(){mc('mcModeScreen').classList.remove('open');mc('mcModeScreen').setAttribute('aria-hidden','true');document.querySelector('main.shell').inert=false;}
-  function chooseEntryMode(mode){hideEntryMode();if(mode==='solo'){initialModeSelected=true;playMode='solo';updateRoomUI();}else{openLobby();mc('mcPlayerInput').focus();}}
+  function chooseEntryMode(mode){hideEntryMode();if(mode==='solo'){startComputerMatch();}else{openLobby();mc('mcPlayerInput').focus();}}
   function roomCodeNew(){let number=Math.floor(Math.random()*100000);if(crypto?.getRandomValues){let n=new Uint32Array(1);crypto.getRandomValues(n);number=n[0]%100000;}mc('mcCodeCreate').value='MEM'+String(number).padStart(5,'0');}
   function roomPath(code){return MC_API_BASE+'/'+MC_NAMESPACE+'/rooms/'+encodeURIComponent(normalizeRoomCode(code));}
   function listPath(){return MC_API_BASE+'/list/'+MC_NAMESPACE;}
@@ -1768,7 +2191,8 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     const online=playMode==='online'&&!!roomNet.role;
     mc('mcRoomPanel').hidden=!online;mc('mcSoloMode').classList.toggle('active',!online);mc('mcOnlineMode').classList.toggle('active',online);
     mc('mcChatToggle').hidden=!online;mc('mcWaitNote').hidden=!online||roomNet.ready;
-    if(!online){mc('mcBoardName').innerHTML='<span class="live-dot" aria-hidden="true"></span> Bàn chơi của bạn';setRoomChatOpen(false);if(typeof wheelUpdateUI==='function')wheelUpdateUI();return;}
+    if(!online){mc('mcBoardName').innerHTML='<span class="live-dot" aria-hidden="true"></span> B\u00e0n ch\u01a1i v\u1edbi m\u00e1y';mc('mcTurnBanner').hidden=true;el.board.classList.remove('mc-turn-blocked');setRoomChatOpen(false);if(typeof updateBotUI==='function')updateBotUI();if(typeof wheelUpdateUI==='function')wheelUpdateUI();return;}
+    mc('mcBotPanel').hidden=true;
     const people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
     const n=Math.max(1,people.length),max=roomNet.maxPlayers;
     const connected=roomNet.role==='host'?n>1:roomNet.connected;
@@ -1782,7 +2206,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
       roomNet.lastRosterSignature=signature;
       const fragment=document.createDocumentFragment();
       for(const person of people){
-        const item=document.createElement('div');item.className='mc-player'+(person.id===roomNet.ownId?' you':'');
+        const item=document.createElement('div');item.className='mc-player'+(person.id===roomNet.ownId?' you':'');item.dataset.playerId=person.id;
         const avatar=document.createElement('div');avatar.className='mc-avatar';setRoomAvatar(avatar,person.avatarId,person.name);
         const body=document.createElement('div');body.className='mc-player-info';
         const name=document.createElement('span');name.className='mc-player-name';name.textContent=person.name;
@@ -1796,9 +2220,10 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     mc('mcLeaveRoom').textContent=roomNet.role==='host'?'🗑 Giải tán phòng':'↪ Rời phòng';
     mc('mcRoomHint').textContent=roomNet.directOnly
       ? 'Phòng kết nối trực tiếp: hãy gửi mã phòng cho bạn bè nhập để tham gia. Khi dịch vụ danh sách phòng gián đoạn, phòng không hiện trong danh sách.'
-      : 'Mỗi cặp đúng được 1 điểm. Cả phòng dùng chung đồng hồ 4 phút.';
+      : 'M\u1ed7i ng\u01b0\u1eddi c\u00f3 10 gi\u00e2y t\u00ecm c\u1eb7p; h\u1ebft gi\u1edd ch\u01b0a gh\u00e9p th\u00e0nh c\u00f4ng s\u1ebd m\u1ea5t l\u01b0\u1ee3t. Gh\u00e9p \u0111\u00fang \u0111\u01b0\u1ee3c 1 \u0111i\u1ec3m.';
     mc('mcChatCount').textContent=n+'/'+max+' người';
     mc('mcChatInput').disabled=!roomNet.role;mc('mcChatSend').disabled=!roomNet.role;
+    updateTurnUI();
     if(typeof wheelUpdateUI==='function')wheelUpdateUI();
   }
   function setRoomAvatar(target,id,name){
@@ -1867,7 +2292,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
       currentLayer:state.currentLayer,layerMatched:state.layerMatched,matchedPairs:state.matchedPairs,
       matchedCells:[...el.board.querySelectorAll('.card-row.is-active .card.matched')].map(b=>({row:Number(b.dataset.row),layer:Number(b.dataset.layer),col:Number(b.dataset.col)})),
       selected:state.selected.map(x=>({row:x.row.id,layer:x.layerIndex,col:Number(x.button.dataset.col)})),
-      locked:state.locked,started:state.started,remainingMs:Math.round(state.remainingMs),
+      turn:{...state.turn},locked:state.locked,started:state.started,remainingMs:Math.round(state.remainingMs),
       playerMatches:normalizeScores(state.playerMatches),finished:state.finished,outcome:state.outcome||'',
       wheel:typeof wheelExportState==='function'?wheelExportState():null};
   }
@@ -1901,6 +2326,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     const same=!newRound&&state.currentLayer===layer&&state.matchedPairs===Number(snapshot.matchedPairs)&&JSON.stringify(localSelected)===JSON.stringify(selected);
     if(!force&&same){
       roomNet.lastVersion=Math.max(version,roomNet.lastVersion);state.playerMatches=normalizeScores(snapshot.playerMatches);
+      applyTurnState(snapshot.turn,snapshot.at);
       if(snapshot.wheel&&typeof wheelImportState==='function')wheelImportState(snapshot.wheel,snapshot.at);
       if(state.started)syncClockFromHost(snapshot.remainingMs,snapshot.at);
       else if(snapshot.started){state.started=true;state.lastClockAt=performance.now();state.startedAt=performance.now();state.remainingMs=Math.max(0,Number(snapshot.remainingMs)||0);state.lastClockWallAt=Date.now();stopClock();timerId=setInterval(tickClock,250);}
@@ -1910,6 +2336,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     if(!newRound&&!force&&state.locked)return false;
     createBoard(snapshot.layout || serializedLayout());
     roomNet.roundId=roundId;roomNet.lastVersion=Math.max(version,roomNet.lastVersion);
+    applyTurnState(snapshot.turn,snapshot.at,true);
     if(snapshot.wheel&&typeof wheelImportState==='function')wheelImportState(snapshot.wheel,snapshot.at);
     state.currentLayer=layer;state.matchedPairs=Math.min(TOTAL_PAIRS,Math.max(0,Number(snapshot.matchedPairs)||0));
     state.layerMatched=Math.min(PAIRS_PER_LAYER,Math.max(0,Number(snapshot.layerMatched)||0));
@@ -1938,14 +2365,21 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
   function onMemoryNetworkChange(reason){
     if(roomNet.role!=='host'||!roomNet.ready)return;
     roomNet.version=Math.max(Date.now(),roomNet.version+1);
-    if(['round','layer','end','match','wrong','wheel'].includes(reason)){
+    if(['round','layer','end','match','wrong','wheel','turn'].includes(reason)){
       sendRoomPacket({type:'snapshot',snapshot:makeGameSnapshot(reason==='round')});
       scheduleRoomPublish(reason==='end'?0:100);
     }
     updateRoomUI();
   }
   function updateRoundResult(){
-    if(!roomNet.role){mc('mcWinRanking').textContent='';mc('mcLoseRanking').textContent='';mc('playAgainBtn').textContent='↻ Chinh phục lần nữa';mc('retryBtn').textContent='↻ Thử sức lần nữa';return;}
+    if(!roomNet.role){
+      const yours=Number(state?.playerMatches?.host||0),bots=Number(state?.playerMatches?.bot||0);
+      const winner=yours===bots?'H\u00f2a!':yours>bots?'B\u1ea1n chi\u1ebfn th\u1eafng!':'M\u00e1y chi\u1ebfn th\u1eafng!';
+      const summary='\u{1f3c6} '+winner+' B\u1ea1n: '+yours+' c\u1eb7p  |  M\u00e1y: '+bots+' c\u1eb7p.';
+      mc('mcWinRanking').textContent=summary;mc('mcLoseRanking').textContent=summary;
+      mc('playAgainBtn').textContent='\u21bb Ch\u01a1i l\u1ea1i v\u1edbi m\u00e1y';
+      mc('retryBtn').textContent='\u21bb Ch\u01a1i l\u1ea1i v\u1edbi m\u00e1y';return;
+    }
     const people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
     const standings=people.map(p=>({name:p.name,score:Number(state?.playerMatches?.[p.id]||0)})).sort((a,b)=>b.score-a.score);
     const summary=standings.slice(0,5).map((p,i)=>(i+1)+'. '+p.name+' ('+p.score+')').join(' · ');
@@ -2265,17 +2699,142 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     if(roomNet.role!=='guest'||!roomNet.ready||!roomNet.connected){notifyRoom('Bạn chưa kết nối xong với phòng.');return;}
     sendRoomPacket({type:'flip_request',row:row.id,layer,col:Number(button.dataset.col),roundId:roomNet.roundId});
   }
+  // The room host owns every player's independent ten-second turn deadline.
+  const MC_TURN_LIMIT_MS=10000, MC_TURN_HANDOFF_MS=420;
+  function nextTurnPlayer(id){
+    if(roomNet.role!=='host')return 'host';
+    const ids=[...roomNet.players.keys()];
+    if(!ids.length)return 'host';
+    const index=ids.indexOf(id);
+    return ids[(index>=0?index+1:0)%ids.length];
+  }
+  function turnCanFlip(id,notify=false){
+    if(playMode!=='online')return true;
+    const turn=state?.turn;
+    const allowed=!!turn&&!state.finished&&!turn.pendingUntil&&Number(turn.deadlineAt)>Date.now()&&turn.activeId===id;
+    if(!allowed&&notify){
+      const person=roomNet.role==='host'?roomNet.players.get(turn?.activeId):roomNet.roster.find(p=>p.id===turn?.activeId);
+      notifyRoom(turn?.pendingUntil?'⏳ Đang chuyển lượt.' :
+        Number(turn?.deadlineAt)<=Date.now()?'⏰ Hết 10 giây, đang chuyển lượt.' :
+        'Chưa tới lượt bạn. Đang đến lượt '+(person?.name||'người khác')+'.');
+    }
+    return allowed;
+  }
+  function updateTurnUI(){
+    const banner=mc('mcTurnBanner');if(!banner)return;
+    const online=playMode==='online'&&!!roomNet.role&&roomNet.ready&&!state?.finished;
+    banner.hidden=!online;
+    if(!online){el.board.classList.remove('mc-turn-blocked');return;}
+    const turn=state?.turn||{},people=roomNet.role==='host'?[...roomNet.players.values()]:roomNet.roster;
+    const getName=id=>people.find(p=>p.id===id)?.name||(id==='host'?roomNet.hostName:'Ng\u01b0\u1eddi ch\u01a1i');
+    const waiting=Number(turn.pendingUntil)>0;
+    const left=Math.max(0,Number(turn.deadlineAt||0)-Date.now());
+    const remaining=Math.ceil(left/1000);
+    const currentId=turn.activeId||'host',nextId=turn.nextId||currentId;
+    const mine=currentId===roomNet.ownId&&!waiting;
+    banner.classList.toggle('is-my-turn',mine);
+    banner.classList.toggle('is-waiting',waiting);
+    banner.classList.toggle('is-urgent',!waiting&&remaining<=3);
+    mc('mcTurnClock').textContent=waiting?'\u21bb':String(remaining).padStart(2,'0');
+    const fraction=waiting?'0%':(100*left/MC_TURN_LIMIT_MS).toFixed(1)+'%';
+    mc('mcTurnDial').style.setProperty('--mc-turn-progress',fraction);
+    mc('mcTurnProgress').style.width=fraction;
+    const phase=waiting?'\u0110ANG CHUY\u1ec2N L\u01af\u1ee2T':mine?'L\u01af\u1ee2T C\u1ee6A B\u1ea0N':'\u0110\u1ed0I TH\u1ee6 \u0110ANG CH\u01a0I';
+    const title=waiting?'S\u1eafp \u0111\u1ebfn l\u01b0\u1ee3t '+getName(nextId):
+      mine?'\u0110\u1ebfn l\u01b0\u1ee3t b\u1ea1n!':'\u0110\u1ebfn l\u01b0\u1ee3t '+getName(currentId);
+    const detail=waiting?'\u0110ang chu\u1ea9n b\u1ecb b\u00e0n ch\u01a1i cho l\u01b0\u1ee3t m\u1edbi...':
+      mine?'B\u1ea1n c\u00f3 10 gi\u00e2y \u0111\u1ec3 t\u00ecm m\u1ed9t c\u1eb7p th\u1ebb.':
+      'H\u00e3y quan s\u00e1t v\u00e0 ghi nh\u1edb v\u1ecb tr\u00ed c\u00e1c th\u1ebb.';
+    if(mc('mcTurnPhase').textContent!==phase)mc('mcTurnPhase').textContent=phase;
+    if(mc('mcTurnText').textContent!==title)mc('mcTurnText').textContent=title;
+    if(mc('mcTurnDetail').textContent!==detail)mc('mcTurnDetail').textContent=detail;
+    mc('mcTurnTimerLabel').textContent=waiting?'CHUY\u1ec2N L\u01af\u1ee2T':'GI\u00c2Y C\u00d2N L\u1ea0I';
+    const i=people.findIndex(p=>p.id===currentId);
+    const nextName=people.length?(people[(i>=0?i+1:0)%people.length]?.name||'Ng\u01b0\u1eddi ch\u01a1i'):'Ng\u01b0\u1eddi ch\u01a1i';
+    const next=waiting?'S\u1eafp ch\u01a1i: '+getName(nextId):'Ti\u1ebfp theo: '+nextName;
+    if(mc('mcTurnNext').textContent!==next)mc('mcTurnNext').textContent=next;
+    for(const item of mc('mcPlayerGrid').children){
+      item.classList.toggle('turn-active',!waiting&&item.dataset.playerId===currentId);
+      item.classList.toggle('turn-next',waiting&&item.dataset.playerId===nextId);
+    }
+    el.board.classList.toggle('mc-turn-blocked',waiting||Number(turn.deadlineAt)<=Date.now()||currentId!==roomNet.ownId);
+  }
+  function applyTurnState(raw,sentAt=Date.now(),force=false){
+    if(!state||!raw||typeof raw!=='object')return;
+    const incoming=Number(raw.revision)||0;
+    if(!force&&incoming<=Number(state.turn?.revision||0))return;
+    const validId=id=>/^(host|[a-z0-9]{1,25})$/i.test(String(id||''))?String(id):'';
+    const age=Math.max(0,Math.min(10000,Date.now()-Number(sentAt||Date.now())));
+    const pendingLeft=Math.max(0,Math.min(2500,Number(raw.pendingUntil||0)-Number(sentAt||Date.now())-age));
+    const turnLeft=Math.max(0,Math.min(MC_TURN_LIMIT_MS,Number(raw.deadlineAt||0)-Number(sentAt||Date.now())-age));
+    state.turn={activeId:validId(raw.activeId)||'host',nextId:validId(raw.nextId),
+      pendingUntil:raw.pendingUntil?Date.now()+pendingLeft:0,
+      deadlineAt:raw.deadlineAt?Date.now()+turnLeft:0,revision:incoming};
+    updateTurnUI();
+  }
+  function hostBroadcastTurn(withSnapshot=true){
+    if(roomNet.role!=='host'||!roomNet.ready||!state?.turn)return;
+    const at=Date.now();
+    sendRoomPacket({type:'turn_state',roundId:roomNet.roundId,turn:{...state.turn},at});
+    if(withSnapshot)onMemoryNetworkChange('turn');
+  }
+  function hostFinishTurn(actor){
+    if(playMode!=='online'||roomNet.role!=='host'||!roomNet.ready||state.finished||
+       !state.turn||state.turn.activeId!==actor||state.turn.pendingUntil)return;
+    state.turn.nextId=nextTurnPlayer(actor);
+    state.turn.pendingUntil=Date.now()+(state.layerMatched===PAIRS_PER_LAYER?1350:MC_TURN_HANDOFF_MS);
+    state.turn.deadlineAt=0;state.turn.revision+=1;
+    hostBroadcastTurn(false);updateTurnUI();
+  }
+  function hostAdvanceTurn(){
+    if(roomNet.role!=='host'||playMode!=='online'||!roomNet.ready||state?.finished||!state?.turn)return;
+    const t=state.turn,now=Date.now();
+    if(t.pendingUntil){
+      if(now<t.pendingUntil||state.transitioning||state.remainingMs<=0)return;
+      t.activeId=roomNet.players.has(t.nextId)?t.nextId:nextTurnPlayer(t.activeId);
+      t.nextId='';t.pendingUntil=0;t.deadlineAt=now+MC_TURN_LIMIT_MS;t.revision+=1;
+      hostBroadcastTurn();updateTurnUI();return;
+    }
+    if(t.deadlineAt&&now>=t.deadlineAt&&!state.locked){
+      const actor=t.activeId;
+      if(state.selected.length){
+        for(const item of state.selected){item.button.classList.remove('flipped','wrong');item.button.setAttribute('aria-label','Lật thẻ');}
+        state.selected=[];
+        sendRoomPacket({type:'turn_timeout',roundId:roomNet.roundId});
+      }
+      hostFinishTurn(actor);
+      onMemoryNetworkChange('turn');
+      notifyRoom('⏰ '+(roomNet.players.get(actor)?.name||'Người chơi')+' hết 10 giây và mất lượt.');
+    }
+  }
   function hostStartRound(){
     if(roomNet.role!=='host'||roomNet.players.size<2)return;
     roomNet.roundId=uniqueRoomId();roomNet.version=Math.max(Date.now(),roomNet.version+1);
     roomNet.phase='playing';roomNet.ready=true;createBoard();
+    state.turn.deadlineAt=Date.now()+MC_TURN_LIMIT_MS;startTimer();
     state.playerMatches={};for(const id of roomNet.players.keys())state.playerMatches[id]=0;
     const payload={type:'init',hostName:roomNet.hostName,maxPlayers:roomNet.maxPlayers,roster:hostRoster(),rosterRevision:roomNet.rosterRevision,snapshot:makeGameSnapshot()};
     sendRoomPacket(payload);updateRoomUI();scheduleRoomPublish(0);
   }
   function removeHostGuest(id,reason=''){ // A guest left; other participants remain in the same round.
     if(roomNet.role!=='host'||id==='host'||!roomNet.players.has(id))return;
+    const nextId=state?.turn?.activeId===id?nextTurnPlayer(id):'';
     const client=roomNet.clients.get(id);roomNet.clients.delete(id);roomNet.players.delete(id);
+    if(state?.turn&&roomNet.players.size>1){
+      let altered=false;
+      if(state.turn.activeId===id){
+        // Không để cả phòng bị kẹt nếu người tới lượt rời phòng.
+        if(state.selected.length===1){
+          for(const selected of state.selected){selected.button.classList.remove('flipped');selected.button.setAttribute('aria-label','Lật thẻ');}
+          state.selected=[];
+        }
+        state.turn.activeId=roomNet.players.has(nextId)?nextId:nextTurnPlayer(id);
+        state.turn.nextId='';state.turn.pendingUntil=0;state.turn.deadlineAt=Date.now()+MC_TURN_LIMIT_MS;altered=true;
+      }else if(state.turn.nextId===id){
+        state.turn.nextId=nextTurnPlayer(state.turn.activeId);altered=true;
+      }
+      if(altered){state.turn.revision++;hostBroadcastTurn();}
+    }
     roomNet.rosterRevision=Math.max(Date.now(),roomNet.rosterRevision+1);
     if(client?.kind==='peer'&&client.conn?.open){try{client.conn.close();}catch(_){ }}
     if(roomNet.players.size===1){
@@ -2371,6 +2930,11 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
       if(b&&state.rows[row])flipCard(b,state.rows[row],layer,{remote:true,actor:String(packet.actor||'host')});
       syncClockFromHost(packet.remainingMs,packet.at);return;
     }
+    if(packet.type==='turn_state'&&packet.roundId===roomNet.roundId){applyTurnState(packet.turn,packet.at);return;}
+    if(packet.type==='turn_timeout'&&packet.roundId===roomNet.roundId){
+      for(const item of state.selected){item.button.classList.remove('flipped','wrong');}
+      state.selected=[];state.locked=false;return;
+    }
     if(packet.type==='snapshot'&&roomNet.receivedInit){applyGameSnapshot(packet.snapshot);return;}
     if(packet.type==='join_rejected'){
       const conflict=packet.reason==='duplicate_name';
@@ -2403,7 +2967,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
     roomNet.phase='waiting';roomNet.roundId='';roomNet.receivedInit=false;roomNet.cloudFallback=false;
     roomNet.version=0;roomNet.lastVersion=0;roomNet.roomGonePolls=0;roomNet.lastRosterSignature='';
     roomNet.directoryPublished=false;roomNet.directOnly=false;roomNet.peerAvailable=false;
-    playMode='solo';chatReset();createBoard();updateRoomUI();updateRoundResult();
+    playMode='solo';chatReset();startComputerMatch();updateRoundResult();
     if(role==='host'&&removeRoom){
       void roomNet.publishChain.catch(()=>null).then(()=>removeCloudRoom(code));
       setTimeout(()=>{void fetch(hostCloudPath(code),{method:'DELETE',cache:'no-store',keepalive:true}).catch(()=>null);},4000);
@@ -2502,7 +3066,7 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
   function requestReplay(){
     if(roomNet.role==='host'){if(roomNet.players.size<2){notifyRoom('Cần ít nhất 2 người để bắt đầu trận.');return;}hostStartRound();}
     else if(roomNet.role==='guest'){sendRoomPacket({type:'rematch_request'});notifyRoom('Đã gửi yêu cầu chơi lại cho chủ phòng.');}
-    else createBoard();
+    else startComputerMatch();
   }
   function leaveRoomClick(){
     if(!roomNet.role)return;
@@ -2513,8 +3077,8 @@ function setAvatar(element, avatarId, label = 'Người chơi'){
   mc('mcModeChooseSolo').addEventListener('click',()=>chooseEntryMode('solo'));
   mc('mcModeChooseOnline').addEventListener('click',()=>chooseEntryMode('online'));
   mc('mcSoloMode').addEventListener('click',()=>{
-    if(roomNet.role){if(confirm('Rời phòng hiện tại và chơi một mình?'))leaveOnline(true);}
-    else{playMode='solo';updateRoomUI();}
+    if(roomNet.role){if(confirm('R\u1eddi ph\u00f2ng hi\u1ec7n t\u1ea1i v\u00e0 ch\u01a1i v\u1edbi m\u00e1y?')){leaveOnline(true);}}
+    else if(!initialModeSelected||playMode!=='solo')startComputerMatch();
   });
   mc('mcOnlineMode').addEventListener('click',()=>{if(roomNet.role)notifyRoom('Bạn đang ở trong phòng '+roomNet.code+'.');else openLobby();});
   mc('mcCloseLobby').addEventListener('click',closeLobby);
@@ -2996,6 +3560,79 @@ wheelDraw();wheelUpdateUI();
       event.stopImmediatePropagation();
       notifyBlocked();
     }, { capture: true });
+  })();
+  </script>
+
+  <!-- Dong ho luot noi theo khi cuon ban the; ban sao thu gon cua thanh luot goc. -->
+  <aside class="mc-follow-turn" id="mcFollowTurn" hidden aria-hidden="true">
+    <div class="mc-follow-turn-copy">
+      <span class="mc-follow-turn-caption" id="mcFollowTurnPhase">LƯỢT HIỆN TẠI</span>
+      <strong class="mc-follow-turn-name" id="mcFollowTurnName">Đang chờ bắt đầu</strong>
+      <span class="mc-follow-turn-next" id="mcFollowTurnNext">10 giây mỗi lượt</span>
+    </div>
+    <div class="mc-turn-dial" id="mcFollowTurnDial"><span class="mc-turn-clock" id="mcFollowTurnClock">10</span></div>
+    <span class="mc-follow-turn-unit">GIÂY</span>
+    <span class="mc-follow-turn-line" id="mcFollowTurnProgress" aria-hidden="true"></span>
+  </aside>
+  <script>
+  // Khong dung bo dem rieng: doc gia tri tu thanh luot dang chay tren trang.
+  (() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const floating = $('mcFollowTurn');
+    const botPanel = $('mcBotPanel');
+    const onlinePanel = $('mcRoomPanel');
+    const onlineBanner = $('mcTurnBanner');
+    const botBanner = botPanel?.querySelector('.mc-bot-turn');
+    const board = $('gameBoard');
+    let raf = 0;
+    let lastSource = null;
+
+    function currentSource(){
+      if(onlineBanner && !onlineBanner.hidden && onlinePanel && !onlinePanel.hidden && onlineBanner.getClientRects().length) return onlineBanner;
+      if(botBanner && botPanel && !botPanel.hidden && botBanner.getClientRects().length) return botBanner;
+      return null;
+    }
+    function renderFollowTurn(){
+      raf = 0;
+      const src = currentSource();
+      if(!src || !board || !src.isConnected){ floating.hidden = true; lastSource=null; return; }
+      const anchor = src.getBoundingClientRect();
+      const boardRect = board.getBoundingClientRect();
+      // Hien thi sau khi da cuon qua thanh chinh, va chi khi ban the con o man hinh.
+      const shouldShow = anchor.bottom <= 6 && boardRect.bottom > 70 && boardRect.top < window.innerHeight;
+      floating.hidden = !shouldShow;
+      if(!shouldShow) return;
+      if(src!==lastSource){lastSource=src;}
+      const clock = src.querySelector('.mc-turn-clock');
+      const dial = src.querySelector('.mc-turn-dial');
+      const phase = src.querySelector('.mc-turn-label');
+      const name = src.querySelector('.mc-turn-player');
+      const next = src.querySelector('.mc-turn-next');
+      const pct = dial?.style.getPropertyValue('--mc-turn-progress') || '100%';
+      const text = clock?.textContent || '10';
+      if($('mcFollowTurnClock').textContent!==text) $('mcFollowTurnClock').textContent=text;
+      if($('mcFollowTurnName').textContent!==(name?.textContent||'')) $('mcFollowTurnName').textContent=name?.textContent||'';
+      if($('mcFollowTurnPhase').textContent!==(phase?.textContent||'')) $('mcFollowTurnPhase').textContent=phase?.textContent||'';
+      if($('mcFollowTurnNext').textContent!==(next?.textContent||'')) $('mcFollowTurnNext').textContent=next?.textContent||'';
+      $('mcFollowTurnDial').style.setProperty('--mc-turn-progress',pct);
+      let amount = Math.max(0,Math.min(1,parseFloat(pct)/100));
+      if(!Number.isFinite(amount)) amount=1;
+      $('mcFollowTurnProgress').style.transform='scaleX('+amount+')';
+      floating.classList.toggle('is-waiting',src.classList.contains('is-waiting'));
+      floating.classList.toggle('is-urgent',src.classList.contains('is-urgent'));
+    }
+    function requestRender(){if(!raf) raf=requestAnimationFrame(renderFollowTurn);}
+    window.addEventListener('scroll',requestRender,{passive:true});
+    window.addEventListener('resize',requestRender,{passive:true});
+    document.addEventListener('visibilitychange',requestRender);
+    // Cac thanh goc tu cap nhat theo clock cua game; phan noi chi phan chieu.
+    const changes = new MutationObserver(requestRender);
+    if(onlineBanner) changes.observe(onlineBanner,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','style','hidden']});
+    if(botBanner) changes.observe(botBanner,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','style','hidden']});
+    if(onlinePanel) changes.observe(onlinePanel,{attributes:true,attributeFilter:['hidden']});
+    if(botPanel) changes.observe(botPanel,{attributes:true,attributeFilter:['hidden']});
+    requestRender();
   })();
   </script>
 </body>
