@@ -1107,6 +1107,84 @@
             transform: translateY(-1px);
         }
 
+        /* Thiết kế riêng cho Modal Xác thực Admin */
+        .admin-form-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .admin-form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .admin-form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-light);
+            background: var(--surface-bg);
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .admin-form-input:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        }
+
+        .admin-error-msg {
+            display: none;
+            background: var(--danger-soft);
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .admin-error-msg.show {
+            display: block;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .btn-danger-modal {
+            flex: 1;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger-modal:hover:not(:disabled) {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger-modal:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -1277,8 +1355,7 @@
             </div>
             <div class="guess-list" id="guessList"></div>
         </div>
-
-        <!-- Bảng Xếp Hạng Top 3 Xem Nhanh -->
+        <!-- Bảng Xếp Hạng Xem Nhanh Trên Màn Hình Chính -->
         <div class="leaderboard-preview-box">
             <div class="leaderboard-preview-header">
                 <div class="leaderboard-preview-title">
@@ -1286,11 +1363,12 @@
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
                     <button class="view-all-btn" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng" style="padding: 5px 8px;">↻</button>
+                    <button class="view-all-btn" onclick="openAdminClearModal()" title="Đặt lại bảng xếp hạng trống (Yêu cầu Admin)" style="padding: 5px 8px; background: #fee2e2; color: #dc2626;">Xóa BXH</button>
                     <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
                 </div>
             </div>
             <div class="leaderboard-list" id="inlineLeaderboardList">
-                <div class="empty-leaderboard">Đang tải bảng xếp hạng...</div>
+                <div class="empty-leaderboard">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>
             </div>
         </div>
     </div>
@@ -1376,9 +1454,51 @@
                 Bảng Xếp Hạng Top 10
             </h2>
             <div class="leaderboard-list" id="modalLeaderboardList">
-                <div class="empty-leaderboard">Chưa có người chơi nào trên bảng xếp hạng.</div>
+                <div class="empty-leaderboard">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>
             </div>
-            <button class="modal-footer-btn" onclick="closeLeaderboard()">Đóng Bảng Xếp Hạng</button>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button class="btn-secondary-modal" onclick="openAdminClearModal()" style="background:#fef2f2;color:#dc2626;border-color:#fecaca;flex:0.45;">🗑️ Xóa BXH</button>
+                <button class="modal-footer-btn" onclick="closeLeaderboard()" style="margin-top:0;flex:1;">Đóng Bảng Xếp Hạng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác thực Admin để xóa Bảng Xếp Hạng -->
+    <div id="adminAuthModal" class="modal">
+        <div class="modal-content" id="adminModalCard" style="max-width: 390px;">
+            <button class="close" onclick="closeAdminClearModal()" title="Đóng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div style="text-align:center;margin-bottom:16px;">
+                <div style="width:56px;height:56px;border-radius:18px;background:#fef2f2;border:1.5px solid #fecaca;color:#dc2626;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h2 style="margin-bottom:4px;font-size:1.25rem;">Xác Thực Quản Trị Viên</h2>
+                <p style="font-size:0.83rem;color:var(--text-muted);font-weight:500;">Nhập tài khoản Admin để xóa toàn bộ Bảng Xếp Hạng</p>
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="adminUsername">Tài khoản</label>
+                <input type="text" id="adminUsername" class="admin-form-input" placeholder="Nhập tài khoản admin" autocomplete="off">
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:18px;">
+                <label class="admin-form-label" for="adminPassword">Mật khẩu</label>
+                <input type="password" id="adminPassword" class="admin-form-input" placeholder="Nhập mật khẩu" autocomplete="off">
+            </div>
+
+            <div id="adminErrorMsg" class="admin-error-msg">⚠️ Tài khoản hoặc mật khẩu không chính xác!</div>
+
+            <div class="victory-actions">
+                <button class="btn-secondary-modal" onclick="closeAdminClearModal()">Hủy</button>
+                <button id="confirmAdminClearBtn" class="btn-danger-modal" onclick="confirmAdminClearLeaderboard()">Xác nhận xóa</button>
+            </div>
         </div>
     </div>
 
@@ -1406,9 +1526,13 @@
     <!-- Âm thanh hoàn thành -->
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // ==========================================
-        // BIẾN TRẠNG THÁI TRÒ CHƠI & BẢNG XẾP HẠNG
+        // BIẾN TRẠNG THÁI TRÒ CHƠI & BẢNG XẾP HẠNG TRỐNG MẶC ĐỊNH
         // ==========================================
         let targetNumber = 50;
         let attempts = 0;
@@ -1423,32 +1547,111 @@
         let currentWinDocId = null;
         let savedPlayerName = 'Người chơi';
 
-        const GLOBAL_ROOM_KEY = 'nts_doan_so_global_leaderboard_v2';
-
-        // Dữ liệu khởi tạo thông minh để Bảng Xếp Hạng luôn có sẵn mốc thi đấu khi mới mở lần đầu
-        const DEFAULT_SEED_LEADERBOARD = [
-            { id: 'seed_1', attempts: 3, holderName: 'Hoàng Nam', updatedAt: Date.now() - 3600000 * 5 },
-            { id: 'seed_2', attempts: 4, holderName: 'Minh Anh', updatedAt: Date.now() - 3600000 * 3 },
-            { id: 'seed_3', attempts: 5, holderName: 'Tuấn Kiệt', updatedAt: Date.now() - 3600000 * 1 }
+        // Khóa phòng mới hoàn toàn sạch sẽ (không chứa dữ liệu mẫu Hoàng Nam, Minh Anh)
+        const GLOBAL_ROOM_KEY = 'nts_doan_so_clean_board_v5';
+        const LEGACY_KEYS = [
+            'nts_doan_so_global_leaderboard_v1',
+            'nts_doan_so_global_leaderboard_v2',
+            'nts_doan_so_clean_board_v4',
+            'nts_leaderboard_entries'
         ];
 
-        let leaderboardEntries = [...DEFAULT_SEED_LEADERBOARD];
+        // Bảng xếp hạng mặc định hoàn toàn TRỐNG
+        let leaderboardEntries = [];
+        let lastResetTimestamp = 0;
+        let isSyncingCloud = false;
 
-        // Các endpoint Cloud JSON công khai ổn định hỗ trợ CORS (bọc hoàn toàn bằng try/catch êm ái)
-        const CLOUD_ENDPOINTS = [
-            {
-                name: 'jsonblob',
-                url: 'https://jsonblob.com/api/jsonBlob/1344312098765432100',
-                method: 'PUT'
-            },
-            {
-                name: 'kvdb',
-                url: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
-                method: 'POST'
+        // Mã hóa & giải mã URL-Safe Base64 (Tránh lỗi ký tự '/', '+', '=' làm gãy URL trên các API KeyValue)
+        function encodeUrlSafeBase64(obj) {
+            try {
+                const jsonStr = JSON.stringify(obj);
+                const utf8Bytes = encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, function(_, p1) {
+                    return String.fromCharCode('0x' + p1);
+                });
+                return btoa(utf8Bytes)
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, '');
+            } catch (e) {
+                return '';
             }
+        }
+
+        function decodeUrlSafeBase64(safeStr) {
+            try {
+                if (!safeStr || typeof safeStr !== 'string') return null;
+                let cleaned = safeStr.trim().replace(/^"|"$/g, '');
+                if (!cleaned || cleaned === 'null' || cleaned === 'false') return null;
+                // Nếu dữ liệu trả về đã là JSON thuần
+                if (cleaned.startsWith('{') || cleaned.startsWith('[')) {
+                    return JSON.parse(cleaned);
+                }
+                cleaned = cleaned.replace(/-/g, '+').replace(/_/g, '/').replace(/~/g, '=');
+                while (cleaned.length % 4) {
+                    cleaned += '=';
+                }
+                const binary = atob(cleaned);
+                const percentEncoded = Array.prototype.map.call(binary, function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join('');
+                return JSON.parse(decodeURIComponent(percentEncoded));
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Hệ thống đa máy chủ Cloud công khai xuyên trình duyệt (Hoạt động trên cả file://, localhost và web host)
+        const IMMANUEL_APP_KEY = '4s9k2m7p';
+        const IMMANUEL_ITEM_KEY = 'nts_doan_so_board_v5';
+        const KVDB_BUCKETS = [
+            `https://kvdb.io/6Up8xK2w9mN4pQ7rT1vY3z/${GLOBAL_ROOM_KEY}`,
+            `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`
         ];
 
-        // Hỗ trợ lưu trữ localStorage an toàn tuyệt đối (không crash khi mở file:// hoặc ẩn danh)
+        // Khởi tạo Firebase Firestore nếu môi trường có cấu hình
+        let db = null;
+        let auth = null;
+        let firebaseUser = null;
+        let firebaseReadyPromise = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nts-doan-so-app';
+
+        function initFirebaseSync() {
+            if (firebaseReadyPromise) return firebaseReadyPromise;
+            firebaseReadyPromise = (async () => {
+                try {
+                    if (typeof __firebase_config === 'undefined' || !__firebase_config) return false;
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    firebaseUser = auth.currentUser;
+
+                    onAuthStateChanged(auth, (user) => {
+                        firebaseUser = user;
+                        if (user && db) {
+                            const boardDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'nts_leaderboard', GLOBAL_ROOM_KEY);
+                            onSnapshot(boardDocRef, (snap) => {
+                                if (snap.exists()) {
+                                    applyIncomingBoardPayload(snap.data());
+                                }
+                            }, () => {});
+                        }
+                    });
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            })();
+            return firebaseReadyPromise;
+        }
+
         function safeGetStorage(key) {
             try {
                 return window.localStorage ? window.localStorage.getItem(key) : null;
@@ -1465,8 +1668,18 @@
             } catch (e) {}
         }
 
-        // Khôi phục dữ liệu đã lưu trên máy
+        function safeRemoveStorage(key) {
+            try {
+                if (window.localStorage) {
+                    window.localStorage.removeItem(key);
+                }
+            } catch (e) {}
+        }
+
+        // Xóa dữ liệu giả cũ và tải trạng thái hiện tại
         (function loadInitialLocalState() {
+            LEGACY_KEYS.forEach(k => safeRemoveStorage(k));
+
             const cachedName = safeGetStorage('nts_player_name');
             if (cachedName) savedPlayerName = cachedName;
 
@@ -1477,46 +1690,59 @@
                 personalBest = parseInt(cachedBest, 10) || null;
             }
 
-            const cachedBoard = safeGetStorage(GLOBAL_ROOM_KEY) || safeGetStorage('nts_leaderboard_entries');
+            const cachedReset = safeGetStorage(GLOBAL_ROOM_KEY + '_reset_at');
+            if (cachedReset) {
+                lastResetTimestamp = parseInt(cachedReset, 10) || 0;
+            }
+
+            const cachedBoard = safeGetStorage(GLOBAL_ROOM_KEY);
             if (cachedBoard) {
                 try {
                     const parsed = JSON.parse(cachedBoard);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        leaderboardEntries = sortLeaderboard(mergeEntries(DEFAULT_SEED_LEADERBOARD, parsed));
+                    if (Array.isArray(parsed)) {
+                        leaderboardEntries = sortLeaderboard(filterValidEntries(parsed));
                     }
                 } catch (e) {}
             }
         })();
 
         function saveLocalCache() {
-            const serialized = JSON.stringify(leaderboardEntries);
-            safeSetStorage(GLOBAL_ROOM_KEY, serialized);
-            safeSetStorage('nts_leaderboard_entries', serialized);
+            safeSetStorage(GLOBAL_ROOM_KEY, JSON.stringify(leaderboardEntries));
+            safeSetStorage(GLOBAL_ROOM_KEY + '_reset_at', String(lastResetTimestamp));
             if (!window.gameData) window.gameData = {};
             if (bestScore !== null) window.gameData.bestScore = bestScore;
         }
 
-        // Kênh đồng bộ tức thì giữa các tab/cửa sổ trình duyệt
+        // Loại bỏ mọi bản ghi seed giả từ phiên bản cũ nếu vô tình lọt vào
+        function filterValidEntries(entries) {
+            if (!Array.isArray(entries)) return [];
+            return entries.filter(item => {
+                if (!item || typeof item.attempts !== 'number' || item.attempts <= 0) return false;
+                if (String(item.id || '').startsWith('seed_')) return false;
+                if (lastResetTimestamp > 0 && (item.updatedAt || 0) <= lastResetTimestamp) return false;
+                return true;
+            });
+        }
+
+        // Kênh đồng bộ tức thì giữa các tab cùng trình duyệt
         let broadcastChannel = null;
         try {
             if ('BroadcastChannel' in window) {
                 broadcastChannel = new BroadcastChannel(GLOBAL_ROOM_KEY);
                 broadcastChannel.onmessage = function(event) {
-                    if (event.data && Array.isArray(event.data.entries)) {
-                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, event.data.entries));
-                        saveLocalCache();
-                        renderScoreUI();
+                    if (event.data) {
+                        applyIncomingBoardPayload(event.data);
                     }
                 };
             }
         } catch (e) {}
 
         window.addEventListener('storage', function(e) {
-            if ((e.key === GLOBAL_ROOM_KEY || e.key === 'nts_leaderboard_entries') && e.newValue) {
+            if (e.key === GLOBAL_ROOM_KEY && e.newValue) {
                 try {
                     const parsed = JSON.parse(e.newValue);
                     if (Array.isArray(parsed)) {
-                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
+                        leaderboardEntries = sortLeaderboard(filterValidEntries(parsed));
                         renderScoreUI();
                     }
                 } catch (err) {}
@@ -1540,19 +1766,18 @@
         }
 
         function mergeEntries(listA, listB) {
-            const a = Array.isArray(listA) ? listA : [];
-            const b = Array.isArray(listB) ? listB : [];
+            const a = filterValidEntries(listA);
+            const b = filterValidEntries(listB);
             const map = new Map();
             [...a, ...b].forEach(function(item) {
-                if (!item || typeof item.attempts !== 'number' || item.attempts <= 0) return;
-                const key = item.id || `${item.holderName}_${item.attempts}`;
+                const key = item.id || `${item.holderName}_${item.attempts}_${item.updatedAt}`;
                 const existing = map.get(key);
                 if (!existing || (item.updatedAt || 0) >= (existing.updatedAt || 0)) {
                     map.set(key, {
                         id: key,
-                        attempts: item.attempts,
-                        holderName: item.holderName || 'Người chơi',
-                        updatedAt: item.updatedAt || Date.now()
+                        attempts: Number(item.attempts),
+                        holderName: String(item.holderName || 'Người chơi').trim() || 'Người chơi',
+                        updatedAt: Number(item.updatedAt) || Date.now()
                     });
                 }
             });
@@ -1560,24 +1785,41 @@
         }
 
         function sortLeaderboard(entries) {
-            const list = Array.isArray(entries) ? entries : [];
+            const list = filterValidEntries(entries);
             return [...list]
-                .filter(function(item) {
-                    return item && typeof item.attempts === 'number' && item.attempts > 0;
-                })
                 .sort(function(a, b) {
                     if (a.attempts !== b.attempts) return a.attempts - b.attempts;
-                    return (a.updatedAt || 0) - (b.updatedAt || 0);
+                    return (b.updatedAt || 0) - (a.updatedAt || 0);
                 })
-                .slice(0, 10);
+                .slice(0, 25);
         }
 
-        // Đồng bộ ngầm với Cloud REST API có timeout ngắn để không treo hay báo lỗi đỏ
+        function applyIncomingBoardPayload(payload) {
+            if (!payload) return false;
+            const incomingResetAt = Number(payload.resetAt || payload.clearedAt) || 0;
+
+            // Nếu Admin vừa xóa BXH trên bất kỳ trình duyệt nào, xóa sạch dữ liệu cũ trên mọi trình duyệt khác
+            if (incomingResetAt > lastResetTimestamp) {
+                lastResetTimestamp = incomingResetAt;
+                leaderboardEntries = [];
+            }
+
+            const remoteEntries = Array.isArray(payload)
+                ? payload
+                : (Array.isArray(payload.entries) ? payload.entries : []);
+
+            const merged = sortLeaderboard(mergeEntries(leaderboardEntries, remoteEntries));
+            leaderboardEntries = merged;
+            saveLocalCache();
+            renderScoreUI();
+            return true;
+        }
+
         async function fetchWithTimeout(url, options, timeoutMs) {
             const controller = new AbortController();
             const timer = setTimeout(function() {
                 controller.abort();
-            }, timeoutMs || 3500);
+            }, timeoutMs || 4500);
             try {
                 const response = await fetch(url, {
                     ...options,
@@ -1591,63 +1833,154 @@
             }
         }
 
+        // Tải bảng xếp hạng từ tất cả các kênh đám mây (Firestore + Immanuel KeyVal + KVDB)
         async function syncFromCloud() {
+            if (isSyncingCloud) return false;
+            isSyncingCloud = true;
             let updated = false;
-            for (let i = 0; i < CLOUD_ENDPOINTS.length; i++) {
-                const ep = CLOUD_ENDPOINTS[i];
-                try {
-                    const res = await fetchWithTimeout(ep.url, {
-                        method: 'GET',
-                        cache: 'no-store',
-                        headers: { 'Accept': 'application/json' }
-                    }, 3200);
-                    if (!res || !res.ok) continue;
-                    const text = await res.text();
-                    if (!text) continue;
-                    const data = JSON.parse(text);
-                    const remoteEntries = Array.isArray(data)
-                        ? data
-                        : (data && Array.isArray(data.entries) ? data.entries : null);
-                    if (remoteEntries && remoteEntries.length > 0) {
-                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, remoteEntries));
-                        updated = true;
-                    }
-                } catch (e) {}
+
+            try {
+                await initFirebaseSync();
+
+                // 1. Đồng bộ qua Firebase Firestore (nếu có)
+                if (db && (firebaseUser || auth?.currentUser)) {
+                    try {
+                        const boardDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'nts_leaderboard', GLOBAL_ROOM_KEY);
+                        const snap = await getDoc(boardDocRef);
+                        if (snap.exists()) {
+                            applyIncomingBoardPayload(snap.data());
+                            updated = true;
+                        }
+                    } catch (e) {}
+                }
+
+                // 2. Đồng bộ qua KeyValue Immanuel API (Hỗ trợ CORS 100% trên mọi trình duyệt & file://)
+                const immanuelGetUrl = `https://keyvalue.immanuel.co/api/KeyVal/GetValue/${IMMANUEL_APP_KEY}/${IMMANUEL_ITEM_KEY}?t=${Date.now()}`;
+                const immanuelPromise = (async () => {
+                    try {
+                        const res = await fetchWithTimeout(immanuelGetUrl, { method: 'GET', cache: 'no-store' }, 4200);
+                        if (res && res.ok) {
+                            const rawText = await res.text();
+                            const decoded = decodeUrlSafeBase64(rawText);
+                            if (decoded) {
+                                applyIncomingBoardPayload(decoded);
+                                return true;
+                            }
+                        }
+                    } catch (e) {}
+                    return false;
+                })();
+
+                // 3. Đồng bộ qua cụm KVDB dự phòng
+                const kvdbPromises = KVDB_BUCKETS.map(async (bucketUrl) => {
+                    try {
+                        const res = await fetchWithTimeout(`${bucketUrl}?t=${Date.now()}`, {
+                            method: 'GET',
+                            cache: 'no-store'
+                        }, 4000);
+                        if (!res || !res.ok) return false;
+                        const text = await res.text();
+                        if (!text) return false;
+                        const parsed = decodeUrlSafeBase64(text);
+                        if (parsed) {
+                            applyIncomingBoardPayload(parsed);
+                            return true;
+                        }
+                    } catch (e) {}
+                    return false;
+                });
+
+                const results = await Promise.all([immanuelPromise, ...kvdbPromises]);
+                if (results.some(Boolean)) updated = true;
+            } finally {
+                isSyncingCloud = false;
             }
 
-            if (updated) {
-                saveLocalCache();
-                renderScoreUI();
-            }
             return updated;
         }
 
+        // Đẩy bảng xếp hạng lên tất cả các kênh đám mây ngay lập tức
         async function pushToCloud(entries) {
-            const payload = JSON.stringify({
+            // Chỉ giữ tối đa 15 bản ghi tốt nhất để gói dữ liệu gọn nhẹ, truyền tức thì qua URL-safe Base64
+            const sorted = sortLeaderboard(entries).slice(0, 15);
+            const payloadObj = {
                 room: GLOBAL_ROOM_KEY,
-                entries: sortLeaderboard(entries),
+                entries: sorted,
+                resetAt: lastResetTimestamp,
+                clearedAt: lastResetTimestamp,
                 updatedAt: Date.now()
-            });
+            };
+            const payloadStr = JSON.stringify(payloadObj);
+            const encodedSafeB64 = encodeUrlSafeBase64(payloadObj);
 
-            for (let i = 0; i < CLOUD_ENDPOINTS.length; i++) {
-                const ep = CLOUD_ENDPOINTS[i];
+            if (broadcastChannel) {
                 try {
-                    await fetchWithTimeout(ep.url, {
-                        method: ep.method,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: payload
-                    }, 3500);
+                    broadcastChannel.postMessage(payloadObj);
                 } catch (e) {}
             }
+
+            await initFirebaseSync();
+            const tasks = [];
+
+            // 1. Lưu lên Firebase Firestore
+            if (db && (firebaseUser || auth?.currentUser)) {
+                const boardDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'nts_leaderboard', GLOBAL_ROOM_KEY);
+                tasks.push(setDoc(boardDocRef, payloadObj).catch(() => {}));
+            }
+
+            // 2. Lưu lên KeyValue Immanuel API bằng URL-Safe Base64 (Không chứa '/' hay '+' nên không bao giờ lỗi 404)
+            if (encodedSafeB64) {
+                const immanuelPostUrl = `https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${IMMANUEL_APP_KEY}/${IMMANUEL_ITEM_KEY}/${encodedSafeB64}`;
+                tasks.push(
+                    fetchWithTimeout(immanuelPostUrl, {
+                        method: 'POST',
+                        cache: 'no-store'
+                    }, 4500)
+                );
+            }
+
+            // 3. Lưu lên cụm KVDB dự phòng
+            KVDB_BUCKETS.forEach((bucketUrl) => {
+                tasks.push(
+                    fetchWithTimeout(bucketUrl, {
+                        method: 'POST',
+                        cache: 'no-store',
+                        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                        body: payloadStr
+                    }, 4200)
+                );
+            });
+
+            await Promise.allSettled(tasks);
         }
 
         function buildLeaderboardHTML(list, limitCount) {
-            const sliced = (list || []).slice(0, limitCount || 10);
-            if (sliced.length === 0) {
-                return `<div class="empty-leaderboard">Chưa có người chơi nào ghi danh. Hãy là người đầu tiên!</div>`;
+            const sorted = sortLeaderboard(list || []);
+            if (sorted.length === 0) {
+                return `<div class="empty-leaderboard">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>`;
             }
 
-            return sliced.map(function(entry, idx) {
+            const sliced = sorted.slice(0, limitCount || 10);
+
+            // Nếu đang ở bảng xem nhanh (limit 5) mà lượt vừa chơi nằm ngoài Top 5, vẫn ghim thêm ở cuối để người chơi thấy ngay
+            let extraRecentEntry = null;
+            let extraRecentRank = -1;
+            if (limitCount && limitCount < 10 && sorted.length > limitCount) {
+                let targetId = currentWinDocId;
+                if (!targetId) {
+                    const mostRecent = [...sorted].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+                    if (mostRecent) targetId = mostRecent.id;
+                }
+                if (targetId && !sliced.some(item => item.id === targetId)) {
+                    const idx = sorted.findIndex(item => item.id === targetId);
+                    if (idx !== -1) {
+                        extraRecentEntry = sorted[idx];
+                        extraRecentRank = idx + 1;
+                    }
+                }
+            }
+
+            let html = sliced.map(function(entry, idx) {
                 const rank = idx + 1;
                 const topClass = rank === 1 ? 'top-1' : (rank === 2 ? 'top-2' : (rank === 3 ? 'top-3' : ''));
                 const badgeContent = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
@@ -1667,6 +2000,25 @@
                     </div>
                 `;
             }).join('');
+
+            if (extraRecentEntry) {
+                const safeName = escapeHtml(extraRecentEntry.holderName || 'Người chơi');
+                const timeStr = formatRelativeTime(extraRecentEntry.updatedAt);
+                html += `
+                    <div class="leaderboard-row" style="border-style: dashed; background: #f8fafc;">
+                        <div class="rank-left">
+                            <span class="rank-badge">#${extraRecentRank}</span>
+                            <div class="player-meta">
+                                <span class="player-name">${safeName} <small style="color:#4f46e5;font-weight:700;">(Vừa chơi)</small></span>
+                                <span class="player-time">${timeStr}</span>
+                            </div>
+                        </div>
+                        <span class="rank-score-pill">${extraRecentEntry.attempts} lần thử</span>
+                    </div>
+                `;
+            }
+
+            return html;
         }
 
         function renderScoreUI() {
@@ -1676,6 +2028,7 @@
                 bestHolderName = sorted[0].holderName || 'Ẩn danh';
             } else {
                 bestScore = null;
+                bestHolderName = 'Ẩn danh';
             }
 
             const bestScoreEl = document.getElementById('bestScore');
@@ -1692,7 +2045,7 @@
                     }
                 } else {
                     bestScoreEl.textContent = '--';
-                    bestHolderEl.textContent = 'Xem Top 10 →';
+                    bestHolderEl.textContent = 'Chưa có kỷ lục';
                     if (modalBestScoreEl) {
                         modalBestScoreEl.textContent = '-- lần';
                     }
@@ -1707,18 +2060,21 @@
 
             const inlineListEl = document.getElementById('inlineLeaderboardList');
             const modalListEl = document.getElementById('modalLeaderboardList');
-            if (inlineListEl) inlineListEl.innerHTML = buildLeaderboardHTML(sorted, 3);
+            if (inlineListEl) inlineListEl.innerHTML = buildLeaderboardHTML(sorted, 5);
             if (modalListEl) modalListEl.innerHTML = buildLeaderboardHTML(sorted, 10);
         }
 
         async function pushLeaderboardEntry(scoreValue, holderName, existingDocId) {
+            // Đồng bộ dữ liệu mới nhất trên Cloud trước khi gộp bản ghi mới để không ghi đè người chơi ở trình duyệt khác
+            await syncFromCloud();
+
             const cleanName = String(holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
             const now = Date.now();
-            const entryId = existingDocId || ('entry_' + now + '_' + Math.random().toString(36).slice(2, 7));
+            const entryId = existingDocId || ('entry_' + now + '_' + Math.random().toString(36).slice(2, 8));
 
             const newEntryObj = {
                 id: entryId,
-                attempts: scoreValue,
+                attempts: Number(scoreValue),
                 holderName: cleanName,
                 updatedAt: now
             };
@@ -1734,14 +2090,74 @@
             saveLocalCache();
             renderScoreUI();
 
-            if (broadcastChannel) {
-                try {
-                    broadcastChannel.postMessage({ entries: leaderboardEntries });
-                } catch (e) {}
+            await pushToCloud(leaderboardEntries);
+            return entryId;
+        }
+
+        function openAdminClearModal() {
+            const modal = document.getElementById('adminAuthModal');
+            const userInp = document.getElementById('adminUsername');
+            const passInp = document.getElementById('adminPassword');
+            const errEl = document.getElementById('adminErrorMsg');
+            const btn = document.getElementById('confirmAdminClearBtn');
+
+            if (userInp) userInp.value = '';
+            if (passInp) passInp.value = '';
+            if (errEl) errEl.classList.remove('show');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Xác nhận xóa';
+            }
+            if (modal) modal.classList.add('show');
+            setTimeout(function() {
+                if (userInp) userInp.focus();
+            }, 100);
+        }
+
+        function closeAdminClearModal() {
+            const modal = document.getElementById('adminAuthModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        async function confirmAdminClearLeaderboard() {
+            const userInp = document.getElementById('adminUsername');
+            const passInp = document.getElementById('adminPassword');
+            const errEl = document.getElementById('adminErrorMsg');
+            const btn = document.getElementById('confirmAdminClearBtn');
+
+            const username = (userInp && userInp.value ? userInp.value : '').trim();
+            const password = passInp && passInp.value ? passInp.value : '';
+
+            if (username !== 'admin' || password !== 'admin123@admin') {
+                if (errEl) {
+                    errEl.classList.remove('show');
+                    void errEl.offsetWidth; // Kích hoạt lại hiệu ứng rung
+                    errEl.classList.add('show');
+                }
+                showToast('Tài khoản hoặc mật khẩu Admin không đúng!', 'error');
+                return;
             }
 
-            pushToCloud(leaderboardEntries);
-            return entryId;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Đang xóa...';
+            }
+
+            await executeClearGlobalLeaderboard();
+            closeAdminClearModal();
+        }
+
+        async function executeClearGlobalLeaderboard() {
+            lastResetTimestamp = Date.now();
+            leaderboardEntries = [];
+            bestScore = null;
+            personalBest = null;
+            currentWinDocId = null;
+            safeRemoveStorage('nts_guess_best_score');
+            saveLocalCache();
+            renderScoreUI();
+            await pushToCloud([]);
+            showToast('Đã xóa sạch Bảng Xếp Hạng trên tất cả trình duyệt!', 'info');
         }
 
         async function manualSyncLeaderboard(silent) {
@@ -1939,12 +2355,11 @@
                     safeSetStorage('nts_guess_best_score', String(personalBest));
                 }
 
-                const sorted = sortLeaderboard(leaderboardEntries);
-                const qualifiesForTop10 = sorted.length < 10 || attempts <= sorted[sorted.length - 1].attempts;
+                // Luôn đẩy kết quả vừa thắng lên Bảng Xếp Hạng đám mây ngay lập tức (dù bao nhiêu lần thử)
+                currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, null);
 
-                if (qualifiesForTop10) {
-                    currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, null);
-                }
+                const sorted = sortLeaderboard(leaderboardEntries);
+                const qualifiesForTop10 = sorted.some(item => item.id === currentWinDocId);
 
                 renderScoreUI();
                 showGameOver(qualifiesForTop10);
@@ -2119,48 +2534,30 @@
         window.saveGlobalHolderName = savePlayerName;
         window.goBack = goBack;
         window.manualSyncLeaderboard = manualSyncLeaderboard;
+        window.clearGlobalLeaderboard = openAdminClearModal;
+        window.openAdminClearModal = openAdminClearModal;
+        window.closeAdminClearModal = closeAdminClearModal;
+        window.confirmAdminClearLeaderboard = confirmAdminClearLeaderboard;
 
-        // Khởi chạy ngay khi DOM sẵn sàng
-        document.addEventListener('DOMContentLoaded', function() {
-            initGame();
-            showInitialInstructions();
-            syncFromCloud();
-            setInterval(syncFromCloud, 8000);
+        // Hỗ trợ nhấn phím Enter trong ô nhập số, ô ghi danh và hộp thoại Admin
+        document.getElementById('guessInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') checkGuess();
+        });
+        document.getElementById('recordHolderInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') savePlayerName();
+        });
+        document.getElementById('adminUsername')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('adminPassword')?.focus();
+        });
+        document.getElementById('adminPassword')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') confirmAdminClearLeaderboard();
         });
 
-        window.addEventListener('focus', function() {
-            syncFromCloud();
-        });
-
-        // Hỗ trợ nhấn phím Enter trong ô nhập số và ô nhập tên
-        const guessInputEl = document.getElementById('guessInput');
-        if (guessInputEl) {
-            guessInputEl.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    checkGuess();
-                }
-            });
-        }
-
-        const recordInputEl = document.getElementById('recordHolderInput');
-        if (recordInputEl) {
-            recordInputEl.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    savePlayerName();
-                }
-            });
-        }
-
-        // Đóng modal khi click ra vùng nền ngoài
+        // Đóng modal khi click ra vùng nền mờ bên ngoài
         window.addEventListener('click', function(event) {
-            const instructionsModal = document.getElementById('instructionsModal');
-            const victoryModal = document.getElementById('victoryModal');
-            const leaderboardModal = document.getElementById('leaderboardModal');
-            if (event.target === instructionsModal) closeInstructions();
-            if (event.target === victoryModal) closeWinModal();
-            if (event.target === leaderboardModal) closeLeaderboard();
+            if (event.target.classList && event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
         });
 
         // ==========================================
@@ -2186,6 +2583,31 @@
             if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
                 e.preventDefault();
                 return false;
+            }
+        });
+
+        // Khởi chạy ngay khi trang sẵn sàng
+        function startApp() {
+            initGame();
+            showInitialInstructions();
+            initFirebaseSync();
+            syncFromCloud();
+            setInterval(syncFromCloud, 4000);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
+        }
+
+        window.addEventListener('focus', function() {
+            syncFromCloud();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                syncFromCloud();
             }
         });
     </script>
