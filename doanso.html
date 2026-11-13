@@ -3,202 +3,917 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số - NTS</title>
+    <title>Đoán Số</title>
     <link rel="icon" type="image/png" href="logos3.png">
+    <!-- Google Fonts: Plus Jakarta Sans hỗ trợ tiếng Việt sắc nét -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-soft: #eef2ff;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --success-soft: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-soft: #fffbeb;
+            --danger: #ef4444;
+            --danger-soft: #fef2f2;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --surface-bg: #f8fafc;
+            --border-light: #e2e8f0;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(79, 70, 229, 0.42) 0px, transparent 50%),
+                radial-gradient(at 85% 20%, rgba(139, 92, 246, 0.35) 0px, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(236, 72, 153, 0.25) 0px, transparent 55%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
+            position: relative;
+            padding: 20px;
             /* Đảm bảo vẫn cho phép bôi đen trên toàn bộ trang */
             user-select: text;
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
         }
-        .game-container {
-            background: #ffffff;
+
+        /* Hiệu ứng ánh sáng nền chuyển động */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 0;
+            opacity: 0.5;
+            pointer-events: none;
+            animation: floatBlob 16s infinite alternate ease-in-out;
+        }
+        .blob-1 {
+            width: 380px;
+            height: 380px;
+            background: #4f46e5;
+            top: -100px;
+            left: -100px;
+        }
+        .blob-2 {
+            width: 340px;
+            height: 340px;
+            background: #9333ea;
+            bottom: -90px;
+            right: -70px;
+            animation-delay: -5s;
+        }
+        .blob-3 {
+            width: 260px;
+            height: 260px;
+            background: #ec4899;
+            top: 45%;
+            left: 58%;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(35px, -35px) scale(1.08); }
+        }
+
+        /* Canvas pháo hoa chúc mừng */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2000;
+        }
+
+        /* Hệ thống Toast thông báo nhanh */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2500;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 92%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast-item {
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #ffffff;
+            padding: 13px 18px;
             border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12);
+            animation: toastSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            pointer-events: auto;
+        }
+
+        .toast-item.hide {
+            animation: toastSlideOut 0.25s ease forwards;
+        }
+
+        .toast-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        .toast-item.warning .toast-icon { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .toast-item.error .toast-icon { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .toast-item.info .toast-icon { background: rgba(99, 102, 241, 0.25); color: #818cf8; }
+
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastSlideOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-15px) scale(0.95); }
+        }
+
+        /* Khung chính của trò chơi */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 32px;
             padding: 32px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 
+                0 30px 60px -15px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
             max-width: 480px;
-            width: 90%;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            transition: transform 0.3s ease;
         }
-        .game-container:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-        }
+
+        /* Header */
         .header-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 10px;
         }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: #1e3a8a;
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e1b4b 0%, #4f46e5 55%, #9333ea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+            text-align: center;
         }
-        .info-icon, .back-icon {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            height: 32px;
-            border-radius: 8px;
+
+        .info-icon, .back-icon, .rank-icon-btn {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid rgba(79, 70, 229, 0.18);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s ease, transform 0.3s ease;
-            padding: 0 12px;
-            gap: 8px;
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 0;
+            flex-shrink: 0;
         }
-        .info-icon {
-            width: 32px;
+
+        .rank-icon-btn {
+            background: #fef3c7;
+            color: #d97706;
+            border-color: rgba(217, 119, 6, 0.22);
         }
-        .back-icon {
-            width: auto;
-        }
-        .back-text {
-            font-size: 0.875rem;
-            display: none;
-        }
+
         .info-icon:hover, .back-icon:hover {
-            background: #3b82f6;
-            transform: scale(1.05);
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px -4px rgba(79, 70, 229, 0.35);
         }
+
+        .rank-icon-btn:hover {
+            background: #f59e0b;
+            color: #ffffff;
+            border-color: #f59e0b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px -4px rgba(245, 158, 11, 0.4);
+        }
+
+        .info-icon:active, .back-icon:active, .rank-icon-btn:active {
+            transform: translateY(0) scale(0.96);
+        }
+
         .subtitle {
-            color: #6b7280;
-            font-size: 1rem;
-            margin-bottom: 24px;
+            width: 100%;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
             text-align: center;
+            font-weight: 500;
         }
+
+        .subtitle strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .sync-badge-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        /* Bảng thống kê 3 cột */
         .game-info {
+            width: 100%;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            background: #f9fafb;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
+
         .info-item {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
+            padding: 14px 10px;
+            border-radius: 20px;
             text-align: center;
+            transition: all 0.2s ease;
+            min-width: 0;
         }
-        .info-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 4px;
+
+        .info-item:hover {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.06);
+            transform: translateY(-2px);
         }
-        .info-value {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1f2937;
+
+        .info-item.clickable-card {
+            cursor: pointer;
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+            border-color: #fde68a;
         }
-        .input-section {
-            margin-bottom: 24px;
-            display: flex;
+
+        .info-item.clickable-card:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 10px 22px -6px rgba(245, 158, 11, 0.22);
+            transform: translateY(-3px);
+        }
+
+        .info-icon-badge {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-        }
-        #guessInput {
-            font-size: 1.25rem;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
+            width: 36px;
+            height: 36px;
             border-radius: 12px;
-            width: 160px;
-            text-align: center;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 8px;
         }
-        #guessInput:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+
+        .badge-attempts { background: #e0e7ff; color: #4f46e5; }
+        .badge-range { background: #f3e8ff; color: #9333ea; }
+        .badge-best { background: #fef3c7; color: #d97706; }
+
+        .info-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .info-subtext {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sync-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .sync-badge.online {
+            background: #ecfdf5;
+            color: #059669;
+            border-color: #a7f3d0;
+        }
+
+        .sync-badge.online .sync-dot {
+            background: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.45; }
+        }
+
+        /* Form lưu tên vinh danh kỷ lục toàn cầu */
+        .record-breaker-box {
+            display: none;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a;
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .record-breaker-box.show {
+            display: block;
+            animation: popIn 0.3s ease;
+        }
+
+        .record-breaker-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #b45309;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .record-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .record-name-input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid #fcd34d;
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-main);
             outline: none;
         }
-        .buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-bottom: 24px;
+
+        .record-name-input:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
         }
-        button {
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 500;
-            border: none;
+
+        .record-save-btn {
+            padding: 10px 14px;
             border-radius: 12px;
+            border: none;
+            background: #d97706;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.3s ease;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
+
+        .record-save-btn:hover:not(:disabled) {
+            background: #b45309;
+        }
+
+        .record-save-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .user-id-footer {
+            width: 100%;
+            margin-top: 14px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            word-break: break-all;
+        }
+
+        /* Thanh trực quan hóa phạm vi (Range Visualizer) */
+        .range-visualizer {
+            width: 100%;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+        }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .range-header strong {
+            color: var(--text-main);
+            font-weight: 800;
+            background: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+        }
+
+        .range-track {
+            position: relative;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .range-fill {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0%;
+            width: 100%;
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6, #ec4899);
+            border-radius: 999px;
+            transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Khu vực nhập số trung tâm (Đã bỏ nút - +) */
+        .input-section {
+            width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #guessInput {
+            font-family: inherit;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            padding: 12px 24px;
+            height: 68px;
+            border: 2px solid #cbd5e1;
+            border-radius: 22px;
+            width: 100%;
+            text-align: center;
+            background: #ffffff;
+            letter-spacing: 0.02em;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) inset;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        #guessInput::-webkit-outer-spin-button,
+        #guessInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #guessInput::placeholder {
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 1.25rem;
+            letter-spacing: normal;
+        }
+
+        #guessInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.14);
+            outline: none;
+        }
+
+        #guessInput:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        /* Khu vực nút bấm */
+        .buttons {
+            width: 100%;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px 20px;
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         #submitBtn {
-            background: #4f46e5;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
+            box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.45);
         }
-        #submitBtn:hover {
-            background: #4338ca;
+
+        #submitBtn:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 16px 28px -6px rgba(79, 70, 229, 0.6);
+            filter: brightness(1.05);
         }
+
+        #submitBtn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        #submitBtn:disabled {
+            background: #cbd5e1;
+            color: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
         #newGameBtn {
+            background: var(--surface-bg);
+            color: var(--text-secondary);
+            border: 1px solid #cbd5e1;
+            flex: 0.55;
+        }
+
+        #newGameBtn:hover {
             background: #10b981;
             color: white;
-        }
-        #newGameBtn:hover {
-            background: #059669;
+            border-color: #10b981;
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.35);
         }
+
+        /* Thông báo gợi ý trực tiếp (Feedback Banner) */
         .feedback {
-            font-size: 1.125rem;
-            font-weight: 500;
+            width: 100%;
+            font-size: 0.95rem;
+            font-weight: 600;
             text-align: center;
-            min-height: 32px;
-            margin-bottom: 24px;
+            padding: 13px 16px;
+            border-radius: 16px;
+            background: var(--surface-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            margin-bottom: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+
         .feedback.too-high {
-            color: #ef4444;
+            background: var(--danger-soft);
+            color: #dc2626;
+            border-color: #fecaca;
             animation: shake 0.4s ease-in-out;
         }
+
         .feedback.too-low {
-            color: #f59e0b;
+            background: var(--warning-soft);
+            color: #d97706;
+            border-color: #fde68a;
             animation: shake 0.4s ease-in-out;
         }
+
         .feedback.correct {
-            color: #10b981;
+            background: var(--success-soft);
+            color: #059669;
+            border-color: #a7f3d0;
             animation: bounce 0.5s ease-in-out;
         }
+
+        /* Lịch sử các lần đoán trước */
         .previous-guesses {
-            background: #f9fafb;
+            width: 100%;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
             padding: 16px;
-            border-radius: 12px;
+            border-radius: 18px;
             display: none;
         }
-        .previous-guesses h3 {
-            font-size: 1rem;
-            color: #374151;
+
+        .previous-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 12px;
         }
+
+        .previous-guesses h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .guess-legend {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
         .guess-list {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            justify-content: center;
+            justify-content: flex-start;
         }
+
         .guess-item {
-            background: #e5e7eb;
             padding: 6px 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 0.875rem;
-            color: #374151;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
+        .guess-item.low {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .guess-item.high {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .guess-item.win {
+            background: #d1fae5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        /* Khung Bảng Xếp Hạng trực tiếp & Modal Bảng Xếp Hạng */
+        .leaderboard-preview-box {
+            width: 100%;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 4px;
+        }
+
+        .leaderboard-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .leaderboard-preview-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .view-all-btn {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: none;
+            padding: 5px 11px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-all-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 310px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .leaderboard-row:hover {
+            border-color: #cbd5e1;
+            transform: translateX(2px);
+        }
+
+        .leaderboard-row.top-1 {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+        }
+
+        .leaderboard-row.top-2 {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-color: #cbd5e1;
+        }
+
+        .leaderboard-row.top-3 {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-color: #fdba74;
+        }
+
+        .rank-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 800;
+            background: #f1f5f9;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .top-1 .rank-badge { background: #f59e0b; color: #ffffff; }
+        .top-2 .rank-badge { background: #64748b; color: #ffffff; }
+        .top-3 .rank-badge { background: #ea580c; color: #ffffff; }
+
+        .player-meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .player-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-time {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .rank-score-pill {
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .top-1 .rank-score-pill {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        .empty-leaderboard {
+            text-align: center;
+            padding: 18px 12px;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Hệ thống Modal dùng chung (Hướng dẫn & Thông báo Chiến thắng) */
         .modal {
             display: none;
             position: fixed;
@@ -206,173 +921,915 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1000;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1500;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
         }
+
+        .modal.show {
+            display: flex;
+        }
+
         .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 24px;
-            border-radius: 16px;
-            max-width: 480px;
-            width: 90%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: #ffffff;
+            padding: 30px 28px;
+            border-radius: 28px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
             position: relative;
+            animation: popIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
         .close {
             position: absolute;
-            top: 16px;
-            right: 16px;
-            font-size: 1.5rem;
-            color: #374151;
+            top: 18px;
+            right: 18px;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            color: #475569;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.2s ease;
+            border: none;
         }
+
         .close:hover {
-            color: #1f2937;
+            background: #fee2e2;
+            color: #ef4444;
+            transform: rotate(90deg);
         }
+
         .modal h2 {
-            font-size: 1.5rem;
-            color: #1f2937;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 18px;
             text-align: center;
         }
+
         .instruction-list {
             list-style: none;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+
         .instruction-list li {
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 12px 14px;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
             font-size: 0.875rem;
-            color: #374151;
+            line-height: 1.5;
+            color: #334155;
         }
+
         .instruction-list li strong {
-            color: #1f2937;
-            font-weight: 600;
+            color: var(--primary);
+            font-weight: 700;
         }
-        .game-over {
-            background: #ecfdf5;
-            color: #065f46;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 24px;
+
+        .modal-footer-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .modal-footer-btn:hover {
+            filter: brightness(1.07);
+            transform: translateY(-1px);
+        }
+
+        /* Thiết kế riêng cho Modal Thông báo Chiến thắng */
+        .victory-modal-content {
             text-align: center;
+            overflow: hidden;
         }
+
+        .victory-Modal-glow {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.28) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .victory-badge-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #6ee7b7;
+            color: #059669;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 25px -6px rgba(16, 185, 129, 0.3);
+        }
+
+        .victory-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #064e3b;
+            margin-bottom: 6px;
+        }
+
+        .victory-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .secret-number-box {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #ffffff;
+            padding: 16px 24px;
+            border-radius: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 14px 28px -8px rgba(16, 185, 129, 0.45);
+        }
+
+        .secret-number-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .secret-number-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .victory-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .victory-stat-card {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .victory-stat-card span {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .victory-stat-card strong {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .victory-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary-modal {
+            flex: 0.45;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background: var(--surface-bg);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary-modal:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-primary-modal {
+            flex: 1;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary-modal:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+        }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-5px); }
         }
-        @media (min-width: 480px) {
-            .back-text {
-                display: inline;
-            }
-        }
-        @media (max-width: 600px) {
+
+        @media (max-width: 520px) {
             .game-container {
-                padding: 16px;
+                padding: 24px 18px;
+                border-radius: 26px;
             }
             h1 {
-                font-size: 1.75rem;
-            }
-            .game-info {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                font-size: 1.55rem;
             }
             #guessInput {
-                width: 100%;
-                max-width: 200px;
+                font-size: 1.75rem;
+                height: 60px;
             }
             .buttons {
                 flex-direction: column;
-                gap: 12px;
             }
-            button {
+            .action-btn, #newGameBtn {
                 width: 100%;
+                flex: none;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Hiệu ứng ánh sáng nền -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <!-- Container hiển thị thông báo nổi (Toast) -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Canvas bắn pháo giấy khi chiến thắng -->
+    <canvas id="confettiCanvas"></canvas>
+
     <div class="game-container">
         <div class="header-container">
-            <button class="back-icon" onclick="goBack()" title="Quay lại">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
+            <button class="back-icon" onclick="goBack()" title="Quay lại" aria-label="Quay lại">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
                 </svg>
-                <span class="back-text">Quay lại</span>
             </button>
             <h1>Đoán Số</h1>
-            <button class="info-icon" onclick="showInstructions()" title="Hướng dẫn">i</button>
+            <div class="header-actions">
+                <button class="rank-icon-btn" onclick="showLeaderboard()" title="Bảng xếp hạng" aria-label="Bảng xếp hạng">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                        <path d="M4 22h16"></path>
+                        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                    </svg>
+                </button>
+                <button class="info-icon" onclick="showInstructions()" title="Hướng dẫn" aria-label="Hướng dẫn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <p class="subtitle">Tôi đang nghĩ về một số từ 1 đến 100</p>
+
+        <p class="subtitle">Tìm con số bí mật ẩn giấu từ <strong>1</strong> đến <strong>100</strong></p>
+
+        <div class="sync-badge-wrapper">
+            <div id="syncBadge" class="sync-badge" title="Trạng thái đồng bộ bảng xếp hạng đám mây trên mọi trình duyệt">
+                <span class="sync-dot"></span>
+                <span id="syncText">Đang kết nối Bảng Xếp Hạng...</span>
+            </div>
+        </div>
         
+        <!-- Thông số trò chơi -->
         <div class="game-info">
             <div class="info-item">
+                <div class="info-icon-badge badge-attempts">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="6"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                </div>
                 <div class="info-label">Lần thử</div>
                 <div class="info-value" id="attempts">0</div>
+                <div class="info-subtext" id="personalBestLabel">Cá nhân: --</div>
             </div>
             <div class="info-item">
+                <div class="info-icon-badge badge-range">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 8l4 4-4 4"></path>
+                        <path d="M7 16l-4-4 4-4"></path>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                    </svg>
+                </div>
                 <div class="info-label">Phạm vi</div>
-                <div class="info-value">1 - 100</div>
+                <div class="info-value" id="rangeDisplay">1 - 100</div>
+                <div class="info-subtext">Thu hẹp tự động</div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Điểm cao nhất</div>
+            <div class="info-item clickable-card" onclick="showLeaderboard()" title="Nhấn để xem Bảng Xếp Hạng Top 10">
+                <div class="info-icon-badge badge-best">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                        <path d="M4 22h16"></path>
+                        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                    </svg>
+                </div>
+                <div class="info-label">Bảng xếp hạng</div>
                 <div class="info-value" id="bestScore">--</div>
+                <div class="info-subtext" id="bestHolder">Xem Top 10 →</div>
             </div>
         </div>
+
+        <!-- Thanh thu hẹp phạm vi thông minh -->
+        <div class="range-visualizer">
+            <div class="range-header">
+                <span>Tối thiểu <strong id="minLabel">1</strong></span>
+                <span>Khoảng khả thi</span>
+                <span>Tối đa <strong id="maxLabel">100</strong></span>
+            </div>
+            <div class="range-track">
+                <div class="range-fill" id="rangeFill"></div>
+            </div>
+        </div>
+
+        <!-- Ô nhập số tinh gọn (Đã loại bỏ 2 nút - +) -->
         <div class="input-section">
-            <input type="number" id="guessInput" placeholder="?" min="1" max="100">
+            <div class="input-wrapper">
+                <input type="number" id="guessInput" placeholder="Nhập số (1 - 100)" min="1" max="100" autocomplete="off">
+            </div>
         </div>
+
+        <!-- Nút điều khiển -->
         <div class="buttons">
-            <button id="submitBtn" onclick="checkGuess()">Gửi đáp án</button>
-            <button id="newGameBtn" onclick="newGame()">Chơi lại</button>
+            <button class="action-btn" id="submitBtn" onclick="checkGuess()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m22 2-7 20-4-9-9-4Z"></path>
+                    <path d="M22 2 11 13"></path>
+                </svg>
+                Gửi đáp án
+            </button>
+            <button class="action-btn" id="newGameBtn" onclick="newGame()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                </svg>
+                Chơi lại
+            </button>
         </div>
-        <div class="feedback" id="feedback">Hãy đoán số đầu tiên!</div>
-        <div class="previous-guesses" id="previousGuesses">
-            <h3>Các lần đoán trước:</h3>
+
+        <!-- Phản hồi -->
+        <div class="feedback" id="feedback">✨ Hãy nhập con số dự đoán đầu tiên của bạn!</div>
+
+        <!-- Lịch sử đoán -->
+        <div class="previous-guesses" id="previousGuesses" style="margin-bottom: 16px;">
+            <div class="previous-header">
+                <h3>Các lần đoán trước</h3>
+                <div class="guess-legend">
+                    <span>↑ Cần cao hơn</span>
+                    <span>↓ Cần thấp hơn</span>
+                </div>
+            </div>
             <div class="guess-list" id="guessList"></div>
+        </div>
+
+        <!-- Bảng Xếp Hạng Top 3 Xem Nhanh -->
+        <div class="leaderboard-preview-box">
+            <div class="leaderboard-preview-header">
+                <div class="leaderboard-preview-title">
+                    <span>🏆 Bảng Xếp Hạng Toàn Cầu</span>
+                </div>
+                <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
+            </div>
+            <div class="leaderboard-list" id="inlineLeaderboardList">
+                <div class="empty-leaderboard">Đang tải bảng xếp hạng...</div>
+            </div>
+        </div>
+
+        <div class="user-id-footer" id="userIdDisplay">ID phiên đồng bộ: Đang khởi tạo...</div>
+    </div>
+
+    <!-- Modal Thông báo Chiến thắng -->
+    <div id="victoryModal" class="modal">
+        <div class="modal-content victory-modal-content">
+            <div class="victory-Modal-glow"></div>
+            <button class="close" onclick="closeVictoryModal()" title="Đóng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="victory-badge-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+            </div>
+            <h2 class="victory-title">Chiến thắng tuyệt vời!</h2>
+            <p class="victory-subtitle">Bạn đã giải mã thành công con số bí mật!</p>
+
+            <div class="secret-number-box">
+                <div class="secret-number-label">Con số bí mật là</div>
+                <div class="secret-number-value" id="modalSecretNumber">--</div>
+            </div>
+
+            <div class="victory-stats-grid">
+                <div class="victory-stat-card">
+                    <span>Số lần thử ván này</span>
+                    <strong id="modalAttempts">0 lần</strong>
+                </div>
+                <div class="victory-stat-card">
+                    <span>Top 1 Bảng Xếp Hạng</span>
+                    <strong id="modalBestScore">-- lần</strong>
+                </div>
+            </div>
+
+            <!-- Khung ghi danh lên Bảng Xếp Hạng toàn cầu -->
+            <div id="recordBreakerBox" class="record-breaker-box show">
+                <div class="record-breaker-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span id="recordBoxTitleText">Ghi danh lên Bảng Xếp Hạng Toàn Cầu:</span>
+                </div>
+                <div class="record-input-group">
+                    <input type="text" id="recordHolderInput" class="record-name-input" placeholder="Nhập tên của bạn (VD: Minh)" maxlength="24">
+                    <button id="saveRecordBtn" class="record-save-btn" onclick="saveGlobalHolderName()">Ghi danh</button>
+                </div>
+            </div>
+
+            <div class="victory-actions">
+                <button class="btn-secondary-modal" onclick="showLeaderboard()">Bảng xếp hạng</button>
+                <button class="btn-primary-modal" onclick="newGame()">Chơi ván mới</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Bảng Xếp Hạng Top 10 -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closeLeaderboard()" title="Đóng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2 style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+                Bảng Xếp Hạng Top 10
+            </h2>
+            <p style="text-align:center;font-size:0.84rem;color:var(--text-muted);margin-bottom:16px;">
+                Đồng bộ trực tiếp trên tất cả trình duyệt (Ưu tiên số lần thử ít nhất)
+            </p>
+            <div class="leaderboard-list" id="modalLeaderboardList">
+                <div class="empty-leaderboard">Chưa có người chơi nào trên bảng xếp hạng.</div>
+            </div>
+            <button class="modal-footer-btn" onclick="closeLeaderboard()">Đóng Bảng Xếp Hạng</button>
         </div>
     </div>
 
     <!-- Modal Hướng dẫn -->
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeInstructions()">&times;</span>
-            <h2>🎮 Hướng dẫn chơi</h2>
+            <button class="close" onclick="closeInstructions()" title="Đóng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2 style="display:flex;align-items:center;justify-content:center;gap:10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="6" width="20" height="12" rx="6"></rect>
+                    <path d="M6 12h4"></path>
+                    <path d="M8 10v4"></path>
+                    <line x1="15" y1="13" x2="15.01" y2="13"></line>
+                    <line x1="18" y1="11" x2="18.01" y2="11"></line>
+                </svg>
+                Hướng dẫn chơi
+            </h2>
             <ul class="instruction-list">
                 <li><strong>🎯 Mục tiêu:</strong> Đoán đúng số bí mật từ 1 đến 100 với ít lần thử nhất có thể.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập một số vào ô và nhấn "Gửi đáp án" hoặc phím Enter.</li>
-                <li><strong>💡 Gợi ý:</strong> Game sẽ cho biết số bạn đoán là "Quá cao" hay "Quá thấp".</li>
-                <li><strong>🏆 Chiến thắng:</strong> Khi đoán đúng, điểm số sẽ được tính theo số lần thử. Ít lần thử = điểm cao hơn!</li>
-                <li><strong>📊 Theo dõi:</strong> Xem các lần đoán trước và điểm cao nhất của bạn.</li>
-                <li><strong>🔄 Chơi lại:</strong> Nhấn "Chơi lại" để bắt đầu một trò chơi mới với số bí mật khác.</li>
+                <li><strong>💡 Gợi ý thông minh:</strong> Game sẽ báo "Quá cao" hoặc "Quá thấp" và tự động thu hẹp thanh phạm vi giúp bạn dễ suy luận.</li>
+                <li><strong>🏆 Bảng xếp hạng:</strong> Thành tích tốt nhất của người chơi sẽ được xếp hạng Top 10 và hiển thị đồng bộ theo thời gian thực trên tất cả trình duyệt!</li>
+                <li><strong>🔄 Chơi lại:</strong> Nhấn "Chơi lại" bất cứ lúc nào để thử sức với một số bí mật mới.</li>
             </ul>
+            <button class="modal-footer-btn" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
         </div>
     </div>
 
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, addDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         let targetNumber;
         let attempts;
         let gameOver;
         let guesses;
-        let bestScore = null;
+        let currentMin = 1;
+        let currentMax = 100;
+        let bestScore = null;          // Thành tích Top 1 trên Bảng Xếp Hạng
+        let bestHolderName = 'Ẩn danh'; // Tên người giữ Top 1
+        let personalBest = null;       // Thành tích cá nhân tốt nhất
+        let leaderboardEntries = [];   // Danh sách Bảng Xếp Hạng toàn cầu
+        let currentWinDocId = null;    // ID bản ghi của ván thắng hiện tại
         let hasShownInstructions = false;
 
-        // Load best score
-        if (window.gameData && window.gameData.bestScore) {
-            bestScore = window.gameData.bestScore;
-            document.getElementById('bestScore').textContent = bestScore;
+        // Biến môi trường Firebase
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let isCloudConnected = false;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nts-guess-number-global';
+
+        // Khôi phục dữ liệu dự phòng từ localStorage
+        let savedPlayerName = 'Người chơi';
+        try {
+            const cachedName = localStorage.getItem('nts_player_name');
+            if (cachedName) savedPlayerName = cachedName;
+
+            const cachedBest = localStorage.getItem('nts_guess_best_score');
+            if (window.gameData && window.gameData.bestScore) {
+                personalBest = window.gameData.bestScore;
+            } else if (cachedBest) {
+                personalBest = parseInt(cachedBest, 10);
+            }
+
+            const cachedBoard = localStorage.getItem('nts_leaderboard_entries');
+            if (cachedBoard) {
+                leaderboardEntries = JSON.parse(cachedBoard);
+            }
+        } catch (e) {}
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, function(m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return 'Vừa xong';
+            const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+            if (diffSec < 60) return 'Vừa xong';
+            if (diffSec < 3600) return `${Math.floor(diffSec / 60)} phút trước`;
+            if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} giờ trước`;
+            const d = new Date(timestamp);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        }
+
+        function sortLeaderboard(entries) {
+            return [...entries]
+                .filter(item => item && typeof item.attempts === 'number' && item.attempts > 0)
+                .sort((a, b) => {
+                    if (a.attempts !== b.attempts) return a.attempts - b.attempts;
+                    return (a.updatedAt || 0) - (b.updatedAt || 0);
+                })
+                .slice(0, 10);
+        }
+
+        function buildLeaderboardHTML(list, limitCount = 10) {
+            const sliced = list.slice(0, limitCount);
+            if (sliced.length === 0) {
+                return `<div class="empty-leaderboard">Chưa có người chơi nào ghi danh. Hãy là người đầu tiên!</div>`;
+            }
+
+            return sliced.map((entry, idx) => {
+                const rank = idx + 1;
+                const topClass = rank === 1 ? 'top-1' : (rank === 2 ? 'top-2' : (rank === 3 ? 'top-3' : ''));
+                const badgeContent = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+                const safeName = escapeHtml(entry.holderName || 'Người chơi');
+                const timeStr = formatRelativeTime(entry.updatedAt);
+
+                return `
+                    <div class="leaderboard-row ${topClass}">
+                        <div class="rank-left">
+                            <span class="rank-badge">${badgeContent}</span>
+                            <div class="player-meta">
+                                <span class="player-name">${safeName}</span>
+                                <span class="player-time">${timeStr}</span>
+                            </div>
+                        </div>
+                        <span class="rank-score-pill">${entry.attempts} lần thử</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Cập nhật giao diện hiển thị Bảng Xếp Hạng & thẻ thống kê
+        function renderScoreUI() {
+            const sorted = sortLeaderboard(leaderboardEntries);
+            if (sorted.length > 0) {
+                bestScore = sorted[0].attempts;
+                bestHolderName = sorted[0].holderName || 'Ẩn danh';
+            }
+
+            const bestScoreEl = document.getElementById('bestScore');
+            const bestHolderEl = document.getElementById('bestHolder');
+            const personalBestEl = document.getElementById('personalBestLabel');
+            const modalBestScoreEl = document.getElementById('modalBestScore');
+
+            if (bestScore !== null) {
+                bestScoreEl.textContent = `Top 1: ${bestScore}`;
+                bestHolderEl.textContent = `👑 ${bestHolderName}`;
+                if (modalBestScoreEl) {
+                    modalBestScoreEl.textContent = `${bestScore} lần (${bestHolderName})`;
+                }
+            } else {
+                bestScoreEl.textContent = '--';
+                bestHolderEl.textContent = 'Xem Top 10 →';
+                if (modalBestScoreEl) {
+                    modalBestScoreEl.textContent = '-- lần';
+                }
+            }
+
+            if (personalBest !== null) {
+                personalBestEl.textContent = `Cá nhân: ${personalBest} lần`;
+            } else {
+                personalBestEl.textContent = 'Cá nhân: --';
+            }
+
+            const inlineListEl = document.getElementById('inlineLeaderboardList');
+            const modalListEl = document.getElementById('modalLeaderboardList');
+            if (inlineListEl) inlineListEl.innerHTML = buildLeaderboardHTML(sorted, 3);
+            if (modalListEl) modalListEl.innerHTML = buildLeaderboardHTML(sorted, 10);
+        }
+
+        // Khởi tạo Firebase & lắng nghe Bảng Xếp Hạng Toàn Cầu theo thời gian thực trên mọi trình duyệt
+        async function initCloudRecordSync() {
+            const syncBadge = document.getElementById('syncBadge');
+            const syncText = document.getElementById('syncText');
+            const userIdDisplay = document.getElementById('userIdDisplay');
+
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    syncText.textContent = 'Bảng xếp hạng trình duyệt (Cục bộ)';
+                    userIdDisplay.textContent = 'Chế độ cục bộ';
+                    renderScoreUI();
+                    return;
+                }
+
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // RULE 3: Xác thực trước khi truy vấn Firestore
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                currentUser = auth.currentUser;
+                if (!currentUser) return;
+
+                const userId = currentUser.uid;
+                userIdDisplay.textContent = `ID đồng bộ: ${userId}`;
+
+                // RULE 1 & RULE 2: Lắng nghe toàn bộ collection 'leaderboard' rồi sắp xếp Top 10 trong bộ nhớ JS
+                const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+
+                onSnapshot(
+                    leaderboardColRef,
+                    (snapshot) => {
+                        isCloudConnected = true;
+                        syncBadge.classList.add('online');
+                        syncText.textContent = 'Bảng Xếp Hạng trực tuyến (Đồng bộ thời gian thực)';
+
+                        const fetched = [];
+                        snapshot.forEach((docSnap) => {
+                            const d = docSnap.data();
+                            const scoreVal = typeof d.attempts === 'number' ? d.attempts : d.bestScore;
+                            if (typeof scoreVal === 'number' && scoreVal > 0) {
+                                fetched.push({
+                                    id: docSnap.id,
+                                    attempts: scoreVal,
+                                    holderName: d.holderName || 'Người chơi',
+                                    userId: d.userId || '',
+                                    updatedAt: d.updatedAt || 0
+                                });
+                            }
+                        });
+
+                        leaderboardEntries = sortLeaderboard(fetched);
+                        try {
+                            localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
+                        } catch (e) {}
+
+                        renderScoreUI();
+                    },
+                    (error) => {
+                        syncBadge.classList.remove('online');
+                        syncText.textContent = 'Tạm mất kết nối đám mây';
+                    }
+                );
+
+                // Đường dẫn lưu thành tích cá nhân của riêng userId hiện tại
+                const userRecordRef = doc(db, 'artifacts', appId, 'users', userId, 'stats', 'personal');
+                onSnapshot(
+                    userRecordRef,
+                    (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.data();
+                            if (typeof data.personalBest === 'number') {
+                                if (personalBest === null || data.personalBest < personalBest) {
+                                    personalBest = data.personalBest;
+                                }
+                                if (data.playerName) {
+                                    savedPlayerName = data.playerName;
+                                }
+                                renderScoreUI();
+                            }
+                        }
+                    },
+                    () => {}
+                );
+            } catch (err) {
+                syncBadge.classList.remove('online');
+                syncText.textContent = 'Bảng xếp hạng lưu trên thiết bị';
+                renderScoreUI();
+            }
+        }
+
+        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu
+        async function pushLeaderboardEntry(scoreValue, holderName, existingDocId = null) {
+            const cleanName = (holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
+            const now = Date.now();
+
+            // Cập nhật ngay trên bộ nhớ cục bộ để giao diện phản hồi tức thì
+            if (existingDocId) {
+                const idx = leaderboardEntries.findIndex(e => e.id === existingDocId);
+                if (idx !== -1) {
+                    leaderboardEntries[idx].holderName = cleanName;
+                    leaderboardEntries[idx].attempts = scoreValue;
+                } else {
+                    leaderboardEntries.push({ id: existingDocId, attempts: scoreValue, holderName: cleanName, updatedAt: now });
+                }
+            } else {
+                const tempId = 'local_' + now;
+                existingDocId = tempId;
+                leaderboardEntries.push({ id: tempId, attempts: scoreValue, holderName: cleanName, updatedAt: now });
+            }
+
+            leaderboardEntries = sortLeaderboard(leaderboardEntries);
+            try {
+                localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
+            } catch (e) {}
+            renderScoreUI();
+
+            if (!currentUser || !db) return existingDocId;
+
+            try {
+                const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                if (existingDocId && !existingDocId.startsWith('local_')) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', existingDocId);
+                    await setDoc(docRef, {
+                        attempts: scoreValue,
+                        bestScore: scoreValue,
+                        holderName: cleanName,
+                        userId: currentUser.uid,
+                        updatedAt: now
+                    }, { merge: true });
+                    return existingDocId;
+                } else {
+                    const createdDoc = await addDoc(leaderboardColRef, {
+                        attempts: scoreValue,
+                        bestScore: scoreValue,
+                        holderName: cleanName,
+                        userId: currentUser.uid,
+                        updatedAt: now
+                    });
+                    return createdDoc.id;
+                }
+            } catch (e) {
+                return existingDocId;
+            }
+        }
+
+        // Hàm lưu thành tích cá nhân lên Firestore
+        async function pushPersonalRecord(newScore, playerName) {
+            if (!currentUser || !db) return;
+            try {
+                const userRecordRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'stats', 'personal');
+                await setDoc(userRecordRef, {
+                    personalBest: newScore,
+                    playerName: playerName || savedPlayerName,
+                    updatedAt: Date.now()
+                }, { merge: true });
+            } catch (e) {}
+        }
+
+        // Cho phép người chơi ghi danh vào Bảng Xếp Hạng sau khi chiến thắng
+        async function saveGlobalHolderName() {
+            const inputEl = document.getElementById('recordHolderInput');
+            const saveBtn = document.getElementById('saveRecordBtn');
+            const nameVal = (inputEl.value || '').trim();
+
+            if (!nameVal) {
+                showToast('Vui lòng nhập tên của bạn để ghi danh Bảng Xếp Hạng!', 'warning');
+                inputEl.focus();
+                return;
+            }
+
+            savedPlayerName = nameVal.slice(0, 24);
+            try {
+                localStorage.setItem('nts_player_name', savedPlayerName);
+            } catch (e) {}
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Đang lưu...';
+
+            currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, currentWinDocId);
+            await pushPersonalRecord(personalBest || attempts, savedPlayerName);
+
+            saveBtn.textContent = 'Đã ghi danh ✓';
+            showToast(`Đã ghi danh ${savedPlayerName} (${attempts} lần thử) lên Bảng Xếp Hạng!`, 'info');
+        }
+
+        // Hàm hiển thị thông báo nổi (Toast Notification)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-item ${type}`;
+
+            let iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+            if (type === 'warning') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+            }
+            if (type === 'error') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+            }
+
+            toast.innerHTML = `
+                <span class="toast-icon">${iconSvg}</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 260);
+            }, 2600);
         }
 
         function initGame() {
@@ -380,27 +1837,47 @@
             attempts = 0;
             gameOver = false;
             guesses = [];
+            currentMin = 1;
+            currentMax = 100;
             
             document.getElementById('guessInput').value = '';
             document.getElementById('attempts').textContent = '0';
-            document.getElementById('feedback').textContent = 'Hãy đoán số đầu tiên!';
+            document.getElementById('feedback').textContent = '✨ Hãy nhập con số dự đoán đầu tiên của bạn!';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('previousGuesses').style.display = 'none';
             document.getElementById('guessList').innerHTML = '';
             document.getElementById('guessInput').disabled = false;
             document.getElementById('submitBtn').disabled = false;
+            closeVictoryModal();
+
+            updateRangeVisualizer();
+            renderScoreUI();
+        }
+
+        function updateRangeVisualizer() {
+            document.getElementById('rangeDisplay').textContent = `${currentMin} - ${currentMax}`;
+            document.getElementById('minLabel').textContent = currentMin;
+            document.getElementById('maxLabel').textContent = currentMax;
+
+            const leftPercent = ((currentMin - 1) / 99) * 100;
+            const rightPercent = ((currentMax - 1) / 99) * 100;
+            const widthPercent = Math.max(2, rightPercent - leftPercent);
+
+            const fillEl = document.getElementById('rangeFill');
+            fillEl.style.left = `${leftPercent}%`;
+            fillEl.style.width = `${widthPercent}%`;
         }
 
         function showInitialInstructions() {
             if (!hasShownInstructions) {
                 setTimeout(() => {
-                    document.getElementById('instructionsModal').style.display = 'block';
+                    document.getElementById('instructionsModal').classList.add('show');
                     hasShownInstructions = true;
                 }, 800);
             }
         }
 
-        function checkGuess() {
+        async function checkGuess() {
             if (gameOver) return;
             
             const guessInput = document.getElementById('guessInput');
@@ -408,48 +1885,81 @@
             const feedback = document.getElementById('feedback');
             
             if (isNaN(guess) || guess < 1 || guess > 100) {
-                feedback.textContent = 'Vui lòng nhập một số từ 1 đến 100!';
-                feedback.className = 'feedback';
+                feedback.textContent = '⚠️ Vui lòng nhập một số hợp lệ từ 1 đến 100!';
+                feedback.className = 'feedback too-high';
+                showToast('Vui lòng nhập một số trong khoảng từ 1 đến 100!', 'error');
+                guessInput.focus();
                 return;
             }
             
-            if (guesses.includes(guess)) {
-                feedback.textContent = 'Bạn đã đoán số này rồi!';
-                feedback.className = 'feedback';
+            if (guesses.some(item => item.value === guess)) {
+                feedback.textContent = `💡 Bạn đã đoán số ${guess} trước đó rồi!`;
+                feedback.className = 'feedback too-low';
+                showToast(`Số ${guess} đã được đoán rồi, hãy thử số khác nhé!`, 'warning');
+                guessInput.value = '';
+                guessInput.focus();
                 return;
             }
             
             attempts++;
-            guesses.push(guess);
+            let status = 'win';
+            if (guess < targetNumber) status = 'low';
+            if (guess > targetNumber) status = 'high';
+
+            guesses.push({ value: guess, status: status });
             
             document.getElementById('attempts').textContent = attempts;
             updatePreviousGuesses();
             
             if (guess === targetNumber) {
-                feedback.textContent = `🎉 Chúc mừng! Bạn đã đoán đúng trong ${attempts} lần thử!`;
+                currentMin = targetNumber;
+                currentMax = targetNumber;
+                updateRangeVisualizer();
+
+                feedback.textContent = `🎉 Chúc mừng! Bạn đã đoán đúng số ${targetNumber} trong ${attempts} lần thử!`;
                 feedback.className = 'feedback correct';
                 gameOver = true;
                 document.getElementById('guessInput').disabled = true;
                 document.getElementById('submitBtn').disabled = true;
-                
-                if (bestScore === null || attempts < bestScore) {
-                    bestScore = attempts;
-                    document.getElementById('bestScore').textContent = bestScore;
-                    if (!window.gameData) window.gameData = {};
-                    window.gameData.bestScore = bestScore;
+
+                // Cập nhật thành tích cá nhân
+                if (personalBest === null || attempts < personalBest) {
+                    personalBest = attempts;
+                    try {
+                        localStorage.setItem('nts_guess_best_score', personalBest);
+                    } catch (e) {}
+                    pushPersonalRecord(personalBest, savedPlayerName);
                 }
-                
-                showGameOver();
+
+                // Kiểm tra xem kết quả này có lọt vào Top 10 Bảng Xếp Hạng không
+                const sorted = sortLeaderboard(leaderboardEntries);
+                const qualifiesForTop10 = sorted.length < 10 || attempts <= sorted[sorted.length - 1].attempts;
+                currentWinDocId = null;
+
+                if (qualifiesForTop10 && savedPlayerName && savedPlayerName !== 'Người chơi') {
+                    currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, null);
+                }
+
+                renderScoreUI();
+                showGameOver(qualifiesForTop10);
             } else if (guess < targetNumber) {
-                feedback.textContent = '📈 Quá thấp! Hãy thử số cao hơn.';
+                if (guess + 1 > currentMin) {
+                    currentMin = Math.min(100, guess + 1);
+                    updateRangeVisualizer();
+                }
+                feedback.textContent = `📈 Số ${guess} quá thấp! Hãy thử một số cao hơn.`;
                 feedback.className = 'feedback too-low';
             } else {
-                feedback.textContent = '📉 Quá cao! Hãy thử số thấp hơn.';
+                if (guess - 1 < currentMax) {
+                    currentMax = Math.max(1, guess - 1);
+                    updateRangeVisualizer();
+                }
+                feedback.textContent = `📉 Số ${guess} quá cao! Hãy thử một số thấp hơn.`;
                 feedback.className = 'feedback too-high';
             }
             
             guessInput.value = '';
-            guessInput.focus();
+            if (!gameOver) guessInput.focus();
         }
 
         function updatePreviousGuesses() {
@@ -458,50 +1968,147 @@
             
             if (guesses.length > 0) {
                 previousGuesses.style.display = 'block';
-                guessList.innerHTML = guesses.map(guess =>
-                    `<span class="guess-item">${guess}</span>`
-                ).join('');
+                guessList.innerHTML = guesses.map(item => {
+                    const arrow = item.status === 'low' ? '↑' : (item.status === 'high' ? '↓' : '✓');
+                    return `<span class="guess-item ${item.status}">${item.value} <span>${arrow}</span></span>`;
+                }).join('');
             }
         }
 
-        function showGameOver() {
-            const container = document.querySelector('.game-container');
-            const gameOverDiv = document.createElement('div');
-            gameOverDiv.className = 'game-over';
-            gameOverDiv.innerHTML = `
-                <h3>🏆 Hoàn thành trò chơi!</h3>
-                <p>Số đó là ${targetNumber}</p>
-                <p>Bạn đã giải được trong ${attempts} lần thử!</p>
-            `;
-            container.appendChild(gameOverDiv);
+        // Hiển thị thông báo chiến thắng bằng Pop-up Modal sang trọng
+        function showGameOver(qualifiesForTop10 = true) {
+            document.getElementById('modalSecretNumber').textContent = targetNumber;
+            document.getElementById('modalAttempts').textContent = `${attempts} lần`;
+            document.getElementById('modalBestScore').textContent = bestScore
+                ? `${bestScore} lần (${bestHolderName})`
+                : `${attempts} lần`;
+
+            const recordBox = document.getElementById('recordBreakerBox');
+            const holderInput = document.getElementById('recordHolderInput');
+            const saveBtn = document.getElementById('saveRecordBtn');
+            const titleText = document.getElementById('recordBoxTitleText');
+
+            recordBox.classList.add('show');
+            holderInput.value = savedPlayerName !== 'Người chơi' ? savedPlayerName : '';
+            saveBtn.disabled = false;
+            saveBtn.textContent = currentWinDocId ? 'Cập nhật tên' : 'Ghi danh';
+            titleText.textContent = qualifiesForTop10
+                ? '🏆 Thành tích lọt Top Bảng Xếp Hạng! Ghi danh ngay:'
+                : '📝 Lưu thành tích của bạn lên Bảng Xếp Hạng:';
+
+            document.getElementById('victoryModal').classList.add('show');
+
+            launchConfetti();
 
             const completionSound = document.getElementById('completionSound');
             completionSound.play().catch(() => {});
         }
 
+        function closeVictoryModal() {
+            document.getElementById('victoryModal').classList.remove('show');
+        }
+
+        function showLeaderboard() {
+            renderScoreUI();
+            document.getElementById('leaderboardModal').classList.add('show');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').classList.remove('show');
+        }
+
         function newGame() {
-            const gameOverDiv = document.querySelector('.game-over');
-            if (gameOverDiv) gameOverDiv.remove();
+            closeVictoryModal();
             initGame();
+            document.getElementById('guessInput').focus();
         }
 
         function showInstructions() {
-            document.getElementById('instructionsModal').style.display = 'block';
+            document.getElementById('instructionsModal').classList.add('show');
         }
 
         function closeInstructions() {
-            document.getElementById('instructionsModal').style.display = 'none';
+            document.getElementById('instructionsModal').classList.remove('show');
         }
 
         function goBack() {
             window.location.href = 'game.html';
         }
 
+        // Gắn các hàm vào window để sự kiện onclick trong HTML gọi được từ module script
+        window.checkGuess = checkGuess;
+        window.newGame = newGame;
+        window.showInstructions = showInstructions;
+        window.closeInstructions = closeInstructions;
+        window.closeVictoryModal = closeVictoryModal;
+        window.showLeaderboard = showLeaderboard;
+        window.closeLeaderboard = closeLeaderboard;
+        window.goBack = goBack;
+        window.saveGlobalHolderName = saveGlobalHolderName;
+
+        // Hiệu ứng pháo giấy ăn mừng chiến thắng
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const pieces = [];
+            const colors = ['#4f46e5', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#a855f7'];
+
+            for (let i = 0; i < 90; i++) {
+                pieces.push({
+                    x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: -(Math.random() * 13 + 6),
+                    size: Math.random() * 8 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    vr: (Math.random() - 0.5) * 10,
+                    alpha: 1
+                });
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+
+                pieces.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.35;
+                    p.rotation += p.vr;
+                    p.alpha -= 0.008;
+
+                    if (p.alpha > 0 && p.y < canvas.height + 20) {
+                        active = true;
+                        ctx.save();
+                        ctx.globalAlpha = Math.max(0, p.alpha);
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+                        ctx.restore();
+                    }
+                });
+
+                if (active) {
+                    requestAnimationFrame(animateConfetti);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            requestAnimationFrame(animateConfetti);
+        }
+
         // Khởi chạy khi trang load xong
-        window.onload = function() {
+        window.addEventListener('load', () => {
             initGame();
             showInitialInstructions();
-        };
+            initCloudRecordSync();
+        });
 
         // Enter key support
         document.getElementById('guessInput').addEventListener('keypress', function(e) {
@@ -510,11 +2117,19 @@
             }
         });
 
-        // Click outside to close modal
+        // Click outside to close modals
         window.onclick = function(event) {
-            const modal = document.getElementById('instructionsModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            const instructionsModal = document.getElementById('instructionsModal');
+            const victoryModal = document.getElementById('victoryModal');
+            const leaderboardModal = document.getElementById('leaderboardModal');
+            if (event.target === instructionsModal) {
+                closeInstructions();
+            }
+            if (event.target === victoryModal) {
+                closeVictoryModal();
+            }
+            if (event.target === leaderboardModal) {
+                closeLeaderboard();
             }
         };
 
