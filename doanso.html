@@ -259,7 +259,7 @@
             width: 100%;
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
             text-align: center;
             font-weight: 500;
         }
@@ -267,13 +267,6 @@
         .subtitle strong {
             color: var(--primary);
             font-weight: 700;
-        }
-
-        .sync-badge-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 18px;
         }
 
         /* Bảng thống kê 3 cột */
@@ -354,44 +347,6 @@
             max-width: 100%;
         }
 
-        .sync-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 999px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            background: #f1f5f9;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
-        }
-
-        .sync-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #94a3b8;
-        }
-
-        .sync-badge.online {
-            background: #ecfdf5;
-            color: #059669;
-            border-color: #a7f3d0;
-        }
-
-        .sync-badge.online .sync-dot {
-            background: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-            animation: pulseDot 2s infinite;
-        }
-
-        @keyframes pulseDot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.45; }
-        }
-
         /* Form lưu tên vinh danh kỷ lục toàn cầu */
         .record-breaker-box {
             display: none;
@@ -462,15 +417,6 @@
         .record-save-btn:disabled {
             background: #94a3b8;
             cursor: not-allowed;
-        }
-
-        .user-id-footer {
-            width: 100%;
-            margin-top: 14px;
-            text-align: center;
-            font-size: 0.7rem;
-            color: #94a3b8;
-            word-break: break-all;
         }
 
         /* Thanh trực quan hóa phạm vi (Range Visualizer) */
@@ -1236,13 +1182,6 @@
         </div>
 
         <p class="subtitle">Tìm con số bí mật ẩn giấu từ <strong>1</strong> đến <strong>100</strong></p>
-
-        <div class="sync-badge-wrapper">
-            <div id="syncBadge" class="sync-badge" title="Trạng thái đồng bộ bảng xếp hạng đám mây trên mọi trình duyệt">
-                <span class="sync-dot"></span>
-                <span id="syncText">Đang kết nối Bảng Xếp Hạng...</span>
-            </div>
-        </div>
         
         <!-- Thông số trò chơi -->
         <div class="game-info">
@@ -1343,10 +1282,9 @@
         <div class="leaderboard-preview-box">
             <div class="leaderboard-preview-header">
                 <div class="leaderboard-preview-title">
-                    <span>🏆 Bảng Xếp Hạng Toàn Cầu</span>
+                    <span>🏆 Bảng Xếp Hạng</span>
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
-                    <button class="view-all-btn" onclick="refreshGlobalLeaderboard()" title="Làm mới đồng bộ">↻ Đồng bộ</button>
                     <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
                 </div>
             </div>
@@ -1354,8 +1292,6 @@
                 <div class="empty-leaderboard">Đang tải bảng xếp hạng...</div>
             </div>
         </div>
-
-        <div class="user-id-footer" id="userIdDisplay">ID phiên đồng bộ: Đang khởi tạo...</div>
     </div>
 
     <!-- Modal Thông báo Chiến thắng -->
@@ -1427,7 +1363,7 @@
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <h2 style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+            <h2 style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
@@ -1438,9 +1374,6 @@
                 </svg>
                 Bảng Xếp Hạng Top 10
             </h2>
-            <p style="text-align:center;font-size:0.84rem;color:var(--text-muted);margin-bottom:16px;">
-                Đồng bộ trực tiếp trên tất cả trình duyệt (Ưu tiên số lần thử ít nhất)
-            </p>
             <div class="leaderboard-list" id="modalLeaderboardList">
                 <div class="empty-leaderboard">Chưa có người chơi nào trên bảng xếp hạng.</div>
             </div>
@@ -1449,90 +1382,63 @@
     </div>
 
     <!-- Modal Hướng dẫn -->
-    <div id="instructionsModal" class="modal">
-        <div class="modal-content">
-            <button class="close" onclick="closeInstructions()" title="Đóng" aria-label="Đóng">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-            <h2 style="display:flex;align-items:center;justify-content:center;gap:10px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="6" width="20" height="12" rx="6"></rect>
-                    <path d="M6 12h4"></path>
-                    <path d="M8 10v4"></path>
-                    <line x1="15" y1="13" x2="15.01" y2="13"></line>
-                    <line x1="18" y1="11" x2="18.01" y2="11"></line>
-                </svg>
-                Hướng dẫn chơi
-            </h2>
-            <ul class="instruction-list">
-                <li><strong>🎯 Mục tiêu:</strong> Đoán đúng số bí mật từ 1 đến 100 với ít lần thử nhất có thể.</li>
-                <li><strong>📝 Cách chơi:</strong> Nhập một số vào ô và nhấn "Gửi đáp án" hoặc phím Enter.</li>
-                <li><strong>💡 Gợi ý thông minh:</strong> Game sẽ báo "Quá cao" hoặc "Quá thấp" và tự động thu hẹp thanh phạm vi giúp bạn dễ suy luận.</li>
-                <li><strong>🏆 Bảng xếp hạng:</strong> Thành tích tốt nhất của người chơi sẽ được xếp hạng Top 10 và hiển thị đồng bộ theo thời gian thực trên tất cả trình duyệt!</li>
-                <li><strong>🔄 Chơi lại:</strong> Nhấn "Chơi lại" bất cứ lúc nào để thử sức với một số bí mật mới.</li>
-            </ul>
-            <button class="modal-footer-btn" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
-        </div>
-    </div>
-
-    <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, addDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        let targetNumber;
-        let attempts;
-        let gameOver;
-        let guesses;
-        let currentMin = 1;
-        let currentMax = 100;
-        let bestScore = null;          // Thành tích Top 1 trên Bảng Xếp Hạng
-        let bestHolderName = 'Ẩn danh'; // Tên người giữ Top 1
-        let personalBest = null;       // Thành tích cá nhân tốt nhất
-        let leaderboardEntries = [];   // Danh sách Bảng Xếp Hạng toàn cầu
-        let currentWinDocId = null;    // ID bản ghi của ván thắng hiện tại
-        let hasShownInstructions = false;
-
-        // Biến môi trường Firebase & Cloud Sync đa trình duyệt (Chrome, Edge, Safari, Firefox...)
+        // Biến môi trường Firebase & Cloud Sync đa trình duyệt
         let db = null;
         let auth = null;
         let currentUser = null;
-        let isCloudConnected = false;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'nts-guess-number-global';
+        const GLOBAL_ROOM_KEY = 'nts_doan_so_global_leaderboard_v1';
 
-        // Kênh đồng bộ tức thì giữa các tab/cửa sổ và API Cloud dự phòng khi chạy file độc lập trên Chrome/Edge/Firefox
-        const CLOUD_SYNC_ENDPOINT = 'https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/nts_guess_leaderboard_v1';
+        // Hệ thống đa máy chủ Cloud JSON/KV công khai để khi mở file trực tiếp trên Chrome, Edge, Safari, Firefox... đều đọc/ghi chung 1 Bảng Xếp Hạng
+        const PUBLIC_CLOUD_STORES = [
+            {
+                name: 'keyvalue',
+                getUrl: `https://api.keyvalue.xyz/3e8b9c1a/${GLOBAL_ROOM_KEY}`,
+                postUrl: `https://api.keyvalue.xyz/3e8b9c1a/${GLOBAL_ROOM_KEY}`,
+                method: 'POST'
+            },
+            {
+                name: 'kvdb',
+                getUrl: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
+                postUrl: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
+                method: 'POST'
+            },
+            {
+                name: 'jsonblob',
+                getUrl: `https://jsonblob.com/api/jsonBlob/1344312098765432100`,
+                postUrl: `https://jsonblob.com/api/jsonBlob/1344312098765432100`,
+                method: 'PUT'
+            }
+        ];
+
         let broadcastChannel = null;
         try {
             if ('BroadcastChannel' in window) {
-                broadcastChannel = new BroadcastChannel('nts_global_leaderboard_channel');
+                broadcastChannel = new BroadcastChannel(GLOBAL_ROOM_KEY);
                 broadcastChannel.onmessage = (event) => {
                     if (event.data && Array.isArray(event.data.entries)) {
                         leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, event.data.entries));
+                        saveLocalCache();
                         renderScoreUI();
                     }
                 };
             }
         } catch (e) {}
 
-        // Nhận diện tên trình duyệt mặc định (Chrome, Edge, Firefox, Safari...) để hiển thị nếu người chơi chưa đặt tên
-        function detectBrowserTag() {
-            const ua = navigator.userAgent || '';
-            if (ua.includes('Edg/')) return 'Người chơi (Edge)';
-            if (ua.includes('OPR/') || ua.includes('Opera')) return 'Người chơi (Opera)';
-            if (ua.includes('Chrome/')) return 'Người chơi (Chrome)';
-            if (ua.includes('Firefox/')) return 'Người chơi (Firefox)';
-            if (ua.includes('Safari/')) return 'Người chơi (Safari)';
-            return 'Người chơi';
-        }
+        // Đồng bộ qua sự kiện storage khi mở nhiều tab
+        window.addEventListener('storage', (e) => {
+            if (e.key === GLOBAL_ROOM_KEY && e.newValue) {
+                try {
+                    const parsed = JSON.parse(e.newValue);
+                    if (Array.isArray(parsed)) {
+                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
+                        renderScoreUI();
+                    }
+                } catch (err) {}
+            }
+        });
 
-        // Khôi phục dữ liệu dự phòng
-        let savedPlayerName = detectBrowserTag();
+        let savedPlayerName = 'Người chơi';
         try {
             const cachedName = localStorage.getItem('nts_player_name');
             if (cachedName) savedPlayerName = cachedName;
@@ -1544,11 +1450,20 @@
                 personalBest = parseInt(cachedBest, 10);
             }
 
-            const cachedBoard = localStorage.getItem('nts_leaderboard_entries');
+            const cachedBoard = localStorage.getItem(GLOBAL_ROOM_KEY) || localStorage.getItem('nts_leaderboard_entries');
             if (cachedBoard) {
-                leaderboardEntries = JSON.parse(cachedBoard);
+                const parsed = JSON.parse(cachedBoard);
+                if (Array.isArray(parsed)) leaderboardEntries = parsed;
             }
         } catch (e) {}
+
+        function saveLocalCache() {
+            try {
+                const serialized = JSON.stringify(leaderboardEntries);
+                localStorage.setItem(GLOBAL_ROOM_KEY, serialized);
+                localStorage.setItem('nts_leaderboard_entries', serialized);
+            } catch (e) {}
+        }
 
         function escapeHtml(str) {
             return String(str || '').replace(/[&<>"']/g, function(m) {
@@ -1596,33 +1511,55 @@
                 .slice(0, 10);
         }
 
-        // Đồng bộ qua REST Cloud dự phòng để các trình duyệt khác nhau (Chrome, Edge, Firefox...) luôn thấy chung BXH
+        // Tải Bảng Xếp Hạng từ các máy chủ Cloud công khai để mọi trình duyệt đều thấy chung dữ liệu
         async function fetchFallbackCloudLeaderboard() {
-            try {
-                const res = await fetch(CLOUD_SYNC_ENDPOINT, { method: 'GET', cache: 'no-store' });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && Array.isArray(data.entries)) {
-                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, data.entries));
-                        try {
-                            localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
-                        } catch (e) {}
-                        renderScoreUI();
-                        return true;
+            let updated = false;
+            const requests = PUBLIC_CLOUD_STORES.map(async (store) => {
+                try {
+                    const res = await fetch(store.getUrl, {
+                        method: 'GET',
+                        cache: 'no-store',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (!res.ok) return;
+                    const text = await res.text();
+                    if (!text) return;
+                    const data = JSON.parse(text);
+                    const remoteEntries = Array.isArray(data) ? data : (data && Array.isArray(data.entries) ? data.entries : null);
+                    if (remoteEntries && remoteEntries.length > 0) {
+                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, remoteEntries));
+                        updated = true;
                     }
-                }
-            } catch (e) {}
-            return false;
+                } catch (e) {}
+            });
+
+            await Promise.allSettled(requests);
+            if (updated) {
+                saveLocalCache();
+                renderScoreUI();
+            }
+            return updated;
         }
 
+        // Đẩy Bảng Xếp Hạng lên tất cả máy chủ Cloud công khai
         async function pushFallbackCloudLeaderboard(entries) {
-            try {
-                await fetch(CLOUD_SYNC_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entries: sortLeaderboard(entries), updatedAt: Date.now() })
-                });
-            } catch (e) {}
+            const payload = JSON.stringify({
+                room: GLOBAL_ROOM_KEY,
+                entries: sortLeaderboard(entries),
+                updatedAt: Date.now()
+            });
+
+            const tasks = PUBLIC_CLOUD_STORES.map(async (store) => {
+                try {
+                    await fetch(store.postUrl, {
+                        method: store.method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: payload
+                    });
+                } catch (e) {}
+            });
+
+            await Promise.allSettled(tasks);
         }
 
         function buildLeaderboardHTML(list, limitCount = 10) {
@@ -1694,23 +1631,25 @@
             if (modalListEl) modalListEl.innerHTML = buildLeaderboardHTML(sorted, 10);
         }
 
-        // Khởi tạo Firebase & lắng nghe Bảng Xếp Hạng Toàn Cầu theo thời gian thực trên mọi trình duyệt (Chrome, Edge, Safari, Firefox...)
+        // Khởi tạo đồng bộ Bảng Xếp Hạng Toàn Cầu ngầm trên mọi trình duyệt
         async function initCloudRecordSync() {
-            const syncBadge = document.getElementById('syncBadge');
-            const syncText = document.getElementById('syncText');
-            const userIdDisplay = document.getElementById('userIdDisplay');
-
-            // Tải song song từ Cloud KV dự phòng để mọi trình duyệt luôn có chung dữ liệu
+            // Tải ngay từ Cloud công khai cho mọi trình duyệt
             fetchFallbackCloudLeaderboard();
+
+            // Tự động đồng bộ định kỳ và khi người chơi chuyển tab / quay lại trình duyệt
+            setInterval(fetchFallbackCloudLeaderboard, 4500);
+            window.addEventListener('focus', () => {
+                refreshGlobalLeaderboard(true);
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    refreshGlobalLeaderboard(true);
+                }
+            });
 
             try {
                 if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    syncBadge.classList.add('online');
-                    syncText.textContent = 'Đồng bộ đám mây đa trình duyệt (Chrome / Edge / Safari)';
-                    userIdDisplay.textContent = 'Kênh đồng bộ: Global Cloud Sync';
                     renderScoreUI();
-                    // Tự động làm mới định kỳ mỗi 6 giây cho các trình duyệt đang mở
-                    setInterval(fetchFallbackCloudLeaderboard, 6000);
                     return;
                 }
 
@@ -1730,9 +1669,8 @@
                 if (!currentUser) return;
 
                 const userId = currentUser.uid;
-                userIdDisplay.textContent = `ID đồng bộ đa trình duyệt: ${userId}`;
 
-                // RULE 1 & RULE 2: Lắng nghe document tổng hợp 'global_board' VÀ collection 'leaderboard' để đồng bộ tức thì
+                // RULE 1 & RULE 2: Lắng nghe document tổng hợp 'global_board' VÀ collection 'leaderboard'
                 const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
                 onSnapshot(
                     summaryDocRef,
@@ -1744,7 +1682,7 @@
                                     const parsed = JSON.parse(data.entriesJson);
                                     if (Array.isArray(parsed)) {
                                         leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
-                                        localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
+                                        saveLocalCache();
                                         renderScoreUI();
                                     }
                                 } catch (e) {}
@@ -1758,10 +1696,6 @@
                 onSnapshot(
                     leaderboardColRef,
                     (snapshot) => {
-                        isCloudConnected = true;
-                        syncBadge.classList.add('online');
-                        syncText.textContent = 'Đã đồng bộ Bảng Xếp Hạng trên tất cả trình duyệt';
-
                         const fetched = [];
                         snapshot.forEach((docSnap) => {
                             const d = docSnap.data();
@@ -1778,16 +1712,10 @@
                         });
 
                         leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
-                        try {
-                            localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
-                        } catch (e) {}
-
+                        saveLocalCache();
                         renderScoreUI();
                     },
-                    (error) => {
-                        syncBadge.classList.add('online');
-                        syncText.textContent = 'Đồng bộ đám mây dự phòng đang hoạt động';
-                    }
+                    () => {}
                 );
 
                 // Đường dẫn lưu thành tích cá nhân của riêng userId hiện tại
@@ -1811,15 +1739,13 @@
                     () => {}
                 );
             } catch (err) {
-                syncBadge.classList.add('online');
-                syncText.textContent = 'Đồng bộ đám mây đa trình duyệt';
                 renderScoreUI();
             }
         }
 
-        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu (Đồng bộ sang Chrome, Edge, Firefox, Safari...)
+        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu
         async function pushLeaderboardEntry(scoreValue, holderName, existingDocId = null) {
-            const cleanName = (holderName || detectBrowserTag()).trim().slice(0, 24) || detectBrowserTag();
+            const cleanName = (holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
             const now = Date.now();
             const entryId = existingDocId || ('entry_' + now + '_' + Math.random().toString(36).slice(2, 7));
 
@@ -1827,7 +1753,7 @@
                 id: entryId,
                 attempts: scoreValue,
                 holderName: cleanName,
-                userId: currentUser?.uid || 'browser_user',
+                userId: currentUser?.uid || 'global_player',
                 updatedAt: now
             };
 
@@ -1840,10 +1766,7 @@
             }
 
             leaderboardEntries = sortLeaderboard(leaderboardEntries);
-
-            try {
-                localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
-            } catch (e) {}
+            saveLocalCache();
 
             // 2. Phát tín hiệu sang các tab/cửa sổ trình duyệt khác
             if (broadcastChannel) {
@@ -1854,10 +1777,10 @@
 
             renderScoreUI();
 
-            // 3. Đồng bộ lên Cloud KV dự phòng (để các trình duyệt khác nhau luôn lấy được)
+            // 3. Đồng bộ lên các máy chủ Cloud công khai để mọi trình duyệt khác đều thấy
             pushFallbackCloudLeaderboard(leaderboardEntries);
 
-            // 4. Đồng bộ lên Firestore (cả document trong collection lẫn bảng tổng hợp global_board)
+            // 4. Đồng bộ lên Firestore
             if (!currentUser || !db) return entryId;
 
             try {
@@ -1880,11 +1803,23 @@
             return entryId;
         }
 
-        // Làm mới bảng xếp hạng thủ công từ đám mây
-        async function refreshGlobalLeaderboard() {
+        // Làm mới bảng xếp hạng từ đám mây
+        async function refreshGlobalLeaderboard(silent = false) {
             await fetchFallbackCloudLeaderboard();
             if (currentUser && db) {
                 try {
+                    const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
+                    const summarySnap = await getDoc(summaryDocRef);
+                    if (summarySnap.exists()) {
+                        const sData = summarySnap.data();
+                        if (sData && typeof sData.entriesJson === 'string') {
+                            const parsed = JSON.parse(sData.entriesJson);
+                            if (Array.isArray(parsed)) {
+                                leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
+                            }
+                        }
+                    }
+
                     const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
                     const snap = await getDocs(leaderboardColRef);
                     const fetched = [];
@@ -1902,10 +1837,13 @@
                         }
                     });
                     leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
+                    saveLocalCache();
                     renderScoreUI();
                 } catch (e) {}
             }
-            showToast('Đã đồng bộ Bảng Xếp Hạng mới nhất từ đám mây!', 'info');
+            if (!silent) {
+                showToast('Đã cập nhật Bảng Xếp Hạng mới nhất!', 'info');
+            }
         }
 
         // Hàm lưu thành tích cá nhân lên Firestore
@@ -1939,13 +1877,13 @@
             } catch (e) {}
 
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Đang đồng bộ...';
+            saveBtn.textContent = 'Đang lưu...';
 
             currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, currentWinDocId);
             await pushPersonalRecord(personalBest || attempts, savedPlayerName);
 
-            saveBtn.textContent = 'Đã đồng bộ ✓';
-            showToast(`Đã đồng bộ "${savedPlayerName}" (${attempts} lần thử) lên mọi trình duyệt!`, 'info');
+            saveBtn.textContent = 'Đã lưu ✓';
+            showToast(`Đã ghi danh "${savedPlayerName}" (${attempts} lần thử) lên Bảng Xếp Hạng!`, 'info');
         }
 
         // Hàm hiển thị thông báo nổi (Toast Notification)
@@ -2132,11 +2070,11 @@
             const titleText = document.getElementById('recordBoxTitleText');
 
             recordBox.classList.add('show');
-            holderInput.value = !savedPlayerName.startsWith('Người chơi') ? savedPlayerName : '';
+            holderInput.value = savedPlayerName !== 'Người chơi' ? savedPlayerName : '';
             saveBtn.disabled = false;
-            saveBtn.textContent = currentWinDocId ? 'Đổi tên hiển thị' : 'Ghi danh';
+            saveBtn.textContent = currentWinDocId ? 'Cập nhật tên' : 'Ghi danh';
             titleText.textContent = qualifiesForTop10
-                ? '🏆 Đã tự động lưu lên Bảng Xếp Hạng! Bạn có thể đổi tên vinh danh:'
+                ? '🏆 Thành tích đã vào Top 10! Nhập tên hiển thị của bạn:'
                 : '📝 Nhập tên để lưu thành tích của bạn lên Bảng Xếp Hạng:';
 
             document.getElementById('victoryModal').classList.add('show');
@@ -2152,6 +2090,7 @@
         }
 
         function showLeaderboard() {
+            refreshGlobalLeaderboard(true);
             renderScoreUI();
             document.getElementById('leaderboardModal').classList.add('show');
         }
