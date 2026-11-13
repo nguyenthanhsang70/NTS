@@ -1285,6 +1285,7 @@
                     <span>🏆 Bảng Xếp Hạng</span>
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
+                    <button class="view-all-btn" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng" style="padding: 5px 8px;">↻</button>
                     <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
                 </div>
             </div>
@@ -1298,7 +1299,7 @@
     <div id="victoryModal" class="modal">
         <div class="modal-content victory-modal-content">
             <div class="victory-Modal-glow"></div>
-            <button class="close" onclick="closeVictoryModal()" title="Đóng" aria-label="Đóng">
+            <button class="close" onclick="closeWinModal()" title="Đóng" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1339,16 +1340,16 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
-                    <span id="recordBoxTitleText">Ghi danh lên Bảng Xếp Hạng Toàn Cầu:</span>
+                    <span id="recordBoxTitleText">Ghi danh lên Bảng Xếp Hạng:</span>
                 </div>
                 <div class="record-input-group">
                     <input type="text" id="recordHolderInput" class="record-name-input" placeholder="Nhập tên của bạn (VD: Minh)" maxlength="24">
-                    <button id="saveRecordBtn" class="record-save-btn" onclick="saveGlobalHolderName()">Ghi danh</button>
+                    <button id="saveRecordBtn" class="record-save-btn" onclick="savePlayerName()">Ghi danh</button>
                 </div>
             </div>
 
             <div class="victory-actions">
-                <button class="btn-secondary-modal" onclick="showLeaderboard()">Bảng xếp hạng</button>
+                <button class="btn-secondary-modal" onclick="closeWinModal()">Xem lại</button>
                 <button class="btn-primary-modal" onclick="newGame()">Chơi ván mới</button>
             </div>
         </div>
@@ -1382,40 +1383,125 @@
     </div>
 
     <!-- Modal Hướng dẫn -->
-        // Biến môi trường Firebase & Cloud Sync đa trình duyệt
-        let db = null;
-        let auth = null;
-        let currentUser = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nts-guess-number-global';
-        const GLOBAL_ROOM_KEY = 'nts_doan_so_global_leaderboard_v1';
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closeInstructions()" title="Đóng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2>🎮 Hướng dẫn chơi</h2>
+            <ul class="instruction-list">
+                <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 100 với số lần dự đoán ít nhất có thể.</li>
+                <li><strong>📝 Cách chơi:</strong> Nhập một con số vào ô trung tâm và nhấn nút <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
+                <li><strong>💡 Gợi ý thông minh:</strong> Sau mỗi lần đoán, thanh phạm vi sẽ tự động thu hẹp lại dựa trên gợi ý "Quá cao" hoặc "Quá thấp".</li>
+                <li><strong>🏆 Bảng xếp hạng:</strong> Thành tích tốt nhất được sắp xếp theo số lần thử ít nhất và đồng bộ trên bảng xếp hạng.</li>
+                <li><strong>🔄 Chơi lại:</strong> Nhấn nút <strong>"Chơi lại"</strong> bất cứ lúc nào để bắt đầu một ván mới với con số bí mật khác.</li>
+            </ul>
+            <button class="modal-footer-btn" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
+        </div>
+    </div>
 
-        // Hệ thống đa máy chủ Cloud JSON/KV công khai để khi mở file trực tiếp trên Chrome, Edge, Safari, Firefox... đều đọc/ghi chung 1 Bảng Xếp Hạng
-        const PUBLIC_CLOUD_STORES = [
+    <!-- Âm thanh hoàn thành -->
+    <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
+
+    <script>
+        // ==========================================
+        // BIẾN TRẠNG THÁI TRÒ CHƠI & BẢNG XẾP HẠNG
+        // ==========================================
+        let targetNumber = 50;
+        let attempts = 0;
+        let gameOver = false;
+        let guesses = [];
+        let currentMin = 1;
+        let currentMax = 100;
+        let bestScore = null;
+        let bestHolderName = 'Ẩn danh';
+        let personalBest = null;
+        let hasShownInstructions = false;
+        let currentWinDocId = null;
+        let savedPlayerName = 'Người chơi';
+
+        const GLOBAL_ROOM_KEY = 'nts_doan_so_global_leaderboard_v2';
+
+        // Dữ liệu khởi tạo thông minh để Bảng Xếp Hạng luôn có sẵn mốc thi đấu khi mới mở lần đầu
+        const DEFAULT_SEED_LEADERBOARD = [
+            { id: 'seed_1', attempts: 3, holderName: 'Hoàng Nam', updatedAt: Date.now() - 3600000 * 5 },
+            { id: 'seed_2', attempts: 4, holderName: 'Minh Anh', updatedAt: Date.now() - 3600000 * 3 },
+            { id: 'seed_3', attempts: 5, holderName: 'Tuấn Kiệt', updatedAt: Date.now() - 3600000 * 1 }
+        ];
+
+        let leaderboardEntries = [...DEFAULT_SEED_LEADERBOARD];
+
+        // Các endpoint Cloud JSON công khai ổn định hỗ trợ CORS (bọc hoàn toàn bằng try/catch êm ái)
+        const CLOUD_ENDPOINTS = [
             {
-                name: 'keyvalue',
-                getUrl: `https://api.keyvalue.xyz/3e8b9c1a/${GLOBAL_ROOM_KEY}`,
-                postUrl: `https://api.keyvalue.xyz/3e8b9c1a/${GLOBAL_ROOM_KEY}`,
-                method: 'POST'
+                name: 'jsonblob',
+                url: 'https://jsonblob.com/api/jsonBlob/1344312098765432100',
+                method: 'PUT'
             },
             {
                 name: 'kvdb',
-                getUrl: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
-                postUrl: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
+                url: `https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/${GLOBAL_ROOM_KEY}`,
                 method: 'POST'
-            },
-            {
-                name: 'jsonblob',
-                getUrl: `https://jsonblob.com/api/jsonBlob/1344312098765432100`,
-                postUrl: `https://jsonblob.com/api/jsonBlob/1344312098765432100`,
-                method: 'PUT'
             }
         ];
 
+        // Hỗ trợ lưu trữ localStorage an toàn tuyệt đối (không crash khi mở file:// hoặc ẩn danh)
+        function safeGetStorage(key) {
+            try {
+                return window.localStorage ? window.localStorage.getItem(key) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function safeSetStorage(key, value) {
+            try {
+                if (window.localStorage) {
+                    window.localStorage.setItem(key, value);
+                }
+            } catch (e) {}
+        }
+
+        // Khôi phục dữ liệu đã lưu trên máy
+        (function loadInitialLocalState() {
+            const cachedName = safeGetStorage('nts_player_name');
+            if (cachedName) savedPlayerName = cachedName;
+
+            const cachedBest = safeGetStorage('nts_guess_best_score');
+            if (window.gameData && window.gameData.bestScore) {
+                personalBest = parseInt(window.gameData.bestScore, 10) || null;
+            } else if (cachedBest) {
+                personalBest = parseInt(cachedBest, 10) || null;
+            }
+
+            const cachedBoard = safeGetStorage(GLOBAL_ROOM_KEY) || safeGetStorage('nts_leaderboard_entries');
+            if (cachedBoard) {
+                try {
+                    const parsed = JSON.parse(cachedBoard);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        leaderboardEntries = sortLeaderboard(mergeEntries(DEFAULT_SEED_LEADERBOARD, parsed));
+                    }
+                } catch (e) {}
+            }
+        })();
+
+        function saveLocalCache() {
+            const serialized = JSON.stringify(leaderboardEntries);
+            safeSetStorage(GLOBAL_ROOM_KEY, serialized);
+            safeSetStorage('nts_leaderboard_entries', serialized);
+            if (!window.gameData) window.gameData = {};
+            if (bestScore !== null) window.gameData.bestScore = bestScore;
+        }
+
+        // Kênh đồng bộ tức thì giữa các tab/cửa sổ trình duyệt
         let broadcastChannel = null;
         try {
             if ('BroadcastChannel' in window) {
                 broadcastChannel = new BroadcastChannel(GLOBAL_ROOM_KEY);
-                broadcastChannel.onmessage = (event) => {
+                broadcastChannel.onmessage = function(event) {
                     if (event.data && Array.isArray(event.data.entries)) {
                         leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, event.data.entries));
                         saveLocalCache();
@@ -1425,9 +1511,8 @@
             }
         } catch (e) {}
 
-        // Đồng bộ qua sự kiện storage khi mở nhiều tab
-        window.addEventListener('storage', (e) => {
-            if (e.key === GLOBAL_ROOM_KEY && e.newValue) {
+        window.addEventListener('storage', function(e) {
+            if ((e.key === GLOBAL_ROOM_KEY || e.key === 'nts_leaderboard_entries') && e.newValue) {
                 try {
                     const parsed = JSON.parse(e.newValue);
                     if (Array.isArray(parsed)) {
@@ -1437,33 +1522,6 @@
                 } catch (err) {}
             }
         });
-
-        let savedPlayerName = 'Người chơi';
-        try {
-            const cachedName = localStorage.getItem('nts_player_name');
-            if (cachedName) savedPlayerName = cachedName;
-
-            const cachedBest = localStorage.getItem('nts_guess_best_score');
-            if (window.gameData && window.gameData.bestScore) {
-                personalBest = window.gameData.bestScore;
-            } else if (cachedBest) {
-                personalBest = parseInt(cachedBest, 10);
-            }
-
-            const cachedBoard = localStorage.getItem(GLOBAL_ROOM_KEY) || localStorage.getItem('nts_leaderboard_entries');
-            if (cachedBoard) {
-                const parsed = JSON.parse(cachedBoard);
-                if (Array.isArray(parsed)) leaderboardEntries = parsed;
-            }
-        } catch (e) {}
-
-        function saveLocalCache() {
-            try {
-                const serialized = JSON.stringify(leaderboardEntries);
-                localStorage.setItem(GLOBAL_ROOM_KEY, serialized);
-                localStorage.setItem('nts_leaderboard_entries', serialized);
-            } catch (e) {}
-        }
 
         function escapeHtml(str) {
             return String(str || '').replace(/[&<>"']/g, function(m) {
@@ -1481,19 +1539,19 @@
             return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
         }
 
-        // Gộp danh sách từ nhiều nguồn mà không bị trùng ID
-        function mergeEntries(listA = [], listB = []) {
+        function mergeEntries(listA, listB) {
+            const a = Array.isArray(listA) ? listA : [];
+            const b = Array.isArray(listB) ? listB : [];
             const map = new Map();
-            [...listA, ...listB].forEach(item => {
+            [...a, ...b].forEach(function(item) {
                 if (!item || typeof item.attempts !== 'number' || item.attempts <= 0) return;
-                const key = item.id || `${item.holderName}_${item.attempts}_${item.updatedAt}`;
+                const key = item.id || `${item.holderName}_${item.attempts}`;
                 const existing = map.get(key);
                 if (!existing || (item.updatedAt || 0) >= (existing.updatedAt || 0)) {
                     map.set(key, {
                         id: key,
                         attempts: item.attempts,
                         holderName: item.holderName || 'Người chơi',
-                        userId: item.userId || '',
                         updatedAt: item.updatedAt || Date.now()
                     });
                 }
@@ -1502,38 +1560,61 @@
         }
 
         function sortLeaderboard(entries) {
-            return [...entries]
-                .filter(item => item && typeof item.attempts === 'number' && item.attempts > 0)
-                .sort((a, b) => {
+            const list = Array.isArray(entries) ? entries : [];
+            return [...list]
+                .filter(function(item) {
+                    return item && typeof item.attempts === 'number' && item.attempts > 0;
+                })
+                .sort(function(a, b) {
                     if (a.attempts !== b.attempts) return a.attempts - b.attempts;
                     return (a.updatedAt || 0) - (b.updatedAt || 0);
                 })
                 .slice(0, 10);
         }
 
-        // Tải Bảng Xếp Hạng từ các máy chủ Cloud công khai để mọi trình duyệt đều thấy chung dữ liệu
-        async function fetchFallbackCloudLeaderboard() {
+        // Đồng bộ ngầm với Cloud REST API có timeout ngắn để không treo hay báo lỗi đỏ
+        async function fetchWithTimeout(url, options, timeoutMs) {
+            const controller = new AbortController();
+            const timer = setTimeout(function() {
+                controller.abort();
+            }, timeoutMs || 3500);
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                return response;
+            } catch (err) {
+                clearTimeout(timer);
+                return null;
+            }
+        }
+
+        async function syncFromCloud() {
             let updated = false;
-            const requests = PUBLIC_CLOUD_STORES.map(async (store) => {
+            for (let i = 0; i < CLOUD_ENDPOINTS.length; i++) {
+                const ep = CLOUD_ENDPOINTS[i];
                 try {
-                    const res = await fetch(store.getUrl, {
+                    const res = await fetchWithTimeout(ep.url, {
                         method: 'GET',
                         cache: 'no-store',
                         headers: { 'Accept': 'application/json' }
-                    });
-                    if (!res.ok) return;
+                    }, 3200);
+                    if (!res || !res.ok) continue;
                     const text = await res.text();
-                    if (!text) return;
+                    if (!text) continue;
                     const data = JSON.parse(text);
-                    const remoteEntries = Array.isArray(data) ? data : (data && Array.isArray(data.entries) ? data.entries : null);
+                    const remoteEntries = Array.isArray(data)
+                        ? data
+                        : (data && Array.isArray(data.entries) ? data.entries : null);
                     if (remoteEntries && remoteEntries.length > 0) {
                         leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, remoteEntries));
                         updated = true;
                     }
                 } catch (e) {}
-            });
+            }
 
-            await Promise.allSettled(requests);
             if (updated) {
                 saveLocalCache();
                 renderScoreUI();
@@ -1541,34 +1622,32 @@
             return updated;
         }
 
-        // Đẩy Bảng Xếp Hạng lên tất cả máy chủ Cloud công khai
-        async function pushFallbackCloudLeaderboard(entries) {
+        async function pushToCloud(entries) {
             const payload = JSON.stringify({
                 room: GLOBAL_ROOM_KEY,
                 entries: sortLeaderboard(entries),
                 updatedAt: Date.now()
             });
 
-            const tasks = PUBLIC_CLOUD_STORES.map(async (store) => {
+            for (let i = 0; i < CLOUD_ENDPOINTS.length; i++) {
+                const ep = CLOUD_ENDPOINTS[i];
                 try {
-                    await fetch(store.postUrl, {
-                        method: store.method,
+                    await fetchWithTimeout(ep.url, {
+                        method: ep.method,
                         headers: { 'Content-Type': 'application/json' },
                         body: payload
-                    });
+                    }, 3500);
                 } catch (e) {}
-            });
-
-            await Promise.allSettled(tasks);
+            }
         }
 
-        function buildLeaderboardHTML(list, limitCount = 10) {
-            const sliced = list.slice(0, limitCount);
+        function buildLeaderboardHTML(list, limitCount) {
+            const sliced = (list || []).slice(0, limitCount || 10);
             if (sliced.length === 0) {
                 return `<div class="empty-leaderboard">Chưa có người chơi nào ghi danh. Hãy là người đầu tiên!</div>`;
             }
 
-            return sliced.map((entry, idx) => {
+            return sliced.map(function(entry, idx) {
                 const rank = idx + 1;
                 const topClass = rank === 1 ? 'top-1' : (rank === 2 ? 'top-2' : (rank === 3 ? 'top-3' : ''));
                 const badgeContent = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
@@ -1590,7 +1669,6 @@
             }).join('');
         }
 
-        // Cập nhật giao diện hiển thị Bảng Xếp Hạng & thẻ thống kê
         function renderScoreUI() {
             const sorted = sortLeaderboard(leaderboardEntries);
             if (sorted.length > 0) {
@@ -1605,24 +1683,26 @@
             const personalBestEl = document.getElementById('personalBestLabel');
             const modalBestScoreEl = document.getElementById('modalBestScore');
 
-            if (bestScore !== null) {
-                bestScoreEl.textContent = `Top 1: ${bestScore}`;
-                bestHolderEl.textContent = `👑 ${bestHolderName}`;
-                if (modalBestScoreEl) {
-                    modalBestScoreEl.textContent = `${bestScore} lần (${bestHolderName})`;
-                }
-            } else {
-                bestScoreEl.textContent = '--';
-                bestHolderEl.textContent = 'Xem Top 10 →';
-                if (modalBestScoreEl) {
-                    modalBestScoreEl.textContent = '-- lần';
+            if (bestScoreEl && bestHolderEl) {
+                if (bestScore !== null) {
+                    bestScoreEl.textContent = `Top 1: ${bestScore}`;
+                    bestHolderEl.textContent = `👑 ${bestHolderName}`;
+                    if (modalBestScoreEl) {
+                        modalBestScoreEl.textContent = `${bestScore} lần (${bestHolderName})`;
+                    }
+                } else {
+                    bestScoreEl.textContent = '--';
+                    bestHolderEl.textContent = 'Xem Top 10 →';
+                    if (modalBestScoreEl) {
+                        modalBestScoreEl.textContent = '-- lần';
+                    }
                 }
             }
 
-            if (personalBest !== null) {
-                personalBestEl.textContent = `Cá nhân: ${personalBest} lần`;
-            } else {
-                personalBestEl.textContent = 'Cá nhân: --';
+            if (personalBestEl) {
+                personalBestEl.textContent = personalBest !== null
+                    ? `Cá nhân: ${personalBest} lần`
+                    : 'Cá nhân: --';
             }
 
             const inlineListEl = document.getElementById('inlineLeaderboardList');
@@ -1631,121 +1711,8 @@
             if (modalListEl) modalListEl.innerHTML = buildLeaderboardHTML(sorted, 10);
         }
 
-        // Khởi tạo đồng bộ Bảng Xếp Hạng Toàn Cầu ngầm trên mọi trình duyệt
-        async function initCloudRecordSync() {
-            // Tải ngay từ Cloud công khai cho mọi trình duyệt
-            fetchFallbackCloudLeaderboard();
-
-            // Tự động đồng bộ định kỳ và khi người chơi chuyển tab / quay lại trình duyệt
-            setInterval(fetchFallbackCloudLeaderboard, 4500);
-            window.addEventListener('focus', () => {
-                refreshGlobalLeaderboard(true);
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    refreshGlobalLeaderboard(true);
-                }
-            });
-
-            try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    renderScoreUI();
-                    return;
-                }
-
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // RULE 3: Xác thực trước khi truy vấn Firestore
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                currentUser = auth.currentUser;
-                if (!currentUser) return;
-
-                const userId = currentUser.uid;
-
-                // RULE 1 & RULE 2: Lắng nghe document tổng hợp 'global_board' VÀ collection 'leaderboard'
-                const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
-                onSnapshot(
-                    summaryDocRef,
-                    (docSnap) => {
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            if (data && typeof data.entriesJson === 'string') {
-                                try {
-                                    const parsed = JSON.parse(data.entriesJson);
-                                    if (Array.isArray(parsed)) {
-                                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
-                                        saveLocalCache();
-                                        renderScoreUI();
-                                    }
-                                } catch (e) {}
-                            }
-                        }
-                    },
-                    () => {}
-                );
-
-                const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-                onSnapshot(
-                    leaderboardColRef,
-                    (snapshot) => {
-                        const fetched = [];
-                        snapshot.forEach((docSnap) => {
-                            const d = docSnap.data();
-                            const scoreVal = typeof d.attempts === 'number' ? d.attempts : d.bestScore;
-                            if (typeof scoreVal === 'number' && scoreVal > 0) {
-                                fetched.push({
-                                    id: docSnap.id,
-                                    attempts: scoreVal,
-                                    holderName: d.holderName || 'Người chơi',
-                                    userId: d.userId || '',
-                                    updatedAt: d.updatedAt || 0
-                                });
-                            }
-                        });
-
-                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
-                        saveLocalCache();
-                        renderScoreUI();
-                    },
-                    () => {}
-                );
-
-                // Đường dẫn lưu thành tích cá nhân của riêng userId hiện tại
-                const userRecordRef = doc(db, 'artifacts', appId, 'users', userId, 'stats', 'personal');
-                onSnapshot(
-                    userRecordRef,
-                    (snapshot) => {
-                        if (snapshot.exists()) {
-                            const data = snapshot.data();
-                            if (typeof data.personalBest === 'number') {
-                                if (personalBest === null || data.personalBest < personalBest) {
-                                    personalBest = data.personalBest;
-                                }
-                                if (data.playerName) {
-                                    savedPlayerName = data.playerName;
-                                }
-                                renderScoreUI();
-                            }
-                        }
-                    },
-                    () => {}
-                );
-            } catch (err) {
-                renderScoreUI();
-            }
-        }
-
-        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu
-        async function pushLeaderboardEntry(scoreValue, holderName, existingDocId = null) {
-            const cleanName = (holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
+        async function pushLeaderboardEntry(scoreValue, holderName, existingDocId) {
+            const cleanName = String(holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
             const now = Date.now();
             const entryId = existingDocId || ('entry_' + now + '_' + Math.random().toString(36).slice(2, 7));
 
@@ -1753,12 +1720,10 @@
                 id: entryId,
                 attempts: scoreValue,
                 holderName: cleanName,
-                userId: currentUser?.uid || 'global_player',
                 updatedAt: now
             };
 
-            // 1. Cập nhật ngay lập tức vào danh sách hiện tại
-            const existingIdx = leaderboardEntries.findIndex(e => e.id === entryId);
+            const existingIdx = leaderboardEntries.findIndex(function(e) { return e.id === entryId; });
             if (existingIdx !== -1) {
                 leaderboardEntries[existingIdx] = { ...leaderboardEntries[existingIdx], ...newEntryObj };
             } else {
@@ -1767,149 +1732,99 @@
 
             leaderboardEntries = sortLeaderboard(leaderboardEntries);
             saveLocalCache();
+            renderScoreUI();
 
-            // 2. Phát tín hiệu sang các tab/cửa sổ trình duyệt khác
             if (broadcastChannel) {
                 try {
                     broadcastChannel.postMessage({ entries: leaderboardEntries });
                 } catch (e) {}
             }
 
-            renderScoreUI();
-
-            // 3. Đồng bộ lên các máy chủ Cloud công khai để mọi trình duyệt khác đều thấy
-            pushFallbackCloudLeaderboard(leaderboardEntries);
-
-            // 4. Đồng bộ lên Firestore
-            if (!currentUser || !db) return entryId;
-
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', entryId);
-                await setDoc(docRef, {
-                    attempts: scoreValue,
-                    bestScore: scoreValue,
-                    holderName: cleanName,
-                    userId: currentUser.uid,
-                    updatedAt: now
-                }, { merge: true });
-
-                const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
-                await setDoc(summaryDocRef, {
-                    entriesJson: JSON.stringify(leaderboardEntries),
-                    updatedAt: now
-                }, { merge: true });
-            } catch (e) {}
-
+            pushToCloud(leaderboardEntries);
             return entryId;
         }
 
-        // Làm mới bảng xếp hạng từ đám mây
-        async function refreshGlobalLeaderboard(silent = false) {
-            await fetchFallbackCloudLeaderboard();
-            if (currentUser && db) {
-                try {
-                    const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
-                    const summarySnap = await getDoc(summaryDocRef);
-                    if (summarySnap.exists()) {
-                        const sData = summarySnap.data();
-                        if (sData && typeof sData.entriesJson === 'string') {
-                            const parsed = JSON.parse(sData.entriesJson);
-                            if (Array.isArray(parsed)) {
-                                leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
-                            }
-                        }
-                    }
-
-                    const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-                    const snap = await getDocs(leaderboardColRef);
-                    const fetched = [];
-                    snap.forEach(docSnap => {
-                        const d = docSnap.data();
-                        const scoreVal = typeof d.attempts === 'number' ? d.attempts : d.bestScore;
-                        if (typeof scoreVal === 'number' && scoreVal > 0) {
-                            fetched.push({
-                                id: docSnap.id,
-                                attempts: scoreVal,
-                                holderName: d.holderName || 'Người chơi',
-                                userId: d.userId || '',
-                                updatedAt: d.updatedAt || 0
-                            });
-                        }
-                    });
-                    leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
-                    saveLocalCache();
-                    renderScoreUI();
-                } catch (e) {}
-            }
+        async function manualSyncLeaderboard(silent) {
+            await syncFromCloud();
+            renderScoreUI();
             if (!silent) {
-                showToast('Đã cập nhật Bảng Xếp Hạng mới nhất!', 'info');
+                showToast('Đã đồng bộ Bảng Xếp Hạng mới nhất!', 'info');
             }
         }
 
-        // Hàm lưu thành tích cá nhân lên Firestore
-        async function pushPersonalRecord(newScore, playerName) {
-            if (!currentUser || !db) return;
-            try {
-                const userRecordRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'stats', 'personal');
-                await setDoc(userRecordRef, {
-                    personalBest: newScore,
-                    playerName: playerName || savedPlayerName,
-                    updatedAt: Date.now()
-                }, { merge: true });
-            } catch (e) {}
-        }
-
-        // Cho phép người chơi cập nhật tên của mình trên Bảng Xếp Hạng sau khi chiến thắng
-        async function saveGlobalHolderName() {
+        async function savePlayerName() {
             const inputEl = document.getElementById('recordHolderInput');
             const saveBtn = document.getElementById('saveRecordBtn');
-            const nameVal = (inputEl.value || '').trim();
+            const nameVal = (inputEl && inputEl.value ? inputEl.value : '').trim();
 
             if (!nameVal) {
-                showToast('Vui lòng nhập tên của bạn để hiển thị trên Bảng Xếp Hạng!', 'warning');
-                inputEl.focus();
+                showToast('Vui lòng nhập tên của bạn để lưu lên Bảng Xếp Hạng!', 'warning');
+                if (inputEl) inputEl.focus();
                 return;
             }
 
             savedPlayerName = nameVal.slice(0, 24);
-            try {
-                localStorage.setItem('nts_player_name', savedPlayerName);
-            } catch (e) {}
+            safeSetStorage('nts_player_name', savedPlayerName);
 
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Đang lưu...';
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Đang lưu...';
+            }
 
             currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, currentWinDocId);
-            await pushPersonalRecord(personalBest || attempts, savedPlayerName);
 
-            saveBtn.textContent = 'Đã lưu ✓';
+            if (saveBtn) {
+                saveBtn.textContent = 'Đã lưu ✓';
+            }
             showToast(`Đã ghi danh "${savedPlayerName}" (${attempts} lần thử) lên Bảng Xếp Hạng!`, 'info');
         }
 
-        // Hàm hiển thị thông báo nổi (Toast Notification)
-        function showToast(message, type = 'info') {
+        function showToast(message, type) {
+            const toastType = type || 'info';
             const container = document.getElementById('toastContainer');
+            if (!container) return;
+
             const toast = document.createElement('div');
-            toast.className = `toast-item ${type}`;
+            toast.className = `toast-item ${toastType}`;
 
             let iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
-            if (type === 'warning') {
+            if (toastType === 'warning') {
                 iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-            }
-            if (type === 'error') {
+            } else if (toastType === 'error') {
                 iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
             }
 
             toast.innerHTML = `
                 <span class="toast-icon">${iconSvg}</span>
-                <span>${message}</span>
+                <span>${escapeHtml(message)}</span>
             `;
             container.appendChild(toast);
 
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.classList.add('hide');
-                setTimeout(() => toast.remove(), 260);
+                setTimeout(function() {
+                    if (toast.parentNode) toast.remove();
+                }, 260);
             }, 2600);
+        }
+
+        function updateRangeVisualizer() {
+            const rangeDisplay = document.getElementById('rangeDisplay');
+            const minLabel = document.getElementById('minLabel');
+            const maxLabel = document.getElementById('maxLabel');
+            const fillEl = document.getElementById('rangeFill');
+
+            if (rangeDisplay) rangeDisplay.textContent = `${currentMin} - ${currentMax}`;
+            if (minLabel) minLabel.textContent = currentMin;
+            if (maxLabel) maxLabel.textContent = currentMax;
+
+            if (fillEl) {
+                const leftPercent = ((currentMin - 1) / 99) * 100;
+                const rightPercent = ((currentMax - 1) / 99) * 100;
+                const widthPercent = Math.max(2, rightPercent - leftPercent);
+                fillEl.style.left = `${leftPercent}%`;
+                fillEl.style.width = `${widthPercent}%`;
+            }
         }
 
         function initGame() {
@@ -1919,51 +1834,66 @@
             guesses = [];
             currentMin = 1;
             currentMax = 100;
-            
-            document.getElementById('guessInput').value = '';
-            document.getElementById('attempts').textContent = '0';
-            document.getElementById('feedback').textContent = '✨ Hãy nhập con số dự đoán đầu tiên của bạn!';
-            document.getElementById('feedback').className = 'feedback';
-            document.getElementById('previousGuesses').style.display = 'none';
-            document.getElementById('guessList').innerHTML = '';
-            document.getElementById('guessInput').disabled = false;
-            document.getElementById('submitBtn').disabled = false;
-            closeVictoryModal();
+            currentWinDocId = null;
 
+            const guessInput = document.getElementById('guessInput');
+            const attemptsEl = document.getElementById('attempts');
+            const feedbackEl = document.getElementById('feedback');
+            const prevGuessesEl = document.getElementById('previousGuesses');
+            const guessListEl = document.getElementById('guessList');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (guessInput) {
+                guessInput.value = '';
+                guessInput.disabled = false;
+            }
+            if (attemptsEl) attemptsEl.textContent = '0';
+            if (feedbackEl) {
+                feedbackEl.textContent = '✨ Hãy nhập con số dự đoán đầu tiên của bạn!';
+                feedbackEl.className = 'feedback';
+            }
+            if (prevGuessesEl) prevGuessesEl.style.display = 'none';
+            if (guessListEl) guessListEl.innerHTML = '';
+            if (submitBtn) submitBtn.disabled = false;
+
+            closeWinModal();
             updateRangeVisualizer();
             renderScoreUI();
         }
 
-        function updateRangeVisualizer() {
-            document.getElementById('rangeDisplay').textContent = `${currentMin} - ${currentMax}`;
-            document.getElementById('minLabel').textContent = currentMin;
-            document.getElementById('maxLabel').textContent = currentMax;
-
-            const leftPercent = ((currentMin - 1) / 99) * 100;
-            const rightPercent = ((currentMax - 1) / 99) * 100;
-            const widthPercent = Math.max(2, rightPercent - leftPercent);
-
-            const fillEl = document.getElementById('rangeFill');
-            fillEl.style.left = `${leftPercent}%`;
-            fillEl.style.width = `${widthPercent}%`;
-        }
-
         function showInitialInstructions() {
             if (!hasShownInstructions) {
-                setTimeout(() => {
-                    document.getElementById('instructionsModal').classList.add('show');
+                setTimeout(function() {
+                    const modal = document.getElementById('instructionsModal');
+                    if (modal) modal.classList.add('show');
                     hasShownInstructions = true;
-                }, 800);
+                }, 600);
+            }
+        }
+
+        function updatePreviousGuesses() {
+            const previousGuesses = document.getElementById('previousGuesses');
+            const guessList = document.getElementById('guessList');
+            if (!previousGuesses || !guessList) return;
+
+            if (guesses.length > 0) {
+                previousGuesses.style.display = 'block';
+                guessList.innerHTML = guesses.map(function(item) {
+                    const arrow = item.status === 'low' ? '↑' : (item.status === 'high' ? '↓' : '✓');
+                    return `<span class="guess-item ${item.status}">${item.value} <span>${arrow}</span></span>`;
+                }).join('');
             }
         }
 
         async function checkGuess() {
             if (gameOver) return;
-            
+
             const guessInput = document.getElementById('guessInput');
-            const guess = parseInt(guessInput.value);
             const feedback = document.getElementById('feedback');
-            
+            if (!guessInput || !feedback) return;
+
+            const guess = parseInt(guessInput.value, 10);
+
             if (isNaN(guess) || guess < 1 || guess > 100) {
                 feedback.textContent = '⚠️ Vui lòng nhập một số hợp lệ từ 1 đến 100!';
                 feedback.className = 'feedback too-high';
@@ -1971,8 +1901,8 @@
                 guessInput.focus();
                 return;
             }
-            
-            if (guesses.some(item => item.value === guess)) {
+
+            if (guesses.some(function(item) { return item.value === guess; })) {
                 feedback.textContent = `💡 Bạn đã đoán số ${guess} trước đó rồi!`;
                 feedback.className = 'feedback too-low';
                 showToast(`Số ${guess} đã được đoán rồi, hãy thử số khác nhé!`, 'warning');
@@ -1980,17 +1910,18 @@
                 guessInput.focus();
                 return;
             }
-            
+
             attempts++;
             let status = 'win';
             if (guess < targetNumber) status = 'low';
             if (guess > targetNumber) status = 'high';
 
             guesses.push({ value: guess, status: status });
-            
-            document.getElementById('attempts').textContent = attempts;
+
+            const attemptsEl = document.getElementById('attempts');
+            if (attemptsEl) attemptsEl.textContent = attempts;
             updatePreviousGuesses();
-            
+
             if (guess === targetNumber) {
                 currentMin = targetNumber;
                 currentMax = targetNumber;
@@ -1999,24 +1930,18 @@
                 feedback.textContent = `🎉 Chúc mừng! Bạn đã đoán đúng số ${targetNumber} trong ${attempts} lần thử!`;
                 feedback.className = 'feedback correct';
                 gameOver = true;
-                document.getElementById('guessInput').disabled = true;
-                document.getElementById('submitBtn').disabled = true;
+                guessInput.disabled = true;
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) submitBtn.disabled = true;
 
-                // Cập nhật thành tích cá nhân
                 if (personalBest === null || attempts < personalBest) {
                     personalBest = attempts;
-                    try {
-                        localStorage.setItem('nts_guess_best_score', personalBest);
-                    } catch (e) {}
-                    pushPersonalRecord(personalBest, savedPlayerName);
+                    safeSetStorage('nts_guess_best_score', String(personalBest));
                 }
 
-                // Kiểm tra xem kết quả này có lọt vào Top 10 Bảng Xếp Hạng không
                 const sorted = sortLeaderboard(leaderboardEntries);
                 const qualifiesForTop10 = sorted.length < 10 || attempts <= sorted[sorted.length - 1].attempts;
-                currentWinDocId = null;
 
-                // TỰ ĐỘNG LƯU & ĐỒNG BỘ LÊN ĐÁM MÂY NGAY KHI CHIẾN THẮNG (Dù chơi trên Chrome hay bất kỳ trình duyệt nào)
                 if (qualifiesForTop10) {
                     currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, null);
                 }
@@ -2038,100 +1963,95 @@
                 feedback.textContent = `📉 Số ${guess} quá cao! Hãy thử một số thấp hơn.`;
                 feedback.className = 'feedback too-high';
             }
-            
+
             guessInput.value = '';
             if (!gameOver) guessInput.focus();
         }
 
-        function updatePreviousGuesses() {
-            const previousGuesses = document.getElementById('previousGuesses');
-            const guessList = document.getElementById('guessList');
-            
-            if (guesses.length > 0) {
-                previousGuesses.style.display = 'block';
-                guessList.innerHTML = guesses.map(item => {
-                    const arrow = item.status === 'low' ? '↑' : (item.status === 'high' ? '↓' : '✓');
-                    return `<span class="guess-item ${item.status}">${item.value} <span>${arrow}</span></span>`;
-                }).join('');
-            }
-        }
-
-        // Hiển thị thông báo chiến thắng bằng Pop-up Modal sang trọng
-        function showGameOver(qualifiesForTop10 = true) {
-            document.getElementById('modalSecretNumber').textContent = targetNumber;
-            document.getElementById('modalAttempts').textContent = `${attempts} lần`;
-            document.getElementById('modalBestScore').textContent = bestScore
-                ? `${bestScore} lần (${bestHolderName})`
-                : `${attempts} lần`;
-
+        function showGameOver(qualifiesForTop10) {
+            const secretEl = document.getElementById('modalSecretNumber');
+            const attemptsEl = document.getElementById('modalAttempts');
+            const bestEl = document.getElementById('modalBestScore');
             const recordBox = document.getElementById('recordBreakerBox');
             const holderInput = document.getElementById('recordHolderInput');
             const saveBtn = document.getElementById('saveRecordBtn');
             const titleText = document.getElementById('recordBoxTitleText');
+            const victoryModal = document.getElementById('victoryModal');
 
-            recordBox.classList.add('show');
-            holderInput.value = savedPlayerName !== 'Người chơi' ? savedPlayerName : '';
-            saveBtn.disabled = false;
-            saveBtn.textContent = currentWinDocId ? 'Cập nhật tên' : 'Ghi danh';
-            titleText.textContent = qualifiesForTop10
-                ? '🏆 Thành tích đã vào Top 10! Nhập tên hiển thị của bạn:'
-                : '📝 Nhập tên để lưu thành tích của bạn lên Bảng Xếp Hạng:';
+            if (secretEl) secretEl.textContent = targetNumber;
+            if (attemptsEl) attemptsEl.textContent = `${attempts} lần`;
+            if (bestEl) {
+                bestEl.textContent = bestScore !== null
+                    ? `${bestScore} lần (${bestHolderName})`
+                    : `${attempts} lần`;
+            }
 
-            document.getElementById('victoryModal').classList.add('show');
+            if (recordBox) recordBox.classList.add('show');
+            if (holderInput) {
+                holderInput.value = savedPlayerName !== 'Người chơi' ? savedPlayerName : '';
+            }
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = currentWinDocId ? 'Cập nhật tên' : 'Ghi danh';
+            }
+            if (titleText) {
+                titleText.textContent = qualifiesForTop10
+                    ? '🏆 Thành tích đã vào Top 10! Nhập tên hiển thị của bạn:'
+                    : '📝 Nhập tên để lưu thành tích của bạn lên Bảng Xếp Hạng:';
+            }
+
+            if (victoryModal) victoryModal.classList.add('show');
 
             launchConfetti();
 
             const completionSound = document.getElementById('completionSound');
-            completionSound.play().catch(() => {});
+            if (completionSound) {
+                completionSound.play().catch(function() {});
+            }
         }
 
-        function closeVictoryModal() {
-            document.getElementById('victoryModal').classList.remove('show');
+        function closeWinModal() {
+            const modal = document.getElementById('victoryModal');
+            if (modal) modal.classList.remove('show');
         }
 
         function showLeaderboard() {
-            refreshGlobalLeaderboard(true);
+            manualSyncLeaderboard(true);
             renderScoreUI();
-            document.getElementById('leaderboardModal').classList.add('show');
+            const modal = document.getElementById('leaderboardModal');
+            if (modal) modal.classList.add('show');
         }
 
         function closeLeaderboard() {
-            document.getElementById('leaderboardModal').classList.remove('show');
+            const modal = document.getElementById('leaderboardModal');
+            if (modal) modal.classList.remove('show');
         }
 
         function newGame() {
-            closeVictoryModal();
+            closeWinModal();
             initGame();
-            document.getElementById('guessInput').focus();
+            const guessInput = document.getElementById('guessInput');
+            if (guessInput) guessInput.focus();
         }
 
         function showInstructions() {
-            document.getElementById('instructionsModal').classList.add('show');
+            const modal = document.getElementById('instructionsModal');
+            if (modal) modal.classList.add('show');
         }
 
         function closeInstructions() {
-            document.getElementById('instructionsModal').classList.remove('show');
+            const modal = document.getElementById('instructionsModal');
+            if (modal) modal.classList.remove('show');
         }
 
         function goBack() {
             window.location.href = 'game.html';
         }
 
-        // Gắn các hàm vào window để sự kiện onclick trong HTML gọi được từ module script
-        window.checkGuess = checkGuess;
-        window.newGame = newGame;
-        window.showInstructions = showInstructions;
-        window.closeInstructions = closeInstructions;
-        window.closeVictoryModal = closeVictoryModal;
-        window.showLeaderboard = showLeaderboard;
-        window.closeLeaderboard = closeLeaderboard;
-        window.refreshGlobalLeaderboard = refreshGlobalLeaderboard;
-        window.goBack = goBack;
-        window.saveGlobalHolderName = saveGlobalHolderName;
-
         // Hiệu ứng pháo giấy ăn mừng chiến thắng
         function launchConfetti() {
             const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -2157,7 +2077,7 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 let active = false;
 
-                pieces.forEach(p => {
+                pieces.forEach(function(p) {
                     p.x += p.vx;
                     p.y += p.vy;
                     p.vy += 0.35;
@@ -2186,68 +2106,83 @@
             requestAnimationFrame(animateConfetti);
         }
 
-        // Khởi chạy khi trang load xong
-        window.addEventListener('load', () => {
+        // Gắn tất cả các hàm sự kiện vào window ngay lập tức để tránh ReferenceError
+        window.checkGuess = checkGuess;
+        window.newGame = newGame;
+        window.showInstructions = showInstructions;
+        window.closeInstructions = closeInstructions;
+        window.showLeaderboard = showLeaderboard;
+        window.closeLeaderboard = closeLeaderboard;
+        window.closeWinModal = closeWinModal;
+        window.closeVictoryModal = closeWinModal;
+        window.savePlayerName = savePlayerName;
+        window.saveGlobalHolderName = savePlayerName;
+        window.goBack = goBack;
+        window.manualSyncLeaderboard = manualSyncLeaderboard;
+
+        // Khởi chạy ngay khi DOM sẵn sàng
+        document.addEventListener('DOMContentLoaded', function() {
             initGame();
             showInitialInstructions();
-            initCloudRecordSync();
+            syncFromCloud();
+            setInterval(syncFromCloud, 8000);
         });
 
-        // Enter key support
-        document.getElementById('guessInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkGuess();
-            }
+        window.addEventListener('focus', function() {
+            syncFromCloud();
         });
 
-        // Click outside to close modals
-        window.onclick = function(event) {
+        // Hỗ trợ nhấn phím Enter trong ô nhập số và ô nhập tên
+        const guessInputEl = document.getElementById('guessInput');
+        if (guessInputEl) {
+            guessInputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    checkGuess();
+                }
+            });
+        }
+
+        const recordInputEl = document.getElementById('recordHolderInput');
+        if (recordInputEl) {
+            recordInputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    savePlayerName();
+                }
+            });
+        }
+
+        // Đóng modal khi click ra vùng nền ngoài
+        window.addEventListener('click', function(event) {
             const instructionsModal = document.getElementById('instructionsModal');
             const victoryModal = document.getElementById('victoryModal');
             const leaderboardModal = document.getElementById('leaderboardModal');
-            if (event.target === instructionsModal) {
-                closeInstructions();
-            }
-            if (event.target === victoryModal) {
-                closeVictoryModal();
-            }
-            if (event.target === leaderboardModal) {
-                closeLeaderboard();
-            }
-        };
+            if (event.target === instructionsModal) closeInstructions();
+            if (event.target === victoryModal) closeWinModal();
+            if (event.target === leaderboardModal) closeLeaderboard();
+        });
 
         // ==========================================
         // ĐOẠN CODE BẢO MẬT: CHẶN XEM MÃ NGUỒN - CHO PHÉP COPY/BÔI ĐEN
         // ==========================================
-        
-        // 1. Chặn click chuột phải để ngăn người dùng chọn "Kiểm tra" (Inspect) hoặc "Xem nguồn trang"
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
 
-        // 2. Chặn các phím tắt mở Developer Tools và Xem Source nâng cao
         document.addEventListener('keydown', function(e) {
-            // Chặn F12
             if (e.key === 'F12') {
                 e.preventDefault();
                 return false;
             }
-            
-            // Chặn Ctrl + Shift + I (Mở Inspect)
-            // Chặn Ctrl + Shift + J (Mở Console)
-            // Chặn Ctrl + Shift + C (Mở Bộ chọn phần tử)
             if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
                 e.preventDefault();
                 return false;
             }
-
-            // Chặn Ctrl + U (Xem mã nguồn trang - View Source)
             if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 return false;
             }
-
-            // Chặn Ctrl + S (Lưu trang về máy để xem code)
             if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
                 e.preventDefault();
                 return false;
