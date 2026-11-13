@@ -1206,7 +1206,7 @@
 
         const LOCAL_BEST_KEY = 'nts_doan_so_personal_best_v7';
         const PLAYER_NAME_KEY = 'nts_doan_so_player_name_v7';
-        constSHARED_CACHE_KEY = 'nts_doan_so_shared_cache_v7';
+        const SHARED_CACHE_KEY = 'nts_doan_so_shared_cache_v7';
         const CLEAR_TIME_KEY = 'nts_doan_so_clear_time_v7';
 
         // Khóa phòng Cloud cố định cho toàn bộ người chơi truy cập trang
@@ -1394,7 +1394,7 @@
                 }))
             };
 
-            // Ghi lên KeyValue Cloud (POST không kèm query string để tránh lỗi 404/CORS)
+            // Ghi lên KeyValue Cloud
             try {
                 const encoded = encodePayload(payloadObj);
                 if (encoded) {
