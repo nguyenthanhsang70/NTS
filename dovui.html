@@ -463,6 +463,9 @@ html.dark .room-modal-card{background:linear-gradient(150deg,#17223b,#0d1428);co
 .mode-friend-btn>.fa-chevron-right{margin-left:auto;font-size:11px;color:#a5b4fc}
 .mode-back{border:0;background:none;color:#c7d2fe;font-size:11px;font-weight:800;cursor:pointer;padding:12px 0;margin-top:10px}
 .mode-setup-foot{padding-top:15px;margin-top:17px;border-top:1px solid rgba(148,163,184,.15);color:#8e9db6;font-size:10px;font-weight:650;text-align:center}
+.mode-credit-link{color:#c7d2fe;font-weight:900;text-decoration:none;border-bottom:1px solid rgba(199,210,254,.6);transition:color .2s,border-color .2s}
+.mode-credit-link:hover{color:#f0abfc;border-color:#f0abfc}
+.mode-credit-link:focus-visible{outline:2px solid #a5b4fc;outline-offset:3px;border-radius:3px}
 @media(max-width:550px){.mode-setup-card{padding:19px;border-radius:23px}.mode-setup-head{margin-bottom:14px}.mode-setup-heading{font-size:26px}.mode-setup-desc{font-size:11px;margin-bottom:16px}.mode-choices,.mode-friend-grid{grid-template-columns:1fr;gap:10px}.mode-choice{min-height:0;padding:12px 13px 12px 76px;display:block}.mode-choice-icon{position:absolute;left:13px;top:17px;width:48px;height:48px;margin:0}.mode-choice-title{font-size:14px;margin:7px 0 5px}.mode-choice-desc{display:block;font-size:10px}.mode-choice-link{margin-top:9px;font-size:10px}.mode-choice-tag{font-size:8px;top:8px;right:10px}}
 
 
@@ -711,6 +714,30 @@ html.dark .quiz-chat-input{background:#0a162b;color:#f8fafc;border-color:rgba(12
 @media(max-width:560px){.room-multi-players{grid-template-columns:repeat(2,minmax(0,1fr));max-height:240px;gap:6px}.room-multi-entry{padding:6px;gap:5px}.room-multi-entry .room-player-avatar{height:28px;flex-basis:28px}.room-multi-entry .room-score{font-size:16px}}
 
 html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
+
+/* Liên kết quay lại game.html: luôn nhìn thấy ở màn hình chơi và trong các hộp thiết lập. */
+.back-home-link{width:auto;min-width:46px;gap:9px;padding:5px 14px 5px 5px;font-size:12px;font-weight:900;white-space:nowrap}
+.game-return-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
+.game-return-quick{min-height:36px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;border-radius:12px;border:1px solid rgba(165,180,252,.28);background:rgba(129,140,248,.12);color:#e0e7ff!important;text-decoration:none;font-size:11px;font-weight:900;white-space:nowrap;transition:background .2s,transform .2s}
+.game-return-quick:hover{background:rgba(129,140,248,.27);transform:translateY(-1px)}
+.game-return-quick:focus-visible{outline:3px solid #67e8f9;outline-offset:2px}
+.mode-setup-head,.caro-wizard .room-modal-head{flex-wrap:wrap}
+@media(max-width:420px){.back-home-link{padding-right:10px;font-size:11px;gap:7px}.game-return-quick{padding:8px 10px;font-size:10px}.game-return-actions{gap:6px}}
+@media(prefers-reduced-motion:reduce){.game-return-quick{transition:none}}
+
+/* Chinh header man hinh chon che do: quay lai ben trai, logo o chinh giua. */
+.mode-setup-head{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:6px;flex-wrap:initial}
+.mode-setup-head .mode-setup-back-home{justify-self:start}
+.mode-setup-head .mode-setup-brand{justify-self:center;white-space:nowrap}
+.mode-setup-head .mode-setup-close{justify-self:end}
+@media(max-width:550px){
+ .mode-setup-head .mode-setup-back-home{width:38px;height:38px;min-height:38px;padding:0;border-radius:12px;font-size:14px}
+ .mode-setup-head .mode-setup-back-home span{display:none}
+ .mode-setup-head .mode-setup-brand{font-size:11px;gap:7px}
+ .mode-setup-head .mode-setup-logo{width:34px;height:34px;border-radius:11px}
+ .mode-setup-head .mode-setup-close{width:34px;height:34px}
+}
+@media(max-width:355px){.mode-setup-head .mode-setup-brand{font-size:10px;letter-spacing:0}}
 </style>
 </head>
 <body class="flex flex-col items-center justify-center p-3 sm:p-6 min-h-screen">
@@ -750,7 +777,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
                 <span class="back-home-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M19 12H5m0 0 6.5-6.5M5 12l6.5 6.5" /></svg>
                 </span>
-
+                <span>Quay lại</span>
             </a>
 
             <!-- Right Controls -->
@@ -1015,6 +1042,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
 <div id="modeSetupModal" class="mode-setup-overlay flex" role="dialog" aria-modal="true" aria-hidden="false" aria-labelledby="modeSetupTitle">
  <div class="mode-setup-card"><div class="mode-setup-content">
   <div class="mode-setup-head">
+   <a href="game.html" class="game-return-quick mode-setup-back-home" title="Quay lại game.html" aria-label="Quay lại danh sách trò chơi"><i class="fas fa-arrow-left" aria-hidden="true"></i><span>Quay lại</span></a>
    <div class="mode-setup-brand"><span class="mode-setup-logo"><svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 4 4 6-7 6 7 4-4-2 12H4L2 8Z"/><path d="M4 20h16"/></svg></span><span>ĐỐ VUI <span style="opacity:.5">/</span> V 2.5</span></div>
    <button id="modeSetupClose" class="mode-setup-close hidden" type="button" onclick="closeModeSetup()" aria-label="Tiếp tục chơi" title="Tiếp tục chơi"><i class="fas fa-xmark"></i></button>
   </div>
@@ -1048,7 +1076,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
    </div>
    <button type="button" class="mode-back" onclick="showModeSetupStep('choose')"><i class="fas fa-arrow-left"></i> Quay lại chọn chế độ</button>
   </section>
-  <div class="mode-setup-foot"><i class="fas fa-stopwatch"></i> 10–30 giây/câu (tùy phòng)   •   Tự chấm   •   Chuyển câu ngay</div>
+  <div class="mode-setup-foot"><i class="fas fa-code" aria-hidden="true"></i> Thiết kế &amp; phát triển bởi <a class="mode-credit-link" href="https://nguyenthanhsang70.github.io/NTS/profile.html" target="_blank" rel="noopener noreferrer">Nguyễn Thanh Sang</a></div>
  </div></div>
 </div>
 
@@ -1059,7 +1087,10 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
         <h3 id="roomModalTitle">Thiết lập trận đấu</h3>
         <p class="room-modal-subtitle" id="roomWizardSubtitle">Nhập thông tin người chơi và thiết lập phòng.</p>
       </div>
-      <button type="button" aria-label="Đóng thiết lập phòng" title="Đóng" onclick="closeRoomModal()"><i class="fas fa-xmark"></i></button>
+      <div class="game-return-actions">
+        <a href="game.html" class="game-return-quick" title="Quay lại game.html" aria-label="Quay lại danh sách trò chơi"><i class="fas fa-arrow-left" aria-hidden="true"></i><span>Quay lại</span></a>
+        <button type="button" aria-label="Đóng thiết lập phòng" title="Đóng" onclick="closeRoomModal()"><i class="fas fa-xmark"></i></button>
+      </div>
     </div>
     <div class="room-wizard-steps" aria-label="Tiến trình thiết lập: bước 2 trong 3">
       <div class="room-wizard-stage done" data-room-stage="1"><span class="room-stage-number"><i class="fas fa-check"></i></span><span>Chế độ chơi</span></div>
