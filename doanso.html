@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số </title>
+    <title>Đoán Số</title>
     <link rel="icon" type="image/png" href="logos3.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
             --danger: #ef4444;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.94);
+            --card-bg: rgba(255, 255, 255, 0.95);
         }
 
         * {
@@ -58,7 +58,6 @@
             z-index: 2500;
         }
 
-        /* Toast Notification */
         .toast-container {
             position: fixed;
             top: 24px;
@@ -98,7 +97,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Main Card Container */
         .game-container {
             background: var(--card-bg);
             backdrop-filter: blur(24px);
@@ -115,7 +113,6 @@
             z-index: 10;
         }
 
-        /* Header */
         .header-container {
             display: flex;
             align-items: center;
@@ -188,7 +185,6 @@
             font-weight: 700;
         }
 
-        /* Stats Grid */
         .game-info {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -257,7 +253,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Range Visualizer */
         .range-visualizer {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -305,7 +300,6 @@
             transition: left 0.4s ease, width 0.4s ease;
         }
 
-        /* Input Area */
         .input-section {
             width: 100%;
             margin-bottom: 14px;
@@ -345,7 +339,6 @@
             outline: none;
         }
 
-        /* Action Buttons */
         .buttons {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -367,11 +360,12 @@
             justify-content: center;
             gap: 8px;
             transition: all 0.25s ease;
+            user-select: none;
         }
 
         #submitBtn {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
+            color: #ffffff;
             box-shadow: 0 8px 18px -4px rgba(79, 70, 229, 0.45);
         }
 
@@ -399,7 +393,6 @@
             transform: translateY(-2px);
         }
 
-        /* Feedback Banner */
         .feedback {
             font-size: 0.95rem;
             font-weight: 700;
@@ -437,7 +430,6 @@
             border-color: #a7f3d0;
         }
 
-        /* Previous Guesses */
         .previous-guesses {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -491,7 +483,6 @@
         .guess-item.high { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
         .guess-item.exact { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
 
-        /* Mini Leaderboard Section */
         .mini-leaderboard {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -505,6 +496,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .mini-lb-title {
@@ -524,32 +517,40 @@
         }
 
         .mini-lb-more {
+            font-family: inherit;
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--primary);
             background: #eef2ff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .mini-lb-more:hover { background: #e0e7ff; }
-
-        .mini-lb-clear {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #dc2626;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            padding: 5px 9px;
+            border: 1px solid #e0e7ff;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .mini-lb-clear:hover { background: #fee2e2; }
+        .mini-lb-more:hover {
+            background: #e0e7ff;
+            transform: translateY(-1px);
+        }
+
+        .mini-lb-clear {
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #dc2626;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mini-lb-clear:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
 
         .leaderboard-list {
             display: flex;
@@ -646,7 +647,6 @@
             font-weight: 500;
         }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -701,7 +701,6 @@
             color: #0f172a;
         }
 
-        /* Win Modal */
         .win-modal-card { text-align: center; }
 
         .win-trophy-wrap {
@@ -857,7 +856,6 @@
             line-height: 1.5;
         }
 
-        /* Admin Form Styles */
         .admin-form-group {
             margin-bottom: 14px;
             text-align: left;
@@ -932,14 +930,14 @@
     <div class="game-container">
         <!-- Header -->
         <div class="header-container">
-            <button class="icon-btn" onclick="goBack()" title="Quay lại" aria-label="Quay lại">
+            <button type="button" class="icon-btn" id="backBtn" onclick="goBack()" title="Quay lại" aria-label="Quay lại">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m15 18-6-6 6-6"/>
                 </svg>
             </button>
             <h1>Đoán Số</h1>
             <div class="header-actions">
-                <button class="icon-btn trophy-btn" onclick="showLeaderboard()" title="Bảng xếp hạng" aria-label="Bảng xếp hạng">
+                <button type="button" class="icon-btn trophy-btn" id="headerTrophyBtn" onclick="showLeaderboard()" title="Bảng xếp hạng" aria-label="Bảng xếp hạng">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
                         <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
@@ -949,7 +947,7 @@
                         <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
                     </svg>
                 </button>
-                <button class="icon-btn" onclick="showInstructions()" title="Hướng dẫn chơi" aria-label="Hướng dẫn chơi">
+                <button type="button" class="icon-btn" id="headerInfoBtn" onclick="showInstructions()" title="Hướng dẫn chơi" aria-label="Hướng dẫn chơi">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -985,7 +983,7 @@
                 <div class="info-sub">Thu hẹp tự động</div>
             </div>
 
-            <div class="info-item clickable-card" onclick="showLeaderboard()" title="Nhấn để mở Bảng xếp hạng">
+            <div class="info-item clickable-card" id="statLeaderboardCard" onclick="showLeaderboard()" title="Nhấn để mở Bảng xếp hạng">
                 <div class="info-icon-badge badge-best">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
@@ -1016,13 +1014,13 @@
 
         <!-- Buttons -->
         <div class="buttons">
-            <button class="btn" id="submitBtn" onclick="checkGuess()">
+            <button type="button" class="btn" id="submitBtn" onclick="checkGuess()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
                 </svg>
                 Gửi đáp án
             </button>
-            <button class="btn" id="newGameBtn" onclick="newGame()">
+            <button type="button" class="btn" id="newGameBtn" onclick="newGame()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
                 </svg>
@@ -1054,13 +1052,13 @@
                     <span>🏆 Bảng Xếp Hạng</span>
                 </div>
                 <div class="mini-lb-actions">
-                    <button class="mini-lb-more" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng">↻</button>
-                    <button class="mini-lb-clear" onclick="clearLeaderboard()" title="Xóa bảng xếp hạng (Admin)">Xóa BXH</button>
-                    <button class="mini-lb-more" onclick="showLeaderboard()">Xem Top 10</button>
+                    <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng">↻</button>
+                    <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()" title="Xóa bảng xếp hạng (Admin)">Xóa BXH</button>
+                    <button type="button" class="mini-lb-more" onclick="showLeaderboard()">Xem Top 10</button>
                 </div>
             </div>
             <div class="leaderboard-list" id="miniLeaderboardList">
-                <div class="lb-empty">Đang tải bảng xếp hạng...</div>
+                <div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>
             </div>
         </div>
     </div>
@@ -1068,7 +1066,7 @@
     <!-- Modal Thông Báo Chiến Thắng -->
     <div id="winModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content win-modal-card">
-            <button class="close-btn" onclick="closeWinModal()" aria-label="Đóng">
+            <button type="button" class="close-btn" onclick="closeWinModal()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                 </svg>
@@ -1097,7 +1095,6 @@
                 </div>
             </div>
 
-            <!-- Ghi danh vào Bảng xếp hạng -->
             <div class="record-form" id="recordFormBox">
                 <div class="record-form-title">🏅 Ghi danh lên Bảng Xếp Hạng:</div>
                 <div class="record-input-group">
@@ -1107,8 +1104,8 @@
             </div>
 
             <div class="win-actions">
-                <button class="btn btn-secondary-modal" onclick="showLeaderboard()">Bảng xếp hạng</button>
-                <button class="btn btn-primary-modal" onclick="newGameFromModal()">Chơi ván mới</button>
+                <button type="button" class="btn btn-secondary-modal" onclick="showLeaderboard()">Bảng xếp hạng</button>
+                <button type="button" class="btn btn-primary-modal" onclick="newGameFromModal()">Chơi ván mới</button>
             </div>
         </div>
     </div>
@@ -1116,16 +1113,16 @@
     <!-- Modal Bảng Xếp Hạng Top 10 -->
     <div id="leaderboardModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeLeaderboard()" aria-label="Đóng">
+            <button type="button" class="close-btn" onclick="closeLeaderboard()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; padding-right: 36px;">
-                <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 10</h2>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; padding-right: 36px; flex-wrap:wrap; gap:8px;">
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 10</h2>
                 <div style="display:flex; gap:6px;">
-                    <button class="mini-lb-more" onclick="manualSyncLeaderboard()">↻ Làm mới</button>
-                    <button class="mini-lb-clear" onclick="clearLeaderboard()">Xóa BXH</button>
+                    <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()">↻ Làm mới</button>
+                    <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()">Xóa BXH</button>
                 </div>
             </div>
             <div class="leaderboard-list" id="fullLeaderboardList">
@@ -1137,7 +1134,7 @@
     <!-- Modal Xác Thực Admin Xóa BXH -->
     <div id="adminAuthModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content" style="max-width: 390px;">
-            <button class="close-btn" onclick="closeAdminModal()" aria-label="Đóng">
+            <button type="button" class="close-btn" onclick="closeAdminModal()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                 </svg>
@@ -1166,8 +1163,8 @@
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px;">
-                <button class="btn btn-secondary-modal" onclick="closeAdminModal()">Hủy bỏ</button>
-                <button class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;" onclick="confirmAdminClearLeaderboard()">Xác nhận xóa</button>
+                <button type="button" class="btn btn-secondary-modal" onclick="closeAdminModal()">Hủy bỏ</button>
+                <button type="button" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;" onclick="confirmAdminClearLeaderboard()">Xác nhận xóa</button>
             </div>
         </div>
     </div>
@@ -1175,7 +1172,7 @@
     <!-- Modal Hướng Dẫn -->
     <div id="instructionsModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeInstructions()" aria-label="Đóng">
+            <button type="button" class="close-btn" onclick="closeInstructions()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                 </svg>
@@ -1193,78 +1190,69 @@
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
     <script>
-        // =====================================================
-        // CẤU HÌNH TRÒ CHƠI & ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT
-        // =====================================================
-        let targetNumber = 50;
-        let attempts = 0;
-        let gameOver = false;
-        let guesses = [];
-        let minPossible = 1;
-        let maxPossible = 100;
-        let currentSessionEntryId = null;
+        var targetNumber = 50;
+        var attempts = 0;
+        var gameOver = false;
+        var guesses = [];
+        var minPossible = 1;
+        var maxPossible = 100;
+        var currentSessionEntryId = null;
 
-        const LOCAL_BEST_KEY = 'nts_doan_so_personal_best_v7';
-        const PLAYER_NAME_KEY = 'nts_doan_so_player_name_v7';
-        const SHARED_CACHE_KEY = 'nts_doan_so_shared_cache_v7';
-        const CLEAR_TIME_KEY = 'nts_doan_so_clear_time_v7';
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v10";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v10";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v10";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v10";
 
-        // Khóa phòng Cloud cố định cho toàn bộ người chơi truy cập trang
-        const KV_APP_KEY = '48m9p2x7';
-        const KV_ITEM_KEY = 'nts_doanso_global_lb_v7';
-        const KV_GET_URL = `https://keyvalue.immanuel.co/api/KeyVal/GetValue/${KV_APP_KEY}/${KV_ITEM_KEY}`;
-        const KV_POST_URL = `https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${KV_APP_KEY}/${KV_ITEM_KEY}`;
-        const KV_POINTER_URL = `https://keyvalue.immanuel.co/api/KeyVal/GetValue/${KV_APP_KEY}/nts_blob_ptr_v7`;
-        const KV_POINTER_SET_URL = `https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${KV_APP_KEY}/nts_blob_ptr_v7`;
+        // =============================================================
+        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (CHROME / EDGE / SAFARI / MOBILE)
+        // Kênh 1: ntfy.sh Public Cloud Stream & History (Không cần đăng ký, hỗ trợ CORS 100%)
+        // Kênh 2: kvdb.io Public Bucket dự phòng
+        // =============================================================
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v10";
+        var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
+        var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=all";
+        var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
+        var KVDB_URL = "https://kvdb.io/A6Xy9kP3mQv8Wz2L4nJr7T/nts_doanso_lb_v10";
 
-        let localBestScore = null;
-        let leaderboardData = [];
-        let lastClearedTimestamp = 0;
-        let isSyncing = false;
-        let syncChannel = null;
+        var localBestScore = null;
+        var leaderboardData = [];
+        var lastClearedTimestamp = 0;
+        var isSyncing = false;
+        var syncChannel = null;
+        var eventSourceConn = null;
 
         try {
-            if ('BroadcastChannel' in window) {
-                syncChannel = new BroadcastChannel('nts_doan_so_realtime_v7');
-                syncChannel.onmessage = (event) => {
-                    if (event.data && event.data.type === 'SYNC_LB') {
-                        if (event.data.clearedAt && event.data.clearedAt > lastClearedTimestamp) {
-                            lastClearedTimestamp = event.data.clearedAt;
-                            localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
-                            leaderboardData = [];
-                        }
-                        if (Array.isArray(event.data.records)) {
-                            leaderboardData = normalizeAndSortRecords(event.data.records);
-                            saveLocalBackup(leaderboardData);
-                            renderLeaderboardUI();
-                        }
+            if ("BroadcastChannel" in window) {
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v10");
+                syncChannel.onmessage = function(event) {
+                    if (event.data) {
+                        applyIncomingState(event.data);
                     }
                 };
             }
         } catch (e) {}
 
-        // Đọc thông tin cá nhân
         try {
-            const savedBest = localStorage.getItem(LOCAL_BEST_KEY);
+            var savedBest = localStorage.getItem(LOCAL_BEST_KEY);
             if (savedBest) {
                 localBestScore = parseInt(savedBest, 10);
-                document.getElementById('localBestSub').textContent = `Cá nhân: ${localBestScore} lần`;
+                document.getElementById("localBestSub").textContent = "Cá nhân: " + localBestScore + " lần";
             }
-            const savedClear = localStorage.getItem(CLEAR_TIME_KEY);
+            var savedClear = localStorage.getItem(CLEAR_TIME_KEY);
             if (savedClear) {
                 lastClearedTimestamp = parseInt(savedClear, 10) || 0;
             }
         } catch (e) {}
 
         function getBrowserTag() {
-            const ua = navigator.userAgent;
-            if (ua.includes('CocCoc')) return 'Cốc Cốc';
-            if (ua.includes('Edg/')) return 'Edge';
-            if (ua.includes('OPR/') || ua.includes('Opera')) return 'Opera';
-            if (ua.includes('Chrome')) return 'Chrome';
-            if (ua.includes('Firefox')) return 'Firefox';
-            if (ua.includes('Safari')) return 'Safari';
-            return 'Web';
+            var ua = navigator.userAgent || "";
+            if (ua.indexOf("CocCoc") !== -1) return "Cốc Cốc";
+            if (ua.indexOf("Edg/") !== -1) return "Edge";
+            if (ua.indexOf("OPR/") !== -1 || ua.indexOf("Opera") !== -1) return "Opera";
+            if (ua.indexOf("Chrome") !== -1) return "Chrome";
+            if (ua.indexOf("Firefox") !== -1) return "Firefox";
+            if (ua.indexOf("Safari") !== -1) return "Safari";
+            return "Web";
         }
 
         function saveLocalBackup(records) {
@@ -1278,14 +1266,16 @@
 
         function loadLocalBackup() {
             try {
-                const raw = localStorage.getItem(SHARED_CACHE_KEY);
+                var raw = localStorage.getItem(SHARED_CACHE_KEY);
                 if (!raw) return [];
-                const parsed = JSON.parse(raw);
+                var parsed = JSON.parse(raw);
                 if (parsed && Array.isArray(parsed.records)) {
                     if (parsed.clearedAt && parsed.clearedAt > lastClearedTimestamp) {
                         lastClearedTimestamp = parsed.clearedAt;
                     }
-                    return parsed.records.filter(r => (r.updatedAt || 0) > lastClearedTimestamp);
+                    return parsed.records.filter(function(r) {
+                        return (r.updatedAt || 0) > lastClearedTimestamp;
+                    });
                 }
             } catch (e) {}
             return [];
@@ -1293,15 +1283,15 @@
 
         function normalizeAndSortRecords(list) {
             if (!Array.isArray(list)) return [];
-            const byId = new Map();
-            list.forEach(item => {
-                if (!item || typeof item.score !== 'number' || isNaN(item.score)) return;
-                const itemTime = Number(item.updatedAt) || 0;
+            var byId = new Map();
+            list.forEach(function(item) {
+                if (!item || typeof item.score !== "number" || isNaN(item.score)) return;
+                var itemTime = Number(item.updatedAt) || 0;
                 if (lastClearedTimestamp > 0 && itemTime <= lastClearedTimestamp) return;
-                const id = String(item.id || `${item.name}_${item.score}`);
-                const cleanItem = {
+                var id = String(item.id || (item.name + "_" + item.score));
+                var cleanItem = {
                     id: id,
-                    name: String(item.name || 'Người chơi').trim().slice(0, 20),
+                    name: String(item.name || "Người chơi").trim().slice(0, 20),
                     score: Number(item.score),
                     updatedAt: itemTime || Date.now()
                 };
@@ -1310,163 +1300,178 @@
                 }
             });
 
-            const sorted = Array.from(byId.values());
-            sorted.sort((a, b) => {
+            var sorted = Array.from(byId.values());
+            sorted.sort(function(a, b) {
                 if (a.score !== b.score) return a.score - b.score;
                 return b.updatedAt - a.updatedAt;
             });
             return sorted.slice(0, 20);
         }
 
-        function encodePayload(obj) {
-            try {
-                const json = JSON.stringify(obj);
-                const b64 = btoa(encodeURIComponent(json));
-                return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-            } catch (e) {
-                return '';
+        // Áp dụng gói dữ liệu nhận được từ trình duyệt khác
+        function applyIncomingState(stateObj) {
+            if (!stateObj) return;
+            var changed = false;
+
+            if (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp) {
+                lastClearedTimestamp = Number(stateObj.clearedAt);
+                try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
+                leaderboardData = [];
+                changed = true;
             }
-        }
 
-        function decodePayload(str) {
-            try {
-                if (!str || typeof str !== 'string') return null;
-                const cleaned = str.trim().replace(/^"|"$/g, '');
-                if (!cleaned || cleaned === 'null' || cleaned === 'undefined') return null;
-                let b64 = cleaned.replace(/-/g, '+').replace(/_/g, '/');
-                while (b64.length % 4) b64 += '=';
-                const json = decodeURIComponent(atob(b64));
-                return JSON.parse(json);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        // Đọc dữ liệu từ Cloud
-        async function fetchCloudState() {
-            let bestState = null;
-
-            // Kênh 1: KeyValue Cloud API
-            try {
-                const res = await fetch(`${KV_GET_URL}?_=${Date.now()}`, { cache: 'no-store' });
-                if (res.ok) {
-                    const text = await res.text();
-                    const decoded = decodePayload(text);
-                    if (decoded && Array.isArray(decoded.records)) {
-                        bestState = decoded;
-                    }
+            if (Array.isArray(stateObj.records)) {
+                var merged = normalizeAndSortRecords(leaderboardData.concat(stateObj.records));
+                if (JSON.stringify(merged) !== JSON.stringify(leaderboardData)) {
+                    leaderboardData = merged;
+                    changed = true;
                 }
-            } catch (e) {}
+            }
 
-            // Kênh 2: JSONBlob dự phòng
+            if (stateObj.singleEntry && typeof stateObj.singleEntry.score === "number") {
+                var mergedSingle = normalizeAndSortRecords(leaderboardData.concat([stateObj.singleEntry]));
+                if (JSON.stringify(mergedSingle) !== JSON.stringify(leaderboardData)) {
+                    leaderboardData = mergedSingle;
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                saveLocalBackup(leaderboardData);
+                renderLeaderboardUI();
+            }
+        }
+
+        // Lắng nghe luồng sự kiện thời gian thực (Realtime SSE) từ mọi trình duyệt
+        function startRealtimeStream() {
+            if (!("EventSource" in window)) return;
             try {
-                const ptrRes = await fetch(`${KV_POINTER_URL}?_=${Date.now()}`, { cache: 'no-store' });
-                if (ptrRes.ok) {
-                    const blobId = (await ptrRes.text()).trim().replace(/^"|"$/g, '');
-                    if (blobId && blobId.length > 8 && blobId !== 'null') {
-                        const blobRes = await fetch(`https://jsonblob.com/api/jsonBlob/${blobId}?_=${Date.now()}`, {
-                            cache: 'no-store'
-                        });
-                        if (blobRes.ok) {
-                            const blobData = await blobRes.json();
-                            if (blobData && Array.isArray(blobData.records)) {
-                                if (!bestState || (blobData.clearedAt || 0) > (bestState.clearedAt || 0) || blobData.records.length > bestState.records.length) {
-                                    bestState = blobData;
+                if (eventSourceConn) {
+                    eventSourceConn.close();
+                }
+                eventSourceConn = new EventSource(NTFY_SSE_URL);
+                eventSourceConn.onmessage = function(event) {
+                    try {
+                        var packet = JSON.parse(event.data);
+                        if (packet && packet.event === "message" && packet.message) {
+                            var payload = JSON.parse(packet.message);
+                            applyIncomingState(payload);
+                        }
+                    } catch (e) {}
+                };
+            } catch (e) {}
+        }
+
+        // Tải toàn bộ lịch sử Bảng Xếp Hạng từ Đám Mây khi mở trình duyệt mới
+        async function fetchCloudState() {
+            var collectedRecords = [];
+            var maxClearTime = lastClearedTimestamp;
+
+            // Nguồn 1: Đọc lịch sử thông điệp trên ntfy.sh
+            try {
+                var res = await fetch(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" });
+                if (res.ok) {
+                    var text = await res.text();
+                    var lines = text.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i].trim();
+                        if (!line) continue;
+                        try {
+                            var pkt = JSON.parse(line);
+                            if (pkt && pkt.event === "message" && pkt.message) {
+                                var data = JSON.parse(pkt.message);
+                                if (data.clearedAt && Number(data.clearedAt) > maxClearTime) {
+                                    maxClearTime = Number(data.clearedAt);
+                                }
+                                if (Array.isArray(data.records)) {
+                                    collectedRecords = collectedRecords.concat(data.records);
+                                }
+                                if (data.singleEntry) {
+                                    collectedRecords.push(data.singleEntry);
                                 }
                             }
+                        } catch (innerErr) {}
+                    }
+                }
+            } catch (e) {}
+
+            // Nguồn 2: Đọc từ KVDB dự phòng
+            try {
+                var kvRes = await fetch(KVDB_URL + "?_t=" + Date.now(), { cache: "no-store" });
+                if (kvRes.ok) {
+                    var kvData = await kvRes.json();
+                    if (kvData) {
+                        if (kvData.clearedAt && Number(kvData.clearedAt) > maxClearTime) {
+                            maxClearTime = Number(kvData.clearedAt);
+                        }
+                        if (Array.isArray(kvData.records)) {
+                            collectedRecords = collectedRecords.concat(kvData.records);
                         }
                     }
                 }
             } catch (e) {}
 
-            return bestState;
+            return {
+                clearedAt: maxClearTime,
+                records: collectedRecords
+            };
         }
 
-        // Ghi dữ liệu lên Cloud
-        async function pushCloudState(records, clearedAtValue) {
-            const payloadObj = {
+        // Đẩy dữ liệu mới lên Đám Mây để mọi trình duyệt khác nhận được ngay
+        async function pushCloudState(records, clearedAtValue, singleEntryObj) {
+            var payloadObj = {
                 clearedAt: clearedAtValue || lastClearedTimestamp || 0,
-                records: records.slice(0, 15).map(r => ({
-                    id: r.id,
-                    name: r.name,
-                    score: r.score,
-                    updatedAt: r.updatedAt
-                }))
+                singleEntry: singleEntryObj || null,
+                records: records.slice(0, 15).map(function(r) {
+                    return {
+                        id: r.id,
+                        name: r.name,
+                        score: r.score,
+                        updatedAt: r.updatedAt
+                    };
+                })
             };
 
-            // Ghi lên KeyValue Cloud
+            var bodyString = JSON.stringify(payloadObj);
+
+            // Phát sóng trực tiếp qua ntfy.sh (Tất cả trình duyệt đang mở nhận ngay qua SSE + lưu vào lịch sử)
             try {
-                const encoded = encodePayload(payloadObj);
-                if (encoded) {
-                    await fetch(`${KV_POST_URL}/${encoded}`, {
-                        method: 'POST',
-                        mode: 'cors'
-                    });
-                }
+                await fetch(NTFY_PUBLISH_URL, {
+                    method: "POST",
+                    body: bodyString
+                });
             } catch (e) {}
 
-            // Ghi song song lên JSONBlob
+            // Lưu snapshot vào KVDB dự phòng
             try {
-                let blobId = '';
-                const ptrRes = await fetch(`${KV_POINTER_URL}?_=${Date.now()}`, { cache: 'no-store' });
-                if (ptrRes.ok) {
-                    blobId = (await ptrRes.text()).trim().replace(/^"|"$/g, '');
-                }
-                if (blobId && blobId.length > 8 && blobId !== 'null') {
-                    await fetch(`https://jsonblob.com/api/jsonBlob/${blobId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payloadObj)
-                    });
-                } else {
-                    const createRes = await fetch('https://jsonblob.com/api/jsonBlob', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payloadObj)
-                    });
-                    const location = createRes.headers.get('Location') || createRes.headers.get('location');
-                    if (location) {
-                        const newId = location.split('/').pop();
-                        if (newId) {
-                            await fetch(`${KV_POINTER_SET_URL}/${newId}`, { method: 'POST' });
-                        }
-                    }
-                }
+                await fetch(KVDB_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: bodyString
+                });
             } catch (e) {}
         }
 
-        // Đồng bộ 2 chiều giữa trình duyệt hiện tại và Cloud
-        async function syncAllChannels(showFeedbackToast = false) {
+        async function syncAllChannels(showFeedbackToast) {
             if (isSyncing) return;
             isSyncing = true;
             try {
-                const cloudState = await fetchCloudState();
+                var cloudState = await fetchCloudState();
                 if (cloudState) {
                     if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
                         lastClearedTimestamp = cloudState.clearedAt;
-                        localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                        try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
                         leaderboardData = [];
                     }
-                    const merged = normalizeAndSortRecords([
-                        ...(cloudState.records || []),
-                        ...leaderboardData
-                    ]);
+                    var merged = normalizeAndSortRecords(
+                        (cloudState.records || []).concat(leaderboardData)
+                    );
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
-
-                    if (cloudState.records && merged.length > cloudState.records.length) {
-                        await pushCloudState(merged, lastClearedTimestamp);
-                    }
-                } else {
-                    const localRecords = loadLocalBackup();
-                    leaderboardData = normalizeAndSortRecords([...leaderboardData, ...localRecords]);
-                    if (leaderboardData.length > 0) {
-                        await pushCloudState(leaderboardData, lastClearedTimestamp);
-                    }
                 }
                 renderLeaderboardUI();
                 if (showFeedbackToast) {
-                    showToast('Đã đồng bộ Bảng Xếp Hạng mới nhất!', 'success');
+                    showToast("Đã đồng bộ Bảng Xếp Hạng mới nhất!", "success");
                 }
             } catch (e) {
                 renderLeaderboardUI();
@@ -1476,18 +1481,7 @@
         }
 
         async function publishScoreEntry(entry) {
-            const cloudState = await fetchCloudState();
-            let baseList = [];
-            if (cloudState) {
-                if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
-                    lastClearedTimestamp = cloudState.clearedAt;
-                    localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
-                }
-                if (Array.isArray(cloudState.records)) {
-                    baseList = cloudState.records;
-                }
-            }
-            const combined = normalizeAndSortRecords([...baseList, ...leaderboardData, entry]);
+            var combined = normalizeAndSortRecords(leaderboardData.concat([entry]));
             leaderboardData = combined;
             saveLocalBackup(combined);
             renderLeaderboardUI();
@@ -1495,95 +1489,93 @@
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
-                        type: 'SYNC_LB',
                         clearedAt: lastClearedTimestamp,
+                        singleEntry: entry,
                         records: combined
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState(combined, lastClearedTimestamp);
+            await pushCloudState(combined, lastClearedTimestamp, entry);
         }
 
         function formatRelativeTime(timestamp) {
-            if (!timestamp) return 'Vừa xong';
-            const diffSec = Math.floor((Date.now() - timestamp) / 1000);
-            if (diffSec < 60) return 'Vừa xong';
-            if (diffSec < 3600) return `${Math.floor(diffSec / 60)} phút trước`;
-            if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} giờ trước`;
-            return `${Math.floor(diffSec / 86400)} ngày trước`;
+            if (!timestamp) return "Vừa xong";
+            var diffSec = Math.floor((Date.now() - timestamp) / 1000);
+            if (diffSec < 60) return "Vừa xong";
+            if (diffSec < 3600) return Math.floor(diffSec / 60) + " phút trước";
+            if (diffSec < 86400) return Math.floor(diffSec / 3600) + " giờ trước";
+            return Math.floor(diffSec / 86400) + " ngày trước";
         }
 
         function escapeHtml(str) {
-            return String(str || '').replace(/[&<>"']/g, function(m) {
-                return ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' })[m];
-            });
+            var div = document.createElement("div");
+            div.textContent = String(str || "");
+            return div.innerHTML;
         }
 
         function renderLeaderboardUI() {
-            const bestScoreEl = document.getElementById('bestScore');
-            const bestHolderEl = document.getElementById('bestHolderText');
-            const miniListEl = document.getElementById('miniLeaderboardList');
-            const fullListEl = document.getElementById('fullLeaderboardList');
+            var bestScoreEl = document.getElementById("bestScore");
+            var bestHolderEl = document.getElementById("bestHolderText");
+            var miniListEl = document.getElementById("miniLeaderboardList");
+            var fullListEl = document.getElementById("fullLeaderboardList");
 
             if (!leaderboardData || leaderboardData.length === 0) {
-                bestScoreEl.textContent = '--';
-                bestHolderEl.textContent = 'Chưa có kỷ lục';
-                const emptyHtml = '<div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>';
+                bestScoreEl.textContent = "--";
+                bestHolderEl.textContent = "Chưa có kỷ lục";
+                var emptyHtml = '<div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>';
                 miniListEl.innerHTML = emptyHtml;
                 fullListEl.innerHTML = emptyHtml;
                 return;
             }
 
-            const top1 = leaderboardData[0];
-            bestScoreEl.textContent = `Top 1: ${top1.score}`;
-            bestHolderEl.textContent = `👑 ${top1.name}`;
+            var top1 = leaderboardData[0];
+            bestScoreEl.textContent = "Top 1: " + top1.score;
+            bestHolderEl.innerHTML = "👑 " + escapeHtml(top1.name);
 
-            const buildRow = (item, idx) => {
-                const rank = idx + 1;
-                const rankClass = rank <= 3 ? `rank-${rank}` : '';
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                const isJustPlayed = currentSessionEntryId && item.id === currentSessionEntryId;
-                return `
-                    <div class="lb-row ${rankClass}">
-                        <div class="lb-left">
-                            <div class="lb-rank">${medal}</div>
-                            <div style="min-width:0;">
-                                <div class="lb-name">${escapeHtml(item.name)} ${isJustPlayed ? '<span style="font-size:0.7rem;color:#059669;">(Vừa chơi)</span>' : ''}</div>
-                                <div class="lb-time">${formatRelativeTime(item.updatedAt)}</div>
-                            </div>
-                        </div>
-                        <div class="lb-score">${item.score} lần thử</div>
-                    </div>
-                `;
+            var buildRow = function(item, idx) {
+                var rank = idx + 1;
+                var rankClass = rank <= 3 ? "rank-" + rank : "";
+                var medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "#" + rank;
+                var isJustPlayed = currentSessionEntryId && item.id === currentSessionEntryId;
+                return (
+                    '<div class="lb-row ' + rankClass + '">' +
+                        '<div class="lb-left">' +
+                            '<div class="lb-rank">' + medal + '</div>' +
+                            '<div style="min-width:0;">' +
+                                '<div class="lb-name">' + escapeHtml(item.name) + (isJustPlayed ? ' <span style="font-size:0.7rem;color:#059669;">(Vừa chơi)</span>' : '') + '</div>' +
+                                '<div class="lb-time">' + formatRelativeTime(item.updatedAt) + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="lb-score">' + item.score + ' lần thử</div>' +
+                    '</div>'
+                );
             };
 
-            miniListEl.innerHTML = leaderboardData.slice(0, 5).map((item, idx) => buildRow(item, idx)).join('');
-            fullListEl.innerHTML = leaderboardData.slice(0, 10).map((item, idx) => buildRow(item, idx)).join('');
+            miniListEl.innerHTML = leaderboardData.slice(0, 5).map(buildRow).join("");
+            fullListEl.innerHTML = leaderboardData.slice(0, 10).map(buildRow).join("");
         }
 
-        // =====================================================
-        // LOGIC TRÒ CHƠI CHÍNH
-        // =====================================================
-        function showToast(message, type = 'warning') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'error' ? '⚠️' : type === 'success' ? '✅' : '💡';
-            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+        function showToast(message, type) {
+            var toastType = type || "warning";
+            var container = document.getElementById("toastContainer");
+            var toast = document.createElement("div");
+            toast.className = "toast " + toastType;
+            var icon = toastType === "error" ? "⚠️" : toastType === "success" ? "✅" : "💡";
+            toast.innerHTML = "<span>" + icon + "</span><span>" + message + "</span>";
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 2600);
+            setTimeout(function() { toast.remove(); }, 2600);
         }
 
         function updateRangeUI() {
-            document.getElementById('rangeDisplay').textContent = `${minPossible} - ${maxPossible}`;
-            document.getElementById('minBoundLabel').textContent = minPossible;
-            document.getElementById('maxBoundLabel').textContent = maxPossible;
-            const leftPercent = ((minPossible - 1) / 99) * 100;
-            const widthPercent = Math.max(4, ((maxPossible - minPossible) / 99) * 100);
-            const barFill = document.getElementById('rangeBarFill');
-            barFill.style.left = `${leftPercent}%`;
-            barFill.style.width = `${widthPercent}%`;
+            document.getElementById("rangeDisplay").textContent = minPossible + " - " + maxPossible;
+            document.getElementById("minBoundLabel").textContent = minPossible;
+            document.getElementById("maxBoundLabel").textContent = maxPossible;
+            var leftPercent = ((minPossible - 1) / 99) * 100;
+            var widthPercent = Math.max(4, ((maxPossible - minPossible) / 99) * 100);
+            var barFill = document.getElementById("rangeBarFill");
+            barFill.style.left = leftPercent + "%";
+            barFill.style.width = widthPercent + "%";
         }
 
         function initGame() {
@@ -1595,18 +1587,18 @@
             maxPossible = 100;
             currentSessionEntryId = null;
 
-            const guessInput = document.getElementById('guessInput');
-            guessInput.value = '';
+            var guessInput = document.getElementById("guessInput");
+            guessInput.value = "";
             guessInput.disabled = false;
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('attempts').textContent = '0';
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("attempts").textContent = "0";
 
-            const feedback = document.getElementById('feedback');
-            feedback.innerHTML = '<span>✨ Hãy nhập con số dự đoán đầu tiên của bạn!</span>';
-            feedback.className = 'feedback';
+            var feedback = document.getElementById("feedback");
+            feedback.innerHTML = "<span>✨ Hãy nhập con số dự đoán đầu tiên của bạn!</span>";
+            feedback.className = "feedback";
 
-            document.getElementById('previousGuesses').style.display = 'none';
-            document.getElementById('guessList').innerHTML = '';
+            document.getElementById("previousGuesses").style.display = "none";
+            document.getElementById("guessList").innerHTML = "";
 
             updateRangeUI();
         }
@@ -1614,50 +1606,49 @@
         function checkGuess() {
             if (gameOver) return;
 
-            const guessInput = document.getElementById('guessInput');
-            const guess = parseInt(guessInput.value, 10);
-            const feedback = document.getElementById('feedback');
+            var guessInput = document.getElementById("guessInput");
+            var guess = parseInt(guessInput.value, 10);
+            var feedback = document.getElementById("feedback");
 
             if (isNaN(guess) || guess < 1 || guess > 100) {
-                showToast('Vui lòng nhập một số hợp lệ từ 1 đến 100!', 'error');
+                showToast("Vui lòng nhập một số hợp lệ từ 1 đến 100!", "error");
                 guessInput.focus();
                 return;
             }
 
-            if (guesses.some(g => g.value === guess)) {
-                showToast(`Bạn đã đoán số ${guess} trước đó rồi!`, 'warning');
-                guessInput.value = '';
+            if (guesses.some(function(g) { return g.value === guess; })) {
+                showToast("Bạn đã đoán số " + guess + " trước đó rồi!", "warning");
+                guessInput.value = "";
                 guessInput.focus();
                 return;
             }
 
             attempts++;
-            document.getElementById('attempts').textContent = attempts;
+            document.getElementById("attempts").textContent = attempts;
 
             if (guess === targetNumber) {
-                guesses.push({ value: guess, status: 'exact' });
+                guesses.push({ value: guess, status: "exact" });
                 minPossible = targetNumber;
                 maxPossible = targetNumber;
                 updateRangeUI();
                 updatePreviousGuesses();
 
-                feedback.innerHTML = `<span>🎉 Chúc mừng! Bạn đã đoán đúng số ${targetNumber} trong ${attempts} lần thử!</span>`;
-                feedback.className = 'feedback correct';
+                feedback.innerHTML = "<span>🎉 Chúc mừng! Bạn đã đoán đúng số " + targetNumber + " trong " + attempts + " lần thử!</span>";
+                feedback.className = "feedback correct";
                 gameOver = true;
                 guessInput.disabled = true;
-                document.getElementById('submitBtn').disabled = true;
+                document.getElementById("submitBtn").disabled = true;
 
                 if (localBestScore === null || attempts < localBestScore) {
                     localBestScore = attempts;
                     try { localStorage.setItem(LOCAL_BEST_KEY, String(localBestScore)); } catch (e) {}
-                    document.getElementById('localBestSub').textContent = `Cá nhân: ${localBestScore} lần`;
+                    document.getElementById("localBestSub").textContent = "Cá nhân: " + localBestScore + " lần";
                 }
 
-                // Tự động ghi nhận lượt thắng lên Bảng Xếp Hạng đám mây ngay lập tức
-                currentSessionEntryId = 'entry_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-                let savedName = '';
-                try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ''; } catch (e) {}
-                const autoName = savedName.trim() ? savedName.trim() : `Người chơi (${getBrowserTag()})`;
+                currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
+                var savedName = "";
+                try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
+                var autoName = savedName.trim() ? savedName.trim() : ("Người chơi (" + getBrowserTag() + ")");
 
                 publishScoreEntry({
                     id: currentSessionEntryId,
@@ -1669,72 +1660,72 @@
                 showWinModal(savedName.trim());
                 return;
             } else if (guess < targetNumber) {
-                guesses.push({ value: guess, status: 'low' });
+                guesses.push({ value: guess, status: "low" });
                 if (guess + 1 > minPossible) minPossible = guess + 1;
-                feedback.innerHTML = `<span>📈 Số <strong>${guess}</strong> quá thấp! Hãy thử số lớn hơn.</span>`;
-                feedback.className = 'feedback too-low';
+                feedback.innerHTML = "<span>📈 Số <strong>" + guess + "</strong> quá thấp! Hãy thử số lớn hơn.</span>";
+                feedback.className = "feedback too-low";
             } else {
-                guesses.push({ value: guess, status: 'high' });
+                guesses.push({ value: guess, status: "high" });
                 if (guess - 1 < maxPossible) maxPossible = guess - 1;
-                feedback.innerHTML = `<span>📉 Số <strong>${guess}</strong> quá cao! Hãy thử số nhỏ hơn.</span>`;
-                feedback.className = 'feedback too-high';
+                feedback.innerHTML = "<span>📉 Số <strong>" + guess + "</strong> quá cao! Hãy thử số nhỏ hơn.</span>";
+                feedback.className = "feedback too-high";
             }
 
             updateRangeUI();
             updatePreviousGuesses();
-            guessInput.value = '';
+            guessInput.value = "";
             guessInput.focus();
         }
 
         function updatePreviousGuesses() {
-            const previousGuesses = document.getElementById('previousGuesses');
-            const guessList = document.getElementById('guessList');
+            var previousGuesses = document.getElementById("previousGuesses");
+            var guessList = document.getElementById("guessList");
             if (guesses.length > 0) {
-                previousGuesses.style.display = 'block';
-                guessList.innerHTML = guesses.map(item => {
-                    const arrow = item.status === 'low' ? '↑' : item.status === 'high' ? '↓' : '✓';
-                    return `<span class="guess-item ${item.status}">${item.value} ${arrow}</span>`;
-                }).join('');
+                previousGuesses.style.display = "block";
+                guessList.innerHTML = guesses.map(function(item) {
+                    var arrow = item.status === "low" ? "↑" : item.status === "high" ? "↓" : "✓";
+                    return '<span class="guess-item ' + item.status + '">' + item.value + " " + arrow + "</span>";
+                }).join("");
             }
         }
 
         function showWinModal(prefilledName) {
-            document.getElementById('winSecretNumber').textContent = targetNumber;
-            document.getElementById('winAttemptsCount').textContent = `${attempts} lần`;
-            document.getElementById('winSubtitleText').textContent = `Bạn đã giải mã thành công con số bí mật trong ${attempts} lần thử!`;
+            document.getElementById("winSecretNumber").textContent = targetNumber;
+            document.getElementById("winAttemptsCount").textContent = attempts + " lần";
+            document.getElementById("winSubtitleText").textContent = "Bạn đã giải mã thành công con số bí mật trong " + attempts + " lần thử!";
 
-            const rankIndex = leaderboardData.findIndex(item => item.id === currentSessionEntryId);
-            const rankDisplay = rankIndex !== -1 ? `#${rankIndex + 1}` : `#${leaderboardData.length + 1}`;
-            document.getElementById('winBestRecord').textContent = rankDisplay;
+            var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
+            var rankDisplay = rankIndex !== -1 ? "#" + (rankIndex + 1) : "#" + (leaderboardData.length + 1);
+            document.getElementById("winBestRecord").textContent = rankDisplay;
 
-            const nameInput = document.getElementById('recordHolderInput');
-            const saveBtn = document.getElementById('saveRecordBtn');
-            nameInput.value = prefilledName || '';
+            var nameInput = document.getElementById("recordHolderInput");
+            var saveBtn = document.getElementById("saveRecordBtn");
+            nameInput.value = prefilledName || "";
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Ghi danh';
+            saveBtn.textContent = "Ghi danh";
 
-            document.getElementById('winModal').classList.add('active');
+            document.getElementById("winModal").classList.add("active");
             launchConfetti();
 
-            const completionSound = document.getElementById('completionSound');
+            var completionSound = document.getElementById("completionSound");
             if (completionSound) {
                 completionSound.currentTime = 0;
-                completionSound.play().catch(() => {});
+                completionSound.play().catch(function() {});
             }
         }
 
         async function savePlayerName() {
-            const nameInput = document.getElementById('recordHolderInput');
-            const saveBtn = document.getElementById('saveRecordBtn');
-            const playerName = (nameInput.value || '').trim() || `Người chơi (${getBrowserTag()})`;
+            var nameInput = document.getElementById("recordHolderInput");
+            var saveBtn = document.getElementById("saveRecordBtn");
+            var playerName = (nameInput.value || "").trim() || ("Người chơi (" + getBrowserTag() + ")");
 
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Đang lưu...';
+            saveBtn.textContent = "Đang lưu...";
 
             try { localStorage.setItem(PLAYER_NAME_KEY, playerName); } catch (e) {}
 
             if (!currentSessionEntryId) {
-                currentSessionEntryId = 'entry_' + Date.now();
+                currentSessionEntryId = "entry_" + Date.now();
             }
 
             await publishScoreEntry({
@@ -1744,31 +1735,32 @@
                 updatedAt: Date.now()
             });
 
-            saveBtn.textContent = 'Đã lưu ✓';
-            showToast(`Đã ghi danh "${playerName}" lên Bảng Xếp Hạng!`, 'success');
+            saveBtn.textContent = "Đã lưu";
+            showToast("Đã ghi danh " + playerName + " lên Bảng Xếp Hạng!", "success");
         }
 
-        // Xác thực Admin khi xóa BXH
         function clearLeaderboard() {
-            document.getElementById('adminUsername').value = '';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminErrorMsg').style.display = 'none';
-            document.getElementById('adminAuthModal').classList.add('active');
-            setTimeout(() => document.getElementById('adminUsername').focus(), 100);
+            document.getElementById("adminUsername").value = "";
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("adminErrorMsg").style.display = "none";
+            document.getElementById("adminAuthModal").classList.add("active");
+            setTimeout(function() {
+                document.getElementById("adminUsername").focus();
+            }, 100);
         }
 
         function closeAdminModal() {
-            document.getElementById('adminAuthModal').classList.remove('active');
+            document.getElementById("adminAuthModal").classList.remove("active");
         }
 
         async function confirmAdminClearLeaderboard() {
-            const username = document.getElementById('adminUsername').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const errorMsg = document.getElementById('adminErrorMsg');
+            var username = document.getElementById("adminUsername").value.trim();
+            var password = document.getElementById("adminPassword").value;
+            var errorMsg = document.getElementById("adminErrorMsg");
 
-            if (username !== 'admin' || password !== 'admin123@admin') {
-                errorMsg.style.display = 'block';
-                showToast('Sai tài khoản hoặc mật khẩu Admin!', 'error');
+            if (username !== "admin" || password !== "admin123@admin") {
+                errorMsg.style.display = "block";
+                showToast("Sai tài khoản hoặc mật khẩu Admin!", "error");
                 return;
             }
 
@@ -1787,24 +1779,24 @@
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
-                        type: 'SYNC_LB',
                         clearedAt: lastClearedTimestamp,
                         records: []
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState([], lastClearedTimestamp);
-            showToast('Admin đã xóa toàn bộ Bảng Xếp Hạng!', 'success');
+            await pushCloudState([], lastClearedTimestamp, null);
+            showToast("Admin đã xóa toàn bộ Bảng Xếp Hạng!", "success");
         }
 
         function closeWinModal() {
-            document.getElementById('winModal').classList.remove('active');
+            document.getElementById("winModal").classList.remove("active");
         }
 
         function newGame() {
             closeWinModal();
             initGame();
+            showToast("Đã tạo ván chơi mới!", "success");
         }
 
         function newGameFromModal() {
@@ -1815,11 +1807,11 @@
         function showLeaderboard() {
             closeWinModal();
             syncAllChannels(false);
-            document.getElementById('leaderboardModal').classList.add('active');
+            document.getElementById("leaderboardModal").classList.add("active");
         }
 
         function closeLeaderboard() {
-            document.getElementById('leaderboardModal').classList.remove('active');
+            document.getElementById("leaderboardModal").classList.remove("active");
         }
 
         function manualSyncLeaderboard() {
@@ -1827,27 +1819,41 @@
         }
 
         function showInstructions() {
-            document.getElementById('instructionsModal').classList.add('active');
+            document.getElementById("instructionsModal").classList.add("active");
         }
 
         function closeInstructions() {
-            document.getElementById('instructionsModal').classList.remove('active');
+            document.getElementById("instructionsModal").classList.remove("active");
         }
 
         function goBack() {
-            window.location.href = 'game.html';
+            window.location.href = "game.html";
         }
 
-        // Hiệu ứng Pháo hoa chúc mừng
+        window.checkGuess = checkGuess;
+        window.newGame = newGame;
+        window.newGameFromModal = newGameFromModal;
+        window.showLeaderboard = showLeaderboard;
+        window.closeLeaderboard = closeLeaderboard;
+        window.manualSyncLeaderboard = manualSyncLeaderboard;
+        window.clearLeaderboard = clearLeaderboard;
+        window.closeAdminModal = closeAdminModal;
+        window.confirmAdminClearLeaderboard = confirmAdminClearLeaderboard;
+        window.showInstructions = showInstructions;
+        window.closeInstructions = closeInstructions;
+        window.closeWinModal = closeWinModal;
+        window.savePlayerName = savePlayerName;
+        window.goBack = goBack;
+
         function launchConfetti() {
-            const canvas = document.getElementById('confettiCanvas');
-            const ctx = canvas.getContext('2d');
+            var canvas = document.getElementById("confettiCanvas");
+            var ctx = canvas.getContext("2d");
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const pieces = [];
-            const colors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
-            for (let i = 0; i < 85; i++) {
+            var pieces = [];
+            var colors = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#3b82f6"];
+            for (var i = 0; i < 85; i++) {
                 pieces.push({
                     x: canvas.width / 2,
                     y: canvas.height / 2 + 40,
@@ -1862,10 +1868,10 @@
                 });
             }
 
-            let frame = 0;
+            var frame = 0;
             function render() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                pieces.forEach(p => {
+                pieces.forEach(function(p) {
                     p.x += p.vx;
                     p.y += p.vy;
                     p.vy += p.gravity;
@@ -1888,63 +1894,58 @@
             requestAnimationFrame(render);
         }
 
-        // Khởi chạy khi tải trang
-        window.addEventListener('DOMContentLoaded', () => {
-            initGame();
-            leaderboardData = normalizeAndSortRecords(loadLocalBackup());
-            renderLeaderboardUI();
+        // Khởi tạo ngay khi mở trang
+        initGame();
+        leaderboardData = normalizeAndSortRecords(loadLocalBackup());
+        renderLeaderboardUI();
+        syncAllChannels(false);
+        startRealtimeStream();
+
+        setInterval(function() {
             syncAllChannels(false);
+        }, 4000);
 
-            // Tự động làm mới Bảng Xếp Hạng mỗi 3.5 giây giữa các trình duyệt
-            setInterval(() => {
-                syncAllChannels(false);
-            }, 3500);
-
-            window.addEventListener('focus', () => syncAllChannels(false));
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') syncAllChannels(false);
-            });
-
-            document.getElementById('guessInput').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') checkGuess();
-            });
-
-            document.getElementById('recordHolderInput').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') savePlayerName();
-            });
-
-            document.getElementById('adminUsername').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') document.getElementById('adminPassword').focus();
-            });
-
-            document.getElementById('adminPassword').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') confirmAdminClearLeaderboard();
-            });
-
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.classList.remove('active');
-                }
-            });
+        window.addEventListener("focus", function() { syncAllChannels(false); });
+        document.addEventListener("visibilitychange", function() {
+            if (document.visibilityState === "visible") syncAllChannels(false);
         });
 
-        // =====================================================
-        // ĐOẠN CODE BẢO MẬT: CHẶN XEM MÃ NGUỒN - CHO PHÉP BÔI ĐEN
-        // =====================================================
-        document.addEventListener('contextmenu', function(e) {
+        document.getElementById("guessInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") checkGuess();
+        });
+
+        document.getElementById("recordHolderInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") savePlayerName();
+        });
+
+        document.getElementById("adminUsername").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") document.getElementById("adminPassword").focus();
+        });
+
+        document.getElementById("adminPassword").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") confirmAdminClearLeaderboard();
+        });
+
+        window.addEventListener("click", function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains("modal")) {
+                e.target.classList.remove("active");
+            }
+        });
+
+        document.addEventListener("contextmenu", function(e) {
             e.preventDefault();
         });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12') {
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "F12") {
                 e.preventDefault();
                 return false;
             }
-            if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
+            if (e.ctrlKey && e.shiftKey && ["I", "i", "J", "j", "C", "c"].indexOf(e.key) !== -1) {
                 e.preventDefault();
                 return false;
             }
-            if (e.ctrlKey && ['U', 'u', 'S', 's'].includes(e.key)) {
+            if (e.ctrlKey && ["U", "u", "S", "s"].indexOf(e.key) !== -1) {
                 e.preventDefault();
                 return false;
             }
