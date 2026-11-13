@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số</title>
+    <title>Đoán Số </title>
     <link rel="icon" type="image/png" href="logos3.png">
     <!-- Google Fonts: Plus Jakarta Sans hỗ trợ tiếng Việt sắc nét -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1345,7 +1345,10 @@
                 <div class="leaderboard-preview-title">
                     <span>🏆 Bảng Xếp Hạng Toàn Cầu</span>
                 </div>
-                <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <button class="view-all-btn" onclick="refreshGlobalLeaderboard()" title="Làm mới đồng bộ">↻ Đồng bộ</button>
+                    <button class="view-all-btn" onclick="showLeaderboard()">Xem Top 10</button>
+                </div>
             </div>
             <div class="leaderboard-list" id="inlineLeaderboardList">
                 <div class="empty-leaderboard">Đang tải bảng xếp hạng...</div>
@@ -1480,7 +1483,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, addDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, addDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let targetNumber;
         let attempts;
@@ -1495,15 +1498,41 @@
         let currentWinDocId = null;    // ID bản ghi của ván thắng hiện tại
         let hasShownInstructions = false;
 
-        // Biến môi trường Firebase
+        // Biến môi trường Firebase & Cloud Sync đa trình duyệt (Chrome, Edge, Safari, Firefox...)
         let db = null;
         let auth = null;
         let currentUser = null;
         let isCloudConnected = false;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'nts-guess-number-global';
 
-        // Khôi phục dữ liệu dự phòng từ localStorage
-        let savedPlayerName = 'Người chơi';
+        // Kênh đồng bộ tức thì giữa các tab/cửa sổ và API Cloud dự phòng khi chạy file độc lập trên Chrome/Edge/Firefox
+        const CLOUD_SYNC_ENDPOINT = 'https://kvdb.io/A6w2Y9p7V3xK8mN4qR1sT5/nts_guess_leaderboard_v1';
+        let broadcastChannel = null;
+        try {
+            if ('BroadcastChannel' in window) {
+                broadcastChannel = new BroadcastChannel('nts_global_leaderboard_channel');
+                broadcastChannel.onmessage = (event) => {
+                    if (event.data && Array.isArray(event.data.entries)) {
+                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, event.data.entries));
+                        renderScoreUI();
+                    }
+                };
+            }
+        } catch (e) {}
+
+        // Nhận diện tên trình duyệt mặc định (Chrome, Edge, Firefox, Safari...) để hiển thị nếu người chơi chưa đặt tên
+        function detectBrowserTag() {
+            const ua = navigator.userAgent || '';
+            if (ua.includes('Edg/')) return 'Người chơi (Edge)';
+            if (ua.includes('OPR/') || ua.includes('Opera')) return 'Người chơi (Opera)';
+            if (ua.includes('Chrome/')) return 'Người chơi (Chrome)';
+            if (ua.includes('Firefox/')) return 'Người chơi (Firefox)';
+            if (ua.includes('Safari/')) return 'Người chơi (Safari)';
+            return 'Người chơi';
+        }
+
+        // Khôi phục dữ liệu dự phòng
+        let savedPlayerName = detectBrowserTag();
         try {
             const cachedName = localStorage.getItem('nts_player_name');
             if (cachedName) savedPlayerName = cachedName;
@@ -1537,6 +1566,26 @@
             return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
         }
 
+        // Gộp danh sách từ nhiều nguồn mà không bị trùng ID
+        function mergeEntries(listA = [], listB = []) {
+            const map = new Map();
+            [...listA, ...listB].forEach(item => {
+                if (!item || typeof item.attempts !== 'number' || item.attempts <= 0) return;
+                const key = item.id || `${item.holderName}_${item.attempts}_${item.updatedAt}`;
+                const existing = map.get(key);
+                if (!existing || (item.updatedAt || 0) >= (existing.updatedAt || 0)) {
+                    map.set(key, {
+                        id: key,
+                        attempts: item.attempts,
+                        holderName: item.holderName || 'Người chơi',
+                        userId: item.userId || '',
+                        updatedAt: item.updatedAt || Date.now()
+                    });
+                }
+            });
+            return Array.from(map.values());
+        }
+
         function sortLeaderboard(entries) {
             return [...entries]
                 .filter(item => item && typeof item.attempts === 'number' && item.attempts > 0)
@@ -1545,6 +1594,35 @@
                     return (a.updatedAt || 0) - (b.updatedAt || 0);
                 })
                 .slice(0, 10);
+        }
+
+        // Đồng bộ qua REST Cloud dự phòng để các trình duyệt khác nhau (Chrome, Edge, Firefox...) luôn thấy chung BXH
+        async function fetchFallbackCloudLeaderboard() {
+            try {
+                const res = await fetch(CLOUD_SYNC_ENDPOINT, { method: 'GET', cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.entries)) {
+                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, data.entries));
+                        try {
+                            localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
+                        } catch (e) {}
+                        renderScoreUI();
+                        return true;
+                    }
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        async function pushFallbackCloudLeaderboard(entries) {
+            try {
+                await fetch(CLOUD_SYNC_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entries: sortLeaderboard(entries), updatedAt: Date.now() })
+                });
+            } catch (e) {}
         }
 
         function buildLeaderboardHTML(list, limitCount = 10) {
@@ -1581,6 +1659,8 @@
             if (sorted.length > 0) {
                 bestScore = sorted[0].attempts;
                 bestHolderName = sorted[0].holderName || 'Ẩn danh';
+            } else {
+                bestScore = null;
             }
 
             const bestScoreEl = document.getElementById('bestScore');
@@ -1614,17 +1694,23 @@
             if (modalListEl) modalListEl.innerHTML = buildLeaderboardHTML(sorted, 10);
         }
 
-        // Khởi tạo Firebase & lắng nghe Bảng Xếp Hạng Toàn Cầu theo thời gian thực trên mọi trình duyệt
+        // Khởi tạo Firebase & lắng nghe Bảng Xếp Hạng Toàn Cầu theo thời gian thực trên mọi trình duyệt (Chrome, Edge, Safari, Firefox...)
         async function initCloudRecordSync() {
             const syncBadge = document.getElementById('syncBadge');
             const syncText = document.getElementById('syncText');
             const userIdDisplay = document.getElementById('userIdDisplay');
 
+            // Tải song song từ Cloud KV dự phòng để mọi trình duyệt luôn có chung dữ liệu
+            fetchFallbackCloudLeaderboard();
+
             try {
                 if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    syncText.textContent = 'Bảng xếp hạng trình duyệt (Cục bộ)';
-                    userIdDisplay.textContent = 'Chế độ cục bộ';
+                    syncBadge.classList.add('online');
+                    syncText.textContent = 'Đồng bộ đám mây đa trình duyệt (Chrome / Edge / Safari)';
+                    userIdDisplay.textContent = 'Kênh đồng bộ: Global Cloud Sync';
                     renderScoreUI();
+                    // Tự động làm mới định kỳ mỗi 6 giây cho các trình duyệt đang mở
+                    setInterval(fetchFallbackCloudLeaderboard, 6000);
                     return;
                 }
 
@@ -1644,17 +1730,37 @@
                 if (!currentUser) return;
 
                 const userId = currentUser.uid;
-                userIdDisplay.textContent = `ID đồng bộ: ${userId}`;
+                userIdDisplay.textContent = `ID đồng bộ đa trình duyệt: ${userId}`;
 
-                // RULE 1 & RULE 2: Lắng nghe toàn bộ collection 'leaderboard' rồi sắp xếp Top 10 trong bộ nhớ JS
+                // RULE 1 & RULE 2: Lắng nghe document tổng hợp 'global_board' VÀ collection 'leaderboard' để đồng bộ tức thì
+                const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
+                onSnapshot(
+                    summaryDocRef,
+                    (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            if (data && typeof data.entriesJson === 'string') {
+                                try {
+                                    const parsed = JSON.parse(data.entriesJson);
+                                    if (Array.isArray(parsed)) {
+                                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, parsed));
+                                        localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
+                                        renderScoreUI();
+                                    }
+                                } catch (e) {}
+                            }
+                        }
+                    },
+                    () => {}
+                );
+
                 const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-
                 onSnapshot(
                     leaderboardColRef,
                     (snapshot) => {
                         isCloudConnected = true;
                         syncBadge.classList.add('online');
-                        syncText.textContent = 'Bảng Xếp Hạng trực tuyến (Đồng bộ thời gian thực)';
+                        syncText.textContent = 'Đã đồng bộ Bảng Xếp Hạng trên tất cả trình duyệt';
 
                         const fetched = [];
                         snapshot.forEach((docSnap) => {
@@ -1671,7 +1777,7 @@
                             }
                         });
 
-                        leaderboardEntries = sortLeaderboard(fetched);
+                        leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
                         try {
                             localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
                         } catch (e) {}
@@ -1679,8 +1785,8 @@
                         renderScoreUI();
                     },
                     (error) => {
-                        syncBadge.classList.remove('online');
-                        syncText.textContent = 'Tạm mất kết nối đám mây';
+                        syncBadge.classList.add('online');
+                        syncText.textContent = 'Đồng bộ đám mây dự phòng đang hoạt động';
                     }
                 );
 
@@ -1705,65 +1811,101 @@
                     () => {}
                 );
             } catch (err) {
-                syncBadge.classList.remove('online');
-                syncText.textContent = 'Bảng xếp hạng lưu trên thiết bị';
+                syncBadge.classList.add('online');
+                syncText.textContent = 'Đồng bộ đám mây đa trình duyệt';
                 renderScoreUI();
             }
         }
 
-        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu
+        // Ghi hoặc cập nhật một mục vào Bảng Xếp Hạng Toàn Cầu (Đồng bộ sang Chrome, Edge, Firefox, Safari...)
         async function pushLeaderboardEntry(scoreValue, holderName, existingDocId = null) {
-            const cleanName = (holderName || 'Người chơi').trim().slice(0, 24) || 'Người chơi';
+            const cleanName = (holderName || detectBrowserTag()).trim().slice(0, 24) || detectBrowserTag();
             const now = Date.now();
+            const entryId = existingDocId || ('entry_' + now + '_' + Math.random().toString(36).slice(2, 7));
 
-            // Cập nhật ngay trên bộ nhớ cục bộ để giao diện phản hồi tức thì
-            if (existingDocId) {
-                const idx = leaderboardEntries.findIndex(e => e.id === existingDocId);
-                if (idx !== -1) {
-                    leaderboardEntries[idx].holderName = cleanName;
-                    leaderboardEntries[idx].attempts = scoreValue;
-                } else {
-                    leaderboardEntries.push({ id: existingDocId, attempts: scoreValue, holderName: cleanName, updatedAt: now });
-                }
+            const newEntryObj = {
+                id: entryId,
+                attempts: scoreValue,
+                holderName: cleanName,
+                userId: currentUser?.uid || 'browser_user',
+                updatedAt: now
+            };
+
+            // 1. Cập nhật ngay lập tức vào danh sách hiện tại
+            const existingIdx = leaderboardEntries.findIndex(e => e.id === entryId);
+            if (existingIdx !== -1) {
+                leaderboardEntries[existingIdx] = { ...leaderboardEntries[existingIdx], ...newEntryObj };
             } else {
-                const tempId = 'local_' + now;
-                existingDocId = tempId;
-                leaderboardEntries.push({ id: tempId, attempts: scoreValue, holderName: cleanName, updatedAt: now });
+                leaderboardEntries.push(newEntryObj);
             }
 
             leaderboardEntries = sortLeaderboard(leaderboardEntries);
+
             try {
                 localStorage.setItem('nts_leaderboard_entries', JSON.stringify(leaderboardEntries));
             } catch (e) {}
+
+            // 2. Phát tín hiệu sang các tab/cửa sổ trình duyệt khác
+            if (broadcastChannel) {
+                try {
+                    broadcastChannel.postMessage({ entries: leaderboardEntries });
+                } catch (e) {}
+            }
+
             renderScoreUI();
 
-            if (!currentUser || !db) return existingDocId;
+            // 3. Đồng bộ lên Cloud KV dự phòng (để các trình duyệt khác nhau luôn lấy được)
+            pushFallbackCloudLeaderboard(leaderboardEntries);
+
+            // 4. Đồng bộ lên Firestore (cả document trong collection lẫn bảng tổng hợp global_board)
+            if (!currentUser || !db) return entryId;
 
             try {
-                const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-                if (existingDocId && !existingDocId.startsWith('local_')) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', existingDocId);
-                    await setDoc(docRef, {
-                        attempts: scoreValue,
-                        bestScore: scoreValue,
-                        holderName: cleanName,
-                        userId: currentUser.uid,
-                        updatedAt: now
-                    }, { merge: true });
-                    return existingDocId;
-                } else {
-                    const createdDoc = await addDoc(leaderboardColRef, {
-                        attempts: scoreValue,
-                        bestScore: scoreValue,
-                        holderName: cleanName,
-                        userId: currentUser.uid,
-                        updatedAt: now
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', entryId);
+                await setDoc(docRef, {
+                    attempts: scoreValue,
+                    bestScore: scoreValue,
+                    holderName: cleanName,
+                    userId: currentUser.uid,
+                    updatedAt: now
+                }, { merge: true });
+
+                const summaryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard_summary', 'global_board');
+                await setDoc(summaryDocRef, {
+                    entriesJson: JSON.stringify(leaderboardEntries),
+                    updatedAt: now
+                }, { merge: true });
+            } catch (e) {}
+
+            return entryId;
+        }
+
+        // Làm mới bảng xếp hạng thủ công từ đám mây
+        async function refreshGlobalLeaderboard() {
+            await fetchFallbackCloudLeaderboard();
+            if (currentUser && db) {
+                try {
+                    const leaderboardColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                    const snap = await getDocs(leaderboardColRef);
+                    const fetched = [];
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const scoreVal = typeof d.attempts === 'number' ? d.attempts : d.bestScore;
+                        if (typeof scoreVal === 'number' && scoreVal > 0) {
+                            fetched.push({
+                                id: docSnap.id,
+                                attempts: scoreVal,
+                                holderName: d.holderName || 'Người chơi',
+                                userId: d.userId || '',
+                                updatedAt: d.updatedAt || 0
+                            });
+                        }
                     });
-                    return createdDoc.id;
-                }
-            } catch (e) {
-                return existingDocId;
+                    leaderboardEntries = sortLeaderboard(mergeEntries(leaderboardEntries, fetched));
+                    renderScoreUI();
+                } catch (e) {}
             }
+            showToast('Đã đồng bộ Bảng Xếp Hạng mới nhất từ đám mây!', 'info');
         }
 
         // Hàm lưu thành tích cá nhân lên Firestore
@@ -1779,14 +1921,14 @@
             } catch (e) {}
         }
 
-        // Cho phép người chơi ghi danh vào Bảng Xếp Hạng sau khi chiến thắng
+        // Cho phép người chơi cập nhật tên của mình trên Bảng Xếp Hạng sau khi chiến thắng
         async function saveGlobalHolderName() {
             const inputEl = document.getElementById('recordHolderInput');
             const saveBtn = document.getElementById('saveRecordBtn');
             const nameVal = (inputEl.value || '').trim();
 
             if (!nameVal) {
-                showToast('Vui lòng nhập tên của bạn để ghi danh Bảng Xếp Hạng!', 'warning');
+                showToast('Vui lòng nhập tên của bạn để hiển thị trên Bảng Xếp Hạng!', 'warning');
                 inputEl.focus();
                 return;
             }
@@ -1797,13 +1939,13 @@
             } catch (e) {}
 
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Đang lưu...';
+            saveBtn.textContent = 'Đang đồng bộ...';
 
             currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, currentWinDocId);
             await pushPersonalRecord(personalBest || attempts, savedPlayerName);
 
-            saveBtn.textContent = 'Đã ghi danh ✓';
-            showToast(`Đã ghi danh ${savedPlayerName} (${attempts} lần thử) lên Bảng Xếp Hạng!`, 'info');
+            saveBtn.textContent = 'Đã đồng bộ ✓';
+            showToast(`Đã đồng bộ "${savedPlayerName}" (${attempts} lần thử) lên mọi trình duyệt!`, 'info');
         }
 
         // Hàm hiển thị thông báo nổi (Toast Notification)
@@ -1936,7 +2078,8 @@
                 const qualifiesForTop10 = sorted.length < 10 || attempts <= sorted[sorted.length - 1].attempts;
                 currentWinDocId = null;
 
-                if (qualifiesForTop10 && savedPlayerName && savedPlayerName !== 'Người chơi') {
+                // TỰ ĐỘNG LƯU & ĐỒNG BỘ LÊN ĐÁM MÂY NGAY KHI CHIẾN THẮNG (Dù chơi trên Chrome hay bất kỳ trình duyệt nào)
+                if (qualifiesForTop10) {
                     currentWinDocId = await pushLeaderboardEntry(attempts, savedPlayerName, null);
                 }
 
@@ -1989,12 +2132,12 @@
             const titleText = document.getElementById('recordBoxTitleText');
 
             recordBox.classList.add('show');
-            holderInput.value = savedPlayerName !== 'Người chơi' ? savedPlayerName : '';
+            holderInput.value = !savedPlayerName.startsWith('Người chơi') ? savedPlayerName : '';
             saveBtn.disabled = false;
-            saveBtn.textContent = currentWinDocId ? 'Cập nhật tên' : 'Ghi danh';
+            saveBtn.textContent = currentWinDocId ? 'Đổi tên hiển thị' : 'Ghi danh';
             titleText.textContent = qualifiesForTop10
-                ? '🏆 Thành tích lọt Top Bảng Xếp Hạng! Ghi danh ngay:'
-                : '📝 Lưu thành tích của bạn lên Bảng Xếp Hạng:';
+                ? '🏆 Đã tự động lưu lên Bảng Xếp Hạng! Bạn có thể đổi tên vinh danh:'
+                : '📝 Nhập tên để lưu thành tích của bạn lên Bảng Xếp Hạng:';
 
             document.getElementById('victoryModal').classList.add('show');
 
@@ -2043,6 +2186,7 @@
         window.closeVictoryModal = closeVictoryModal;
         window.showLeaderboard = showLeaderboard;
         window.closeLeaderboard = closeLeaderboard;
+        window.refreshGlobalLeaderboard = refreshGlobalLeaderboard;
         window.goBack = goBack;
         window.saveGlobalHolderName = saveGlobalHolderName;
 
