@@ -1202,8 +1202,8 @@
         </div>
     </div>
 
-    <!-- Modal Hướng Dẫn -->
-    <div id="instructionsModal" class="modal" role="dialog" aria-modal="true">
+    <!-- Modal Hướng Dẫn (Mặc định hiển thị ngay khi mới vào trang) -->
+    <div id="instructionsModal" class="modal active" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button type="button" class="close-btn" onclick="closeInstructions()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1217,6 +1217,9 @@
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
                 <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, thành tích của bạn sẽ được ghi nhận vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>. Bạn có thể nhập tên để vinh danh.</li>
             </ul>
+            <div style="margin-top: 16px;">
+                <button type="button" class="btn" style="width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
+            </div>
         </div>
     </div>
 
@@ -1238,7 +1241,6 @@
 
         // =============================================================
         // HỆ THỐNG ĐỒNG BỘ ĐA TRÌNH DUYỆT (JSONBLOB + KEYVALUE + NTFY SSE)
-        // Đảm bảo 100% Chrome / Cốc Cốc / Edge / Safari / Mobile đều thấy chung BXH
         // =============================================================
         var JSONBLOB_FIXED_URL = "https://jsonblob.com/api/jsonBlob/1344348727585234944";
         var KV_APP_KEY = "453b380w";
@@ -1374,7 +1376,6 @@
             return sorted.slice(0, 100);
         }
 
-        // Áp dụng trạng thái nhận được từ trình duyệt khác
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
 
@@ -1412,7 +1413,6 @@
             }
         }
 
-        // Lắng nghe SSE Realtime từ ntfy.sh
         function startRealtimeStream() {
             if (!("EventSource" in window)) return;
             try {
@@ -1432,7 +1432,6 @@
             } catch (e) {}
         }
 
-        // Khởi tạo hoặc lấy địa chỉ JSONBlob chung cho toàn bộ trình duyệt
         async function resolveSharedBlobUrl() {
             try {
                 var ptrRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "?_t=" + Date.now(), { cache: "no-store" });
@@ -1447,13 +1446,11 @@
             return activeBlobUrl;
         }
 
-        // Đọc dữ liệu Bảng Xếp Hạng từ Đám Mây
         async function fetchCloudState() {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
             var cloudExplicitlyCleared = false;
 
-            // Nguồn 1: KeyValue Cloud Hex (Nhanh, ổn định, không cần tạo bucket)
             try {
                 var kvRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" });
                 if (kvRes.ok) {
@@ -1482,7 +1479,6 @@
                 }
             } catch (e) {}
 
-            // Nguồn 2: JSONBlob Cloud Storage (Lưu trữ đầy đủ Top 100 và tên dài)
             try {
                 var blobUrl = await resolveSharedBlobUrl();
                 var jbRes = await fetch(blobUrl + "?_t=" + Date.now(), {
@@ -1514,7 +1510,6 @@
             };
         }
 
-        // Ghi dữ liệu Bảng Xếp Hạng lên Đám Mây để mọi trình duyệt khác đều thấy
         async function pushCloudState(records, clearedAtValue, singleEntryObj, actionType) {
             var cleanList = records.slice(0, 100).map(function(r) {
                 return {
@@ -1525,7 +1520,6 @@
                 };
             });
 
-            // 1. Lưu lên KeyValue Cloud (Nén gọn key i, n, s, t để URL Hex ngắn gọn 100% thành công)
             try {
                 var compactItems = cleanList.slice(0, 10).map(function(r) {
                     return {
@@ -1553,7 +1547,6 @@
                 }
             } catch (e) {}
 
-            // 2. Lưu toàn bộ danh sách Top 100 lên JSONBlob Cloud
             try {
                 var fullPayload = {
                     action: actionType || "UPDATE",
@@ -1570,7 +1563,6 @@
                     body: JSON.stringify(fullPayload)
                 });
 
-                // Nếu Blob cố định chưa tồn tại (404), tự động khởi tạo Blob mới và lưu ID lên KeyValue
                 if (!putRes.ok && (putRes.status === 404 || putRes.status === 400)) {
                     var createRes = await fetch("https://jsonblob.com/api/jsonBlob", {
                         method: "POST",
@@ -1595,7 +1587,6 @@
                 }
             } catch (e) {}
 
-            // 3. Phát sóng tức thời qua ntfy.sh SSE cho các trình duyệt đang mở cùng lúc
             try {
                 var ssePayload = {
                     action: actionType || "UPDATE",
@@ -1633,7 +1624,6 @@
                         leaderboardData.concat(cloudState.records || [])
                     );
 
-                    // Nếu trình duyệt hiện tại có dữ liệu mới chưa có trên Cloud thì tự đẩy lên Cloud
                     var cloudCount = (cloudState.records || []).length;
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
@@ -1654,7 +1644,6 @@
         }
 
         async function publishScoreEntry(entry) {
-            // Tải dữ liệu Cloud mới nhất trước khi chèn người chơi mới
             var cloudState = await fetchCloudState();
             var baseRecords = leaderboardData;
             if (cloudState) {
@@ -1681,7 +1670,6 @@
             saveLocalBackup(combined);
             renderLeaderboardUI();
 
-            // Cập nhật hạng trong Modal Chiến thắng
             var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
             if (rankIndex !== -1) {
                 document.getElementById("winBestRecord").textContent = "#" + (rankIndex + 1);
@@ -2043,6 +2031,12 @@
 
         function closeInstructions() {
             document.getElementById("instructionsModal").classList.remove("active");
+            var guessInput = document.getElementById("guessInput");
+            if (guessInput && !guessInput.disabled) {
+                setTimeout(function() {
+                    guessInput.focus();
+                }, 100);
+            }
         }
 
         function goBack() {
@@ -2113,8 +2107,9 @@
             requestAnimationFrame(render);
         }
 
-        // Khởi tạo ngay khi mở trang
+        // Khởi tạo ngay khi mở trang và tự động hiển thị Hướng dẫn chơi
         initGame();
+        showInstructions();
         leaderboardData = normalizeAndSortRecords(loadLocalBackup());
         renderLeaderboardUI();
         syncAllChannels(false);
