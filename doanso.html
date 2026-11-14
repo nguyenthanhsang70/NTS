@@ -1128,13 +1128,13 @@
                     <strong id="winAttemptsCount">0 lần</strong>
                 </div>
                 <div class="win-stat-pill">
-                    <span>Hạng hiện tại</span>
+                    <span>Hạng dự kiến</span>
                     <strong id="winBestRecord">#1</strong>
                 </div>
             </div>
 
             <div class="record-form" id="recordFormBox">
-                <div class="record-form-title">🏅 Ghi danh lên Bảng Xếp Hạng:</div>
+                <div class="record-form-title">🏅 Nhập tên để Ghi danh lên Bảng Xếp Hạng:</div>
                 <div class="record-input-group">
                     <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn..." maxlength="100">
                     <button type="button" id="saveRecordBtn" onclick="savePlayerName()">Ghi danh</button>
@@ -1220,7 +1220,7 @@
                 <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 100 với số lần dự đoán ít nhất.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập con số vào ô trống và nhấn <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
-                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, thành tích của bạn sẽ được ghi nhận vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>. Bạn có thể nhập tên để vinh danh.</li>
+                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, bạn có thể nhập tên để vinh danh vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>.</li>
             </ul>
             <div style="margin-top: 16px;">
                 <button type="button" class="btn" style="width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
@@ -1240,34 +1240,31 @@
         var currentSessionEntryId = null;
         var currentEntryVersion = 1;
 
-        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v18";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v18";
-        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v18";
-        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v18";
-        var RESET_ID_KEY = "nts_doan_so_reset_id_v18";
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v19";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v19";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v19";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v19";
+        var RESET_ID_KEY = "nts_doan_so_reset_id_v19";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (V18 - ĐẢM BẢO 100% MỌI TRÌNH DUYỆT ĐỀU THẤY)
-        // 1. ntfy.sh Event-Log & SSE Stream (Lưu trữ lịch sử sự kiện gọn nhẹ + truyền trực tiếp)
-        // 2. KeyValue Cloud (Tự động khởi tạo khóa GET trước khi POST)
-        // 3. JSONBlob Cloud (Bắt chuẩn header X-jsonblob)
+        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (V19 - CHUẨN GIAO THỨC NTFY & JSONBLOB)
+        // Đặc biệt: KHÔNG gắn &_t= vào NTFY_POLL_URL để tránh lỗi 400 Bad Request trên ntfy.sh
         // =============================================================
-        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v18";
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v19";
         var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
         var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=48h";
         var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
 
         var KV_APP_KEY = "453b380w";
-        var KV_DATA_KEY = "nts_doanso_hex_v18";
-        var KV_BLOB_PTR_KEY = "nts_doanso_blob_v18";
+        var KV_DATA_KEY = "nts_doanso_b64_v19";
+        var KV_BLOB_PTR_KEY = "nts_doanso_ptr_v19";
 
         var activeBlobUrl = "";
-        var kvKeysInitialized = false;
         var lastNtfyPollTime = 0;
         var localBestScore = null;
         var leaderboardData = [];
         var lastClearedTimestamp = 0;
-        var lastResetId = "init_v18";
+        var lastResetId = "init_v19";
         var isSyncing = false;
         var syncChannel = null;
         var eventSourceConn = null;
@@ -1275,7 +1272,7 @@
 
         try {
             if ("BroadcastChannel" in window) {
-                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v18");
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v19");
                 syncChannel.onmessage = function(event) {
                     if (event.data) {
                         applyIncomingState(event.data);
@@ -1328,31 +1325,28 @@
             return "Web";
         }
 
-        function toSafeHex(obj) {
+        // Mã hóa URL-Safe Base64 (Ngắn hơn Hex 50%, không chứa +, /, =)
+        function toUrlSafeBase64(obj) {
             try {
-                var s = encodeURIComponent(JSON.stringify(obj));
-                var h = "";
-                for (var i = 0; i < s.length; i++) {
-                    h += s.charCodeAt(i).toString(16).padStart(2, "0");
-                }
-                return h;
+                var jsonStr = JSON.stringify(obj);
+                var b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+                return b64.split("+").join("-").split("/").join("_").split("=").join("");
             } catch (e) {
                 return "";
             }
         }
 
-        function fromSafeHex(hex) {
+        function fromUrlSafeBase64(str) {
             try {
-                if (!hex || typeof hex !== "string") return null;
-                var clean = hex.trim().split('"').join("");
-                if (!clean || clean === "null" || clean.length % 2 !== 0) return null;
-                var s = "";
-                for (var i = 0; i < clean.length; i += 2) {
-                    var c = parseInt(clean.substr(i, 2), 16);
-                    if (isNaN(c)) return null;
-                    s += String.fromCharCode(c);
+                if (!str || typeof str !== "string") return null;
+                var clean = str.trim().split('"').join("");
+                if (!clean || clean === "null" || clean === "undefined") return null;
+                var b64 = clean.split("-").join("+").split("_").join("/");
+                while (b64.length % 4 !== 0) {
+                    b64 += "=";
                 }
-                return JSON.parse(decodeURIComponent(s));
+                var jsonStr = decodeURIComponent(escape(atob(b64)));
+                return JSON.parse(jsonStr);
             } catch (e) {
                 return null;
             }
@@ -1435,7 +1429,6 @@
             return sorted.slice(0, 100);
         }
 
-        // Xử lý gói tin nhận được từ SSE hoặc BroadcastChannel
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
 
@@ -1472,10 +1465,22 @@
             if (Array.isArray(stateObj.records)) {
                 incomingList = incomingList.concat(stateObj.records);
             }
+            if (Array.isArray(stateObj.r)) {
+                stateObj.r.forEach(function(item) {
+                    if (item && typeof item.s === "number") {
+                        incomingList.push({
+                            id: item.i,
+                            name: item.n,
+                            score: Number(item.s),
+                            updatedAt: Number(item.t) || Date.now(),
+                            version: Number(item.v) || 1
+                        });
+                    }
+                });
+            }
             if (stateObj.singleEntry && typeof stateObj.singleEntry.score === "number") {
                 incomingList.push(stateObj.singleEntry);
             }
-            // Hỗ trợ gói tin rút gọn từ ntfy (e: {i, n, s, t, v})
             if (stateObj.e && typeof stateObj.e.s === "number") {
                 incomingList.push({
                     id: stateObj.e.i,
@@ -1516,24 +1521,11 @@
             } catch (e) {}
         }
 
-        // Đảm bảo khóa trên KeyValue.immanuel.co đã được gọi GET kích hoạt trước khi POST
-        async function ensureKvKeysInitialized() {
-            if (kvKeysInitialized) return;
-            try {
-                await Promise.allSettled([
-                    fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500),
-                    fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500)
-                ]);
-                kvKeysInitialized = true;
-            } catch (e) {}
-        }
-
         async function resolveSharedBlobUrl() {
             if (activeBlobUrl) return activeBlobUrl;
             try {
-                var ptrRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500);
+                var ptrRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY, { cache: "no-store" }, 2500);
                 if (ptrRes.ok) {
-                    kvKeysInitialized = true;
                     var blobId = (await ptrRes.text()).trim().split('"').join("");
                     if (blobId && blobId !== "null" && blobId.length > 8) {
                         activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + blobId;
@@ -1544,20 +1536,20 @@
             return "";
         }
 
-        // Tải dữ liệu từ cả 3 nguồn Cloud (ntfy Event-Log + KeyValue + JSONBlob)
+        // Tải dữ liệu từ cả 3 nguồn Cloud (ntfy.sh Poll chuẩn không &_t= + KeyValue + JSONBlob)
         async function fetchCloudState(forcePollNtfy) {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
             var latestResetId = lastResetId;
             var cloudExplicitlyCleared = false;
 
-            // Nguồn 1: Đọc luồng lịch sử sự kiện trên ntfy.sh (Quan trọng nhất cho trình duyệt mới mở)
-            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 12000);
+            // Nguồn 1 (Chính): Đọc luồng lịch sử sự kiện trên ntfy.sh (KHÔNG nối &_t= để tránh lỗi 400 Bad Request)
+            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 8000);
             var taskNtfy = (async function() {
                 if (!shouldPollNtfy) return;
                 lastNtfyPollTime = Date.now();
                 try {
-                    var res = await fetchWithTimeout(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" }, 3500);
+                    var res = await fetchWithTimeout(NTFY_POLL_URL, { cache: "no-store" }, 3500);
                     if (res.ok) {
                         var text = await res.text();
                         var lines = text.split("\n");
@@ -1578,6 +1570,10 @@
                                         }
                                         continue;
                                     }
+                                    if (data.c && Number(data.c) > maxClearTime) {
+                                        maxClearTime = Number(data.c);
+                                        if (data.rId) latestResetId = String(data.rId);
+                                    }
                                     if (data.e && typeof data.e.s === "number") {
                                         collectedRecords.push({
                                             id: data.e.i,
@@ -1587,8 +1583,18 @@
                                             version: Number(data.e.v) || 1
                                         });
                                     }
-                                    if (data.singleEntry) {
-                                        collectedRecords.push(data.singleEntry);
+                                    if (Array.isArray(data.r)) {
+                                        data.r.forEach(function(item) {
+                                            if (item && typeof item.s === "number") {
+                                                collectedRecords.push({
+                                                    id: item.i,
+                                                    name: item.n,
+                                                    score: Number(item.s),
+                                                    updatedAt: Number(item.t) || Date.now(),
+                                                    version: Number(item.v) || 1
+                                                });
+                                            }
+                                        });
                                     }
                                     if (Array.isArray(data.records)) {
                                         collectedRecords = collectedRecords.concat(data.records);
@@ -1600,14 +1606,13 @@
                 } catch (e) {}
             })();
 
-            // Nguồn 2: Đọc từ KeyValue Cloud
+            // Nguồn 2: Đọc từ KeyValue Cloud (Base64 URL-Safe)
             var taskKv = (async function() {
                 try {
-                    var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2800);
+                    var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY, { cache: "no-store" }, 2800);
                     if (kvRes.ok) {
-                        kvKeysInitialized = true;
-                        var rawHex = await kvRes.text();
-                        var kvObj = fromSafeHex(rawHex);
+                        var rawB64 = await kvRes.text();
+                        var kvObj = fromUrlSafeBase64(rawB64);
                         if (kvObj) {
                             if (kvObj.c && Number(kvObj.c) > maxClearTime) {
                                 maxClearTime = Number(kvObj.c);
@@ -1639,7 +1644,7 @@
                 try {
                     var blobUrl = await resolveSharedBlobUrl();
                     if (!blobUrl) return;
-                    var jbRes = await fetchWithTimeout(blobUrl + "?_t=" + Date.now(), {
+                    var jbRes = await fetchWithTimeout(blobUrl, {
                         method: "GET",
                         headers: { "Accept": "application/json" },
                         cache: "no-store"
@@ -1692,72 +1697,67 @@
                 };
             });
 
-            // 1. Gửi gói tin siêu gọn lên ntfy.sh (Không gắn header phức tạp để tránh CORS Preflight và được lưu cache 100%)
+            var compactSnapshot = cleanList.slice(0, 10).map(function(r) {
+                return {
+                    i: r.id,
+                    n: String(r.name).slice(0, 50),
+                    s: r.score,
+                    t: r.updatedAt,
+                    v: r.version || 1
+                };
+            });
+
+            // 1. Gửi gói tin lên ntfy.sh (Gửi kèm cả bản ghi vừa ghi danh và snapshot Top 10 để mọi trình duyệt vào sau thấy đầy đủ)
             var taskSse = (async function() {
                 try {
-                    var compactPacket;
+                    var ntfyPacket;
                     if (actionType === "CLEAR_ALL") {
-                        compactPacket = {
+                        ntfyPacket = {
                             a: "CLEAR",
                             rId: lastResetId,
-                            c: clearedAtValue || lastClearedTimestamp || Date.now()
+                            c: clearedAtValue || lastClearedTimestamp || Date.now(),
+                            r: []
                         };
-                    } else if (singleEntryObj) {
-                        compactPacket = {
+                    } else {
+                        ntfyPacket = {
                             a: "ADD",
                             rId: lastResetId,
                             c: clearedAtValue || lastClearedTimestamp || 0,
-                            e: {
+                            e: singleEntryObj ? {
                                 i: singleEntryObj.id,
                                 n: singleEntryObj.name,
                                 s: Number(singleEntryObj.score),
                                 t: Number(singleEntryObj.updatedAt),
                                 v: Number(singleEntryObj.version) || 1
-                            }
-                        };
-                    } else {
-                        compactPacket = {
-                            a: "SYNC",
-                            rId: lastResetId,
-                            c: clearedAtValue || lastClearedTimestamp || 0,
-                            records: cleanList.slice(0, 10)
+                            } : null,
+                            r: compactSnapshot
                         };
                     }
 
                     await fetchWithTimeout(NTFY_PUBLISH_URL, {
                         method: "POST",
-                        body: JSON.stringify(compactPacket)
-                    }, 3000);
+                        body: JSON.stringify(ntfyPacket)
+                    }, 3500);
                 } catch (e) {}
             })();
 
-            // 2. Lưu lên KeyValue Cloud (Đảm bảo đã gọi GET kích hoạt khóa trước)
+            // 2. Lưu lên KeyValue Cloud (Dùng Base64 URL-Safe ngắn gọn)
             var taskKv = (async function() {
                 try {
-                    await ensureKvKeysInitialized();
-                    var compactItems = cleanList.slice(0, 6).map(function(r) {
-                        return {
-                            i: r.id,
-                            n: String(r.name).slice(0, 35),
-                            s: r.score,
-                            t: r.updatedAt,
-                            v: r.version || 1
-                        };
-                    });
-                    var kvHex = toSafeHex({
+                    var kvB64 = toUrlSafeBase64({
                         id: lastResetId,
                         c: clearedAtValue || lastClearedTimestamp || 0,
-                        r: compactItems
+                        r: compactSnapshot.slice(0, 6)
                     });
-                    if (kvHex.length > 1200) {
-                        kvHex = toSafeHex({
+                    if (kvB64.length > 900) {
+                        kvB64 = toUrlSafeBase64({
                             id: lastResetId,
                             c: clearedAtValue || lastClearedTimestamp || 0,
-                            r: compactItems.slice(0, 3)
+                            r: compactSnapshot.slice(0, 3)
                         });
                     }
-                    if (kvHex) {
-                        await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvHex, {
+                    if (kvB64) {
+                        await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvB64, {
                             method: "POST",
                             mode: "cors"
                         }, 3000);
@@ -1765,10 +1765,9 @@
                 } catch (e) {}
             })();
 
-            // 3. Lưu đầy đủ Top 100 lên JSONBlob (Đọc cả X-jsonblob, Location và response.url)
+            // 3. Lưu đầy đủ Top 100 lên JSONBlob
             var taskBlob = (async function() {
                 try {
-                    await ensureKvKeysInitialized();
                     var fullPayload = {
                         action: actionType || "UPDATE",
                         resetId: lastResetId,
@@ -1868,7 +1867,7 @@
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
 
-                    // Nếu trình duyệt này đang giữ kỷ lục mà trên Cloud chưa có (và Cloud không phải vừa bị xóa), tự động đẩy bù lên Cloud
+                    // Nếu trình duyệt này có bản ghi hợp lệ mà trên Cloud chưa có, tự động phát bù lên Cloud
                     if (!cloudState.cloudExplicitlyCleared && merged.length > cloudRecords.length && merged.length > 0) {
                         pushCloudState(merged, lastClearedTimestamp, merged[0], "UPDATE");
                     }
@@ -2090,15 +2089,17 @@
                 currentEntryVersion = 1;
                 var savedName = "";
                 try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
-                var autoName = savedName.trim() ? savedName.trim() : ("Người chơi (" + getBrowserTag() + ")");
 
-                publishScoreEntryInstant({
-                    id: currentSessionEntryId,
-                    name: autoName,
-                    score: attempts,
-                    updatedAt: Date.now(),
-                    version: currentEntryVersion
-                });
+                // Nếu người chơi đã từng lưu tên trước đó thì tự động ghi danh luôn, ngược lại đợi bấm nút Ghi danh
+                if (savedName.trim()) {
+                    publishScoreEntryInstant({
+                        id: currentSessionEntryId,
+                        name: savedName.trim(),
+                        score: attempts,
+                        updatedAt: Date.now(),
+                        version: 1
+                    });
+                }
 
                 showWinModal(savedName.trim());
                 return;
@@ -2137,9 +2138,13 @@
             document.getElementById("winAttemptsCount").textContent = attempts + " lần";
             document.getElementById("winSubtitleText").textContent = "Bạn đã giải mã thành công con số bí mật trong " + attempts + " lần thử!";
 
-            var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
-            var rankDisplay = rankIndex !== -1 ? "#" + (rankIndex + 1) : "#" + (leaderboardData.length + 1);
-            document.getElementById("winBestRecord").textContent = rankDisplay;
+            var expectedRank = 1;
+            for (var i = 0; i < leaderboardData.length; i++) {
+                if (leaderboardData[i].score <= attempts && leaderboardData[i].id !== currentSessionEntryId) {
+                    expectedRank++;
+                }
+            }
+            document.getElementById("winBestRecord").textContent = "#" + expectedRank;
 
             var nameInput = document.getElementById("recordHolderInput");
             var saveBtn = document.getElementById("saveRecordBtn");
@@ -2169,7 +2174,7 @@
             try { localStorage.setItem(PLAYER_NAME_KEY, playerName); } catch (e) {}
 
             if (!currentSessionEntryId) {
-                currentSessionEntryId = "entry_" + Date.now();
+                currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
             }
 
             currentEntryVersion = currentEntryVersion + 1;
@@ -2364,7 +2369,7 @@
 
         setInterval(function() {
             syncAllChannels(false, false);
-        }, 5000);
+        }, 6000);
 
         window.addEventListener("focus", function() { syncAllChannels(false, true); });
         document.addEventListener("visibilitychange", function() {
