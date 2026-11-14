@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số</title>
+    <title>Đoán Số - NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@
             gap: 10px;
             pointer-events: none;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         .toast {
@@ -86,6 +86,7 @@
             font-weight: 600;
             animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             border: 1px solid rgba(255, 255, 255, 0.12);
+            word-break: break-word;
         }
 
         .toast.warning { border-left: 4px solid var(--warning); }
@@ -201,6 +202,7 @@
             text-align: center;
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
             transition: all 0.2s ease;
+            min-width: 0;
         }
 
         .info-item.clickable-card {
@@ -248,9 +250,9 @@
             font-weight: 600;
             color: #64748b;
             margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.3;
         }
 
         .range-visualizer {
@@ -558,10 +560,17 @@
             gap: 8px;
         }
 
+        .leaderboard-scroll-area {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
         .lb-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
             background: #ffffff;
             border: 1px solid #e2e8f0;
             padding: 10px 12px;
@@ -589,16 +598,18 @@
             align-items: center;
             gap: 10px;
             min-width: 0;
+            flex: 1;
         }
 
         .lb-rank {
-            width: 28px;
+            min-width: 30px;
             height: 28px;
+            padding: 0 5px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 800;
             flex-shrink: 0;
             background: #e2e8f0;
@@ -609,19 +620,38 @@
         .rank-2 .lb-rank { background: #64748b; color: white; }
         .rank-3 .lb-rank { background: #d97706; color: white; }
 
+        .lb-name-wrap {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
         .lb-name {
             font-size: 0.9rem;
             font-weight: 700;
             color: #0f172a;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.35;
+        }
+
+        .lb-status-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #059669;
+            background: #d1fae5;
+            padding: 2px 7px;
+            border-radius: 999px;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .lb-time {
             font-size: 0.7rem;
             color: #64748b;
             font-weight: 500;
+            margin-top: 2px;
         }
 
         .lb-score {
@@ -632,6 +662,7 @@
             padding: 4px 10px;
             border-radius: 999px;
             flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .rank-1 .lb-score {
@@ -670,7 +701,7 @@
             background: #ffffff;
             padding: 28px 24px;
             border-radius: 26px;
-            max-width: 440px;
+            max-width: 460px;
             width: 100%;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
             position: relative;
@@ -801,6 +832,7 @@
 
         .record-input-group input {
             flex: 1;
+            min-width: 0;
             padding: 10px 12px;
             border-radius: 10px;
             border: 1.5px solid #fcd34d;
@@ -820,6 +852,7 @@
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .win-actions {
@@ -1054,7 +1087,7 @@
                 <div class="mini-lb-actions">
                     <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng">↻</button>
                     <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()" title="Xóa bảng xếp hạng (Admin)">Xóa BXH</button>
-                    <button type="button" class="mini-lb-more" onclick="showLeaderboard()">Xem Top 10</button>
+                    <button type="button" class="mini-lb-more" onclick="showLeaderboard()">Xem Top 100</button>
                 </div>
             </div>
             <div class="leaderboard-list" id="miniLeaderboardList">
@@ -1090,7 +1123,7 @@
                     <strong id="winAttemptsCount">0 lần</strong>
                 </div>
                 <div class="win-stat-pill">
-                    <span>Hạng dự kiến</span>
+                    <span>Hạng hiện tại</span>
                     <strong id="winBestRecord">#1</strong>
                 </div>
             </div>
@@ -1098,7 +1131,7 @@
             <div class="record-form" id="recordFormBox">
                 <div class="record-form-title">🏅 Ghi danh lên Bảng Xếp Hạng:</div>
                 <div class="record-input-group">
-                    <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn..." maxlength="20">
+                    <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn..." maxlength="100">
                     <button type="button" id="saveRecordBtn" onclick="savePlayerName()">Ghi danh</button>
                 </div>
             </div>
@@ -1110,7 +1143,7 @@
         </div>
     </div>
 
-    <!-- Modal Bảng Xếp Hạng Top 10 -->
+    <!-- Modal Bảng Xếp Hạng Top 100 -->
     <div id="leaderboardModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button type="button" class="close-btn" onclick="closeLeaderboard()" aria-label="Đóng">
@@ -1119,13 +1152,13 @@
                 </svg>
             </button>
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; padding-right: 36px; flex-wrap:wrap; gap:8px;">
-                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 10</h2>
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 100</h2>
                 <div style="display:flex; gap:6px;">
                     <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()">↻ Làm mới</button>
                     <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()">Xóa BXH</button>
                 </div>
             </div>
-            <div class="leaderboard-list" id="fullLeaderboardList">
+            <div class="leaderboard-list leaderboard-scroll-area" id="fullLeaderboardList">
                 <div class="lb-empty">Chưa có kỷ lục nào.</div>
             </div>
         </div>
@@ -1182,7 +1215,7 @@
                 <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 100 với số lần dự đoán ít nhất.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập con số vào ô trống và nhấn <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
-                <li><strong>🏆 Bảng xếp hạng:</strong> Đua Top 10 người chơi xuất sắc nhất với số lần thử ít nhất trên mọi trình duyệt.</li>
+                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, thành tích của bạn sẽ được ghi nhận vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>. Bạn có thể nhập tên để vinh danh.</li>
             </ul>
         </div>
     </div>
@@ -1198,22 +1231,25 @@
         var maxPossible = 100;
         var currentSessionEntryId = null;
 
-        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v10";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v10";
-        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v10";
-        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v10";
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v16";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v16";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v16";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v16";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (CHROME / EDGE / SAFARI / MOBILE)
-        // Kênh 1: ntfy.sh Public Cloud Stream & History (Không cần đăng ký, hỗ trợ CORS 100%)
-        // Kênh 2: kvdb.io Public Bucket dự phòng
+        // HỆ THỐNG ĐỒNG BỘ ĐA TRÌNH DUYỆT (JSONBLOB + KEYVALUE + NTFY SSE)
+        // Đảm bảo 100% Chrome / Cốc Cốc / Edge / Safari / Mobile đều thấy chung BXH
         // =============================================================
-        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v10";
+        var JSONBLOB_FIXED_URL = "https://jsonblob.com/api/jsonBlob/1344348727585234944";
+        var KV_APP_KEY = "453b380w";
+        var KV_BLOB_ID_KEY = "nts_doanso_blob_id_v16";
+        var KV_DATA_KEY = "nts_doanso_data_v16";
+
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v16";
         var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
-        var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=all";
         var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
-        var KVDB_URL = "https://kvdb.io/A6Xy9kP3mQv8Wz2L4nJr7T/nts_doanso_lb_v10";
 
+        var activeBlobUrl = JSONBLOB_FIXED_URL;
         var localBestScore = null;
         var leaderboardData = [];
         var lastClearedTimestamp = 0;
@@ -1223,7 +1259,7 @@
 
         try {
             if ("BroadcastChannel" in window) {
-                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v10");
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v16");
                 syncChannel.onmessage = function(event) {
                     if (event.data) {
                         applyIncomingState(event.data);
@@ -1253,6 +1289,36 @@
             if (ua.indexOf("Firefox") !== -1) return "Firefox";
             if (ua.indexOf("Safari") !== -1) return "Safari";
             return "Web";
+        }
+
+        function toSafeHex(obj) {
+            try {
+                var s = encodeURIComponent(JSON.stringify(obj));
+                var h = "";
+                for (var i = 0; i < s.length; i++) {
+                    h += s.charCodeAt(i).toString(16).padStart(2, "0");
+                }
+                return h;
+            } catch (e) {
+                return "";
+            }
+        }
+
+        function fromSafeHex(hex) {
+            try {
+                if (!hex || typeof hex !== "string") return null;
+                var clean = hex.trim().split('"').join("");
+                if (!clean || clean === "null" || clean.length % 2 !== 0) return null;
+                var s = "";
+                for (var i = 0; i < clean.length; i += 2) {
+                    var c = parseInt(clean.substr(i, 2), 16);
+                    if (isNaN(c)) return null;
+                    s += String.fromCharCode(c);
+                }
+                return JSON.parse(decodeURIComponent(s));
+            } catch (e) {
+                return null;
+            }
         }
 
         function saveLocalBackup(records) {
@@ -1291,7 +1357,7 @@
                 var id = String(item.id || (item.name + "_" + item.score));
                 var cleanItem = {
                     id: id,
-                    name: String(item.name || "Người chơi").trim().slice(0, 20),
+                    name: String(item.name || "Người chơi").trim().slice(0, 100),
                     score: Number(item.score),
                     updatedAt: itemTime || Date.now()
                 };
@@ -1305,44 +1371,48 @@
                 if (a.score !== b.score) return a.score - b.score;
                 return b.updatedAt - a.updatedAt;
             });
-            return sorted.slice(0, 20);
+            return sorted.slice(0, 100);
         }
 
-        // Áp dụng gói dữ liệu nhận được từ trình duyệt khác
+        // Áp dụng trạng thái nhận được từ trình duyệt khác
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
-            var changed = false;
 
-            if (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp) {
-                lastClearedTimestamp = Number(stateObj.clearedAt);
+            if (stateObj.action === "CLEAR_ALL" || (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp)) {
+                var newClear = Number(stateObj.clearedAt) || Date.now();
+                if (newClear > lastClearedTimestamp) {
+                    lastClearedTimestamp = newClear;
+                }
                 try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
-                leaderboardData = [];
-                changed = true;
+
+                if (stateObj.action === "CLEAR_ALL" || !stateObj.records || stateObj.records.length === 0) {
+                    leaderboardData = [];
+                    currentSessionEntryId = null;
+                    saveLocalBackup([]);
+                    renderLeaderboardUI();
+                    return;
+                }
+                leaderboardData = leaderboardData.filter(function(r) {
+                    return (r.updatedAt || 0) > lastClearedTimestamp;
+                });
             }
 
+            var incomingList = [];
             if (Array.isArray(stateObj.records)) {
-                var merged = normalizeAndSortRecords(leaderboardData.concat(stateObj.records));
-                if (JSON.stringify(merged) !== JSON.stringify(leaderboardData)) {
-                    leaderboardData = merged;
-                    changed = true;
-                }
+                incomingList = incomingList.concat(stateObj.records);
             }
-
             if (stateObj.singleEntry && typeof stateObj.singleEntry.score === "number") {
-                var mergedSingle = normalizeAndSortRecords(leaderboardData.concat([stateObj.singleEntry]));
-                if (JSON.stringify(mergedSingle) !== JSON.stringify(leaderboardData)) {
-                    leaderboardData = mergedSingle;
-                    changed = true;
-                }
+                incomingList.push(stateObj.singleEntry);
             }
 
-            if (changed) {
+            if (incomingList.length > 0) {
+                leaderboardData = normalizeAndSortRecords(leaderboardData.concat(incomingList));
                 saveLocalBackup(leaderboardData);
                 renderLeaderboardUI();
             }
         }
 
-        // Lắng nghe luồng sự kiện thời gian thực (Realtime SSE) từ mọi trình duyệt
+        // Lắng nghe SSE Realtime từ ntfy.sh
         function startRealtimeStream() {
             if (!("EventSource" in window)) return;
             try {
@@ -1362,50 +1432,76 @@
             } catch (e) {}
         }
 
-        // Tải toàn bộ lịch sử Bảng Xếp Hạng từ Đám Mây khi mở trình duyệt mới
+        // Khởi tạo hoặc lấy địa chỉ JSONBlob chung cho toàn bộ trình duyệt
+        async function resolveSharedBlobUrl() {
+            try {
+                var ptrRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "?_t=" + Date.now(), { cache: "no-store" });
+                if (ptrRes.ok) {
+                    var blobId = (await ptrRes.text()).trim().split('"').join("");
+                    if (blobId && blobId !== "null" && blobId.length > 8) {
+                        activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + blobId;
+                        return activeBlobUrl;
+                    }
+                }
+            } catch (e) {}
+            return activeBlobUrl;
+        }
+
+        // Đọc dữ liệu Bảng Xếp Hạng từ Đám Mây
         async function fetchCloudState() {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
+            var cloudExplicitlyCleared = false;
 
-            // Nguồn 1: Đọc lịch sử thông điệp trên ntfy.sh
+            // Nguồn 1: KeyValue Cloud Hex (Nhanh, ổn định, không cần tạo bucket)
             try {
-                var res = await fetch(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" });
-                if (res.ok) {
-                    var text = await res.text();
-                    var lines = text.split("\n");
-                    for (var i = 0; i < lines.length; i++) {
-                        var line = lines[i].trim();
-                        if (!line) continue;
-                        try {
-                            var pkt = JSON.parse(line);
-                            if (pkt && pkt.event === "message" && pkt.message) {
-                                var data = JSON.parse(pkt.message);
-                                if (data.clearedAt && Number(data.clearedAt) > maxClearTime) {
-                                    maxClearTime = Number(data.clearedAt);
-                                }
-                                if (Array.isArray(data.records)) {
-                                    collectedRecords = collectedRecords.concat(data.records);
-                                }
-                                if (data.singleEntry) {
-                                    collectedRecords.push(data.singleEntry);
-                                }
+                var kvRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" });
+                if (kvRes.ok) {
+                    var rawHex = await kvRes.text();
+                    var kvObj = fromSafeHex(rawHex);
+                    if (kvObj) {
+                        if (kvObj.c && Number(kvObj.c) > maxClearTime) {
+                            maxClearTime = Number(kvObj.c);
+                            if (!kvObj.r || kvObj.r.length === 0) {
+                                cloudExplicitlyCleared = true;
                             }
-                        } catch (innerErr) {}
+                        }
+                        if (Array.isArray(kvObj.r)) {
+                            kvObj.r.forEach(function(item) {
+                                if (item) {
+                                    collectedRecords.push({
+                                        id: item.i,
+                                        name: item.n,
+                                        score: Number(item.s),
+                                        updatedAt: Number(item.t)
+                                    });
+                                }
+                            });
+                        }
                     }
                 }
             } catch (e) {}
 
-            // Nguồn 2: Đọc từ KVDB dự phòng
+            // Nguồn 2: JSONBlob Cloud Storage (Lưu trữ đầy đủ Top 100 và tên dài)
             try {
-                var kvRes = await fetch(KVDB_URL + "?_t=" + Date.now(), { cache: "no-store" });
-                if (kvRes.ok) {
-                    var kvData = await kvRes.json();
-                    if (kvData) {
-                        if (kvData.clearedAt && Number(kvData.clearedAt) > maxClearTime) {
-                            maxClearTime = Number(kvData.clearedAt);
+                var blobUrl = await resolveSharedBlobUrl();
+                var jbRes = await fetch(blobUrl + "?_t=" + Date.now(), {
+                    method: "GET",
+                    headers: { "Accept": "application/json" },
+                    cache: "no-store"
+                });
+                if (jbRes.ok) {
+                    var jbData = await jbRes.json();
+                    if (jbData) {
+                        if (jbData.clearedAt && Number(jbData.clearedAt) > maxClearTime) {
+                            maxClearTime = Number(jbData.clearedAt);
+                            if (!jbData.records || jbData.records.length === 0) {
+                                cloudExplicitlyCleared = true;
+                                collectedRecords = [];
+                            }
                         }
-                        if (Array.isArray(kvData.records)) {
-                            collectedRecords = collectedRecords.concat(kvData.records);
+                        if (Array.isArray(jbData.records)) {
+                            collectedRecords = collectedRecords.concat(jbData.records);
                         }
                     }
                 }
@@ -1413,41 +1509,104 @@
 
             return {
                 clearedAt: maxClearTime,
+                cloudExplicitlyCleared: cloudExplicitlyCleared,
                 records: collectedRecords
             };
         }
 
-        // Đẩy dữ liệu mới lên Đám Mây để mọi trình duyệt khác nhận được ngay
-        async function pushCloudState(records, clearedAtValue, singleEntryObj) {
-            var payloadObj = {
-                clearedAt: clearedAtValue || lastClearedTimestamp || 0,
-                singleEntry: singleEntryObj || null,
-                records: records.slice(0, 15).map(function(r) {
-                    return {
-                        id: r.id,
-                        name: r.name,
-                        score: r.score,
-                        updatedAt: r.updatedAt
-                    };
-                })
-            };
+        // Ghi dữ liệu Bảng Xếp Hạng lên Đám Mây để mọi trình duyệt khác đều thấy
+        async function pushCloudState(records, clearedAtValue, singleEntryObj, actionType) {
+            var cleanList = records.slice(0, 100).map(function(r) {
+                return {
+                    id: r.id,
+                    name: r.name,
+                    score: Number(r.score),
+                    updatedAt: Number(r.updatedAt)
+                };
+            });
 
-            var bodyString = JSON.stringify(payloadObj);
-
-            // Phát sóng trực tiếp qua ntfy.sh (Tất cả trình duyệt đang mở nhận ngay qua SSE + lưu vào lịch sử)
+            // 1. Lưu lên KeyValue Cloud (Nén gọn key i, n, s, t để URL Hex ngắn gọn 100% thành công)
             try {
-                await fetch(NTFY_PUBLISH_URL, {
-                    method: "POST",
-                    body: bodyString
+                var compactItems = cleanList.slice(0, 10).map(function(r) {
+                    return {
+                        i: r.id,
+                        n: String(r.name).slice(0, 45),
+                        s: r.score,
+                        t: r.updatedAt
+                    };
                 });
+                var kvHex = toSafeHex({
+                    c: clearedAtValue || lastClearedTimestamp || 0,
+                    r: compactItems
+                });
+                if (kvHex.length > 1400) {
+                    kvHex = toSafeHex({
+                        c: clearedAtValue || lastClearedTimestamp || 0,
+                        r: compactItems.slice(0, 5)
+                    });
+                }
+                if (kvHex) {
+                    await fetch("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvHex, {
+                        method: "POST",
+                        mode: "cors"
+                    });
+                }
             } catch (e) {}
 
-            // Lưu snapshot vào KVDB dự phòng
+            // 2. Lưu toàn bộ danh sách Top 100 lên JSONBlob Cloud
             try {
-                await fetch(KVDB_URL, {
+                var fullPayload = {
+                    action: actionType || "UPDATE",
+                    clearedAt: clearedAtValue || lastClearedTimestamp || 0,
+                    records: cleanList
+                };
+                var blobUrl = await resolveSharedBlobUrl();
+                var putRes = await fetch(blobUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(fullPayload)
+                });
+
+                // Nếu Blob cố định chưa tồn tại (404), tự động khởi tạo Blob mới và lưu ID lên KeyValue
+                if (!putRes.ok && (putRes.status === 404 || putRes.status === 400)) {
+                    var createRes = await fetch("https://jsonblob.com/api/jsonBlob", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify(fullPayload)
+                    });
+                    if (createRes.ok) {
+                        var loc = createRes.headers.get("Location") || createRes.headers.get("location") || "";
+                        var parts = loc.split("/");
+                        var newBlobId = parts[parts.length - 1];
+                        if (newBlobId && newBlobId.length > 8) {
+                            activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + newBlobId;
+                            await fetch("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "/" + newBlobId, {
+                                method: "POST",
+                                mode: "cors"
+                            });
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            // 3. Phát sóng tức thời qua ntfy.sh SSE cho các trình duyệt đang mở cùng lúc
+            try {
+                var ssePayload = {
+                    action: actionType || "UPDATE",
+                    clearedAt: clearedAtValue || lastClearedTimestamp || 0,
+                    singleEntry: singleEntryObj || null,
+                    records: cleanList.slice(0, 15)
+                };
+                await fetch(NTFY_PUBLISH_URL, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: bodyString
+                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                    body: JSON.stringify(ssePayload)
                 });
             } catch (e) {}
         }
@@ -1461,13 +1620,27 @@
                     if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
                         lastClearedTimestamp = cloudState.clearedAt;
                         try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
-                        leaderboardData = [];
+                        if (cloudState.cloudExplicitlyCleared) {
+                            leaderboardData = [];
+                        } else {
+                            leaderboardData = leaderboardData.filter(function(r) {
+                                return (r.updatedAt || 0) > lastClearedTimestamp;
+                            });
+                        }
                     }
+
                     var merged = normalizeAndSortRecords(
-                        (cloudState.records || []).concat(leaderboardData)
+                        leaderboardData.concat(cloudState.records || [])
                     );
+
+                    // Nếu trình duyệt hiện tại có dữ liệu mới chưa có trên Cloud thì tự đẩy lên Cloud
+                    var cloudCount = (cloudState.records || []).length;
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
+
+                    if (merged.length > cloudCount && merged.length > 0) {
+                        await pushCloudState(merged, lastClearedTimestamp, null, "UPDATE");
+                    }
                 }
                 renderLeaderboardUI();
                 if (showFeedbackToast) {
@@ -1481,31 +1654,72 @@
         }
 
         async function publishScoreEntry(entry) {
-            var combined = normalizeAndSortRecords(leaderboardData.concat([entry]));
+            // Tải dữ liệu Cloud mới nhất trước khi chèn người chơi mới
+            var cloudState = await fetchCloudState();
+            var baseRecords = leaderboardData;
+            if (cloudState) {
+                if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
+                    lastClearedTimestamp = cloudState.clearedAt;
+                    try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
+                    baseRecords = [];
+                }
+                if (Array.isArray(cloudState.records)) {
+                    baseRecords = baseRecords.concat(cloudState.records);
+                }
+            }
+
+            var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 500);
+            var cleanEntry = {
+                id: entry.id,
+                name: entry.name,
+                score: Number(entry.score),
+                updatedAt: safeTimestamp
+            };
+
+            var combined = normalizeAndSortRecords(baseRecords.concat([cleanEntry]));
             leaderboardData = combined;
             saveLocalBackup(combined);
             renderLeaderboardUI();
 
+            // Cập nhật hạng trong Modal Chiến thắng
+            var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
+            if (rankIndex !== -1) {
+                document.getElementById("winBestRecord").textContent = "#" + (rankIndex + 1);
+            }
+
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
+                        action: "UPDATE",
                         clearedAt: lastClearedTimestamp,
-                        singleEntry: entry,
+                        singleEntry: cleanEntry,
                         records: combined
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState(combined, lastClearedTimestamp, entry);
+            await pushCloudState(combined, lastClearedTimestamp, cleanEntry, "UPDATE");
         }
 
         function formatRelativeTime(timestamp) {
             if (!timestamp) return "Vừa xong";
-            var diffSec = Math.floor((Date.now() - timestamp) / 1000);
+            var diffSec = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
             if (diffSec < 60) return "Vừa xong";
             if (diffSec < 3600) return Math.floor(diffSec / 60) + " phút trước";
             if (diffSec < 86400) return Math.floor(diffSec / 3600) + " giờ trước";
             return Math.floor(diffSec / 86400) + " ngày trước";
+        }
+
+        function formatExactDateTime(timestamp) {
+            var d = timestamp ? new Date(Number(timestamp)) : new Date();
+            if (isNaN(d.getTime())) d = new Date();
+            var day = String(d.getDate()).padStart(2, "0");
+            var month = String(d.getMonth() + 1).padStart(2, "0");
+            var year = d.getFullYear();
+            var hours = String(d.getHours()).padStart(2, "0");
+            var minutes = String(d.getMinutes()).padStart(2, "0");
+            var seconds = String(d.getSeconds()).padStart(2, "0");
+            return "🕒 " + day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds;
         }
 
         function escapeHtml(str) {
@@ -1537,14 +1751,17 @@
                 var rank = idx + 1;
                 var rankClass = rank <= 3 ? "rank-" + rank : "";
                 var medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "#" + rank;
-                var isJustPlayed = currentSessionEntryId && item.id === currentSessionEntryId;
+                var relText = formatRelativeTime(item.updatedAt);
                 return (
                     '<div class="lb-row ' + rankClass + '">' +
                         '<div class="lb-left">' +
                             '<div class="lb-rank">' + medal + '</div>' +
-                            '<div style="min-width:0;">' +
-                                '<div class="lb-name">' + escapeHtml(item.name) + (isJustPlayed ? ' <span style="font-size:0.7rem;color:#059669;">(Vừa chơi)</span>' : '') + '</div>' +
-                                '<div class="lb-time">' + formatRelativeTime(item.updatedAt) + '</div>' +
+                            '<div style="min-width:0; flex:1;">' +
+                                '<div class="lb-name-wrap">' +
+                                    '<span class="lb-name">' + escapeHtml(item.name) + '</span>' +
+                                    '<span class="lb-status-tag">' + relText + '</span>' +
+                                '</div>' +
+                                '<div class="lb-time">' + formatExactDateTime(item.updatedAt) + '</div>' +
                             '</div>' +
                         '</div>' +
                         '<div class="lb-score">' + item.score + ' lần thử</div>' +
@@ -1553,7 +1770,7 @@
             };
 
             miniListEl.innerHTML = leaderboardData.slice(0, 5).map(buildRow).join("");
-            fullListEl.innerHTML = leaderboardData.slice(0, 10).map(buildRow).join("");
+            fullListEl.innerHTML = leaderboardData.slice(0, 100).map(buildRow).join("");
         }
 
         function showToast(message, type) {
@@ -1735,6 +1952,7 @@
                 updatedAt: Date.now()
             });
 
+            saveBtn.disabled = false;
             saveBtn.textContent = "Đã lưu";
             showToast("Đã ghi danh " + playerName + " lên Bảng Xếp Hạng!", "success");
         }
@@ -1779,14 +1997,15 @@
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
+                        action: "CLEAR_ALL",
                         clearedAt: lastClearedTimestamp,
                         records: []
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState([], lastClearedTimestamp, null);
-            showToast("Admin đã xóa toàn bộ Bảng Xếp Hạng!", "success");
+            await pushCloudState([], lastClearedTimestamp, null, "CLEAR_ALL");
+            showToast("Admin đã xóa toàn bộ Bảng Xếp Hạng trên mọi trình duyệt!", "success");
         }
 
         function closeWinModal() {
