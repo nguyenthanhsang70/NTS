@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số </title>
+    <title>Đoán Số - NTS</title>
     <link rel="icon" type="image/png" href="logos3.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -853,6 +853,11 @@
             font-size: 0.85rem;
             cursor: pointer;
             flex-shrink: 0;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .record-input-group button:active {
+            transform: scale(0.97);
         }
 
         .win-actions {
@@ -1202,8 +1207,8 @@
         </div>
     </div>
 
-    <!-- Modal Hướng Dẫn -->
-    <div id="instructionsModal" class="modal" role="dialog" aria-modal="true">
+    <!-- Modal Hướng Dẫn (Mặc định hiển thị ngay khi mới vào trang) -->
+    <div id="instructionsModal" class="modal active" role="dialog" aria-modal="true">
         <div class="modal-content">
             <button type="button" class="close-btn" onclick="closeInstructions()" aria-label="Đóng">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1217,6 +1222,9 @@
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
                 <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, thành tích của bạn sẽ được ghi nhận vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>. Bạn có thể nhập tên để vinh danh.</li>
             </ul>
+            <div style="margin-top: 16px;">
+                <button type="button" class="btn" style="width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
+            </div>
         </div>
     </div>
 
@@ -1230,36 +1238,43 @@
         var minPossible = 1;
         var maxPossible = 100;
         var currentSessionEntryId = null;
+        var currentEntryVersion = 1;
 
-        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v16";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v16";
-        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v16";
-        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v16";
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v17";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v17";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v17";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v17";
+        var RESET_ID_KEY = "nts_doan_so_reset_id_v17";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐA TRÌNH DUYỆT (JSONBLOB + KEYVALUE + NTFY SSE)
-        // Đảm bảo 100% Chrome / Cốc Cốc / Edge / Safari / Mobile đều thấy chung BXH
+        // HỆ THỐNG ĐỒNG BỘ ĐA TẦNG TỰ PHỤC HỒI LỖI (V17)
+        // 1. ntfy.sh SSE + History Poll (Đồng bộ thời gian thực & lịch sử 24h)
+        // 2. KeyValue Cloud Hex (Lưu trữ cố định siêu nhẹ)
+        // 3. JSONBlob Auto-Heal (Tự động khởi tạo lại nếu Blob cũ bị 404)
         // =============================================================
-        var JSONBLOB_FIXED_URL = "https://jsonblob.com/api/jsonBlob/1344348727585234944";
         var KV_APP_KEY = "453b380w";
-        var KV_BLOB_ID_KEY = "nts_doanso_blob_id_v16";
-        var KV_DATA_KEY = "nts_doanso_data_v16";
+        var KV_BLOB_ID_KEY = "nts_doanso_blob_id_v17";
+        var KV_DATA_KEY = "nts_doanso_data_v17";
 
-        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v16";
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v17";
         var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
+        var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=24h";
         var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
 
-        var activeBlobUrl = JSONBLOB_FIXED_URL;
+        var activeBlobUrl = "";
+        var lastNtfyPollTime = 0;
         var localBestScore = null;
         var leaderboardData = [];
         var lastClearedTimestamp = 0;
+        var lastResetId = "init_v17";
         var isSyncing = false;
         var syncChannel = null;
         var eventSourceConn = null;
+        var pinnedLocalEntries = {};
 
         try {
             if ("BroadcastChannel" in window) {
-                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v16");
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v17");
                 syncChannel.onmessage = function(event) {
                     if (event.data) {
                         applyIncomingState(event.data);
@@ -1278,7 +1293,28 @@
             if (savedClear) {
                 lastClearedTimestamp = parseInt(savedClear, 10) || 0;
             }
+            var savedReset = localStorage.getItem(RESET_ID_KEY);
+            if (savedReset) {
+                lastResetId = String(savedReset);
+            }
         } catch (e) {}
+
+        async function fetchWithTimeout(url, options, timeoutMs) {
+            var ms = timeoutMs || 2500;
+            if (typeof AbortController === "undefined") {
+                return fetch(url, options);
+            }
+            var controller = new AbortController();
+            var timer = setTimeout(function() {
+                controller.abort();
+            }, ms);
+            try {
+                var opts = Object.assign({}, options || {}, { signal: controller.signal });
+                return await fetch(url, opts);
+            } finally {
+                clearTimeout(timer);
+            }
+        }
 
         function getBrowserTag() {
             var ua = navigator.userAgent || "";
@@ -1325,6 +1361,7 @@
             try {
                 localStorage.setItem(SHARED_CACHE_KEY, JSON.stringify({
                     clearedAt: lastClearedTimestamp,
+                    resetId: lastResetId,
                     records: records
                 }));
             } catch (e) {}
@@ -1339,6 +1376,9 @@
                     if (parsed.clearedAt && parsed.clearedAt > lastClearedTimestamp) {
                         lastClearedTimestamp = parsed.clearedAt;
                     }
+                    if (parsed.resetId) {
+                        lastResetId = String(parsed.resetId);
+                    }
                     return parsed.records.filter(function(r) {
                         return (r.updatedAt || 0) > lastClearedTimestamp;
                     });
@@ -1347,22 +1387,43 @@
             return [];
         }
 
+        // Gộp và ưu tiên bản ghi có version cao hơn (tránh lỗi tên mặc định đè lên tên thật khi bấm Ghi danh nhanh)
         function normalizeAndSortRecords(list) {
             if (!Array.isArray(list)) return [];
             var byId = new Map();
+
+            Object.keys(pinnedLocalEntries).forEach(function(idKey) {
+                var p = pinnedLocalEntries[idKey];
+                if (p && (p.updatedAt || 0) > lastClearedTimestamp) {
+                    byId.set(idKey, p);
+                }
+            });
+
             list.forEach(function(item) {
                 if (!item || typeof item.score !== "number" || isNaN(item.score)) return;
                 var itemTime = Number(item.updatedAt) || 0;
                 if (lastClearedTimestamp > 0 && itemTime <= lastClearedTimestamp) return;
                 var id = String(item.id || (item.name + "_" + item.score));
+                var itemVer = Number(item.version) || 1;
                 var cleanItem = {
                     id: id,
                     name: String(item.name || "Người chơi").trim().slice(0, 100),
                     score: Number(item.score),
-                    updatedAt: itemTime || Date.now()
+                    updatedAt: itemTime || Date.now(),
+                    version: itemVer
                 };
-                if (!byId.has(id) || byId.get(id).updatedAt <= cleanItem.updatedAt) {
+
+                if (!byId.has(id)) {
                     byId.set(id, cleanItem);
+                } else {
+                    var existing = byId.get(id);
+                    var exVer = Number(existing.version) || 1;
+                    if (
+                        cleanItem.version > exVer ||
+                        (cleanItem.version === exVer && cleanItem.updatedAt >= existing.updatedAt)
+                    ) {
+                        byId.set(id, cleanItem);
+                    }
                 }
             });
 
@@ -1374,18 +1435,26 @@
             return sorted.slice(0, 100);
         }
 
-        // Áp dụng trạng thái nhận được từ trình duyệt khác
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
 
-            if (stateObj.action === "CLEAR_ALL" || (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp)) {
-                var newClear = Number(stateObj.clearedAt) || Date.now();
-                if (newClear > lastClearedTimestamp) {
-                    lastClearedTimestamp = newClear;
+            if (
+                stateObj.action === "CLEAR_ALL" ||
+                (stateObj.resetId && stateObj.resetId !== lastResetId && (Number(stateObj.clearedAt) || 0) >= lastClearedTimestamp) ||
+                (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp)
+            ) {
+                var newClear = Math.max(Number(stateObj.clearedAt) || 0, Date.now());
+                lastClearedTimestamp = newClear;
+                if (stateObj.resetId) {
+                    lastResetId = String(stateObj.resetId);
                 }
-                try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
+                try {
+                    localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                    localStorage.setItem(RESET_ID_KEY, lastResetId);
+                } catch (e) {}
 
                 if (stateObj.action === "CLEAR_ALL" || !stateObj.records || stateObj.records.length === 0) {
+                    pinnedLocalEntries = {};
                     leaderboardData = [];
                     currentSessionEntryId = null;
                     saveLocalBackup([]);
@@ -1412,7 +1481,6 @@
             }
         }
 
-        // Lắng nghe SSE Realtime từ ntfy.sh
         function startRealtimeStream() {
             if (!("EventSource" in window)) return;
             try {
@@ -1429,13 +1497,17 @@
                         }
                     } catch (e) {}
                 };
+                eventSourceConn.onerror = function() {
+                    try { eventSourceConn.close(); } catch (e) {}
+                    setTimeout(startRealtimeStream, 5000);
+                };
             } catch (e) {}
         }
 
-        // Khởi tạo hoặc lấy địa chỉ JSONBlob chung cho toàn bộ trình duyệt
-        async function resolveSharedBlobUrl() {
+        async function resolveSharedBlobUrl(forceRefresh) {
+            if (activeBlobUrl && !forceRefresh) return activeBlobUrl;
             try {
-                var ptrRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "?_t=" + Date.now(), { cache: "no-store" });
+                var ptrRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2000);
                 if (ptrRes.ok) {
                     var blobId = (await ptrRes.text()).trim().split('"').join("");
                     if (blobId && blobId !== "null" && blobId.length > 8) {
@@ -1444,182 +1516,287 @@
                     }
                 }
             } catch (e) {}
-            return activeBlobUrl;
+            return "";
         }
 
-        // Đọc dữ liệu Bảng Xếp Hạng từ Đám Mây
-        async function fetchCloudState() {
+        // Tải song song từ cả 3 kênh (KeyValue + JSONBlob + ntfy History)
+        async function fetchCloudState(forcePollNtfy) {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
+            var latestResetId = lastResetId;
             var cloudExplicitlyCleared = false;
 
-            // Nguồn 1: KeyValue Cloud Hex (Nhanh, ổn định, không cần tạo bucket)
-            try {
-                var kvRes = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" });
-                if (kvRes.ok) {
-                    var rawHex = await kvRes.text();
-                    var kvObj = fromSafeHex(rawHex);
-                    if (kvObj) {
-                        if (kvObj.c && Number(kvObj.c) > maxClearTime) {
-                            maxClearTime = Number(kvObj.c);
-                            if (!kvObj.r || kvObj.r.length === 0) {
-                                cloudExplicitlyCleared = true;
-                            }
-                        }
-                        if (Array.isArray(kvObj.r)) {
-                            kvObj.r.forEach(function(item) {
-                                if (item) {
-                                    collectedRecords.push({
-                                        id: item.i,
-                                        name: item.n,
-                                        score: Number(item.s),
-                                        updatedAt: Number(item.t)
-                                    });
+            // 1. Đọc từ KeyValue Cloud
+            var taskKv = (async function() {
+                try {
+                    var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2200);
+                    if (kvRes.ok) {
+                        var rawHex = await kvRes.text();
+                        var kvObj = fromSafeHex(rawHex);
+                        if (kvObj) {
+                            if (kvObj.c && Number(kvObj.c) > maxClearTime) {
+                                maxClearTime = Number(kvObj.c);
+                                if (kvObj.id) latestResetId = String(kvObj.id);
+                                if (!kvObj.r || kvObj.r.length === 0) {
+                                    cloudExplicitlyCleared = true;
                                 }
-                            });
-                        }
-                    }
-                }
-            } catch (e) {}
-
-            // Nguồn 2: JSONBlob Cloud Storage (Lưu trữ đầy đủ Top 100 và tên dài)
-            try {
-                var blobUrl = await resolveSharedBlobUrl();
-                var jbRes = await fetch(blobUrl + "?_t=" + Date.now(), {
-                    method: "GET",
-                    headers: { "Accept": "application/json" },
-                    cache: "no-store"
-                });
-                if (jbRes.ok) {
-                    var jbData = await jbRes.json();
-                    if (jbData) {
-                        if (jbData.clearedAt && Number(jbData.clearedAt) > maxClearTime) {
-                            maxClearTime = Number(jbData.clearedAt);
-                            if (!jbData.records || jbData.records.length === 0) {
-                                cloudExplicitlyCleared = true;
-                                collectedRecords = [];
+                            }
+                            if (Array.isArray(kvObj.r)) {
+                                kvObj.r.forEach(function(item) {
+                                    if (item) {
+                                        collectedRecords.push({
+                                            id: item.i,
+                                            name: item.n,
+                                            score: Number(item.s),
+                                            updatedAt: Number(item.t),
+                                            version: Number(item.v) || 1
+                                        });
+                                    }
+                                });
                             }
                         }
-                        if (Array.isArray(jbData.records)) {
-                            collectedRecords = collectedRecords.concat(jbData.records);
+                    }
+                } catch (e) {}
+            })();
+
+            // 2. Đọc từ JSONBlob (nếu có)
+            var taskBlob = (async function() {
+                try {
+                    var blobUrl = await resolveSharedBlobUrl(false);
+                    if (!blobUrl) return;
+                    var jbRes = await fetchWithTimeout(blobUrl + "?_t=" + Date.now(), {
+                        method: "GET",
+                        headers: { "Accept": "application/json" },
+                        cache: "no-store"
+                    }, 2200);
+                    if (jbRes.status === 404) {
+                        activeBlobUrl = "";
+                        return;
+                    }
+                    if (jbRes.ok) {
+                        var jbData = await jbRes.json();
+                        if (jbData) {
+                            if (jbData.clearedAt && Number(jbData.clearedAt) > maxClearTime) {
+                                maxClearTime = Number(jbData.clearedAt);
+                                if (jbData.resetId) latestResetId = String(jbData.resetId);
+                                if (jbData.action === "CLEAR_ALL" || !jbData.records || jbData.records.length === 0) {
+                                    cloudExplicitlyCleared = true;
+                                }
+                            }
+                            if (Array.isArray(jbData.records)) {
+                                collectedRecords = collectedRecords.concat(jbData.records);
+                            }
                         }
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
+            })();
+
+            // 3. Đọc lịch sử ntfy.sh (chỉ gọi khi mới vào trang hoặc mỗi 25 giây để không bao giờ bị lỗi 429)
+            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 25000);
+            var taskNtfy = (async function() {
+                if (!shouldPollNtfy) return;
+                lastNtfyPollTime = Date.now();
+                try {
+                    var res = await fetchWithTimeout(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" }, 2500);
+                    if (res.ok) {
+                        var text = await res.text();
+                        var lines = text.split("\n");
+                        for (var i = 0; i < lines.length; i++) {
+                            var line = lines[i].trim();
+                            if (!line) continue;
+                            try {
+                                var pkt = JSON.parse(line);
+                                if (pkt && pkt.event === "message" && pkt.message) {
+                                    var data = JSON.parse(pkt.message);
+                                    if (data.action === "CLEAR_ALL") {
+                                        var cTime = Number(data.clearedAt) || (pkt.time ? Number(pkt.time) * 1000 : 0);
+                                        if (cTime >= maxClearTime) {
+                                            maxClearTime = cTime;
+                                            if (data.resetId) latestResetId = String(data.resetId);
+                                            cloudExplicitlyCleared = true;
+                                            collectedRecords = [];
+                                        }
+                                        continue;
+                                    }
+                                    if (data.clearedAt && Number(data.clearedAt) > maxClearTime) {
+                                        maxClearTime = Number(data.clearedAt);
+                                        if (data.resetId) latestResetId = String(data.resetId);
+                                    }
+                                    if (Array.isArray(data.records)) {
+                                        collectedRecords = collectedRecords.concat(data.records);
+                                    }
+                                    if (data.singleEntry) {
+                                        collectedRecords.push(data.singleEntry);
+                                    }
+                                }
+                            } catch (innerErr) {}
+                        }
+                    }
+                } catch (e) {}
+            })();
+
+            await Promise.allSettled([taskKv, taskBlob, taskNtfy]);
+
+            var validCloudRecords = collectedRecords.filter(function(r) {
+                return r && (Number(r.updatedAt) || 0) > maxClearTime;
+            });
 
             return {
                 clearedAt: maxClearTime,
-                cloudExplicitlyCleared: cloudExplicitlyCleared,
-                records: collectedRecords
+                resetId: latestResetId,
+                cloudExplicitlyCleared: cloudExplicitlyCleared && validCloudRecords.length === 0,
+                records: validCloudRecords
             };
         }
 
-        // Ghi dữ liệu Bảng Xếp Hạng lên Đám Mây để mọi trình duyệt khác đều thấy
+        // Đẩy dữ liệu lên cả 3 kênh SONG SONG
         async function pushCloudState(records, clearedAtValue, singleEntryObj, actionType) {
             var cleanList = records.slice(0, 100).map(function(r) {
                 return {
                     id: r.id,
                     name: r.name,
                     score: Number(r.score),
-                    updatedAt: Number(r.updatedAt)
+                    updatedAt: Number(r.updatedAt),
+                    version: Number(r.version) || 1
                 };
             });
 
-            // 1. Lưu lên KeyValue Cloud (Nén gọn key i, n, s, t để URL Hex ngắn gọn 100% thành công)
-            try {
-                var compactItems = cleanList.slice(0, 10).map(function(r) {
-                    return {
-                        i: r.id,
-                        n: String(r.name).slice(0, 45),
-                        s: r.score,
-                        t: r.updatedAt
+            // 1. Phát sóng tức thời qua ntfy.sh SSE + lưu vào lịch sử ntfy
+            var taskSse = (async function() {
+                try {
+                    var ssePayload = {
+                        action: actionType || "UPDATE",
+                        resetId: lastResetId,
+                        clearedAt: clearedAtValue || lastClearedTimestamp || 0,
+                        singleEntry: singleEntryObj || null,
+                        records: cleanList.slice(0, 15)
                     };
-                });
-                var kvHex = toSafeHex({
-                    c: clearedAtValue || lastClearedTimestamp || 0,
-                    r: compactItems
-                });
-                if (kvHex.length > 1400) {
-                    kvHex = toSafeHex({
+                    await fetchWithTimeout(NTFY_PUBLISH_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                        body: JSON.stringify(ssePayload)
+                    }, 2500);
+                } catch (e) {}
+            })();
+
+            // 2. Lưu lên KeyValue Cloud
+            var taskKv = (async function() {
+                try {
+                    var compactItems = cleanList.slice(0, 8).map(function(r) {
+                        return {
+                            i: r.id,
+                            n: String(r.name).slice(0, 40),
+                            s: r.score,
+                            t: r.updatedAt,
+                            v: r.version || 1
+                        };
+                    });
+                    var kvHex = toSafeHex({
+                        id: lastResetId,
                         c: clearedAtValue || lastClearedTimestamp || 0,
-                        r: compactItems.slice(0, 5)
+                        r: compactItems
                     });
-                }
-                if (kvHex) {
-                    await fetch("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvHex, {
-                        method: "POST",
-                        mode: "cors"
-                    });
-                }
-            } catch (e) {}
+                    if (kvHex.length > 1350) {
+                        kvHex = toSafeHex({
+                            id: lastResetId,
+                            c: clearedAtValue || lastClearedTimestamp || 0,
+                            r: compactItems.slice(0, 4)
+                        });
+                    }
+                    if (kvHex) {
+                        await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvHex, {
+                            method: "POST",
+                            mode: "cors"
+                        }, 2500);
+                    }
+                } catch (e) {}
+            })();
 
-            // 2. Lưu toàn bộ danh sách Top 100 lên JSONBlob Cloud
-            try {
-                var fullPayload = {
-                    action: actionType || "UPDATE",
-                    clearedAt: clearedAtValue || lastClearedTimestamp || 0,
-                    records: cleanList
-                };
-                var blobUrl = await resolveSharedBlobUrl();
-                var putRes = await fetch(blobUrl, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(fullPayload)
-                });
+            // 3. Lưu đầy đủ Top 100 lên JSONBlob (Tự động tạo mới nếu chưa có hoặc bị 404)
+            var taskBlob = (async function() {
+                try {
+                    var fullPayload = {
+                        action: actionType || "UPDATE",
+                        resetId: lastResetId,
+                        clearedAt: clearedAtValue || lastClearedTimestamp || 0,
+                        records: cleanList
+                    };
+                    var blobUrl = await resolveSharedBlobUrl(false);
+                    var putSuccess = false;
 
-                // Nếu Blob cố định chưa tồn tại (404), tự động khởi tạo Blob mới và lưu ID lên KeyValue
-                if (!putRes.ok && (putRes.status === 404 || putRes.status === 400)) {
-                    var createRes = await fetch("https://jsonblob.com/api/jsonBlob", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify(fullPayload)
-                    });
-                    if (createRes.ok) {
-                        var loc = createRes.headers.get("Location") || createRes.headers.get("location") || "";
-                        var parts = loc.split("/");
-                        var newBlobId = parts[parts.length - 1];
-                        if (newBlobId && newBlobId.length > 8) {
-                            activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + newBlobId;
-                            await fetch("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "/" + newBlobId, {
-                                method: "POST",
-                                mode: "cors"
-                            });
+                    if (blobUrl) {
+                        var putRes = await fetchWithTimeout(blobUrl, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify(fullPayload)
+                        }, 2500);
+                        if (putRes.ok) {
+                            putSuccess = true;
+                        } else if (putRes.status === 404 || putRes.status === 400) {
+                            activeBlobUrl = "";
                         }
                     }
-                }
-            } catch (e) {}
 
-            // 3. Phát sóng tức thời qua ntfy.sh SSE cho các trình duyệt đang mở cùng lúc
-            try {
-                var ssePayload = {
-                    action: actionType || "UPDATE",
-                    clearedAt: clearedAtValue || lastClearedTimestamp || 0,
-                    singleEntry: singleEntryObj || null,
-                    records: cleanList.slice(0, 15)
-                };
-                await fetch(NTFY_PUBLISH_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
-                    body: JSON.stringify(ssePayload)
-                });
-            } catch (e) {}
+                    if (!putSuccess) {
+                        var createRes = await fetchWithTimeout("https://jsonblob.com/api/jsonBlob", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify(fullPayload)
+                        }, 2500);
+                        if (createRes.ok) {
+                            var loc = createRes.headers.get("Location") || createRes.headers.get("location") || "";
+                            var parts = loc.split("/");
+                            var newBlobId = parts[parts.length - 1];
+                            if (newBlobId && newBlobId.length > 8) {
+                                activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + newBlobId;
+                                await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "/" + newBlobId, {
+                                    method: "POST",
+                                    mode: "cors"
+                                }, 2000);
+                            }
+                        }
+                    }
+                } catch (e) {}
+            })();
+
+            await Promise.allSettled([taskSse, taskKv, taskBlob]);
         }
 
-        async function syncAllChannels(showFeedbackToast) {
+        async function syncAllChannels(showFeedbackToast, forcePollNtfy) {
             if (isSyncing) return;
             isSyncing = true;
             try {
-                var cloudState = await fetchCloudState();
+                var cloudState = await fetchCloudState(!!forcePollNtfy);
                 if (cloudState) {
-                    if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
-                        lastClearedTimestamp = cloudState.clearedAt;
-                        try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
+                    // Nếu phát hiện lệnh xóa mới từ trình duyệt khác -> làm sạch bộ nhớ cục bộ, không đẩy dữ liệu cũ lên lại
+                    if (
+                        (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) ||
+                        (cloudState.resetId && cloudState.resetId !== lastResetId && cloudState.clearedAt >= lastClearedTimestamp)
+                    ) {
+                        if (cloudState.clearedAt > lastClearedTimestamp) {
+                            lastClearedTimestamp = cloudState.clearedAt;
+                        }
+                        if (cloudState.resetId) {
+                            lastResetId = String(cloudState.resetId);
+                        }
+                        try {
+                            localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                            localStorage.setItem(RESET_ID_KEY, lastResetId);
+                        } catch (e) {}
+
+                        // Xóa các bản ghi local cũ trước mốc xóa
+                        Object.keys(pinnedLocalEntries).forEach(function(k) {
+                            if ((pinnedLocalEntries[k].updatedAt || 0) <= lastClearedTimestamp) {
+                                delete pinnedLocalEntries[k];
+                            }
+                        });
+
                         if (cloudState.cloudExplicitlyCleared) {
                             leaderboardData = [];
                         } else {
@@ -1632,15 +1809,8 @@
                     var merged = normalizeAndSortRecords(
                         leaderboardData.concat(cloudState.records || [])
                     );
-
-                    // Nếu trình duyệt hiện tại có dữ liệu mới chưa có trên Cloud thì tự đẩy lên Cloud
-                    var cloudCount = (cloudState.records || []).length;
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
-
-                    if (merged.length > cloudCount && merged.length > 0) {
-                        await pushCloudState(merged, lastClearedTimestamp, null, "UPDATE");
-                    }
                 }
                 renderLeaderboardUI();
                 if (showFeedbackToast) {
@@ -1653,52 +1823,45 @@
             }
         }
 
-        async function publishScoreEntry(entry) {
-            // Tải dữ liệu Cloud mới nhất trước khi chèn người chơi mới
-            var cloudState = await fetchCloudState();
-            var baseRecords = leaderboardData;
-            if (cloudState) {
-                if (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) {
-                    lastClearedTimestamp = cloudState.clearedAt;
-                    try { localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp)); } catch (e) {}
-                    baseRecords = [];
-                }
-                if (Array.isArray(cloudState.records)) {
-                    baseRecords = baseRecords.concat(cloudState.records);
-                }
-            }
-
+        // CẬP NHẬT GIAO DIỆN TỨC THÌ (0ms) VÀ ĐỒNG BỘ NGẦM LÊN CLOUD
+        function publishScoreEntryInstant(entry) {
             var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 500);
             var cleanEntry = {
-                id: entry.id,
-                name: entry.name,
+                id: String(entry.id),
+                name: String(entry.name || "Người chơi").trim().slice(0, 100),
                 score: Number(entry.score),
-                updatedAt: safeTimestamp
+                updatedAt: safeTimestamp,
+                version: Number(entry.version) || 1
             };
 
-            var combined = normalizeAndSortRecords(baseRecords.concat([cleanEntry]));
-            leaderboardData = combined;
-            saveLocalBackup(combined);
+            pinnedLocalEntries[cleanEntry.id] = cleanEntry;
+            leaderboardData = normalizeAndSortRecords(leaderboardData.concat([cleanEntry]));
+            saveLocalBackup(leaderboardData);
             renderLeaderboardUI();
 
-            // Cập nhật hạng trong Modal Chiến thắng
             var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
             if (rankIndex !== -1) {
-                document.getElementById("winBestRecord").textContent = "#" + (rankIndex + 1);
+                var winRecEl = document.getElementById("winBestRecord");
+                if (winRecEl) winRecEl.textContent = "#" + (rankIndex + 1);
             }
 
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
                         action: "UPDATE",
+                        resetId: lastResetId,
                         clearedAt: lastClearedTimestamp,
                         singleEntry: cleanEntry,
-                        records: combined
+                        records: leaderboardData
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState(combined, lastClearedTimestamp, cleanEntry, "UPDATE");
+            (async function() {
+                try {
+                    await pushCloudState(leaderboardData, lastClearedTimestamp, cleanEntry, "UPDATE");
+                } catch (e) {}
+            })();
         }
 
         function formatRelativeTime(timestamp) {
@@ -1781,7 +1944,7 @@
             var icon = toastType === "error" ? "⚠️" : toastType === "success" ? "✅" : "💡";
             toast.innerHTML = "<span>" + icon + "</span><span>" + message + "</span>";
             container.appendChild(toast);
-            setTimeout(function() { toast.remove(); }, 2600);
+            setTimeout(function() { toast.remove(); }, 2400);
         }
 
         function updateRangeUI() {
@@ -1803,6 +1966,7 @@
             minPossible = 1;
             maxPossible = 100;
             currentSessionEntryId = null;
+            currentEntryVersion = 1;
 
             var guessInput = document.getElementById("guessInput");
             guessInput.value = "";
@@ -1863,15 +2027,17 @@
                 }
 
                 currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
+                currentEntryVersion = 1;
                 var savedName = "";
                 try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
                 var autoName = savedName.trim() ? savedName.trim() : ("Người chơi (" + getBrowserTag() + ")");
 
-                publishScoreEntry({
+                publishScoreEntryInstant({
                     id: currentSessionEntryId,
                     name: autoName,
                     score: attempts,
-                    updatedAt: Date.now()
+                    updatedAt: Date.now(),
+                    version: currentEntryVersion
                 });
 
                 showWinModal(savedName.trim());
@@ -1929,15 +2095,17 @@
                 completionSound.currentTime = 0;
                 completionSound.play().catch(function() {});
             }
+
+            setTimeout(function() {
+                nameInput.focus();
+            }, 100);
         }
 
-        async function savePlayerName() {
+        // GHI DANH TỨC THÌ (0ms) KÈM VERSION TĂNG DẦN ĐỂ KHÔNG BỊ ĐÈ BỞI TÊN TẠM
+        function savePlayerName() {
             var nameInput = document.getElementById("recordHolderInput");
             var saveBtn = document.getElementById("saveRecordBtn");
             var playerName = (nameInput.value || "").trim() || ("Người chơi (" + getBrowserTag() + ")");
-
-            saveBtn.disabled = true;
-            saveBtn.textContent = "Đang lưu...";
 
             try { localStorage.setItem(PLAYER_NAME_KEY, playerName); } catch (e) {}
 
@@ -1945,16 +2113,19 @@
                 currentSessionEntryId = "entry_" + Date.now();
             }
 
-            await publishScoreEntry({
+            currentEntryVersion = currentEntryVersion + 1;
+
+            publishScoreEntryInstant({
                 id: currentSessionEntryId,
                 name: playerName,
-                score: attempts,
-                updatedAt: Date.now()
+                score: attempts > 0 ? attempts : 1,
+                updatedAt: Date.now() + 200,
+                version: currentEntryVersion
             });
 
             saveBtn.disabled = false;
-            saveBtn.textContent = "Đã lưu";
-            showToast("Đã ghi danh " + playerName + " lên Bảng Xếp Hạng!", "success");
+            saveBtn.textContent = "Đã lưu ✓";
+            showToast("Đã ghi danh " + escapeHtml(playerName) + " lên Bảng Xếp Hạng!", "success");
         }
 
         function clearLeaderboard() {
@@ -1971,7 +2142,7 @@
             document.getElementById("adminAuthModal").classList.remove("active");
         }
 
-        async function confirmAdminClearLeaderboard() {
+        function confirmAdminClearLeaderboard() {
             var username = document.getElementById("adminUsername").value.trim();
             var password = document.getElementById("adminPassword").value;
             var errorMsg = document.getElementById("adminErrorMsg");
@@ -1984,11 +2155,14 @@
 
             closeAdminModal();
             lastClearedTimestamp = Date.now();
+            lastResetId = "reset_" + lastClearedTimestamp + "_" + Math.random().toString(36).substring(2, 6);
+            pinnedLocalEntries = {};
             leaderboardData = [];
             currentSessionEntryId = null;
 
             try {
                 localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                localStorage.setItem(RESET_ID_KEY, lastResetId);
                 saveLocalBackup([]);
             } catch (e) {}
 
@@ -1998,13 +2172,14 @@
                 try {
                     syncChannel.postMessage({
                         action: "CLEAR_ALL",
+                        resetId: lastResetId,
                         clearedAt: lastClearedTimestamp,
                         records: []
                     });
                 } catch (e) {}
             }
 
-            await pushCloudState([], lastClearedTimestamp, null, "CLEAR_ALL");
+            pushCloudState([], lastClearedTimestamp, null, "CLEAR_ALL");
             showToast("Admin đã xóa toàn bộ Bảng Xếp Hạng trên mọi trình duyệt!", "success");
         }
 
@@ -2025,7 +2200,8 @@
 
         function showLeaderboard() {
             closeWinModal();
-            syncAllChannels(false);
+            renderLeaderboardUI();
+            syncAllChannels(false, true);
             document.getElementById("leaderboardModal").classList.add("active");
         }
 
@@ -2034,7 +2210,7 @@
         }
 
         function manualSyncLeaderboard() {
-            syncAllChannels(true);
+            syncAllChannels(true, true);
         }
 
         function showInstructions() {
@@ -2043,6 +2219,12 @@
 
         function closeInstructions() {
             document.getElementById("instructionsModal").classList.remove("active");
+            var guessInput = document.getElementById("guessInput");
+            if (guessInput && !guessInput.disabled) {
+                setTimeout(function() {
+                    guessInput.focus();
+                }, 100);
+            }
         }
 
         function goBack() {
@@ -2113,20 +2295,21 @@
             requestAnimationFrame(render);
         }
 
-        // Khởi tạo ngay khi mở trang
+        // Khởi tạo ngay khi mở trang và tự động hiển thị Hướng dẫn chơi
         initGame();
+        showInstructions();
         leaderboardData = normalizeAndSortRecords(loadLocalBackup());
         renderLeaderboardUI();
-        syncAllChannels(false);
+        syncAllChannels(false, true);
         startRealtimeStream();
 
         setInterval(function() {
-            syncAllChannels(false);
-        }, 4000);
+            syncAllChannels(false, false);
+        }, 5000);
 
-        window.addEventListener("focus", function() { syncAllChannels(false); });
+        window.addEventListener("focus", function() { syncAllChannels(false, false); });
         document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === "visible") syncAllChannels(false);
+            if (document.visibilityState === "visible") syncAllChannels(false, false);
         });
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
@@ -2147,7 +2330,11 @@
 
         window.addEventListener("click", function(e) {
             if (e.target && e.target.classList && e.target.classList.contains("modal")) {
-                e.target.classList.remove("active");
+                if (e.target.id === "instructionsModal") {
+                    closeInstructions();
+                } else {
+                    e.target.classList.remove("active");
+                }
             }
         });
 
@@ -2156,6 +2343,13 @@
         });
 
         document.addEventListener("keydown", function(e) {
+            var instrModal = document.getElementById("instructionsModal");
+            if (instrModal && instrModal.classList.contains("active") && (e.key === "Enter" || e.key === "Escape")) {
+                e.preventDefault();
+                closeInstructions();
+                return;
+            }
+
             if (e.key === "F12") {
                 e.preventDefault();
                 return false;
