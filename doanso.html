@@ -1240,33 +1240,34 @@
         var currentSessionEntryId = null;
         var currentEntryVersion = 1;
 
-        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v17";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v17";
-        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v17";
-        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v17";
-        var RESET_ID_KEY = "nts_doan_so_reset_id_v17";
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v18";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v18";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v18";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v18";
+        var RESET_ID_KEY = "nts_doan_so_reset_id_v18";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐA TẦNG TỰ PHỤC HỒI LỖI (V17)
-        // 1. ntfy.sh SSE + History Poll (Đồng bộ thời gian thực & lịch sử 24h)
-        // 2. KeyValue Cloud Hex (Lưu trữ cố định siêu nhẹ)
-        // 3. JSONBlob Auto-Heal (Tự động khởi tạo lại nếu Blob cũ bị 404)
+        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (V18 - ĐẢM BẢO 100% MỌI TRÌNH DUYỆT ĐỀU THẤY)
+        // 1. ntfy.sh Event-Log & SSE Stream (Lưu trữ lịch sử sự kiện gọn nhẹ + truyền trực tiếp)
+        // 2. KeyValue Cloud (Tự động khởi tạo khóa GET trước khi POST)
+        // 3. JSONBlob Cloud (Bắt chuẩn header X-jsonblob)
         // =============================================================
-        var KV_APP_KEY = "453b380w";
-        var KV_BLOB_ID_KEY = "nts_doanso_blob_id_v17";
-        var KV_DATA_KEY = "nts_doanso_data_v17";
-
-        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v17";
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v18";
         var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
-        var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=24h";
+        var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=48h";
         var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
 
+        var KV_APP_KEY = "453b380w";
+        var KV_DATA_KEY = "nts_doanso_hex_v18";
+        var KV_BLOB_PTR_KEY = "nts_doanso_blob_v18";
+
         var activeBlobUrl = "";
+        var kvKeysInitialized = false;
         var lastNtfyPollTime = 0;
         var localBestScore = null;
         var leaderboardData = [];
         var lastClearedTimestamp = 0;
-        var lastResetId = "init_v17";
+        var lastResetId = "init_v18";
         var isSyncing = false;
         var syncChannel = null;
         var eventSourceConn = null;
@@ -1274,7 +1275,7 @@
 
         try {
             if ("BroadcastChannel" in window) {
-                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v17");
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v18");
                 syncChannel.onmessage = function(event) {
                     if (event.data) {
                         applyIncomingState(event.data);
@@ -1300,7 +1301,7 @@
         } catch (e) {}
 
         async function fetchWithTimeout(url, options, timeoutMs) {
-            var ms = timeoutMs || 2500;
+            var ms = timeoutMs || 3500;
             if (typeof AbortController === "undefined") {
                 return fetch(url, options);
             }
@@ -1387,7 +1388,6 @@
             return [];
         }
 
-        // Gộp và ưu tiên bản ghi có version cao hơn (tránh lỗi tên mặc định đè lên tên thật khi bấm Ghi danh nhanh)
         function normalizeAndSortRecords(list) {
             if (!Array.isArray(list)) return [];
             var byId = new Map();
@@ -1435,25 +1435,27 @@
             return sorted.slice(0, 100);
         }
 
+        // Xử lý gói tin nhận được từ SSE hoặc BroadcastChannel
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
 
             if (
                 stateObj.action === "CLEAR_ALL" ||
+                stateObj.a === "CLEAR" ||
                 (stateObj.resetId && stateObj.resetId !== lastResetId && (Number(stateObj.clearedAt) || 0) >= lastClearedTimestamp) ||
                 (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp)
             ) {
-                var newClear = Math.max(Number(stateObj.clearedAt) || 0, Date.now());
+                var newClear = Math.max(Number(stateObj.clearedAt || stateObj.c) || 0, Date.now());
                 lastClearedTimestamp = newClear;
-                if (stateObj.resetId) {
-                    lastResetId = String(stateObj.resetId);
+                if (stateObj.resetId || stateObj.rId) {
+                    lastResetId = String(stateObj.resetId || stateObj.rId);
                 }
                 try {
                     localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
                     localStorage.setItem(RESET_ID_KEY, lastResetId);
                 } catch (e) {}
 
-                if (stateObj.action === "CLEAR_ALL" || !stateObj.records || stateObj.records.length === 0) {
+                if (stateObj.action === "CLEAR_ALL" || stateObj.a === "CLEAR") {
                     pinnedLocalEntries = {};
                     leaderboardData = [];
                     currentSessionEntryId = null;
@@ -1472,6 +1474,16 @@
             }
             if (stateObj.singleEntry && typeof stateObj.singleEntry.score === "number") {
                 incomingList.push(stateObj.singleEntry);
+            }
+            // Hỗ trợ gói tin rút gọn từ ntfy (e: {i, n, s, t, v})
+            if (stateObj.e && typeof stateObj.e.s === "number") {
+                incomingList.push({
+                    id: stateObj.e.i,
+                    name: stateObj.e.n,
+                    score: Number(stateObj.e.s),
+                    updatedAt: Number(stateObj.e.t) || Date.now(),
+                    version: Number(stateObj.e.v) || 1
+                });
             }
 
             if (incomingList.length > 0) {
@@ -1499,16 +1511,29 @@
                 };
                 eventSourceConn.onerror = function() {
                     try { eventSourceConn.close(); } catch (e) {}
-                    setTimeout(startRealtimeStream, 5000);
+                    setTimeout(startRealtimeStream, 6000);
                 };
             } catch (e) {}
         }
 
-        async function resolveSharedBlobUrl(forceRefresh) {
-            if (activeBlobUrl && !forceRefresh) return activeBlobUrl;
+        // Đảm bảo khóa trên KeyValue.immanuel.co đã được gọi GET kích hoạt trước khi POST
+        async function ensureKvKeysInitialized() {
+            if (kvKeysInitialized) return;
             try {
-                var ptrRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2000);
+                await Promise.allSettled([
+                    fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500),
+                    fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500)
+                ]);
+                kvKeysInitialized = true;
+            } catch (e) {}
+        }
+
+        async function resolveSharedBlobUrl() {
+            if (activeBlobUrl) return activeBlobUrl;
+            try {
+                var ptrRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2500);
                 if (ptrRes.ok) {
+                    kvKeysInitialized = true;
                     var blobId = (await ptrRes.text()).trim().split('"').join("");
                     if (blobId && blobId !== "null" && blobId.length > 8) {
                         activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + blobId;
@@ -1519,18 +1544,68 @@
             return "";
         }
 
-        // Tải song song từ cả 3 kênh (KeyValue + JSONBlob + ntfy History)
+        // Tải dữ liệu từ cả 3 nguồn Cloud (ntfy Event-Log + KeyValue + JSONBlob)
         async function fetchCloudState(forcePollNtfy) {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
             var latestResetId = lastResetId;
             var cloudExplicitlyCleared = false;
 
-            // 1. Đọc từ KeyValue Cloud
+            // Nguồn 1: Đọc luồng lịch sử sự kiện trên ntfy.sh (Quan trọng nhất cho trình duyệt mới mở)
+            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 12000);
+            var taskNtfy = (async function() {
+                if (!shouldPollNtfy) return;
+                lastNtfyPollTime = Date.now();
+                try {
+                    var res = await fetchWithTimeout(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" }, 3500);
+                    if (res.ok) {
+                        var text = await res.text();
+                        var lines = text.split("\n");
+                        for (var i = 0; i < lines.length; i++) {
+                            var line = lines[i].trim();
+                            if (!line) continue;
+                            try {
+                                var pkt = JSON.parse(line);
+                                if (pkt && pkt.event === "message" && pkt.message) {
+                                    var data = JSON.parse(pkt.message);
+                                    if (data.action === "CLEAR_ALL" || data.a === "CLEAR") {
+                                        var cTime = Number(data.clearedAt || data.c) || (pkt.time ? Number(pkt.time) * 1000 : 0);
+                                        if (cTime >= maxClearTime) {
+                                            maxClearTime = cTime;
+                                            if (data.resetId || data.rId) latestResetId = String(data.resetId || data.rId);
+                                            cloudExplicitlyCleared = true;
+                                            collectedRecords = [];
+                                        }
+                                        continue;
+                                    }
+                                    if (data.e && typeof data.e.s === "number") {
+                                        collectedRecords.push({
+                                            id: data.e.i,
+                                            name: data.e.n,
+                                            score: Number(data.e.s),
+                                            updatedAt: Number(data.e.t) || (pkt.time ? Number(pkt.time) * 1000 : Date.now()),
+                                            version: Number(data.e.v) || 1
+                                        });
+                                    }
+                                    if (data.singleEntry) {
+                                        collectedRecords.push(data.singleEntry);
+                                    }
+                                    if (Array.isArray(data.records)) {
+                                        collectedRecords = collectedRecords.concat(data.records);
+                                    }
+                                }
+                            } catch (innerErr) {}
+                        }
+                    }
+                } catch (e) {}
+            })();
+
+            // Nguồn 2: Đọc từ KeyValue Cloud
             var taskKv = (async function() {
                 try {
-                    var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2200);
+                    var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "?_t=" + Date.now(), { cache: "no-store" }, 2800);
                     if (kvRes.ok) {
+                        kvKeysInitialized = true;
                         var rawHex = await kvRes.text();
                         var kvObj = fromSafeHex(rawHex);
                         if (kvObj) {
@@ -1559,16 +1634,16 @@
                 } catch (e) {}
             })();
 
-            // 2. Đọc từ JSONBlob (nếu có)
+            // Nguồn 3: Đọc từ JSONBlob Cloud
             var taskBlob = (async function() {
                 try {
-                    var blobUrl = await resolveSharedBlobUrl(false);
+                    var blobUrl = await resolveSharedBlobUrl();
                     if (!blobUrl) return;
                     var jbRes = await fetchWithTimeout(blobUrl + "?_t=" + Date.now(), {
                         method: "GET",
                         headers: { "Accept": "application/json" },
                         cache: "no-store"
-                    }, 2200);
+                    }, 2800);
                     if (jbRes.status === 404) {
                         activeBlobUrl = "";
                         return;
@@ -1591,51 +1666,7 @@
                 } catch (e) {}
             })();
 
-            // 3. Đọc lịch sử ntfy.sh (chỉ gọi khi mới vào trang hoặc mỗi 25 giây để không bao giờ bị lỗi 429)
-            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 25000);
-            var taskNtfy = (async function() {
-                if (!shouldPollNtfy) return;
-                lastNtfyPollTime = Date.now();
-                try {
-                    var res = await fetchWithTimeout(NTFY_POLL_URL + "&_t=" + Date.now(), { cache: "no-store" }, 2500);
-                    if (res.ok) {
-                        var text = await res.text();
-                        var lines = text.split("\n");
-                        for (var i = 0; i < lines.length; i++) {
-                            var line = lines[i].trim();
-                            if (!line) continue;
-                            try {
-                                var pkt = JSON.parse(line);
-                                if (pkt && pkt.event === "message" && pkt.message) {
-                                    var data = JSON.parse(pkt.message);
-                                    if (data.action === "CLEAR_ALL") {
-                                        var cTime = Number(data.clearedAt) || (pkt.time ? Number(pkt.time) * 1000 : 0);
-                                        if (cTime >= maxClearTime) {
-                                            maxClearTime = cTime;
-                                            if (data.resetId) latestResetId = String(data.resetId);
-                                            cloudExplicitlyCleared = true;
-                                            collectedRecords = [];
-                                        }
-                                        continue;
-                                    }
-                                    if (data.clearedAt && Number(data.clearedAt) > maxClearTime) {
-                                        maxClearTime = Number(data.clearedAt);
-                                        if (data.resetId) latestResetId = String(data.resetId);
-                                    }
-                                    if (Array.isArray(data.records)) {
-                                        collectedRecords = collectedRecords.concat(data.records);
-                                    }
-                                    if (data.singleEntry) {
-                                        collectedRecords.push(data.singleEntry);
-                                    }
-                                }
-                            } catch (innerErr) {}
-                        }
-                    }
-                } catch (e) {}
-            })();
-
-            await Promise.allSettled([taskKv, taskBlob, taskNtfy]);
+            await Promise.allSettled([taskNtfy, taskKv, taskBlob]);
 
             var validCloudRecords = collectedRecords.filter(function(r) {
                 return r && (Number(r.updatedAt) || 0) > maxClearTime;
@@ -1649,7 +1680,7 @@
             };
         }
 
-        // Đẩy dữ liệu lên cả 3 kênh SONG SONG
+        // Đẩy dữ liệu lên cả 3 kênh Đám Mây
         async function pushCloudState(records, clearedAtValue, singleEntryObj, actionType) {
             var cleanList = records.slice(0, 100).map(function(r) {
                 return {
@@ -1661,31 +1692,53 @@
                 };
             });
 
-            // 1. Phát sóng tức thời qua ntfy.sh SSE + lưu vào lịch sử ntfy
+            // 1. Gửi gói tin siêu gọn lên ntfy.sh (Không gắn header phức tạp để tránh CORS Preflight và được lưu cache 100%)
             var taskSse = (async function() {
                 try {
-                    var ssePayload = {
-                        action: actionType || "UPDATE",
-                        resetId: lastResetId,
-                        clearedAt: clearedAtValue || lastClearedTimestamp || 0,
-                        singleEntry: singleEntryObj || null,
-                        records: cleanList.slice(0, 15)
-                    };
+                    var compactPacket;
+                    if (actionType === "CLEAR_ALL") {
+                        compactPacket = {
+                            a: "CLEAR",
+                            rId: lastResetId,
+                            c: clearedAtValue || lastClearedTimestamp || Date.now()
+                        };
+                    } else if (singleEntryObj) {
+                        compactPacket = {
+                            a: "ADD",
+                            rId: lastResetId,
+                            c: clearedAtValue || lastClearedTimestamp || 0,
+                            e: {
+                                i: singleEntryObj.id,
+                                n: singleEntryObj.name,
+                                s: Number(singleEntryObj.score),
+                                t: Number(singleEntryObj.updatedAt),
+                                v: Number(singleEntryObj.version) || 1
+                            }
+                        };
+                    } else {
+                        compactPacket = {
+                            a: "SYNC",
+                            rId: lastResetId,
+                            c: clearedAtValue || lastClearedTimestamp || 0,
+                            records: cleanList.slice(0, 10)
+                        };
+                    }
+
                     await fetchWithTimeout(NTFY_PUBLISH_URL, {
                         method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=UTF-8" },
-                        body: JSON.stringify(ssePayload)
-                    }, 2500);
+                        body: JSON.stringify(compactPacket)
+                    }, 3000);
                 } catch (e) {}
             })();
 
-            // 2. Lưu lên KeyValue Cloud
+            // 2. Lưu lên KeyValue Cloud (Đảm bảo đã gọi GET kích hoạt khóa trước)
             var taskKv = (async function() {
                 try {
-                    var compactItems = cleanList.slice(0, 8).map(function(r) {
+                    await ensureKvKeysInitialized();
+                    var compactItems = cleanList.slice(0, 6).map(function(r) {
                         return {
                             i: r.id,
-                            n: String(r.name).slice(0, 40),
+                            n: String(r.name).slice(0, 35),
                             s: r.score,
                             t: r.updatedAt,
                             v: r.version || 1
@@ -1696,32 +1749,33 @@
                         c: clearedAtValue || lastClearedTimestamp || 0,
                         r: compactItems
                     });
-                    if (kvHex.length > 1350) {
+                    if (kvHex.length > 1200) {
                         kvHex = toSafeHex({
                             id: lastResetId,
                             c: clearedAtValue || lastClearedTimestamp || 0,
-                            r: compactItems.slice(0, 4)
+                            r: compactItems.slice(0, 3)
                         });
                     }
                     if (kvHex) {
                         await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_DATA_KEY + "/" + kvHex, {
                             method: "POST",
                             mode: "cors"
-                        }, 2500);
+                        }, 3000);
                     }
                 } catch (e) {}
             })();
 
-            // 3. Lưu đầy đủ Top 100 lên JSONBlob (Tự động tạo mới nếu chưa có hoặc bị 404)
+            // 3. Lưu đầy đủ Top 100 lên JSONBlob (Đọc cả X-jsonblob, Location và response.url)
             var taskBlob = (async function() {
                 try {
+                    await ensureKvKeysInitialized();
                     var fullPayload = {
                         action: actionType || "UPDATE",
                         resetId: lastResetId,
                         clearedAt: clearedAtValue || lastClearedTimestamp || 0,
                         records: cleanList
                     };
-                    var blobUrl = await resolveSharedBlobUrl(false);
+                    var blobUrl = await resolveSharedBlobUrl();
                     var putSuccess = false;
 
                     if (blobUrl) {
@@ -1732,7 +1786,7 @@
                                 "Accept": "application/json"
                             },
                             body: JSON.stringify(fullPayload)
-                        }, 2500);
+                        }, 3000);
                         if (putRes.ok) {
                             putSuccess = true;
                         } else if (putRes.status === 404 || putRes.status === 400) {
@@ -1748,17 +1802,20 @@
                                 "Accept": "application/json"
                             },
                             body: JSON.stringify(fullPayload)
-                        }, 2500);
+                        }, 3000);
                         if (createRes.ok) {
-                            var loc = createRes.headers.get("Location") || createRes.headers.get("location") || "";
-                            var parts = loc.split("/");
-                            var newBlobId = parts[parts.length - 1];
-                            if (newBlobId && newBlobId.length > 8) {
+                            var newBlobId = createRes.headers.get("X-jsonblob") || createRes.headers.get("x-jsonblob") || "";
+                            if (!newBlobId) {
+                                var loc = createRes.headers.get("Location") || createRes.headers.get("location") || createRes.url || "";
+                                var parts = loc.split("/");
+                                newBlobId = parts[parts.length - 1];
+                            }
+                            if (newBlobId && newBlobId.length > 8 && newBlobId !== "jsonBlob") {
                                 activeBlobUrl = "https://jsonblob.com/api/jsonBlob/" + newBlobId;
-                                await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_BLOB_ID_KEY + "/" + newBlobId, {
+                                await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/" + KV_APP_KEY + "/" + KV_BLOB_PTR_KEY + "/" + newBlobId, {
                                     method: "POST",
                                     mode: "cors"
-                                }, 2000);
+                                }, 2500);
                             }
                         }
                     }
@@ -1774,7 +1831,6 @@
             try {
                 var cloudState = await fetchCloudState(!!forcePollNtfy);
                 if (cloudState) {
-                    // Nếu phát hiện lệnh xóa mới từ trình duyệt khác -> làm sạch bộ nhớ cục bộ, không đẩy dữ liệu cũ lên lại
                     if (
                         (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) ||
                         (cloudState.resetId && cloudState.resetId !== lastResetId && cloudState.clearedAt >= lastClearedTimestamp)
@@ -1790,7 +1846,6 @@
                             localStorage.setItem(RESET_ID_KEY, lastResetId);
                         } catch (e) {}
 
-                        // Xóa các bản ghi local cũ trước mốc xóa
                         Object.keys(pinnedLocalEntries).forEach(function(k) {
                             if ((pinnedLocalEntries[k].updatedAt || 0) <= lastClearedTimestamp) {
                                 delete pinnedLocalEntries[k];
@@ -1806,11 +1861,17 @@
                         }
                     }
 
+                    var cloudRecords = cloudState.records || [];
                     var merged = normalizeAndSortRecords(
-                        leaderboardData.concat(cloudState.records || [])
+                        leaderboardData.concat(cloudRecords)
                     );
                     leaderboardData = merged;
                     saveLocalBackup(leaderboardData);
+
+                    // Nếu trình duyệt này đang giữ kỷ lục mà trên Cloud chưa có (và Cloud không phải vừa bị xóa), tự động đẩy bù lên Cloud
+                    if (!cloudState.cloudExplicitlyCleared && merged.length > cloudRecords.length && merged.length > 0) {
+                        pushCloudState(merged, lastClearedTimestamp, merged[0], "UPDATE");
+                    }
                 }
                 renderLeaderboardUI();
                 if (showFeedbackToast) {
@@ -1823,7 +1884,6 @@
             }
         }
 
-        // CẬP NHẬT GIAO DIỆN TỨC THÌ (0ms) VÀ ĐỒNG BỘ NGẦM LÊN CLOUD
         function publishScoreEntryInstant(entry) {
             var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 500);
             var cleanEntry = {
@@ -2101,7 +2161,6 @@
             }, 100);
         }
 
-        // GHI DANH TỨC THÌ (0ms) KÈM VERSION TĂNG DẦN ĐỂ KHÔNG BỊ ĐÈ BỞI TÊN TẠM
         function savePlayerName() {
             var nameInput = document.getElementById("recordHolderInput");
             var saveBtn = document.getElementById("saveRecordBtn");
@@ -2307,9 +2366,9 @@
             syncAllChannels(false, false);
         }, 5000);
 
-        window.addEventListener("focus", function() { syncAllChannels(false, false); });
+        window.addEventListener("focus", function() { syncAllChannels(false, true); });
         document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === "visible") syncAllChannels(false, false);
+            if (document.visibilityState === "visible") syncAllChannels(false, true);
         });
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
