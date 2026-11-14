@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoán Số - NTS</title>
+    <title>Đoán Số </title>
     <link rel="icon" type="image/png" href="logos3.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1240,31 +1240,30 @@
         var currentSessionEntryId = null;
         var currentEntryVersion = 1;
 
-        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v19";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v19";
-        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v19";
-        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v19";
-        var RESET_ID_KEY = "nts_doan_so_reset_id_v19";
+        var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v20";
+        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v20";
+        var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v20";
+        var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v20";
+        var RESET_ID_KEY = "nts_doan_so_reset_id_v20";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (V19 - CHUẨN GIAO THỨC NTFY & JSONBLOB)
-        // Đặc biệt: KHÔNG gắn &_t= vào NTFY_POLL_URL để tránh lỗi 400 Bad Request trên ntfy.sh
+        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY XUYÊN TRÌNH DUYỆT (V20)
+        // Đã sửa triệt để lỗi: Xóa BXH xong nhấn Ghi danh không đồng bộ sang trình duyệt khác
         // =============================================================
-        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v19";
+        var CLOUD_TOPIC = "nts_doanso_global_leaderboard_sync_2026_v20";
         var NTFY_PUBLISH_URL = "https://ntfy.sh/" + CLOUD_TOPIC;
         var NTFY_POLL_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/json?poll=1&since=48h";
         var NTFY_SSE_URL = "https://ntfy.sh/" + CLOUD_TOPIC + "/sse";
 
         var KV_APP_KEY = "453b380w";
-        var KV_DATA_KEY = "nts_doanso_b64_v19";
-        var KV_BLOB_PTR_KEY = "nts_doanso_ptr_v19";
+        var KV_DATA_KEY = "nts_doanso_b64_v20";
+        var KV_BLOB_PTR_KEY = "nts_doanso_ptr_v20";
 
         var activeBlobUrl = "";
-        var lastNtfyPollTime = 0;
         var localBestScore = null;
         var leaderboardData = [];
         var lastClearedTimestamp = 0;
-        var lastResetId = "init_v19";
+        var lastResetId = "init_v20";
         var isSyncing = false;
         var syncChannel = null;
         var eventSourceConn = null;
@@ -1272,7 +1271,7 @@
 
         try {
             if ("BroadcastChannel" in window) {
-                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v19");
+                syncChannel = new BroadcastChannel("nts_doan_so_realtime_v20");
                 syncChannel.onmessage = function(event) {
                     if (event.data) {
                         applyIncomingState(event.data);
@@ -1325,7 +1324,6 @@
             return "Web";
         }
 
-        // Mã hóa URL-Safe Base64 (Ngắn hơn Hex 50%, không chứa +, /, =)
         function toUrlSafeBase64(obj) {
             try {
                 var jsonStr = JSON.stringify(obj);
@@ -1375,11 +1373,24 @@
                         lastResetId = String(parsed.resetId);
                     }
                     return parsed.records.filter(function(r) {
-                        return (r.updatedAt || 0) > lastClearedTimestamp;
+                        return isRecordValidAfterClear(r);
                     });
                 }
             } catch (e) {}
             return [];
+        }
+
+        // Kiểm tra tính hợp lệ của bản ghi sau khi xóa (Chấp nhận bản ghi có cùng mã phiên resetId hoặc thời gian > lastClearedTimestamp)
+        function isRecordValidAfterClear(item) {
+            if (!item || typeof item.score !== "number" || isNaN(item.score)) return false;
+            var id = String(item.id || "");
+            if (id && pinnedLocalEntries[id]) return true;
+            if (item.resetId && lastResetId && item.resetId === lastResetId && (Number(item.updatedAt) || 0) >= lastClearedTimestamp) {
+                return true;
+            }
+            var itemTime = Number(item.updatedAt) || 0;
+            if (lastClearedTimestamp > 0 && itemTime <= lastClearedTimestamp) return false;
+            return true;
         }
 
         function normalizeAndSortRecords(list) {
@@ -1394,17 +1405,17 @@
             });
 
             list.forEach(function(item) {
-                if (!item || typeof item.score !== "number" || isNaN(item.score)) return;
-                var itemTime = Number(item.updatedAt) || 0;
-                if (lastClearedTimestamp > 0 && itemTime <= lastClearedTimestamp) return;
+                if (!isRecordValidAfterClear(item)) return;
                 var id = String(item.id || (item.name + "_" + item.score));
+                var itemTime = Number(item.updatedAt) || Date.now();
                 var itemVer = Number(item.version) || 1;
                 var cleanItem = {
                     id: id,
                     name: String(item.name || "Người chơi").trim().slice(0, 100),
                     score: Number(item.score),
-                    updatedAt: itemTime || Date.now(),
-                    version: itemVer
+                    updatedAt: itemTime,
+                    version: itemVer,
+                    resetId: item.resetId || lastResetId
                 };
 
                 if (!byId.has(id)) {
@@ -1429,38 +1440,53 @@
             return sorted.slice(0, 100);
         }
 
+        // Xử lý gói tin thời gian thực từ SSE hoặc BroadcastChannel
         function applyIncomingState(stateObj) {
             if (!stateObj) return;
 
-            if (
-                stateObj.action === "CLEAR_ALL" ||
-                stateObj.a === "CLEAR" ||
-                (stateObj.resetId && stateObj.resetId !== lastResetId && (Number(stateObj.clearedAt) || 0) >= lastClearedTimestamp) ||
-                (stateObj.clearedAt && Number(stateObj.clearedAt) > lastClearedTimestamp)
-            ) {
-                var newClear = Math.max(Number(stateObj.clearedAt || stateObj.c) || 0, Date.now());
-                lastClearedTimestamp = newClear;
-                if (stateObj.resetId || stateObj.rId) {
-                    lastResetId = String(stateObj.resetId || stateObj.rId);
-                }
-                try {
-                    localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
-                    localStorage.setItem(RESET_ID_KEY, lastResetId);
-                } catch (e) {}
+            var incomingAction = stateObj.action || stateObj.a || "UPDATE";
+            var incomingClearTime = Number(stateObj.clearedAt || stateObj.c) || 0;
+            var incomingResetId = String(stateObj.resetId || stateObj.rId || "");
 
-                if (stateObj.action === "CLEAR_ALL" || stateObj.a === "CLEAR") {
+            // Trường hợp 1: Gói tin là lệnh XÓA BXH trực tiếp
+            if (incomingAction === "CLEAR_ALL" || incomingAction === "CLEAR") {
+                if (incomingClearTime >= lastClearedTimestamp || (incomingResetId && incomingResetId !== lastResetId)) {
+                    lastClearedTimestamp = Math.max(incomingClearTime, Date.now());
+                    if (incomingResetId) lastResetId = incomingResetId;
+                    try {
+                        localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                        localStorage.setItem(RESET_ID_KEY, lastResetId);
+                    } catch (e) {}
+
                     pinnedLocalEntries = {};
                     leaderboardData = [];
                     currentSessionEntryId = null;
                     saveLocalBackup([]);
                     renderLeaderboardUI();
-                    return;
                 }
+                return;
+            }
+
+            // Trường hợp 2: Gói tin là lượt GHI DANH MỚI (ADD / UPDATE) nhưng mang mốc xóa mới hơn mà máy này chưa biết
+            if (incomingClearTime > lastClearedTimestamp) {
+                lastClearedTimestamp = incomingClearTime;
+                if (incomingResetId) lastResetId = incomingResetId;
+                try {
+                    localStorage.setItem(CLEAR_TIME_KEY, String(lastClearedTimestamp));
+                    localStorage.setItem(RESET_ID_KEY, lastResetId);
+                } catch (e) {}
+
+                Object.keys(pinnedLocalEntries).forEach(function(k) {
+                    if ((pinnedLocalEntries[k].updatedAt || 0) <= lastClearedTimestamp) {
+                        delete pinnedLocalEntries[k];
+                    }
+                });
                 leaderboardData = leaderboardData.filter(function(r) {
                     return (r.updatedAt || 0) > lastClearedTimestamp;
                 });
             }
 
+            // Trích xuất danh sách người chơi vừa ghi danh trong gói tin
             var incomingList = [];
             if (Array.isArray(stateObj.records)) {
                 incomingList = incomingList.concat(stateObj.records);
@@ -1472,22 +1498,27 @@
                             id: item.i,
                             name: item.n,
                             score: Number(item.s),
-                            updatedAt: Number(item.t) || Date.now(),
-                            version: Number(item.v) || 1
+                            updatedAt: Math.max(Number(item.t) || Date.now(), lastClearedTimestamp + 100),
+                            version: Number(item.v) || 1,
+                            resetId: incomingResetId || lastResetId
                         });
                     }
                 });
             }
             if (stateObj.singleEntry && typeof stateObj.singleEntry.score === "number") {
-                incomingList.push(stateObj.singleEntry);
+                var se = Object.assign({}, stateObj.singleEntry);
+                se.updatedAt = Math.max(Number(se.updatedAt) || Date.now(), lastClearedTimestamp + 100);
+                se.resetId = incomingResetId || lastResetId;
+                incomingList.push(se);
             }
             if (stateObj.e && typeof stateObj.e.s === "number") {
                 incomingList.push({
                     id: stateObj.e.i,
                     name: stateObj.e.n,
                     score: Number(stateObj.e.s),
-                    updatedAt: Number(stateObj.e.t) || Date.now(),
-                    version: Number(stateObj.e.v) || 1
+                    updatedAt: Math.max(Number(stateObj.e.t) || Date.now(), lastClearedTimestamp + 100),
+                    version: Number(stateObj.e.v) || 1,
+                    resetId: incomingResetId || lastResetId
                 });
             }
 
@@ -1516,7 +1547,7 @@
                 };
                 eventSourceConn.onerror = function() {
                     try { eventSourceConn.close(); } catch (e) {}
-                    setTimeout(startRealtimeStream, 6000);
+                    setTimeout(startRealtimeStream, 5000);
                 };
             } catch (e) {}
         }
@@ -1536,18 +1567,17 @@
             return "";
         }
 
-        // Tải dữ liệu từ cả 3 nguồn Cloud (ntfy.sh Poll chuẩn không &_t= + KeyValue + JSONBlob)
-        async function fetchCloudState(forcePollNtfy) {
-            var collectedRecords = [];
+        // Tải dữ liệu từ cả 3 nguồn Cloud (Đã sửa lỗi cờ xóa ghi đè lên lượt ghi danh mới sau khi xóa)
+        async function fetchCloudState() {
+            var ntfyRecords = [];
+            var kvRecords = [];
+            var blobRecords = [];
             var maxClearTime = lastClearedTimestamp;
             var latestResetId = lastResetId;
-            var cloudExplicitlyCleared = false;
+            var lastActionWasClear = false;
 
-            // Nguồn 1 (Chính): Đọc luồng lịch sử sự kiện trên ntfy.sh (KHÔNG nối &_t= để tránh lỗi 400 Bad Request)
-            var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 8000);
+            // Nguồn 1: Luồng sự kiện tuần tự trên ntfy.sh
             var taskNtfy = (async function() {
-                if (!shouldPollNtfy) return;
-                lastNtfyPollTime = Date.now();
                 try {
                     var res = await fetchWithTimeout(NTFY_POLL_URL, { cache: "no-store" }, 3500);
                     if (res.ok) {
@@ -1560,44 +1590,61 @@
                                 var pkt = JSON.parse(line);
                                 if (pkt && pkt.event === "message" && pkt.message) {
                                     var data = JSON.parse(pkt.message);
-                                    if (data.action === "CLEAR_ALL" || data.a === "CLEAR") {
+                                    var act = data.action || data.a || "ADD";
+
+                                    // Khi gặp lệnh xóa trong luồng lịch sử: xóa các bản ghi trước đó
+                                    if (act === "CLEAR_ALL" || act === "CLEAR") {
                                         var cTime = Number(data.clearedAt || data.c) || (pkt.time ? Number(pkt.time) * 1000 : 0);
                                         if (cTime >= maxClearTime) {
                                             maxClearTime = cTime;
                                             if (data.resetId || data.rId) latestResetId = String(data.resetId || data.rId);
-                                            cloudExplicitlyCleared = true;
-                                            collectedRecords = [];
+                                            ntfyRecords = [];
+                                            lastActionWasClear = true;
                                         }
                                         continue;
                                     }
+
+                                    // Nếu gặp bản ghi ADD/UPDATE sau lệnh xóa -> tắt ngay cờ lastActionWasClear!
                                     if (data.c && Number(data.c) > maxClearTime) {
                                         maxClearTime = Number(data.c);
                                         if (data.rId) latestResetId = String(data.rId);
+                                        ntfyRecords = ntfyRecords.filter(function(r) {
+                                            return (Number(r.updatedAt) || 0) > maxClearTime;
+                                        });
                                     }
+
                                     if (data.e && typeof data.e.s === "number") {
-                                        collectedRecords.push({
+                                        var eTime = Math.max(Number(data.e.t) || 0, maxClearTime + 100);
+                                        ntfyRecords.push({
                                             id: data.e.i,
                                             name: data.e.n,
                                             score: Number(data.e.s),
-                                            updatedAt: Number(data.e.t) || (pkt.time ? Number(pkt.time) * 1000 : Date.now()),
-                                            version: Number(data.e.v) || 1
+                                            updatedAt: eTime,
+                                            version: Number(data.e.v) || 1,
+                                            resetId: data.rId || latestResetId
                                         });
+                                        lastActionWasClear = false;
                                     }
-                                    if (Array.isArray(data.r)) {
+
+                                    if (Array.isArray(data.r) && data.r.length > 0) {
                                         data.r.forEach(function(item) {
                                             if (item && typeof item.s === "number") {
-                                                collectedRecords.push({
+                                                ntfyRecords.push({
                                                     id: item.i,
                                                     name: item.n,
                                                     score: Number(item.s),
-                                                    updatedAt: Number(item.t) || Date.now(),
-                                                    version: Number(item.v) || 1
+                                                    updatedAt: Math.max(Number(item.t) || 0, maxClearTime + 100),
+                                                    version: Number(item.v) || 1,
+                                                    resetId: data.rId || latestResetId
                                                 });
                                             }
                                         });
+                                        lastActionWasClear = false;
                                     }
-                                    if (Array.isArray(data.records)) {
-                                        collectedRecords = collectedRecords.concat(data.records);
+
+                                    if (Array.isArray(data.records) && data.records.length > 0) {
+                                        ntfyRecords = ntfyRecords.concat(data.records);
+                                        lastActionWasClear = false;
                                     }
                                 }
                             } catch (innerErr) {}
@@ -1606,7 +1653,7 @@
                 } catch (e) {}
             })();
 
-            // Nguồn 2: Đọc từ KeyValue Cloud (Base64 URL-Safe)
+            // Nguồn 2: KeyValue Cloud
             var taskKv = (async function() {
                 try {
                     var kvRes = await fetchWithTimeout("https://keyvalue.immanuel.co/api/KeyVal/GetValue/" + KV_APP_KEY + "/" + KV_DATA_KEY, { cache: "no-store" }, 2800);
@@ -1617,19 +1664,17 @@
                             if (kvObj.c && Number(kvObj.c) > maxClearTime) {
                                 maxClearTime = Number(kvObj.c);
                                 if (kvObj.id) latestResetId = String(kvObj.id);
-                                if (!kvObj.r || kvObj.r.length === 0) {
-                                    cloudExplicitlyCleared = true;
-                                }
                             }
-                            if (Array.isArray(kvObj.r)) {
+                            if (Array.isArray(kvObj.r) && kvObj.r.length > 0) {
                                 kvObj.r.forEach(function(item) {
                                     if (item) {
-                                        collectedRecords.push({
+                                        kvRecords.push({
                                             id: item.i,
                                             name: item.n,
                                             score: Number(item.s),
                                             updatedAt: Number(item.t),
-                                            version: Number(item.v) || 1
+                                            version: Number(item.v) || 1,
+                                            resetId: kvObj.id || latestResetId
                                         });
                                     }
                                 });
@@ -1639,7 +1684,7 @@
                 } catch (e) {}
             })();
 
-            // Nguồn 3: Đọc từ JSONBlob Cloud
+            // Nguồn 3: JSONBlob Cloud
             var taskBlob = (async function() {
                 try {
                     var blobUrl = await resolveSharedBlobUrl();
@@ -1659,12 +1704,9 @@
                             if (jbData.clearedAt && Number(jbData.clearedAt) > maxClearTime) {
                                 maxClearTime = Number(jbData.clearedAt);
                                 if (jbData.resetId) latestResetId = String(jbData.resetId);
-                                if (jbData.action === "CLEAR_ALL" || !jbData.records || jbData.records.length === 0) {
-                                    cloudExplicitlyCleared = true;
-                                }
                             }
-                            if (Array.isArray(jbData.records)) {
-                                collectedRecords = collectedRecords.concat(jbData.records);
+                            if (Array.isArray(jbData.records) && jbData.records.length > 0) {
+                                blobRecords = blobRecords.concat(jbData.records);
                             }
                         }
                     }
@@ -1673,27 +1715,34 @@
 
             await Promise.allSettled([taskNtfy, taskKv, taskBlob]);
 
-            var validCloudRecords = collectedRecords.filter(function(r) {
-                return r && (Number(r.updatedAt) || 0) > maxClearTime;
+            var allCollected = ntfyRecords.concat(kvRecords, blobRecords);
+            var validCloudRecords = allCollected.filter(function(r) {
+                if (!r || typeof r.score !== "number") return false;
+                if (r.resetId && latestResetId && r.resetId === latestResetId && (Number(r.updatedAt) || 0) >= maxClearTime) {
+                    return true;
+                }
+                return (Number(r.updatedAt) || 0) > maxClearTime;
             });
 
             return {
                 clearedAt: maxClearTime,
                 resetId: latestResetId,
-                cloudExplicitlyCleared: cloudExplicitlyCleared && validCloudRecords.length === 0,
+                cloudExplicitlyCleared: lastActionWasClear && validCloudRecords.length === 0,
                 records: validCloudRecords
             };
         }
 
         // Đẩy dữ liệu lên cả 3 kênh Đám Mây
         async function pushCloudState(records, clearedAtValue, singleEntryObj, actionType) {
+            var effectiveClear = clearedAtValue || lastClearedTimestamp || 0;
             var cleanList = records.slice(0, 100).map(function(r) {
                 return {
                     id: r.id,
                     name: r.name,
                     score: Number(r.score),
-                    updatedAt: Number(r.updatedAt),
-                    version: Number(r.version) || 1
+                    updatedAt: Math.max(Number(r.updatedAt) || Date.now(), effectiveClear + 100),
+                    version: Number(r.version) || 1,
+                    resetId: lastResetId
                 };
             });
 
@@ -1707,7 +1756,7 @@
                 };
             });
 
-            // 1. Gửi gói tin lên ntfy.sh (Gửi kèm cả bản ghi vừa ghi danh và snapshot Top 10 để mọi trình duyệt vào sau thấy đầy đủ)
+            // 1. Gửi gói tin lên ntfy.sh
             var taskSse = (async function() {
                 try {
                     var ntfyPacket;
@@ -1715,19 +1764,19 @@
                         ntfyPacket = {
                             a: "CLEAR",
                             rId: lastResetId,
-                            c: clearedAtValue || lastClearedTimestamp || Date.now(),
+                            c: effectiveClear,
                             r: []
                         };
                     } else {
                         ntfyPacket = {
                             a: "ADD",
                             rId: lastResetId,
-                            c: clearedAtValue || lastClearedTimestamp || 0,
+                            c: effectiveClear,
                             e: singleEntryObj ? {
                                 i: singleEntryObj.id,
                                 n: singleEntryObj.name,
                                 s: Number(singleEntryObj.score),
-                                t: Number(singleEntryObj.updatedAt),
+                                t: Math.max(Number(singleEntryObj.updatedAt) || Date.now(), effectiveClear + 100),
                                 v: Number(singleEntryObj.version) || 1
                             } : null,
                             r: compactSnapshot
@@ -1741,18 +1790,18 @@
                 } catch (e) {}
             })();
 
-            // 2. Lưu lên KeyValue Cloud (Dùng Base64 URL-Safe ngắn gọn)
+            // 2. Lưu lên KeyValue Cloud
             var taskKv = (async function() {
                 try {
                     var kvB64 = toUrlSafeBase64({
                         id: lastResetId,
-                        c: clearedAtValue || lastClearedTimestamp || 0,
+                        c: effectiveClear,
                         r: compactSnapshot.slice(0, 6)
                     });
                     if (kvB64.length > 900) {
                         kvB64 = toUrlSafeBase64({
                             id: lastResetId,
-                            c: clearedAtValue || lastClearedTimestamp || 0,
+                            c: effectiveClear,
                             r: compactSnapshot.slice(0, 3)
                         });
                     }
@@ -1771,7 +1820,7 @@
                     var fullPayload = {
                         action: actionType || "UPDATE",
                         resetId: lastResetId,
-                        clearedAt: clearedAtValue || lastClearedTimestamp || 0,
+                        clearedAt: effectiveClear,
                         records: cleanList
                     };
                     var blobUrl = await resolveSharedBlobUrl();
@@ -1824,11 +1873,11 @@
             await Promise.allSettled([taskSse, taskKv, taskBlob]);
         }
 
-        async function syncAllChannels(showFeedbackToast, forcePollNtfy) {
+        async function syncAllChannels(showFeedbackToast) {
             if (isSyncing) return;
             isSyncing = true;
             try {
-                var cloudState = await fetchCloudState(!!forcePollNtfy);
+                var cloudState = await fetchCloudState();
                 if (cloudState) {
                     if (
                         (cloudState.clearedAt && cloudState.clearedAt > lastClearedTimestamp) ||
@@ -1851,25 +1900,25 @@
                             }
                         });
 
-                        if (cloudState.cloudExplicitlyCleared) {
-                            leaderboardData = [];
-                        } else {
-                            leaderboardData = leaderboardData.filter(function(r) {
-                                return (r.updatedAt || 0) > lastClearedTimestamp;
-                            });
-                        }
+                        leaderboardData = leaderboardData.filter(function(r) {
+                            return isRecordValidAfterClear(r);
+                        });
                     }
 
                     var cloudRecords = cloudState.records || [];
-                    var merged = normalizeAndSortRecords(
-                        leaderboardData.concat(cloudRecords)
-                    );
-                    leaderboardData = merged;
-                    saveLocalBackup(leaderboardData);
+                    if (cloudState.cloudExplicitlyCleared && Object.keys(pinnedLocalEntries).length === 0) {
+                        leaderboardData = [];
+                        saveLocalBackup([]);
+                    } else {
+                        var merged = normalizeAndSortRecords(
+                            leaderboardData.concat(cloudRecords)
+                        );
+                        leaderboardData = merged;
+                        saveLocalBackup(leaderboardData);
 
-                    // Nếu trình duyệt này có bản ghi hợp lệ mà trên Cloud chưa có, tự động phát bù lên Cloud
-                    if (!cloudState.cloudExplicitlyCleared && merged.length > cloudRecords.length && merged.length > 0) {
-                        pushCloudState(merged, lastClearedTimestamp, merged[0], "UPDATE");
+                        if (merged.length > cloudRecords.length && merged.length > 0) {
+                            pushCloudState(merged, lastClearedTimestamp, merged[0], "UPDATE");
+                        }
                     }
                 }
                 renderLeaderboardUI();
@@ -1883,14 +1932,17 @@
             }
         }
 
+        // KHI BẤM GHI DANH: ĐỒNG BỘ TỨC THÌ LÊN MỌI TRÌNH DUYỆT (KỂ CẢ NGAY SAU KHI XÓA BXH)
         function publishScoreEntryInstant(entry) {
-            var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 500);
+            // Đảm bảo thời gian của lượt ghi danh mới luôn lớn hơn mốc xóa BXH ít nhất 1 giây
+            var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 1000);
             var cleanEntry = {
                 id: String(entry.id),
                 name: String(entry.name || "Người chơi").trim().slice(0, 100),
                 score: Number(entry.score),
                 updatedAt: safeTimestamp,
-                version: Number(entry.version) || 1
+                version: Number(entry.version) || 1,
+                resetId: lastResetId
             };
 
             pinnedLocalEntries[cleanEntry.id] = cleanEntry;
@@ -2090,17 +2142,6 @@
                 var savedName = "";
                 try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
 
-                // Nếu người chơi đã từng lưu tên trước đó thì tự động ghi danh luôn, ngược lại đợi bấm nút Ghi danh
-                if (savedName.trim()) {
-                    publishScoreEntryInstant({
-                        id: currentSessionEntryId,
-                        name: savedName.trim(),
-                        score: attempts,
-                        updatedAt: Date.now(),
-                        version: 1
-                    });
-                }
-
                 showWinModal(savedName.trim());
                 return;
             } else if (guess < targetNumber) {
@@ -2183,7 +2224,7 @@
                 id: currentSessionEntryId,
                 name: playerName,
                 score: attempts > 0 ? attempts : 1,
-                updatedAt: Date.now() + 200,
+                updatedAt: Math.max(Date.now(), lastClearedTimestamp + 1000),
                 version: currentEntryVersion
             });
 
@@ -2265,7 +2306,7 @@
         function showLeaderboard() {
             closeWinModal();
             renderLeaderboardUI();
-            syncAllChannels(false, true);
+            syncAllChannels(false);
             document.getElementById("leaderboardModal").classList.add("active");
         }
 
@@ -2274,7 +2315,7 @@
         }
 
         function manualSyncLeaderboard() {
-            syncAllChannels(true, true);
+            syncAllChannels(true);
         }
 
         function showInstructions() {
@@ -2364,16 +2405,16 @@
         showInstructions();
         leaderboardData = normalizeAndSortRecords(loadLocalBackup());
         renderLeaderboardUI();
-        syncAllChannels(false, true);
+        syncAllChannels(false);
         startRealtimeStream();
 
         setInterval(function() {
-            syncAllChannels(false, false);
-        }, 6000);
+            syncAllChannels(false);
+        }, 5000);
 
-        window.addEventListener("focus", function() { syncAllChannels(false, true); });
+        window.addEventListener("focus", function() { syncAllChannels(false); });
         document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === "visible") syncAllChannels(false, true);
+            if (document.visibilityState === "visible") syncAllChannels(false);
         });
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
