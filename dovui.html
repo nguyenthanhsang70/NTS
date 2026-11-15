@@ -767,7 +767,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
                 Thử Tài Trí Tuệ
             </h1>
             <p class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 mt-1">
-                Chinh phục 254 câu đố mẹo, dân gian và tư duy độc đáo
+                Kho 254 câu đố mẹo · Mỗi lượt ngẫu nhiên 60 câu
             </p>
         </div>
 
@@ -858,7 +858,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
                     </div>
                     <div class="min-w-0">
                         <div class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold opacity-65 truncate">Đã giải</div>
-                        <div class="font-mono text-base sm:text-xl font-extrabold text-indigo-500 leading-tight"><span id="answeredStat">0</span>/254</div>
+                        <div class="font-mono text-base sm:text-xl font-extrabold text-indigo-500 leading-tight"><span id="answeredStat">0</span>/60</div>
                     </div>
                 </div>
             </div>
@@ -868,7 +868,7 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
                 <div class="flex justify-between items-center text-xs font-bold mb-1.5 px-1">
                     <span class="text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-                        <span id="questionBadge">Câu 1 / 254</span>
+                        <span id="questionBadge">Câu 1 / 60</span>
                     </span>
                     <span class="font-mono opacity-75" id="progressPercentText">1%</span>
                 </div>
@@ -1002,14 +1002,14 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
                 <i class="fas fa-trophy"></i>
             </div>
             <h2 id="finalTitle" class="text-xl sm:text-2xl font-black mb-1.5">Hoàn thành thử thách!</h2>
-            <p class="text-xs sm:text-sm opacity-70 font-medium mb-2">Bạn đã hoàn thành tất cả 254 câu hỏi.</p>
+            <p class="text-xs sm:text-sm opacity-70 font-medium mb-2">Bạn đã hoàn thành 60 câu hỏi ngẫu nhiên.</p>
             <p id="finalComment" class="text-xs sm:text-sm font-bold text-indigo-500 dark:text-indigo-300 mb-5 leading-relaxed">Bạn là thiên tài đố vui!</p>
 
             <p id="roomFinalBreakdown" class="hidden text-center font-extrabold text-indigo-500 dark:text-indigo-300 text-lg mb-4"></p>
             <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
                 <div class="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-3 sm:p-4">
                     <div class="text-[10px] sm:text-xs opacity-75 font-bold mb-1">Chính xác</div>
-                    <div id="finalCorrect" class="font-mono text-xl sm:text-2xl font-extrabold text-emerald-500">0/254</div>
+                    <div id="finalCorrect" class="font-mono text-xl sm:text-2xl font-extrabold text-emerald-500">0/60</div>
                 </div>
                 <div class="rounded-2xl bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-3 sm:p-4">
                     <div class="text-[10px] sm:text-xs opacity-75 font-bold mb-1">Tỷ lệ đúng</div>
@@ -1049,18 +1049,18 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
   <section id="modeChooseStep">
    <p class="mode-setup-kicker"><i class="fas fa-sparkles"></i> THIẾT LẬP CHẾ ĐỘ</p>
    <h2 class="mode-setup-heading" id="modeSetupTitle">Chọn chế độ chơi</h2>
-   <p class="mode-setup-desc">Chọn một chế độ để khám phá 254 câu đố, hoặc chơi cùng bạn bè.</p>
+   <p class="mode-setup-desc">Mỗi trận chọn ngẫu nhiên 60 câu trong kho 254 câu đố.</p>
    <div class="mode-choices">
     <button type="button" id="modeSoloChoice" class="mode-choice" onclick="chooseSoloMode()">
      <span class="mode-choice-icon"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5a3 3 0 0 0-5.8-1 4 4 0 0 0-2.4 6 4 4 0 0 0 .2 6 4 4 0 0 0 7 2Z"/><path d="M12 18V5a3 3 0 0 1 5.8-1 4 4 0 0 1 2.4 6 4 4 0 0 1-.2 6 4 4 0 0 1-7 2Z"/></svg></span><span class="mode-choice-tag">1 NGƯỜI</span>
      <strong class="mode-choice-title">Chơi một mình</strong>
-     <span class="mode-choice-desc">Chọn đáp án là chấm ngay. Chấm xong sẽ tự chuyển sang câu tiếp theo ngay.</span>
+     <span class="mode-choice-desc">Chọn đáp án để chấm ngay; sau 4 giây tự chuyển câu. Mỗi lần chơi có 60 câu ngẫu nhiên.</span>
      <span class="mode-choice-link"><span id="soloModeActionText">Bắt đầu chơi</span><i class="fas fa-arrow-right"></i></span>
     </button>
     <button type="button" id="modeFriendChoice" class="mode-choice friend" onclick="openFriendRoomSetup('create')">
      <span class="mode-choice-icon"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="mode-choice-tag">2–20 NGƯỜI</span>
      <strong class="mode-choice-title">Chơi với bạn</strong>
-     <span class="mode-choice-desc">Tạo phòng từ 2 đến 20 người, cùng giải 254 câu hỏi và so điểm trên nhiều thiết bị.</span>
+     <span class="mode-choice-desc">Tạo phòng 2–20 người. Mỗi người có 60 câu riêng; cùng đua điểm trên nhiều thiết bị.</span>
      <span class="mode-choice-link">Thiết lập phòng <i class="fas fa-arrow-right"></i></span>
     </button>
    </div>
@@ -1201,11 +1201,11 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
       <div class="room-review-grid">
         <div><span>LOẠI PHÒNG</span><strong id="roomReviewType">Tạo phòng mới</strong></div>
         <div><span>MÃ PHÒNG</span><strong id="roomReviewCode" class="room-review-code">DV------</strong></div>
-        <div><span>CÂU HỎI</span><strong>254 câu</strong></div>
+        <div><span>CÂU HỎI</span><strong>60 câu ngẫu nhiên / người</strong></div>
         <div><span>SỐ NGƯỜI CHƠI</span><strong id="roomReviewCapacity">2 người</strong></div>
         <div><span>THỜI GIAN</span><strong id="roomReviewTime">30 giây/câu</strong></div>
       </div>
-      <div class="room-review-note"><i class="fas fa-wand-magic-sparkles"></i> Chọn đáp án là chấm ngay. Khi tất cả người chơi trả lời xong hoặc hết giờ, game tự chuyển ngay sang câu tiếp theo.</div>
+      <div class="room-review-note"><i class="fas fa-wand-magic-sparkles"></i> Mỗi người nhận 60 câu ngẫu nhiên. Phòng 2–4 người chỉ trùng 3–4 câu; từ 5 người trở lên có thể trùng thêm do kho chỉ có 254 câu. Tất cả cùng chuyển câu khi mọi người đã trả lời hoặc hết giờ.</div>
       <div class="room-wizard-actions">
         <button type="button" class="room-wizard-back" onclick="showRoomWizardStep(2)"><i class="fas fa-arrow-left"></i> Quay lại</button>
         <button type="button" class="room-wizard-next" id="createRoomAction" onclick="createQuizRoom()"><i class="fas fa-plus-circle"></i> Tạo phòng</button>
@@ -1248,8 +1248,8 @@ html,body{overflow-x:clip} #bgParticlesCanvas,#confettiCanvas{max-width:100%;}
 </div>
 
 <script>
-// 60 cau hoi goc + 12 cau moi, tong cong 72 cau
-const questions = [
+// 254 cau hoi trong ngan hang; moi tran ngau nhien chon 60 cau.
+const questionBank = [
     { question: "Xã nào đông dân nhất?", options: ["A. Xã Đàn", "B. Xã Giao", "C. Xã hội", "D. Xã có diện tích lớn nhất"], correctAnswer: "c", correctText: "Xã hội" },
     { question: "Con đường nào dài nhất?", options: ["A. Đường xuyên quốc gia", "B. Đường vòng quanh Trái Đất", "C. Đường vào tim em", "D. Đường đời"], correctAnswer: "d", correctText: "Đường đời" },
     { question: "Quần gì rộng nhất?", options: ["A. Quần đảo", "B. Quần thể", "C. Quần chúng", "D. Quần ống rộng"], correctAnswer: "a", correctText: "Quần đảo" },
@@ -1508,6 +1508,94 @@ const questions = [
     {"question":"Thứ gì luôn có thể rơi xuống sàn mà không đau, khiến đường ướt?","options":["A. Tờ sách","B. Hạt mưa","C. Viên đá","D. Cái ly"],"correctAnswer":"b","correctText":"Hạt mưa","category":"Đố mẹo đời sống"}
 ];
 
+// === 60 random questions from the 254-question bank per match ===
+const MATCH_QUESTION_COUNT = 60;
+const SOLO_PROGRESS_KEY = 'dovui_nts_state_random60_v3';
+// Prevent duplicate wording (e.g. the two copies of "Tháng nào có 28 ngày?").
+const UNIQUE_QUESTION_IDS = (() => {
+    const seen=new Set(), result=[];
+    questionBank.forEach((item,index)=>{
+        const text=String(item.question||'').normalize('NFC').replace(/\s+/g,' ').trim().toLocaleLowerCase('vi');
+        if(text && !seen.has(text)){seen.add(text);result.push(index);}
+    });
+    return result;
+})();
+const VALID_QUESTION_IDS = new Set(UNIQUE_QUESTION_IDS);
+function shuffleQuestionIds(items) {
+    const output=Array.from(items);
+    for(let i=output.length-1;i>0;i--) {
+        const j=Math.floor(Math.random()*(i+1));
+        [output[i],output[j]]=[output[j],output[i]];
+    }
+    return output;
+}
+function validQuestionDeck(ids) {
+    return Array.isArray(ids) && ids.length===MATCH_QUESTION_COUNT &&
+        ids.every(index=>Number.isInteger(index)&&VALID_QUESTION_IDS.has(index)) &&
+        new Set(ids).size===MATCH_QUESTION_COUNT;
+}
+// Repeat only 3-4 questions if the same solo player starts a NEW round.
+function randomSoloQuestionIds(previous=null) {
+    const old=validQuestionDeck(previous)?previous:[];
+    const previousSet=new Set(old);
+    const repeat=old.length ? 3+Math.floor(Math.random()*2) : 0;
+    const repeated=shuffleQuestionIds(old).slice(0,repeat);
+    const fresh=shuffleQuestionIds(UNIQUE_QUESTION_IDS.filter(id=>!previousSet.has(id)))
+        .slice(0,MATCH_QUESTION_COUNT-repeat);
+    return shuffleQuestionIds(repeated.concat(fresh));
+}
+// Host assigns a distinct randomized 60-question deck to each participant.
+// With up to 4 players: exactly 3 or 4 questions are shared by everybody;
+// the remaining questions are disjoint. Above 4 players, the finite bank
+// makes 3-4 pairwise overlaps mathematically impossible, so minimize repeats.
+function randomMultiplayerQuestionOrders(players) {
+    const sharedCount=3+Math.floor(Math.random()*2);
+    const shared=shuffleQuestionIds(UNIQUE_QUESTION_IDS).slice(0,sharedCount);
+    const excluded=new Set(shared);
+    const other=shuffleQuestionIds(UNIQUE_QUESTION_IDS.filter(id=>!excluded.has(id)));
+    const usage=new Map(other.map(id=>[id,0]));
+    const orders={};
+    const eachCount=MATCH_QUESTION_COUNT-sharedCount;
+    for(const member of players) {
+        // Stable sort after shuffling ties: use each unused question first.
+        const ranked=other.slice().sort((a,b)=>usage.get(a)-usage.get(b));
+        const personal=ranked.slice(0,eachCount);
+        personal.forEach(id=>usage.set(id,usage.get(id)+1));
+        orders[member.id]=shuffleQuestionIds(shared.concat(personal));
+        // Renew random order of ties so first users are not privileged.
+        const randomized=shuffleQuestionIds(other);
+        other.splice(0,other.length,...randomized);
+    }
+    return orders;
+}
+let soloQuestionIds=randomSoloQuestionIds();
+let activeQuestionIds=soloQuestionIds.slice();
+let questions=activeQuestionIds.map(index=>questionBank[index]);
+function activateQuestionDeck(ids) {
+    if(!validQuestionDeck(ids)) return false;
+    if(activeQuestionIds.length===ids.length && activeQuestionIds.every((id,i)=>id===ids[i])) return true;
+    activeQuestionIds=ids.slice();
+    questions=activeQuestionIds.map(index=>questionBank[index]);
+    return true;
+}
+function syncSharedQuestionDeck() {
+    if(!isSharedMode() || !online.state) return true;
+    if(!['question','reveal','finished'].includes(online.state.phase)) return true;
+    const assigned=online.state.questionOrders?.[online.id];
+    if(!validQuestionDeck(assigned)) return false;
+    if(online.activeQuestionMatchId!==online.state.matchId) {
+        online.activeQuestionMatchId=online.state.matchId;
+        currentStreak=0;bestStreak=0;
+        online.pendingAnswer=null;
+    }
+    return activateQuestionDeck(assigned);
+}
+function questionForPlayer(playerId,position) {
+    const ids=online.state?.questionOrders?.[playerId];
+    return Array.isArray(ids)&&Number.isInteger(ids[position])
+        ? questionBank[ids[position]] : questions[position];
+}
+
 // TRẠNG THÁI GAME & LIFELINES
 let currentQuestionIndex = 0;
 let userAnswers = new Array(questions.length).fill(null);
@@ -1633,7 +1721,8 @@ function scheduleAutoAdvance(delay = SOLO_AUTO_ADVANCE_DELAY) {
 function saveProgress() {
     if (isSharedMode()) return;
     try {
-        localStorage.setItem('dovui_nts_state_v2', JSON.stringify({
+        localStorage.setItem(SOLO_PROGRESS_KEY, JSON.stringify({
+            questionIds:soloQuestionIds.slice(),
             currentQuestionIndex,
             userAnswers,
             currentStreak,
@@ -1644,24 +1733,23 @@ function saveProgress() {
 }
 
 function loadSavedProgress() {
+    // Restore the SOLO deck, never continue using a multiplayer participant's deck.
+    activateQuestionDeck(soloQuestionIds);
     try {
-        const raw = localStorage.getItem('dovui_nts_state_v2');
-        if (!raw) return;
-        const data = JSON.parse(raw);
-        if (Array.isArray(data.userAnswers) && data.userAnswers.length >= 60 && data.userAnswers.length <= questions.length) {
-            const oldLength = data.userAnswers.length;
-            userAnswers = data.userAnswers.slice(0, questions.length);
-            while (userAnswers.length < questions.length) userAnswers.push(null);
-            currentQuestionIndex = Math.min(questions.length - 1, Math.max(0, Number(data.currentQuestionIndex) || 0));
-            // On upgrade, continue with question 61 if all 60 original questions are done.
-            if (oldLength < questions.length && userAnswers.slice(0, oldLength).every(answer => answer !== null)) {
-                currentQuestionIndex = oldLength;
-            }
-            currentStreak = Number(data.currentStreak) || 0;
-            bestStreak = Number(data.bestStreak) || 0;
-            if (data.lifelines) lifelines = data.lifelines;
-        }
-    } catch (e) {}
+        const raw=localStorage.getItem(SOLO_PROGRESS_KEY);
+        if(!raw) return;
+        const data=JSON.parse(raw);
+        if(!validQuestionDeck(data.questionIds) || !Array.isArray(data.userAnswers) ||
+            data.userAnswers.length!==MATCH_QUESTION_COUNT) return;
+        soloQuestionIds=data.questionIds.slice();
+        activateQuestionDeck(soloQuestionIds);
+        userAnswers=data.userAnswers.map(value=>['a','b','c','d','timeout'].includes(value)?value:null);
+        const idx=Number(data.currentQuestionIndex);
+        currentQuestionIndex=Number.isInteger(idx) ? Math.max(0,Math.min(MATCH_QUESTION_COUNT-1,idx)) : 0;
+        currentStreak=Math.max(0,Number(data.currentStreak)||0);
+        bestStreak=Math.max(0,Number(data.bestStreak)||0);
+        if(data.lifelines)lifelines=data.lifelines;
+    } catch (_) {}
 }
 
 function stripOptionPrefix(text) {
@@ -2051,13 +2139,15 @@ function restartGame() {
     cancelAutoAdvance();
     stopTimer();
     playTone('click');
+    soloQuestionIds=randomSoloQuestionIds(soloQuestionIds);
+    activateQuestionDeck(soloQuestionIds);
     currentQuestionIndex = 0;
     userAnswers = new Array(questions.length).fill(null);
     currentStreak = 0;
     bestStreak = 0;
     lifelines = { fifty: 3, time: 3, hint: 3 };
     eliminatedBy5050 = {};
-    try { localStorage.removeItem('dovui_nts_state_v2'); } catch (e) {}
+    try { localStorage.removeItem(SOLO_PROGRESS_KEY); } catch (e) {}
     loadQuestion();
 }
 
@@ -2354,7 +2444,7 @@ function updateJoinTimeReadout() {
     E('roomJoinTimeLabel').textContent=room ? normalizeQuizDuration(room.questionTime || room.state?.questionTime)+' giây/câu' : 'Đang xác định';
 }
 const QUIZ_ROOMS_BASE = 'https://mantledb.sh/v2';
-const QUIZ_ROOMS_NAMESPACE = 'do-vui-nts-v25-shared-rooms-2026-nov-v5-riddle-254';
+const QUIZ_ROOMS_NAMESPACE = 'do-vui-nts-v25-shared-rooms-2026-nov-v6-random60';
 const QUIZ_ROOMS_TTL_MS = 45000;
 const QUIZ_GUEST_TTL_MS = 28000;
 const QUIZ_ROOM_REFRESH_MS = 10000;
@@ -2840,13 +2930,14 @@ function onlineMyAnswers() {
 function onlineOpponentAnswers() {
     return online.mode==='host' ? online.state?.guestAnswers||[] : online.state?.hostAnswers||[];
 }
-function countCorrect(array) {
-    return (Array.isArray(array)?array:[]).reduce((score,item,i)=> score+(questions[i]?.correctAnswer===item ? 1:0),0);
+function countCorrect(array,playerId=online.id) {
+    return (Array.isArray(array)?array:[]).reduce((score,item,i)=>
+        score+(questionForPlayer(playerId,i)?.correctAnswer===item ? 1:0),0);
 }
-function bestStreakOf(array) {
+function bestStreakOf(array,playerId=online.id) {
     let best=0,cur=0;
     (Array.isArray(array)?array:[]).forEach((value,i)=>{
-        if(value!==null && questions[i]?.correctAnswer===value) cur++;
+        if(value!==null && questionForPlayer(playerId,i)?.correctAnswer===value) cur++;
         else {best=Math.max(best,cur);cur=0;}
     });
     return Math.max(best,cur);
@@ -2863,6 +2954,7 @@ function currentStreakOf(array) {
 }
 function applySharedGameState() {
     if(!isSharedMode()||!online.state) return;
+    if(!syncSharedQuestionDeck()) return;
     const state=online.state;
     if(!['lobby','question','reveal','finished'].includes(state.phase)) return;
     if(state.phase==='lobby') { renderSharedLobby();refreshSharedHeader();return; }
@@ -2875,7 +2967,9 @@ function applySharedGameState() {
             online.finalRendered=true;
             showFinalResult();
             E('roomFinalBreakdown').classList.remove('hidden');
-            const me=countCorrect(userAnswers), other=countCorrect(onlineOpponentAnswers());
+            const me=countCorrect(userAnswers,online.id),
+                otherId=(online.players||[]).find(p=>p.id!==online.id)?.id||online.id,
+                other=countCorrect(onlineOpponentAnswers(),otherId);
             E('roomFinalBreakdown').textContent = me>other?`🏆 Bạn thắng ${me} – ${other}!`:
                 me<other?`Đối thủ thắng ${other} – ${me}.`:`🤝 Hòa nhau ${me} – ${other}!`;
             E('finalRestart').classList.toggle('hidden',online.mode!=='host');
@@ -2926,7 +3020,7 @@ function renderSharedLobby() {
     E('roomWaitingTitle').textContent=online.connected?'Phòng đã đủ 2 người!':'Đang chờ bạn cùng chơi...';
     E('roomWaitingNote').textContent=!online.connected ?
       (online.mode==='host'?'Chia sẻ mã phòng để bạn bè tham gia.':'Đang kết nối với chủ phòng...') :
-      (online.mode==='host'?'Nhấn Bắt đầu để cả hai cùng trả lời 254 câu hỏi ('+normalizeQuizDuration(online.questionTime)+' giây/câu).' :'Chờ chủ phòng bắt đầu thử thách ('+normalizeQuizDuration(online.questionTime)+' giây/câu).' );
+      (online.mode==='host'?'Nhấn Bắt đầu để cả hai cùng trả lời 60 câu ('+normalizeQuizDuration(online.questionTime)+' giây/câu).' :'Chờ chủ phòng bắt đầu thử thách ('+normalizeQuizDuration(online.questionTime)+' giây/câu).' );
     E('roomStartButton').classList.toggle('hidden',online.mode!=='host');
     E('roomStartButton').disabled = !online.connected;
     E('roomStartButton').title=online.connected?'Bắt đầu cùng người chơi':'Cần đủ hai người để bắt đầu';
@@ -3037,6 +3131,7 @@ function restoreSoloAfterRoom() {
     E('roomFinalBreakdown').classList.add('hidden');
     E('roomFinalWaiting').classList.add('hidden');
     E('finalRestart').classList.remove('hidden');
+    activateQuestionDeck(soloQuestionIds);
     currentQuestionIndex=0;userAnswers=Array(questions.length).fill(null);
     lifelines={fifty:3,time:3,hint:3};eliminatedBy5050={};
     currentStreak=0;bestStreak=0;
@@ -3279,7 +3374,7 @@ function buildRoomListCards(rooms) {
         const putChip=(text,klass='')=>{const chip=document.createElement('span');chip.className='room-list-chip '+klass;chip.textContent=text;chips.appendChild(chip);};
         putChip(status,canJoin?'waiting':r.status==='playing'?'playing':'full');
         putChip((r.guestId?2:1)+'/2 người');
-        putChip('254 câu');putChip(normalizeQuizDuration(r.questionTime || r.state?.questionTime)+' giây/câu');
+        putChip('60 câu/người');putChip(normalizeQuizDuration(r.questionTime || r.state?.questionTime)+' giây/câu');
         const button=document.createElement('button');button.type='button';
         button.textContent=canJoin?'Tham gia phòng':status;
         button.disabled=!canJoin;
@@ -3377,7 +3472,7 @@ function updateSoloModeLabel() {
     box.classList.remove('hidden');
     if (done === questions.length) {
         label.textContent = 'Xem k\u1ebft qu\u1ea3';
-        E('modeSavedProgressText').textContent = 'B\u1ea1n \u0111\u00e3 ho\u00e0n th\u00e0nh 72 c\u00e2u. K\u1ebft qu\u1ea3 \u0111\u00e3 \u0111\u01b0\u1ee3c l\u01b0u.';
+        E('modeSavedProgressText').textContent = 'B\u1ea1n \u0111\u00e3 ho\u00e0n th\u00e0nh 60 c\u00e2u. K\u1ebft qu\u1ea3 \u0111\u00e3 \u0111\u01b0\u1ee3c l\u01b0u.';
     } else {
         label.textContent = 'Ti\u1ebfp t\u1ee5c ch\u01a1i';
         E('modeSavedProgressText').textContent = `\u0110\u00e3 l\u01b0u ${done}/${questions.length} c\u00e2u, ti\u1ebfp t\u1ee5c t\u1eeb c\u00e2u ${currentQuestionIndex+1}.`;
@@ -3486,7 +3581,7 @@ window.onload = () => {
 // === MULTIPLAYER 2-20: independent guest records, authoritative host ===
 // Each guest writes a different key to avoid overwriting other guests' joins,
 // answers and chat. The host publishes a single snapshot for all participants.
-const MULTI_PROTOCOL='dovui25-multi-v1';
+const MULTI_PROTOCOL='dovui25-multi-v2-random60';
 const MULTI_ROSTER_SCAN_MS=2600;
 function normalizeMultiCapacity(value) {
     const n=Number(value);
@@ -3617,14 +3712,14 @@ onlineMyAnswers=function() {
 };
 onlineOpponentAnswers=function() {
     const rivals=(online.players||[]).filter(p=>p.id!==online.id);
-    return rivals.sort((a,b)=>countCorrect(multiAnswersFor(b.id))-countCorrect(multiAnswersFor(a.id)))[0]
+    return rivals.sort((a,b)=>countCorrect(multiAnswersFor(b.id),b.id)-countCorrect(multiAnswersFor(a.id),a.id))[0]
         ?multiAnswersFor(rivals[0].id):[];
 };
 const _oldSharedApplyState=applySharedGameState;
 applySharedGameState=function() {
     _oldSharedApplyState();
     if(!isSharedMode()||online.state?.phase!=='finished'||!online.finalRendered)return;
-    const ranking=(online.players||[]).map(p=>({...p,points:countCorrect(multiAnswersFor(p.id))}))
+    const ranking=(online.players||[]).map(p=>({...p,points:countCorrect(multiAnswersFor(p.id),p.id)}))
         .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'vi'));
     if(!ranking.length)return;
     const top=ranking[0].points;
@@ -3791,20 +3886,20 @@ refreshSharedHeader=function() {
     E('roomSharedLegacy')?.classList.add('hidden');
     E('sharedBar').querySelector('.room-shared-players')?.classList.add('hidden');
     const board=E('roomMultiPlayers');board.classList.remove('hidden');
-    const signature=JSON.stringify([online.id,phase,...players.map(p=>[p.id,p.name,p.avatarId,countCorrect(multiAnswersFor(p.id))])]);
+    const signature=JSON.stringify([online.id,phase,...players.map(p=>[p.id,p.name,p.avatarId,countCorrect(multiAnswersFor(p.id),p.id)])]);
     if(board.dataset.signature!==signature) {
         const scroll=board.scrollTop;
         const fragment=document.createDocumentFragment();
-        const max=Math.max(0,...players.map(p=>countCorrect(multiAnswersFor(p.id))));
+        const max=Math.max(0,...players.map(p=>countCorrect(multiAnswersFor(p.id),p.id)));
         for(const p of players) {
             const entry=document.createElement('div');
-            entry.className='room-multi-entry'+(p.id===online.id?' is-me':'')+(max>0&&countCorrect(multiAnswersFor(p.id))===max?' is-leader':'');
+            entry.className='room-multi-entry'+(p.id===online.id?' is-me':'')+(max>0&&countCorrect(multiAnswersFor(p.id),p.id)===max?' is-leader':'');
             const avatar=document.createElement('div');avatar.className='room-player-avatar';setAvatar(avatar,p.avatarId,p.name);
             const data=document.createElement('div');data.className='room-player-details';
             const name=document.createElement('strong');name.textContent=p.name+(p.id===online.id?' (Bạn)':'');
             const role=document.createElement('small');role.textContent=p.id===online.hostId?'👑 Chủ phòng':'Người tham gia';
             data.append(name,role);
-            const score=document.createElement('span');score.className='room-score';score.textContent=countCorrect(multiAnswersFor(p.id));
+            const score=document.createElement('span');score.className='room-score';score.textContent=countCorrect(multiAnswersFor(p.id),p.id);
             entry.append(avatar,data,score);fragment.appendChild(entry);
         }
         board.replaceChildren(fragment);board.scrollTop=scroll;board.dataset.signature=signature;
@@ -3869,9 +3964,11 @@ sharedStartMatch=function() {
         return roomNotify('Chờ đủ '+online.capacity+' người rồi mới bắt đầu.','error');
     if(['question','reveal'].includes(online.state?.phase))return;
     online.state=getQuizState(online.questionTime);
+    online.state.questionOrders=randomMultiplayerQuestionOrders(online.players);
     online.state.answersById={};
-    for(const p of online.players)online.state.answersById[p.id]=Array(questions.length).fill(null);
+    for(const p of online.players)online.state.answersById[p.id]=Array(MATCH_QUESTION_COUNT).fill(null);
     online.state.phase='question';online.state.until=Date.now()+online.questionTime*1000;
+    syncSharedQuestionDeck();
     online.pendingAnswer=null;online.renderedQuestion=-1;online.finalRendered=false;
     lifelines={fifty:3,time:3,hint:3};eliminatedBy5050={};
     userAnswers=Array(questions.length).fill(null);currentStreak=0;bestStreak=0;
@@ -3996,7 +4093,7 @@ buildRoomListCards=function(rooms) {
         const code=document.createElement('span');code.className='room-list-code';code.textContent=r.code;
         top.append(host,code);
         const chips=document.createElement('div');chips.className='room-list-chips';
-        for(const [label,klass] of [[status,can?'waiting':status==='Đang chơi'?'playing':'full'],[count+'/'+cap+' người',''],['254 câu',''],[normalizeQuizDuration(r.questionTime)+' giây/câu','']]) {
+        for(const [label,klass] of [[status,can?'waiting':status==='Đang chơi'?'playing':'full'],[count+'/'+cap+' người',''],['60 câu/người',''],[normalizeQuizDuration(r.questionTime)+' giây/câu','']]) {
             const chip=document.createElement('span');chip.className='room-list-chip '+klass;chip.textContent=label;chips.append(chip);
         }
         const button=document.createElement('button');button.type='button';button.textContent=can?'Tham gia phòng':status;button.disabled=!can;
