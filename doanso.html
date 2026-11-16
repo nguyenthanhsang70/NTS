@@ -405,7 +405,7 @@
             color: #475569;
             border: 1px solid #e2e8f0;
             width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -438,7 +438,7 @@
             padding: 14px;
             border-radius: 16px;
             width: 100%;
-            margin-bottom: 16px;
+            margin-top: 16px;
             display: none;
         }
 
@@ -485,39 +485,6 @@
         .guess-item.high { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
         .guess-item.exact { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
 
-        .mini-leaderboard {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            padding: 14px 16px;
-            width: 100%;
-        }
-
-        .mini-lb-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .mini-lb-title {
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-transform: uppercase;
-        }
-
-        .mini-lb-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
         .mini-lb-more {
             font-family: inherit;
             font-size: 0.75rem;
@@ -560,10 +527,63 @@
             gap: 8px;
         }
 
+        .leaderboard-scroll-wrapper {
+            position: relative;
+        }
+
         .leaderboard-scroll-area {
             max-height: 60vh;
             overflow-y: auto;
             padding-right: 4px;
+            scroll-behavior: smooth;
+        }
+
+        .leaderboard-scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .leaderboard-scroll-area::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 999px;
+        }
+
+        .leaderboard-scroll-area::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        /* Nút mũi tên cuộn lên đầu Bảng Xếp Hạng */
+        .lb-scroll-top-btn {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.9);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 25;
+        }
+
+        .lb-scroll-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .lb-scroll-top-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.55);
         }
 
         .lb-row {
@@ -995,7 +1015,7 @@
             </div>
         </div>
 
-        <p class="subtitle">Tìm con số bí mật ẩn giấu từ <span>1</span> đến <span>100</span></p>
+        <p class="subtitle">Tìm con số bí mật ẩn giấu từ <span>1</span> đến <span>200</span></p>
 
         <!-- Stats Cards -->
         <div class="game-info">
@@ -1017,7 +1037,7 @@
                     </svg>
                 </div>
                 <div class="info-label">Phạm vi</div>
-                <div class="info-value" id="rangeDisplay">1 - 100</div>
+                <div class="info-value" id="rangeDisplay">1 - 200</div>
                 <div class="info-sub">Thu hẹp tự động</div>
             </div>
 
@@ -1038,7 +1058,7 @@
             <div class="range-header">
                 <span>Tối thiểu <strong class="range-bound" id="minBoundLabel">1</strong></span>
                 <span>Khoảng khả thi</span>
-                <span>Tối đa <strong class="range-bound" id="maxBoundLabel">100</strong></span>
+                <span>Tối đa <strong class="range-bound" id="maxBoundLabel">200</strong></span>
             </div>
             <div class="range-bar-bg">
                 <div class="range-bar-fill" id="rangeBarFill"></div>
@@ -1047,7 +1067,7 @@
 
         <!-- Input Field -->
         <div class="input-section">
-            <input type="number" id="guessInput" placeholder="Nhập số (1 - 100)" min="1" max="100" autocomplete="off">
+            <input type="number" id="guessInput" placeholder="Nhập số (1 - 200)" min="1" max="200" autocomplete="off">
         </div>
 
         <!-- Buttons -->
@@ -1081,23 +1101,6 @@
                 </div>
             </div>
             <div class="guess-list" id="guessList"></div>
-        </div>
-
-        <!-- Mini Leaderboard Preview -->
-        <div class="mini-leaderboard">
-            <div class="mini-lb-header">
-                <div class="mini-lb-title">
-                    <span>🏆 Bảng Xếp Hạng</span>
-                </div>
-                <div class="mini-lb-actions">
-                    <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()" title="Làm mới bảng xếp hạng">↻</button>
-                    <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()" title="Xóa bảng xếp hạng (Admin)">Xóa BXH</button>
-                    <button type="button" class="mini-lb-more" onclick="showLeaderboard()">Xem Top 100</button>
-                </div>
-            </div>
-            <div class="leaderboard-list" id="miniLeaderboardList">
-                <div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>
-            </div>
         </div>
     </div>
 
@@ -1163,8 +1166,15 @@
                     <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()">Xóa BXH</button>
                 </div>
             </div>
-            <div class="leaderboard-list leaderboard-scroll-area" id="fullLeaderboardList">
-                <div class="lb-empty">Chưa có kỷ lục nào.</div>
+            <div class="leaderboard-scroll-wrapper">
+                <div class="leaderboard-list leaderboard-scroll-area" id="fullLeaderboardList">
+                    <div class="lb-empty">Chưa có kỷ lục nào.</div>
+                </div>
+                <button type="button" id="lbScrollTopBtn" class="lb-scroll-top-btn" onclick="scrollLeaderboardToTop()" title="Lên đầu Bảng Xếp Hạng" aria-label="Lên đầu Bảng Xếp Hạng">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 15-6-6-6 6"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -1217,7 +1227,7 @@
             </button>
             <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">🎮 Hướng dẫn cách chơi</h2>
             <ul class="instruction-list">
-                <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 100 với số lần dự đoán ít nhất.</li>
+                <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 200 với số lần dự đoán ít nhất.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập con số vào ô trống và nhấn <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
                 <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, bạn có thể nhập tên để vinh danh vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>.</li>
@@ -1231,12 +1241,13 @@
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
     <script>
-        var targetNumber = 50;
+        var MAX_NUMBER = 200;
+        var targetNumber = 100;
         var attempts = 0;
         var gameOver = false;
         var guesses = [];
         var minPossible = 1;
-        var maxPossible = 100;
+        var maxPossible = MAX_NUMBER;
         var currentSessionEntryId = null;
         var currentEntryVersion = 1;
 
@@ -1334,7 +1345,6 @@
             return "Web";
         }
 
-        // Mã hóa 1 bản ghi đơn lẻ sang chuỗi URL-Safe Base64 cực ngắn (< 90 ký tự)
         function encodeSingleSlot(entryObj) {
             try {
                 var mini = {
@@ -1601,14 +1611,12 @@
             return "";
         }
 
-        // Tải toàn bộ danh sách từ cả 3 kênh (JSONBlob + 5 ô KeyValue độc lập + ntfy History có kiểm soát tần suất)
         async function fetchCloudState(forcePollNtfy) {
             var collectedRecords = [];
             var maxClearTime = lastClearedTimestamp;
             var latestResetId = lastResetId;
             var lastActionWasClear = false;
 
-            // 1. Đọc mốc xóa từ KeyValue
             var taskClearMeta = (async function() {
                 var clrStr = await kvGetRaw(KV_CLEAR_KEY);
                 if (clrStr && clrStr !== "null" && clrStr !== "EMPTY") {
@@ -1622,7 +1630,6 @@
                 }
             })();
 
-            // 2. Đọc từ 5 ô độc lập trên KeyValue (Đảm bảo dù có 2, 3, 4, 5 người đều lấy được đầy đủ 100%, không bao giờ quá tải URL)
             var taskSlots = (async function() {
                 var slotPromises = KV_SLOT_KEYS.map(function(k) { return kvGetRaw(k); });
                 var rawSlots = await Promise.all(slotPromises);
@@ -1634,7 +1641,6 @@
                 });
             })();
 
-            // 3. Đọc danh sách đầy đủ Top 100 từ JSONBlob
             var taskBlob = (async function() {
                 try {
                     var blobUrl = await resolveSharedBlobUrl();
@@ -1666,7 +1672,6 @@
                 } catch (e) {}
             })();
 
-            // 4. Đọc lịch sử ntfy.sh (Giới hạn tối đa 30 giây/lần để tuyệt đối KHÔNG bị lỗi 429 Too Many Requests)
             var shouldPollNtfy = forcePollNtfy || (Date.now() - lastNtfyPollTime > 30000);
             var taskNtfy = (async function() {
                 if (!shouldPollNtfy) return;
@@ -1756,12 +1761,10 @@
             };
         }
 
-        // Gộp danh sách hiện tại với Cloud trước rồi mới ghi lên cả 3 kênh (Đảm bảo người thứ 2, 3, 4... không bao giờ làm mất người trước)
         async function pushCloudState(localRecords, clearedAtValue, singleEntryObj, actionType) {
             var effectiveClear = clearedAtValue || lastClearedTimestamp || 0;
             var mergedToPush = localRecords.slice(0, 100);
 
-            // Nếu là thêm/cập nhật người chơi: đọc nhanh JSONBlob hiện tại để gộp đầy đủ các người chơi ở trình duyệt khác
             if (actionType !== "CLEAR_ALL") {
                 try {
                     var existingBlobUrl = await resolveSharedBlobUrl();
@@ -1797,7 +1800,6 @@
                 };
             });
 
-            // 1. Lưu 5 người đứng đầu vào 5 ô độc lập trên KeyValue (Mỗi ô chỉ chứa 1 người nên URL siêu ngắn < 90 ký tự, thành công 100%)
             var taskSlots = (async function() {
                 if (actionType === "CLEAR_ALL") {
                     await kvSetRaw(KV_CLEAR_KEY, lastResetId);
@@ -1819,7 +1821,6 @@
                 }
             })();
 
-            // 2. Lưu toàn bộ danh sách Top 100 lên JSONBlob Cloud
             var taskBlob = (async function() {
                 try {
                     var fullPayload = {
@@ -1872,7 +1873,6 @@
                 } catch (e) {}
             })();
 
-            // 3. Phát sóng tức thời qua ntfy.sh SSE
             var taskSse = (async function() {
                 try {
                     var compactSnapshot = cleanList.slice(0, 12).map(function(r) {
@@ -2052,8 +2052,8 @@
                 bestScoreEl.textContent = "--";
                 bestHolderEl.textContent = "Chưa có kỷ lục";
                 var emptyHtml = '<div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>';
-                miniListEl.innerHTML = emptyHtml;
-                fullListEl.innerHTML = emptyHtml;
+                if (miniListEl) miniListEl.innerHTML = emptyHtml;
+                if (fullListEl) fullListEl.innerHTML = emptyHtml;
                 return;
             }
 
@@ -2083,8 +2083,8 @@
                 );
             };
 
-            miniListEl.innerHTML = leaderboardData.slice(0, 5).map(buildRow).join("");
-            fullListEl.innerHTML = leaderboardData.slice(0, 100).map(buildRow).join("");
+            if (miniListEl) miniListEl.innerHTML = leaderboardData.slice(0, 5).map(buildRow).join("");
+            if (fullListEl) fullListEl.innerHTML = leaderboardData.slice(0, 100).map(buildRow).join("");
         }
 
         function showToast(message, type) {
@@ -2102,20 +2102,21 @@
             document.getElementById("rangeDisplay").textContent = minPossible + " - " + maxPossible;
             document.getElementById("minBoundLabel").textContent = minPossible;
             document.getElementById("maxBoundLabel").textContent = maxPossible;
-            var leftPercent = ((minPossible - 1) / 99) * 100;
-            var widthPercent = Math.max(4, ((maxPossible - minPossible) / 99) * 100);
+            var totalSpan = MAX_NUMBER - 1;
+            var leftPercent = ((minPossible - 1) / totalSpan) * 100;
+            var widthPercent = Math.max(4, ((maxPossible - minPossible) / totalSpan) * 100);
             var barFill = document.getElementById("rangeBarFill");
             barFill.style.left = leftPercent + "%";
             barFill.style.width = widthPercent + "%";
         }
 
         function initGame() {
-            targetNumber = Math.floor(Math.random() * 100) + 1;
+            targetNumber = Math.floor(Math.random() * MAX_NUMBER) + 1;
             attempts = 0;
             gameOver = false;
             guesses = [];
             minPossible = 1;
-            maxPossible = 100;
+            maxPossible = MAX_NUMBER;
             currentSessionEntryId = null;
             currentEntryVersion = 1;
 
@@ -2142,8 +2143,8 @@
             var guess = parseInt(guessInput.value, 10);
             var feedback = document.getElementById("feedback");
 
-            if (isNaN(guess) || guess < 1 || guess > 100) {
-                showToast("Vui lòng nhập một số hợp lệ từ 1 đến 100!", "error");
+            if (isNaN(guess) || guess < 1 || guess > MAX_NUMBER) {
+                showToast("Vui lòng nhập một số hợp lệ từ 1 đến " + MAX_NUMBER + "!", "error");
                 guessInput.focus();
                 return;
             }
@@ -2348,6 +2349,17 @@
             renderLeaderboardUI();
             syncAllChannels(false, true);
             document.getElementById("leaderboardModal").classList.add("active");
+            var fullListEl = document.getElementById("fullLeaderboardList");
+            var scrollTopBtn = document.getElementById("lbScrollTopBtn");
+            if (fullListEl) fullListEl.scrollTop = 0;
+            if (scrollTopBtn) scrollTopBtn.classList.remove("visible");
+        }
+
+        function scrollLeaderboardToTop() {
+            var fullListEl = document.getElementById("fullLeaderboardList");
+            if (fullListEl) {
+                fullListEl.scrollTo({ top: 0, behavior: "smooth" });
+            }
         }
 
         function closeLeaderboard() {
@@ -2380,6 +2392,7 @@
         window.newGame = newGame;
         window.newGameFromModal = newGameFromModal;
         window.showLeaderboard = showLeaderboard;
+        window.scrollLeaderboardToTop = scrollLeaderboardToTop;
         window.closeLeaderboard = closeLeaderboard;
         window.manualSyncLeaderboard = manualSyncLeaderboard;
         window.clearLeaderboard = clearLeaderboard;
@@ -2473,6 +2486,20 @@
         document.getElementById("adminPassword").addEventListener("keydown", function(e) {
             if (e.key === "Enter") confirmAdminClearLeaderboard();
         });
+
+        // Lắng nghe sự kiện cuộn trên Bảng Xếp Hạng để hiện/ẩn nút mũi tên lên đầu
+        var fullLbListEl = document.getElementById("fullLeaderboardList");
+        if (fullLbListEl) {
+            fullLbListEl.addEventListener("scroll", function() {
+                var btn = document.getElementById("lbScrollTopBtn");
+                if (!btn) return;
+                if (fullLbListEl.scrollTop > 120) {
+                    btn.classList.add("visible");
+                } else {
+                    btn.classList.remove("visible");
+                }
+            });
+        }
 
         window.addEventListener("click", function(e) {
             if (e.target && e.target.classList && e.target.classList.contains("modal")) {
