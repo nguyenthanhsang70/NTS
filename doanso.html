@@ -860,6 +860,22 @@
             font-size: 0.9rem;
             font-weight: 600;
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .record-input-group input.input-error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+            animation: shake 0.35s ease-in-out;
+        }
+
+        .record-name-error {
+            display: none;
+            color: #dc2626;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-top: 7px;
+            line-height: 1.35;
         }
 
         .record-input-group button {
@@ -1139,9 +1155,10 @@
             <div class="record-form" id="recordFormBox">
                 <div class="record-form-title">🏅 Nhập tên để Ghi danh lên Bảng Xếp Hạng:</div>
                 <div class="record-input-group">
-                    <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn..." maxlength="100">
+                    <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn (không trùng tên đã có)..." maxlength="100">
                     <button type="button" id="saveRecordBtn" onclick="savePlayerName()">Ghi danh</button>
                 </div>
+                <div class="record-name-error" id="recordNameError">⚠️ Tên này đã có người sử dụng trên Bảng Xếp Hạng! Vui lòng chọn tên khác.</div>
             </div>
 
             <div class="win-actions">
@@ -1230,7 +1247,7 @@
                 <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 200 với số lần dự đoán ít nhất.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập con số vào ô trống và nhấn <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
-                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, bạn có thể nhập tên để vinh danh vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>.</li>
+                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, bạn có thể nhập tên duy nhất (không trùng lặp) để vinh danh vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>.</li>
             </ul>
             <div style="margin-top: 16px;">
                 <button type="button" class="btn" style="width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
@@ -1258,10 +1275,7 @@
         var RESET_ID_KEY = "nts_doan_so_reset_id_v21";
 
         // =============================================================
-        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY V21 (ĐỒNG BỘ ĐẦY ĐỦ MỌI LƯỢT GHI DANH 100%)
-        // 1. JSONBlob Cloud (Lưu trữ đầy đủ mảng 100 người chơi qua phương thức GET/PUT chuẩn)
-        // 2. KeyValue Multi-Slot Cloud (Lưu trữ song song 5 ô độc lập ngắn gọn + con trỏ Blob)
-        // 3. ntfy.sh SSE Realtime (Không spam Poll để tránh lỗi 429)
+        // HỆ THỐNG ĐỒNG BỘ ĐÁM MÂY V21 (KHÔNG CHO PHÉP TRÙNG TÊN TRÊN BXH)
         // =============================================================
         var KV_APP_KEY = "453b380w";
         var KV_BLOB_PTR_KEY = "nts_ptr_v21";
@@ -1345,6 +1359,26 @@
             return "Web";
         }
 
+        // Chuẩn hóa tên để so sánh chống trùng lặp (không phân biệt hoa/thường & khoảng trắng thừa)
+        function normalizeNameKey(nameStr) {
+            return String(nameStr || "").replace(/\s+/g, " ").trim().toLowerCase();
+        }
+
+        // Kiểm tra xem tên đã tồn tại trên Bảng Xếp Hạng chưa (trừ chính lượt chơi hiện tại nếu đang sửa tên)
+        function isPlayerNameDuplicate(candidateName, currentEntryId) {
+            var targetKey = normalizeNameKey(candidateName);
+            if (!targetKey) return false;
+            for (var i = 0; i < leaderboardData.length; i++) {
+                var item = leaderboardData[i];
+                if (!item) continue;
+                if (currentEntryId && item.id === currentEntryId) continue;
+                if (normalizeNameKey(item.name) === targetKey) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         function encodeSingleSlot(entryObj) {
             try {
                 var mini = {
@@ -1426,6 +1460,7 @@
             return true;
         }
 
+        // Gộp danh sách, chống trùng ID và chống trùng Tên tuyệt đối
         function normalizeAndSortRecords(list) {
             if (!Array.isArray(list)) return [];
             var byId = new Map();
@@ -1444,7 +1479,7 @@
                 var itemVer = Number(item.version) || 1;
                 var cleanItem = {
                     id: id,
-                    name: String(item.name || "Người chơi").trim().slice(0, 100),
+                    name: String(item.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
                     score: Number(item.score),
                     updatedAt: itemTime,
                     version: itemVer,
@@ -1465,7 +1500,26 @@
                 }
             });
 
-            var sorted = Array.from(byId.values());
+            // Loại bỏ tên trùng lặp: mỗi tên duy nhất chỉ xuất hiện 1 lần trên Bảng Xếp Hạng (giữ thành tích tốt nhất / sớm nhất)
+            var byName = new Map();
+            Array.from(byId.values()).forEach(function(item) {
+                var nameKey = normalizeNameKey(item.name);
+                if (!nameKey) return;
+                if (!byName.has(nameKey)) {
+                    byName.set(nameKey, item);
+                } else {
+                    var currentHolder = byName.get(nameKey);
+                    // Nếu cùng 1 tên: ưu tiên bản ghi có số lần đoán ít hơn, hoặc ghi danh trước
+                    if (
+                        item.score < currentHolder.score ||
+                        (item.score === currentHolder.score && item.updatedAt < currentHolder.updatedAt)
+                    ) {
+                        byName.set(nameKey, item);
+                    }
+                }
+            });
+
+            var sorted = Array.from(byName.values());
             sorted.sort(function(a, b) {
                 if (a.score !== b.score) return a.score - b.score;
                 return b.updatedAt - a.updatedAt;
@@ -1978,7 +2032,7 @@
             var safeTimestamp = Math.max(Date.now(), lastClearedTimestamp + 1000);
             var cleanEntry = {
                 id: String(entry.id),
-                name: String(entry.name || "Người chơi").trim().slice(0, 100),
+                name: String(entry.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
                 score: Number(entry.score),
                 updatedAt: safeTimestamp,
                 version: Number(entry.version) || 1,
@@ -2183,6 +2237,11 @@
                 var savedName = "";
                 try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
 
+                // Nếu tên đã lưu trước đó bị trùng trên BXH hiện tại thì để trống ô nhập để người chơi nhập tên mới
+                if (savedName.trim() && isPlayerNameDuplicate(savedName.trim(), currentSessionEntryId)) {
+                    savedName = "";
+                }
+
                 showWinModal(savedName.trim());
                 return;
             } else if (guess < targetNumber) {
@@ -2230,7 +2289,10 @@
 
             var nameInput = document.getElementById("recordHolderInput");
             var saveBtn = document.getElementById("saveRecordBtn");
+            var nameErrorEl = document.getElementById("recordNameError");
             nameInput.value = prefilledName || "";
+            nameInput.classList.remove("input-error");
+            if (nameErrorEl) nameErrorEl.style.display = "none";
             saveBtn.disabled = false;
             saveBtn.textContent = "Ghi danh";
 
@@ -2248,22 +2310,52 @@
             }, 100);
         }
 
+        // BẤM GHI DANH: KIỂM TRA CHỐNG TRÙNG TÊN TRƯỚC KHI LƯU LÊN BẢNG XẾP HẠNG
         function savePlayerName() {
             var nameInput = document.getElementById("recordHolderInput");
             var saveBtn = document.getElementById("saveRecordBtn");
-            var playerName = (nameInput.value || "").trim() || ("Người chơi (" + getBrowserTag() + ")");
+            var nameErrorEl = document.getElementById("recordNameError");
+            var rawName = (nameInput.value || "").replace(/\s+/g, " ").trim();
 
-            try { localStorage.setItem(PLAYER_NAME_KEY, playerName); } catch (e) {}
+            if (!rawName) {
+                nameInput.classList.add("input-error");
+                if (nameErrorEl) {
+                    nameErrorEl.textContent = "⚠️ Vui lòng nhập tên của bạn trước khi ghi danh!";
+                    nameErrorEl.style.display = "block";
+                }
+                showToast("Vui lòng nhập tên của bạn!", "warning");
+                nameInput.focus();
+                return;
+            }
 
             if (!currentSessionEntryId) {
                 currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
             }
 
+            // Kiểm tra trùng tên với những người đã có trên Bảng Xếp Hạng
+            if (isPlayerNameDuplicate(rawName, currentSessionEntryId)) {
+                nameInput.classList.remove("input-error");
+                void nameInput.offsetWidth; // Kích hoạt lại hiệu ứng rung
+                nameInput.classList.add("input-error");
+                if (nameErrorEl) {
+                    nameErrorEl.textContent = "⚠️ Tên \"" + rawName + "\" đã tồn tại trên Bảng Xếp Hạng! Vui lòng đặt tên khác.";
+                    nameErrorEl.style.display = "block";
+                }
+                showToast("Tên \"" + escapeHtml(rawName) + "\" đã có người dùng! Hãy chọn tên khác.", "error");
+                nameInput.focus();
+                return;
+            }
+
+            nameInput.classList.remove("input-error");
+            if (nameErrorEl) nameErrorEl.style.display = "none";
+
+            try { localStorage.setItem(PLAYER_NAME_KEY, rawName); } catch (e) {}
+
             currentEntryVersion = currentEntryVersion + 1;
 
             publishScoreEntryInstant({
                 id: currentSessionEntryId,
-                name: playerName,
+                name: rawName,
                 score: attempts > 0 ? attempts : 1,
                 updatedAt: Math.max(Date.now(), lastClearedTimestamp + 1000),
                 version: currentEntryVersion
@@ -2271,7 +2363,7 @@
 
             saveBtn.disabled = false;
             saveBtn.textContent = "Đã lưu ✓";
-            showToast("Đã ghi danh " + escapeHtml(playerName) + " lên Bảng Xếp Hạng!", "success");
+            showToast("Đã ghi danh " + escapeHtml(rawName) + " lên Bảng Xếp Hạng!", "success");
         }
 
         function clearLeaderboard() {
@@ -2473,6 +2565,12 @@
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
             if (e.key === "Enter") checkGuess();
+        });
+
+        document.getElementById("recordHolderInput").addEventListener("input", function() {
+            this.classList.remove("input-error");
+            var errEl = document.getElementById("recordNameError");
+            if (errEl) errEl.style.display = "none";
         });
 
         document.getElementById("recordHolderInput").addEventListener("keydown", function(e) {
