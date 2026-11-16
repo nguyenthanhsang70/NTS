@@ -2418,12 +2418,240 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
  .setup-footer .setup-nav-btn.is-busy .btn-icon:after{animation:none}
 }
 
+/* Navigation to game.html from the initial mode-selection screen. */
+#modeModal .mode-header {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 46px;
+    align-items: center;
+    column-gap: 10px;
+    margin-bottom: 12px;
+}
+#modeModal .mode-header .modal-title {
+    min-width: 0;
+    margin: 0;
+    line-height: 1.18;
+}
+#modeModal .mode-header .mode-back-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+    justify-self: start;
+    position: relative;
+    z-index: 1;
+}
+#modeModal .mode-header-spacer { width: 46px; height: 1px; }
+@media (max-width: 620px) {
+    #modeModal .mode-header {
+        grid-template-columns: 38px minmax(0, 1fr) 38px;
+        column-gap: 5px;
+    }
+    #modeModal .mode-header .mode-back-icon {
+        width: 38px; height: 38px; min-width: 38px; min-height: 38px;
+    }
+    #modeModal .mode-header-spacer { width: 38px; }
+    #modeModal .mode-header .modal-title { font-size: clamp(19px, 5.5vw, 26px); }
+}
+
+/* ================================================
+   Floating chat bubble + centred arena (all devices)
+   The multiplayer networking and room logic are unchanged.
+   ================================================ */
+body,
+body.online-chat-bottom-right {
+    justify-content: center !important;
+    align-items: center !important;
+}
+/* The old two-column online grid forced the game to one side. */
+#layoutShell.layout-shell,
+#layoutShell.layout-shell.online-active {
+    display: block !important;
+    width: min(900px, 100%) !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    /* The old filled animation applied transform, trapping position:fixed. */
+    animation: none !important;
+    transform: none !important;
+}
+#layoutShell.layout-shell.online-active {
+    width: min(1020px, 100%) !important;
+}
+#layoutShell .game-container,
+#layoutShell.online-active .game-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+}
+/* Chat no longer takes up a column; it is a floating popover. */
+#layoutShell.online-active #onlineChat {
+    position: fixed !important;
+    inset: auto max(16px, env(safe-area-inset-right)) calc(94px + env(safe-area-inset-bottom)) auto !important;
+    z-index: 1200 !important;
+    display: none !important;
+    width: min(396px, calc(100vw - 24px)) !important;
+    height: min(65dvh, 570px) !important;
+    max-height: calc(100dvh - 116px) !important;
+    min-height: min(330px, calc(100dvh - 116px)) !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(129, 235, 199, .36) !important;
+    background: linear-gradient(153deg, #15383b 0%, #0b1b29 80%) !important;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .57), 0 0 0 1px rgba(117, 235, 191, .06) !important;
+    overflow: hidden;
+}
+#layoutShell.online-active #onlineChat.chat-open:not(.hidden) {
+    display: flex !important;
+    flex-direction: column !important;
+}
+#layoutShell.online-active #chatFab {
+    display: grid !important;
+    place-items: center !important;
+    position: fixed !important;
+    inset: auto max(22px, env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) auto !important;
+    z-index: 1190 !important;
+    width: 68px !important;
+    height: 68px !important;
+    padding: 0;
+    border: 1px solid rgba(210, 255, 240, .58) !important;
+    border-radius: 22px !important;
+    background: linear-gradient(135deg, #123548 0%, #1d776d 46%, #7cf0c8 100%) !important;
+    color: #ecfffb !important;
+    box-shadow: 0 18px 46px rgba(7, 63, 59, .42), inset 0 1px 0 rgba(255,255,255,.26), inset 0 -10px 20px rgba(255,255,255,.08) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+    overflow: visible;
+    animation: none !important;
+    transition: transform .22s ease, box-shadow .22s ease, filter .22s ease !important;
+}
+#layoutShell.online-active #chatFab::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+    border: 1px solid rgba(255,255,255,.10);
+    pointer-events: none;
+}
+#layoutShell.online-active #chatFab::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right: 10px;
+    bottom: -4px;
+    border-radius: 4px 0 12px 4px;
+    transform: rotate(35deg);
+    background: linear-gradient(135deg, #2ab6a7, #78f0c8);
+    box-shadow: 0 8px 16px rgba(16, 104, 95, .28);
+    pointer-events: none;
+}
+#layoutShell.online-active #chatFab:hover {
+    transform: translateY(-4px) scale(1.03) !important;
+    box-shadow: 0 22px 50px rgba(7, 81, 76, .52), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -12px 22px rgba(255,255,255,.10) !important;
+    filter: saturate(1.06);
+}
+#layoutShell.online-active #chatFab:active {
+    transform: translateY(-1px) scale(.98) !important;
+}
+#layoutShell.online-active #chatFab[aria-expanded='true'] {
+    background: linear-gradient(135deg, #19415a 0%, #218a7b 48%, #9df7da 100%) !important;
+    box-shadow: 0 0 0 5px rgba(110, 241, 202, .13), 0 18px 44px rgba(6, 76, 68, .42), inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+#layoutShell.online-active #chatFab svg {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    stroke: currentColor;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
+}
+#layoutShell.online-active #chatFab .chat-unread {
+    top: -7px;
+    right: -7px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border: 2px solid #08161d;
+    background: linear-gradient(135deg, #ff6d6d, #ff8a5b);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(255, 99, 99, .38);
+    z-index: 2;
+}
+#layoutShell.online-active .mobile-chat-close {
+    display: grid !important;
+    place-items: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(124, 240, 200, .14), rgba(124, 240, 200, .06));
+    border: 1px solid rgba(150, 238, 208, .24);
+    color: #e9fffb;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+@media (max-width: 620px) {
+    #layoutShell.online-active #chatFab {
+        width: 62px !important;
+        height: 62px !important;
+        border-radius: 20px !important;
+        inset: auto max(16px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) auto !important;
+    }
+    #layoutShell.online-active #chatFab::before { inset: 6px; border-radius: 16px; }
+    #layoutShell.online-active #chatFab svg { width: 27px; height: 27px; }
+}
+#layoutShell.online-active #onlineChat .chat-messages {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+#layoutShell.online-active #onlineChat .chat-compose {
+    flex-shrink: 0;
+}
+/* Preserve standard hidden behaviour if online room has not been joined. */
+#layoutShell #onlineChat.hidden,
+#layoutShell #chatFab.hidden { display: none !important; }
+@media (max-width: 620px) {
+    body, body.online-chat-bottom-right { align-items: flex-start !important; }
+    #layoutShell.layout-shell,
+    #layoutShell.layout-shell.online-active {width: 100% !important;}
+    #layoutShell.online-active #onlineChat {
+        inset: auto 12px calc(82px + env(safe-area-inset-bottom)) auto !important;
+        width: min(390px, calc(100vw - 24px)) !important;
+        height: min(64dvh, 530px) !important;
+        max-height: calc(100dvh - 105px) !important;
+    }
+    #layoutShell.online-active #chatFab {
+        inset: auto 15px calc(15px + env(safe-area-inset-bottom)) auto !important;
+        width: 58px !important;
+        height: 58px !important;
+        font-size: 26px !important;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    #layoutShell.online-active #chatFab {transition: none !important;}
+}
+
 </style>
 </head>
 <body>
     <div class="modal-overlay" id="modeModal">
         <div class="modal-content">
-            <div class="modal-title">🎮 CHỌN CHẾ ĐỘ CHƠI</div>
+            <div class="mode-header">
+                <a href="game.html" class="title-back-icon mode-back-icon" title="Quay lại game.html" aria-label="Quay lại game.html">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                </a>
+                <div class="modal-title">🎮 CHỌN CHẾ ĐỘ CHƠI</div>
+                <span class="mode-header-spacer" aria-hidden="true"></span>
+            </div>
             <p class="mode-lead">Sẵn sàng cho một ván đấu bùng nổ? Chọn cách bạn muốn tranh tài.</p>
             <div class="target-selector-card">
                 <label for="targetScoreSelect">🏆 Điểm để thắng chung cuộc</label>
@@ -2648,7 +2876,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
         <div class="assist-result hidden" id="aiHintResult" role="status" aria-live="polite"></div>
         <div class="device-support" id="deviceSupport">Tối ưu hiển thị: Android • iOS • Máy tính</div>
     </main>
-    <aside class="online-chat hidden" id="onlineChat" aria-label="Chat trong phòng online">
+    <aside class="online-chat hidden" id="onlineChat" aria-label="Chat trong phòng online" role="region">
         <div class="online-chat-header">
             <div class="online-chat-title"><span class="online-chat-icon">💬</span><div>Chat phòng<small id="chatRoomLabel">Nhắn tin theo thời gian thực</small></div></div>
             <span class="chat-online-count" id="chatOnlineCount">1 người</span>
@@ -2660,7 +2888,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
             <button class="chat-send" id="chatSend" type="submit" title="Gửi tin nhắn">➤</button>
         </form>
     </aside>
-    <button class="chat-fab hidden" id="chatFab" onclick="toggleMobileChat()" aria-label="Mở chat" aria-expanded="false">💬<span class="chat-unread hidden" id="chatUnread">0</span></button>
+    <button class="chat-fab hidden" id="chatFab" type="button" onclick="toggleMobileChat()" title="Mở trò chuyện" aria-label="Mở trò chuyện" aria-controls="onlineChat" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18.2c-2.2 0-4-1.77-4-3.95V8.95C3 6.77 4.8 5 7 5h10c2.2 0 4 1.77 4 3.95v5.3c0 2.18-1.8 3.95-4 3.95H11.2L7.8 21c-.26.22-.66.03-.66-.31v-2.49H7z"/><path d="M8.25 11.5h.01"/><path d="M12 11.5h.01"/><path d="M15.75 11.5h.01"/></svg><span class="chat-unread hidden" id="chatUnread">0</span></button>
     </div>
 
     <div class="source-protection-toast" id="sourceProtectionToast" role="status" aria-live="polite">
@@ -3758,7 +3986,7 @@ function renderChat(){
   if(signature===lastChatSignature)return;
   const prior=lastVisibleChatIds;
   const newlyAdded=combined.filter(c=>!prior.has(c.id));
-  if(prior.size&&newlyAdded.length&&window.innerWidth<=880&&!chatOpen){
+  if(prior.size&&newlyAdded.length&&!chatOpen){
     unreadChats+=newlyAdded.filter(c=>c.playerId!==session.id).length;updateUnread();
   }
   lastVisibleChatIds=new Set(combined.map(m=>m.id));lastChatSignature=signature;
@@ -3793,7 +4021,7 @@ async function sendChatMessage(event){
     if(!sent){setConnection('⚠️ Tin nhắn đang chờ gửi lại khi có mạng.');}
   }
   renderChat();
-  if(window.innerWidth<=880)toggleMobileChat(true);
+  toggleMobileChat(true);
 }
 function updateUnread(){const badge=$('chatUnread');badge.textContent=String(Math.min(99,unreadChats));badge.classList.toggle('hidden',!unreadChats);}
 function toggleMobileChat(force){
@@ -3801,6 +4029,8 @@ function toggleMobileChat(force){
   chatOpen=typeof force==='boolean'?force:!chatOpen;
   $('onlineChat').classList.toggle('chat-open',chatOpen);
   $('chatFab').setAttribute('aria-expanded',String(chatOpen));
+  $('chatFab').setAttribute('aria-label',chatOpen?'Đóng trò chuyện':'Mở trò chuyện');
+  $('chatFab').title=chatOpen?'Đóng trò chuyện':'Mở trò chuyện';
   if(chatOpen){unreadChats=0;updateUnread();requestAnimationFrame(()=>{$('chatMessages').scrollTop=$('chatMessages').scrollHeight;$('chatInput').focus({preventScroll:true});});}
 }
 function closeMobileChat(){chatOpen=false;$('onlineChat').classList.remove('chat-open');$('chatFab').setAttribute('aria-expanded','false');unreadChats=0;updateUnread();}
@@ -4235,6 +4465,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const btn=e.target.closest('button[data-code]');if(btn&&!btn.disabled)joinListedRoom(btn.dataset.code);
   });
   $('chatForm').addEventListener('submit',sendChatMessage);
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&chatOpen)toggleMobileChat(false);});
   installSourceShortcutsGuard();
   document.addEventListener('pointerdown',unlockCountdownAudio,{passive:true});
   document.addEventListener('keydown',unlockCountdownAudio,{passive:true});
