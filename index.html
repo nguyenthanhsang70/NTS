@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#04020c" id="metaThemeColor">
     <meta name="color-scheme" content="dark">
     <meta name="format-detection" content="telephone=no">
-    <title id="site-title" data-vi="NTS — Trang Chủ" data-en="NTS — Home" data-zh="NTS — 首页">Trang Chủ</title>
+    <title id="site-title" data-vi="Trang Chủ" data-en="NTS — Home" data-zh="NTS — 首页">Trang Chủ</title>
     <link rel="icon" type="image/png" href="logos3.png">
 
     <!-- Chuẩn hóa Google Fonts hỗ trợ 100% dấu Tiếng Việt cực đẹp -->
@@ -2886,7 +2886,14 @@
           border-radius:999px;background:#eef0ff;color:#5746fa;font-size:12px;font-weight:900}
         .nts-game-top-row.is-gold .nts-game-top-count {color:#fff;background:#df7900}
         .nts-game-insights .nts-game-history-empty {color:#68758d}
-        .nts-game-history-table {min-width:780px}
+        .nts-game-history-table {min-width:730px;font-size:10.5px}
+        .nts-game-history-table th,.nts-game-history-table td {padding:11px 7px}
+        .nts-game-history-table th[hidden] {display:none!important}
+        .nts-game-history-table td:last-child,.nts-game-history-table th:last-child {white-space:nowrap}
+        .nts-game-history-role {display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-weight:800;font-size:11px;white-space:nowrap;border:1px solid rgba(157,171,243,.26);background:rgba(135,153,221,.1);color:#cbd6f7}
+        .nts-game-history-role--admin {color:#ffd68c;border-color:rgba(255,192,90,.31);background:rgba(248,167,58,.14)}
+        .nts-game-history-role--user {color:#8bedda;border-color:rgba(62,216,187,.29);background:rgba(37,176,160,.12)}
+        .nts-game-history-role-filter[hidden] {display:none!important}
         /* Compact account-specific game filters on narrow mobile screens. */
         @media (max-width:640px) {
           .nts-game-history-toolbar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
@@ -4331,13 +4338,16 @@ function makeAvatarURL(player){
 
             </section>
             <section class="nts-profile-view" id="ntsProfileViewHistory" data-view="history" hidden>
-              <h3 class="nts-profile-section-title" data-vi="Lịch sử chơi game & kết quả" data-en="Game launches and results" data-zh="游戏启动与结果记录">Lịch sử chơi game & kết quả</h3>
+              <h3 class="nts-profile-section-title" id="ntsGameHistoryHeading" data-vi="Lịch sử game" data-en="Game history" data-zh="游戏历史">Lịch sử game</h3>
               <p class="nts-profile-section-sub" id="ntsGameHistoryDescription" data-vi="Xem lịch sử riêng của từng tài khoản, kết quả game được báo về và thời gian chơi. Có tìm kiếm, lọc và xuất CSV." data-en="Review game history by account, reported results and timestamps, with search, filters and CSV export." data-zh="按账户查看游戏记录、游戏上报结果和时间，支持搜索、筛选及 CSV 导出。">Xem lịch sử riêng của từng tài khoản, kết quả game được báo về và thời gian chơi. Có tìm kiếm, lọc và xuất CSV.</p>
               <p class="nts-game-history-scope" id="ntsGameHistoryScope" aria-live="polite"></p>
               <div class="nts-audit-stats nts-game-history-stats" id="ntsGameHistoryStats" aria-live="polite"></div>
               <div class="nts-game-history-toolbar">
                 <input type="search" id="ntsGameHistorySearch" class="nts-admin-search" placeholder="Tìm tài khoản, họ tên, game hoặc kết quả..." aria-label="Tìm tài khoản, họ tên, game hoặc kết quả" autocomplete="off">
                 <select id="ntsGameHistoryAccount" class="nts-audit-select nts-game-history-account-filter" aria-label="Xem lịch sử theo từng tài khoản"><option value="all">Tất cả tài khoản</option></select>
+                <select id="ntsGameHistoryRole" class="nts-audit-select nts-game-history-role-filter" aria-label="Lọc lịch sử theo vai trò" hidden>
+                  <option value="all">Mọi vai trò</option><option value="admin">Admin</option><option value="user">User</option>
+                </select>
                 <select id="ntsGameHistoryGame" class="nts-audit-select" aria-label="Lọc theo game"><option value="all">Tất cả game</option></select>
                 <select id="ntsGameHistoryType" class="nts-audit-select" aria-label="Lọc thao tác">
                   <option value="all">Mọi hoạt động</option><option value="game.launch">Mở game</option><option value="game.result">Kết quả game</option>
@@ -4353,6 +4363,7 @@ function makeAvatarURL(player){
                   <thead><tr>
                     <th>STT</th><th data-vi="Tên tài khoản" data-en="Username" data-zh="用户名">Tên tài khoản</th>
                     <th data-vi="Họ tên" data-en="Full name" data-zh="姓名">Họ tên</th>
+                    <th id="ntsGameHistoryRoleHead" data-vi="Vai trò" data-en="Role" data-zh="角色" hidden>Vai trò</th>
                     <th data-vi="Game" data-en="Game" data-zh="游戏">Game</th>
                     <th data-vi="Kết quả" data-en="Result" data-zh="结果">Kết quả</th>
                     <th data-vi="Thời gian" data-en="Time" data-zh="时间">Thời gian</th>
@@ -10147,6 +10158,16 @@ document.addEventListener('nts:game-labels-updated',()=>{
         const me=api.getCurrentUser();
         const isAdmin=api.isAdmin();
         select.hidden=!isAdmin;
+        $('ntsGameHistoryRole').hidden=!isAdmin;
+        $('ntsGameHistoryRoleHead').hidden=!isAdmin;
+        if(!isAdmin)$('ntsGameHistoryRole').value='all';
+        const heading=$('ntsGameHistoryHeading');
+        if(heading) {
+          heading.dataset.vi=isAdmin?'Lịch sử game của các tài khoản':'Lịch sử game của tôi';
+          heading.dataset.en=isAdmin?'All accounts’ game history':'My game history';
+          heading.dataset.zh=isAdmin?'所有账户游戏记录':'我的游戏记录';
+          heading.textContent=tr(heading.dataset.vi,heading.dataset.en,heading.dataset.zh);
+        }
         const scope=$('ntsGameHistoryScope');
         if (scope) scope.textContent=isAdmin
           ? tr('Admin có thể chọn từng tài khoản để xem lịch sử.','Select an account to review its game history.','管理员可按账号查看游戏历史。')
@@ -10190,8 +10211,10 @@ document.addEventListener('nts:game-labels-updated',()=>{
       }
       function filteredGameHistory() {
         const search=nameKey($('ntsGameHistorySearch')?.value);
-        const accountKey=api.isAdmin()?($('ntsGameHistoryAccount')?.value || 'all'):
+        const admin=api.isAdmin();
+        const accountKey=admin?($('ntsGameHistoryAccount')?.value || 'all'):
           nameKey(api.getCurrentUser()?.username);
+        const roleFilter=admin?($('ntsGameHistoryRole')?.value || 'all'):'all';
         const gameId=$('ntsGameHistoryGame')?.value || 'all';
         const type=$('ntsGameHistoryType')?.value || 'all';
         const period=$('ntsGameHistoryPeriod')?.value || 'all';
@@ -10199,6 +10222,7 @@ document.addEventListener('nts:game-labels-updated',()=>{
         const names=auditNameMap();
         return gameHistoryEvents().filter(row=>{
           if(accountKey!=='all' && nameKey(row.actor)!==accountKey)return false;
+          if(roleFilter!=='all' && row.role!==roleFilter)return false;
           if(gameId!=='all' && row.target!==gameId)return false;
           if(type!=='all' && row.action!==type)return false;
           if(from && row.at<from)return false;
@@ -10212,6 +10236,8 @@ document.addEventListener('nts:game-labels-updated',()=>{
           ? (row.detail || tr('Kết quả đã ghi nhận','Result recorded','已记录结果'))
           : tr('Đã mở game','Game opened','已打开游戏');
       }
+      const gameHistoryRoleName = row => row.role==='admin' ? 'Admin' :
+        row.role==='user' ? 'User' : tr('Khách','Guest','访客');
       function renderGameHistory() {
         if (!api.getCurrentUser() || overlay.hidden || currentPanel!=='history') return;
         const all=gameHistoryEvents();
@@ -10229,10 +10255,12 @@ document.addEventListener('nts:game-labels-updated',()=>{
         gameHistoryPage=Math.max(0,Math.min(pages-1,gameHistoryPage));
         const chunk=filtered.slice(gameHistoryPage*gameHistoryPerPage,(gameHistoryPage+1)*gameHistoryPerPage);
         const names=auditNameMap();
+        const admin=api.isAdmin();
         $('ntsGameHistoryRows').innerHTML=chunk.map((row,i)=>`
           <tr><td>${gameHistoryPage*gameHistoryPerPage+i+1}</td>
           <td><span class="nts-audit-username">${escapeHTML(row.actor)}</span></td>
           <td>${escapeHTML(auditFullName(row,names))}</td>
+          ${admin ? `<td><span class="nts-game-history-role nts-game-history-role--${row.role==='admin'?'admin':'user'}">${escapeHTML(gameHistoryRoleName(row))}</span></td>` : ''}
           <td><span class="nts-game-history-game">${escapeHTML(gameDisplayName(row))}</span></td>
           <td>${row.action==='game.result'
             ? `<span class="nts-game-history-result">${escapeHTML(gameResultText(row))}</span>`
@@ -10247,7 +10275,7 @@ document.addEventListener('nts:game-labels-updated',()=>{
       function initGameHistory() {
         const filter=$('ntsGameHistoryGame');
         for(const game of GAME_CATALOG){const option=document.createElement('option');option.value=game.id;option.textContent=game.name;filter.appendChild(option);}
-        for(const id of ['ntsGameHistorySearch','ntsGameHistoryAccount','ntsGameHistoryGame','ntsGameHistoryType','ntsGameHistoryPeriod']){
+        for(const id of ['ntsGameHistorySearch','ntsGameHistoryAccount','ntsGameHistoryRole','ntsGameHistoryGame','ntsGameHistoryType','ntsGameHistoryPeriod']){
           const el=$(id);
           el.addEventListener(id==='ntsGameHistorySearch'?'input':'change',()=>{gameHistoryPage=0;renderGameHistory();});
         }
@@ -10270,9 +10298,12 @@ document.addEventListener('nts:game-labels-updated',()=>{
           const rows=filteredGameHistory();if(!rows.length)return;
           const names=auditNameMap();
           const csvCell=input=>{let s=String(input??'');if(/^[\s]*[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
-          const data=[['STT','Tên tài khoản','Họ tên','Game','Kết quả','Thời gian (VN)'],
-            ...rows.map((row,index)=>[index+1,row.actor,auditFullName(row,names),
-              gameDisplayName(row),gameResultText(row),createdTimeText(row.at)])];
+          const admin=api.isAdmin();
+          const header=admin ? ['STT','Tên tài khoản','Họ tên','Vai trò','Game','Kết quả','Thời gian']
+            : ['STT','Tên tài khoản','Họ tên','Game','Kết quả','Thời gian'];
+          const data=[header,...rows.map((row,index)=>[index+1,row.actor,auditFullName(row,names),
+            ...(admin?[gameHistoryRoleName(row)]:[]),
+            gameDisplayName(row),gameResultText(row),createdTimeText(row.at)])];
           const blob=new Blob(['\ufeff'+data.map(row=>row.map(csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
           const url=URL.createObjectURL(blob);
           const a=document.createElement('a');a.href=url;a.download='nts-lich-su-game-'+new Date().toISOString().slice(0,10)+'.csv';
