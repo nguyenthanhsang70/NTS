@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#04020c" id="metaThemeColor">
     <meta name="color-scheme" content="dark">
     <meta name="format-detection" content="telephone=no">
-    <title id="site-title" data-vi="Trang Chủ" data-en="NTS — Home" data-zh="NTS — 首页">Trang Chủ</title>
+    <title id="site-title" data-vi="NTS — Trang Chủ" data-en="NTS — Home" data-zh="NTS — 首页">Trang Chủ</title>
     <link rel="icon" type="image/png" href="logos3.png">
 
     <!-- Chuẩn hóa Google Fonts hỗ trợ 100% dấu Tiếng Việt cực đẹp -->
@@ -2821,7 +2821,6 @@
         .nts-audit-pagination {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap;color:#9db2d4;font-size:11px;font-weight:700}
         .nts-audit-pagination .nts-profile-actions {margin:0}
         .nts-audit-pagination button:disabled {opacity:.4;cursor:not-allowed}
-        .nts-audit-disclosure {font-size:10px;color:#8e9eba;line-height:1.75;margin:13px 0 4px}
         @media (max-width:750px) {.nts-audit-stats {grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media (max-width:420px) {.nts-audit-toolbar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.nts-audit-toolbar>.nts-admin-search {grid-column:1/-1;width:100%}.nts-audit-toolbar>button {width:100%;font-size:11px}.nts-audit-select {min-width:0;width:100%}}
     
@@ -4250,7 +4249,6 @@ function makeAvatarURL(player){
                 <div class="nts-profile-actions"><button class="nts-profile-primary" type="submit" data-vi="💾 Lưu thông tin" data-en="💾 Save profile" data-zh="💾 保存资料">💾 Lưu thông tin</button></div>
               </form>
               <div class="nts-profile-small" id="ntsProfileAccountMeta"></div>
-              <p class="nts-audit-disclosure" data-vi="NTS ghi lại thao tác tài khoản để Admin theo dõi. Khi đăng nhập thất bại, tên tài khoản đã thử có thể được lưu trong nhật ký. Không ghi mật khẩu hoặc tin nhắn." data-en="NTS records account events for administrators. Failed sign-ins may log the attempted username. Passwords and messages are not recorded." data-zh="NTS 为管理员记录账户活动。登录失败可能记录尝试使用的用户名，但不会记录密码或消息。">NTS ghi lại thao tác tài khoản để Admin theo dõi. Khi đăng nhập thất bại, tên tài khoản đã thử có thể được lưu trong nhật ký. Không ghi mật khẩu hoặc tin nhắn.</p>
             </section>
             <section class="nts-profile-view" id="ntsProfileViewPassword" data-view="password" hidden>
               <h3 class="nts-profile-section-title" data-vi="Đổi mật khẩu" data-en="Change password" data-zh="修改密码">Đổi mật khẩu</h3>
@@ -8018,6 +8016,25 @@ function makeAvatarURL(player){
                 return { url, data };
             } catch { return null; }
         }
+        // Có thể xảy ra ghi đè khi hai trình duyệt PUT cùng kho công khai.
+        // Nếu phiên bản avatar cục bộ mới hơn bản ở kho, giữ nó trong hàng đợi
+        // thay vì coi lần gửi cũ là đã đồng bộ mãi mãi.
+        function requeueDivergentAvatarProfiles(remoteProfiles) {
+            const remote = remoteProfiles && typeof remoteProfiles === 'object' &&
+                !Array.isArray(remoteProfiles) ? remoteProfiles : {};
+            const local = readObject(PROFILE_KEY);
+            const deleted = readObject(DELETED_KEY);
+            for (const [candidate, profile] of Object.entries(local)) {
+                const key = nameKey(candidate);
+                if (!key || !registeredUsers[key] || deleted[key] || !profile) continue;
+                const avatarId = safeAvatarId(profile.avatarId);
+                const changedAt = safeStamp(profile.avatarUpdatedAt);
+                if (avatarId === null || !changedAt) continue;
+                const published = remote[key] || {};
+                const publishedAt = safeStamp(published.avatarUpdatedAt);
+                if (changedAt > publishedAt) markPendingProfile(key, true);
+            }
+        }
         async function readProfilesBlob() {
             const id = await kvBlobId(KV_PROFILES_PTR_KEY);
             if (!id) return null;
@@ -8029,6 +8046,7 @@ function makeAvatarURL(player){
                 if (!data || typeof data !== 'object') return null;
                 mergeCloudDeletions(data.deletedUsers);
                 mergeCloudProfiles(data.profiles);
+                requeueDivergentAvatarProfiles(data.profiles);
                 return { url, data };
             } catch { return null; }
         }
@@ -8113,6 +8131,23 @@ function makeAvatarURL(player){
         // Never publish the built-in admin's password, session or role.
         // Name and avatar have INDEPENDENT revision timestamps to prevent a
         // concurrent name edit from overwriting an avatar change.
+        async function verifyPublishedProfile(username, expectedRecord) {
+            const key = nameKey(username);
+            const latest = await readProfilesBlob();
+            if (!latest || !latest.data || !latest.data.profiles) return false;
+            const received = latest.data.profiles[key];
+            if (!received || typeof received !== 'object') return false;
+            const expectedAvatarAt = safeStamp(expectedRecord.avatarUpdatedAt);
+            if (expectedAvatarAt) {
+                const receivedAt = safeStamp(received.avatarUpdatedAt);
+                if (receivedAt < expectedAvatarAt) return false;
+                if (receivedAt === expectedAvatarAt &&
+                    safeAvatarId(received.avatarId) !== safeAvatarId(expectedRecord.avatarId)) return false;
+            }
+            if (expectedRecord.fullName &&
+                safeStamp(received.updatedAt) < safeStamp(expectedRecord.updatedAt)) return false;
+            return true;
+        }
         async function publishProfilesBlob(account) {
             const key = nameKey(account?.username);
             if (!key || readObject(DELETED_KEY)[key] ||
@@ -8159,7 +8194,8 @@ function makeAvatarURL(player){
                     merged.avatarUpdatedAt = safeStamp(previous.avatarUpdatedAt);
                 }
                 // No change is needed; avoid re-uploading an identical record.
-                if (JSON.stringify(previous) === JSON.stringify(merged)) return true;
+                if (JSON.stringify(previous) === JSON.stringify(merged))
+                    return verifyPublishedProfile(key, record);
                 profiles[key] = merged;
                 payload = { ...remote, version: 2, profiles };
                 try {
@@ -8167,7 +8203,7 @@ function makeAvatarURL(player){
                         method: 'PUT', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     }, 4500);
-                    return response.ok;
+                    return response.ok && await verifyPublishedProfile(key, record);
                 } catch { return false; }
             }
             // Do not replace a known pointer when its blob is temporarily unavailable.
@@ -8185,7 +8221,7 @@ function makeAvatarURL(player){
                 const saved = await fetchWithTimeout(
                     'https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/' + KV_APP_KEY + '/' + KV_PROFILES_PTR_KEY + '/' + blobId,
                     { method: 'POST', mode: 'cors' }, 3500);
-                return saved.ok;
+                return saved.ok && await verifyPublishedProfile(key, record);
             } catch { return false; }
         }
         // A small public notice lets other browsers update their avatar at once.
@@ -8880,6 +8916,7 @@ function makeAvatarURL(player){
             }).catch(() => {});
         }
         window.addEventListener('focus', refreshSharedProfiles);
+        window.addEventListener('online', refreshSharedProfiles);
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') refreshSharedProfiles();
         });
@@ -9087,6 +9124,9 @@ function makeAvatarURL(player){
                     ]);
                     profileSaved = results[0].status === 'fulfilled' && results[0].value === true;
                 } else {
+                    // Emit the avatar-only event promptly while the separate
+                    // full profile/user writes (and verification) are in progress.
+                    if (avatarChanged) publishAvatarNotice(account).catch(() => {});
                     profileSaved = (await publishAccountAndProfile(account)).profileSaved;
                 }
             } catch { /* keep the local edit and retry later */ }
@@ -9094,7 +9134,7 @@ function makeAvatarURL(player){
             return {ok: true, synced: profileSaved,
                 message: profileSaved
                     ? 'Đã lưu hồ sơ và đồng bộ avatar.'
-                    : 'Đã lưu hồ sơ trên thiết bị. Avatar sẽ được thử đồng bộ lại khi có mạng.'};
+                    : 'Đã cập nhật thông tin tài khoản.'};
         }
         async function changeMyPassword(oldPassword, newPassword) {
             if (!currentUser) return profileResult(false, 'Bạn chưa đăng nhập.');
@@ -9816,6 +9856,10 @@ function makeAvatarURL(player){
         $('ntsProfileTabActivity').hidden = !isAdmin;
         $('ntsProfileTabGames').hidden = !isAdmin;
         $('ntsProfileTabHistory').hidden = false;
+        // User: Lịch sử game ngay dưới Thông tin cá nhân. Admin: giữ vị trí sau Quản lý game.
+        const gameHistoryTab = $('ntsProfileTabHistory');
+        if (isAdmin) $('ntsProfileTabGames').after(gameHistoryTab);
+        else $('ntsProfileTabInfo').after(gameHistoryTab);
         $('ntsProfileTabSetup').hidden = Boolean(api.hasLocalAdmin()) || isAdmin;
         if ((currentPanel === 'admin' || currentPanel === 'games' || currentPanel === 'activity') && !isAdmin || currentPanel === 'setup' && $('ntsProfileTabSetup').hidden) openPanel('info');
         if (isAdmin && !views.admin.hidden) renderUsers();
