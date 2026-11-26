@@ -520,6 +520,8 @@
             background: #fee2e2;
             transform: translateY(-1px);
         }
+        /* Hide the destructive control entirely from User/guest accounts. */
+        #ntsClearLeaderboardBtn[hidden] { display: none !important; }
 
         .leaderboard-list {
             display: flex;
@@ -829,6 +831,24 @@
             font-weight: 800;
         }
 
+        .nts-player-chip {
+            margin: -4px 0 18px; padding: 10px 12px; border-radius: 13px;
+            display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px;
+            background: #eef2ff; border: 1px solid #c7d2fe;
+            color:#3730a3; font-size:.81rem; font-weight:700;
+            text-align:center;
+        }
+        .nts-player-chip.is-guest {background:#f8fafc;border-color:#e2e8f0;color:#64748b}
+        .nts-player-chip a {color:#4f46e5;text-decoration:underline;text-underline-offset:2px}
+        .nts-auto-record { background: #eefaf4; border-color:#a7f3d0; text-align:center; }
+        .nts-auto-record .record-form-title {color:#047857;font-size:.88rem}
+        .nts-auto-record-message {font-size:.86rem;font-weight:600;color:#065f46;line-height:1.6}
+        .nts-auto-record.is-guest {background:#f8fafc;border-color:#cbd5e1}
+        .nts-auto-record.is-guest .record-form-title {color:#475569}
+        .nts-auto-record.is-guest .nts-auto-record-message {color:#475569}
+        .nts-login-redirect {display:inline-flex;margin-top:9px;padding:8px 13px;border-radius:9px;
+            background:#4f46e5;color:#fff;text-decoration:none;font-size:.83rem;font-weight:700}
+        .nts-login-redirect[hidden] {display:none}
         .record-form {
             background: #fffbeb;
             border: 1.5px solid #fde68a;
@@ -995,6 +1015,9 @@
             h1 { font-size: 1.55rem; }
             .buttons { grid-template-columns: 1fr; }
         }
+        /* Hiển thị thông báo lưu tự động bằng xanh thành công, không phải vàng của biểu mẫu cũ. */
+        #recordFormBox.nts-auto-record { background:#ecfdf5; border-color:#a7f3d0; }
+        #recordFormBox.nts-auto-record.is-guest { background:#f8fafc; border-color:#cbd5e1; }
     </style>
 </head>
 <body>
@@ -1032,6 +1055,7 @@
         </div>
 
         <p class="subtitle">Tìm con số bí mật ẩn giấu từ <span>1</span> đến <span>200</span></p>
+        <div id="ntsPlayerChip" class="nts-player-chip" aria-live="polite">Đang kiểm tra tài khoản NTS...</div>
 
         <!-- Stats Cards -->
         <div class="game-info">
@@ -1152,13 +1176,10 @@
                 </div>
             </div>
 
-            <div class="record-form" id="recordFormBox">
-                <div class="record-form-title">🏅 Nhập tên để Ghi danh lên Bảng Xếp Hạng:</div>
-                <div class="record-input-group">
-                    <input type="text" id="recordHolderInput" placeholder="Nhập tên của bạn (không trùng tên đã có)..." maxlength="100">
-                    <button type="button" id="saveRecordBtn" onclick="savePlayerName()">Ghi danh</button>
-                </div>
-                <div class="record-name-error" id="recordNameError">⚠️ Tên này đã có người sử dụng trên Bảng Xếp Hạng! Vui lòng chọn tên khác.</div>
+            <div class="record-form nts-auto-record" id="recordFormBox" role="status" aria-live="polite">
+                <div class="record-form-title">🏅 Tự động ghi thành tích</div>
+                <p class="nts-auto-record-message" id="ntsAutoRecordStatus">Đang cập nhật bảng xếp hạng...</p>
+                <a class="nts-login-redirect" href="index.html" id="ntsLoginFromGame" hidden>Đăng nhập ở trang chủ NTS</a>
             </div>
 
             <div class="win-actions">
@@ -1180,7 +1201,7 @@
                 <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 100</h2>
                 <div style="display:flex; gap:6px;">
                     <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()">↻ Làm mới</button>
-                    <button type="button" class="mini-lb-clear" onclick="clearLeaderboard()">Xóa BXH</button>
+                    <button type="button" class="mini-lb-clear" id="ntsClearLeaderboardBtn" onclick="clearLeaderboard()" hidden title="Chỉ tài khoản Admin mới có thể xóa bảng xếp hạng">Xóa BXH</button>
                 </div>
             </div>
             <div class="leaderboard-scroll-wrapper">
@@ -1192,44 +1213,6 @@
                         <path d="m18 15-6-6-6 6"/>
                     </svg>
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Xác Thực Admin Xóa BXH -->
-    <div id="adminAuthModal" class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content" style="max-width: 390px;">
-            <button type="button" class="close-btn" onclick="closeAdminModal()" aria-label="Đóng">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div style="text-align: center; margin-bottom: 18px;">
-                <div style="width: 54px; height: 54px; border-radius: 16px; background: #fef2f2; color: #dc2626; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; border: 1px solid #fecaca;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">Xác thực Quản trị viên</h2>
-                <p style="font-size: 0.84rem; color: #64748b; margin-top: 4px;">Vui lòng đăng nhập tài khoản Admin để xóa toàn bộ Bảng Xếp Hạng</p>
-            </div>
-
-            <div class="admin-error-msg" id="adminErrorMsg">Tài khoản hoặc mật khẩu không chính xác!</div>
-
-            <div class="admin-form-group">
-                <label for="adminUsername">Tài khoản Admin</label>
-                <input type="text" id="adminUsername" placeholder="Nhập tài khoản..." autocomplete="off">
-            </div>
-
-            <div class="admin-form-group" style="margin-bottom: 20px;">
-                <label for="adminPassword">Mật khẩu</label>
-                <input type="password" id="adminPassword" placeholder="Nhập mật khẩu..." autocomplete="off">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px;">
-                <button type="button" class="btn btn-secondary-modal" onclick="closeAdminModal()">Hủy bỏ</button>
-                <button type="button" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;" onclick="confirmAdminClearLeaderboard()">Xác nhận xóa</button>
             </div>
         </div>
     </div>
@@ -1247,7 +1230,7 @@
                 <li><strong>🎯 Mục tiêu:</strong> Tìm ra con số bí mật từ 1 đến 200 với số lần dự đoán ít nhất.</li>
                 <li><strong>📝 Cách chơi:</strong> Nhập con số vào ô trống và nhấn <strong>"Gửi đáp án"</strong> hoặc phím <strong>Enter</strong>.</li>
                 <li><strong>💡 Thu hẹp phạm vi:</strong> Thanh phạm vi thông minh sẽ tự động thu hẹp khoảng số khả thi sau mỗi lần bạn đoán.</li>
-                <li><strong>🏆 Đua Top 100:</strong> Ngay khi đoán trúng, bạn có thể nhập tên duy nhất (không trùng lặp) để vinh danh vào <strong>Bảng Xếp Hạng Top 100 Toàn Cầu</strong>.</li>
+                <li><strong>🏆 Đua Top 100:</strong> Đăng nhập ở trang chủ NTS trước khi chơi. Khi đoán trúng, họ tên tài khoản và số lần thử sẽ <strong>tự động ghi lên Bảng Xếp Hạng</strong>, không cần nhập tên.</li>
             </ul>
             <div style="margin-top: 16px;">
                 <button type="button" class="btn" style="width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;" onclick="closeInstructions()">Đã hiểu, bắt đầu chơi!</button>
@@ -1257,6 +1240,8 @@
 
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
+    <!-- Ghi kết quả thực tế về Lịch sử game NTS (sử dụng cùng tên miền với trang chủ). -->
+    <script src="nts-game-result.js"></script>
     <script>
         var MAX_NUMBER = 200;
         var targetNumber = 100;
@@ -1267,9 +1252,87 @@
         var maxPossible = MAX_NUMBER;
         var currentSessionEntryId = null;
         var currentEntryVersion = 1;
+        var roundStartedAt = Date.now();
 
         var LOCAL_BEST_KEY = "nts_doan_so_personal_best_v21";
-        var PLAYER_NAME_KEY = "nts_doan_so_player_name_v21";
+        // Kết quả gắn với tài khoản NTS; không còn sử dụng tên do người chơi nhập.
+        var NTS_SESSION_KEY = 'nts_doan_so_current_user_v22';
+        var NTS_USERS_KEY = 'nts_doan_so_users_db_v22';
+        var NTS_PROFILES_KEY = 'nts_account_profiles_v1';
+        var NTS_DELETED_KEY = 'nts_admin_local_deleted_v1';
+        var NTS_ROLES_KEY = 'nts_account_roles_v1';
+        var NTS_OWNER_KEY = 'nts_admin_local_owner_v1';
+        function ntsReadJSON(storage,key) {
+            try {return JSON.parse(storage.getItem(key)||'null');} catch(e){return null;}
+        }
+        function ntsAccountName(input) {
+            return String(input||'').replace(/\s+/g,' ').trim().slice(0,80);
+        }
+        // Cùng khóa phiên với index.html, có cả chế độ ghi nhớ và chỉ dùng tab hiện tại.
+        function ntsLoggedInPlayer() {
+            var sess=ntsReadJSON(sessionStorage,NTS_SESSION_KEY)||ntsReadJSON(localStorage,NTS_SESSION_KEY);
+            if(!sess || typeof sess.username!=='string' || typeof sess.passHash!=='string') return null;
+            var username=ntsAccountName(sess.username);
+            var key=username.toLowerCase();
+            if(username.length<2 || username.length>40 || /[\u0000-\u001f\u007f<>]/.test(username))return null;
+            var registry=ntsReadJSON(localStorage,NTS_USERS_KEY)||{};
+            var deleted=ntsReadJSON(localStorage,NTS_DELETED_KEY)||{};
+            if(deleted[key] || (registry[key] && registry[key].passHash!==sess.passHash))return null;
+            var profiles=ntsReadJSON(localStorage,NTS_PROFILES_KEY)||{};
+            var profile=profiles[key]||{},account=registry[key]||{};
+            var fromProfile=ntsAccountName(profile.fullName);
+            var fromRegistry=ntsAccountName(account.fullName);
+            var registryNewer=fromRegistry && (!fromProfile ||
+                Number(account.profileUpdatedAt||0)>Number(profile.updatedAt||0));
+            var fullName=registryNewer?fromRegistry:(fromProfile||fromRegistry||ntsAccountName(sess.fullName)||username);
+            return {username:username,fullName:fullName||username};
+        }
+        // Kiểm tra phiên đăng nhập & quyền quản trị đúng theo cơ chế NTS ở index.html.
+        // Chỉ tài khoản có bản ghi hợp lệ, cùng mã băm phiên và quyền admin mới thấy nút Xóa BXH.
+        // Đây là kiểm tra giao diện phía trình duyệt; quyền xóa thực sự phải được bảo vệ trên máy chủ.
+        function ntsCanClearLeaderboard() {
+            var player=ntsLoggedInPlayer();
+            if (!player) return false;
+            var key=player.username.toLowerCase();
+            var session=ntsReadJSON(sessionStorage,NTS_SESSION_KEY)||ntsReadJSON(localStorage,NTS_SESSION_KEY);
+            var users=ntsReadJSON(localStorage,NTS_USERS_KEY)||{};
+            var deleted=ntsReadJSON(localStorage,NTS_DELETED_KEY)||{};
+            var account=users[key];
+            if (!account || typeof account.passHash!=='string' || !session ||
+                account.passHash!==session.passHash || deleted[key]) return false;
+            if (key==='admin') return true; // Tài khoản Admin mặc định của NTS.
+            var roles=ntsReadJSON(localStorage,NTS_ROLES_KEY)||{};
+            if (roles[key]==='admin') return true;
+            if (roles[key]==='user') return false;
+            var owner='';
+            try { owner=String(localStorage.getItem(NTS_OWNER_KEY)||'').trim().toLowerCase(); } catch(e){}
+            return Boolean(owner && owner===key);
+        }
+        function refreshClearLeaderboardAccess() {
+            var btn=document.getElementById('ntsClearLeaderboardBtn');
+            if (btn) btn.hidden=!ntsCanClearLeaderboard();
+        }
+        function playerPersonalBestKey() {
+            var me=ntsLoggedInPlayer();
+            return LOCAL_BEST_KEY+'_'+(me?me.username.toLowerCase():'guest');
+        }
+        function refreshPlayerIdentity() {
+            refreshClearLeaderboardAccess();
+            var badge=document.getElementById('ntsPlayerChip');
+            var player=ntsLoggedInPlayer();
+            if(badge){
+                badge.classList.toggle('is-guest',!player);
+                if(player){badge.textContent='👤 Đang chơi: '+player.fullName+' (@'+player.username+')';}
+                else {badge.innerHTML='👤 Khách · <a href="index.html">Đăng nhập NTS để lưu thành tích</a>';}
+            }
+            var best=null;
+            try {var value=localStorage.getItem(playerPersonalBestKey());
+                if(value!==null && Number.isInteger(Number(value)) && Number(value)>0)best=Number(value);
+            }catch(e){}
+            localBestScore=best;
+            var node=document.getElementById('localBestSub');
+            if(node)node.textContent='Cá nhân: '+(best===null?'--':best+' lần');
+        }
         var SHARED_CACHE_KEY = "nts_doan_so_shared_cache_v21";
         var CLEAR_TIME_KEY = "nts_doan_so_clear_time_v21";
         var RESET_ID_KEY = "nts_doan_so_reset_id_v21";
@@ -1316,11 +1379,6 @@
         } catch (e) {}
 
         try {
-            var savedBest = localStorage.getItem(LOCAL_BEST_KEY);
-            if (savedBest) {
-                localBestScore = parseInt(savedBest, 10);
-                document.getElementById("localBestSub").textContent = "Cá nhân: " + localBestScore + " lần";
-            }
             var savedClear = localStorage.getItem(CLEAR_TIME_KEY);
             if (savedClear) {
                 lastClearedTimestamp = parseInt(savedClear, 10) || 0;
@@ -1384,6 +1442,7 @@
                 var mini = {
                     i: entryObj.id,
                     n: String(entryObj.name || "Người chơi").slice(0, 35),
+                    u: String(entryObj.username||'').slice(0,40),
                     s: Number(entryObj.score),
                     t: Number(entryObj.updatedAt),
                     v: Number(entryObj.version) || 1,
@@ -1408,6 +1467,7 @@
                 return {
                     id: mini.i,
                     name: mini.n,
+                    username: mini.u || '',
                     score: Number(mini.s),
                     updatedAt: Number(mini.t),
                     version: Number(mini.v) || 1,
@@ -1480,6 +1540,7 @@
                 var cleanItem = {
                     id: id,
                     name: String(item.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
+                    username: String(item.username||'').replace(/\s+/g,' ').trim().slice(0,40).toLowerCase(),
                     score: Number(item.score),
                     updatedAt: itemTime,
                     version: itemVer,
@@ -1503,7 +1564,9 @@
             // Loại bỏ tên trùng lặp: mỗi tên duy nhất chỉ xuất hiện 1 lần trên Bảng Xếp Hạng (giữ thành tích tốt nhất / sớm nhất)
             var byName = new Map();
             Array.from(byId.values()).forEach(function(item) {
-                var nameKey = normalizeNameKey(item.name);
+                // Tài khoản NTS dùng tên đăng nhập làm định danh, kể cả khi trùng họ tên.
+                // Dữ liệu BXH cũ chưa có tài khoản vẫn được gộp theo tên như trước.
+                var nameKey = item.username ? 'nts:' + item.username : 'legacy:' + normalizeNameKey(item.name);
                 if (!nameKey) return;
                 if (!byName.has(nameKey)) {
                     byName.set(nameKey, item);
@@ -1580,6 +1643,7 @@
                         incomingList.push({
                             id: item.i,
                             name: item.n,
+                            username: item.u || '',
                             score: Number(item.s),
                             updatedAt: Math.max(Number(item.t) || Date.now(), lastClearedTimestamp + 100),
                             version: Number(item.v) || 1,
@@ -1598,6 +1662,7 @@
                 incomingList.push({
                     id: stateObj.e.i,
                     name: stateObj.e.n,
+                    username: stateObj.e.u || '',
                     score: Number(stateObj.e.s),
                     updatedAt: Math.max(Number(stateObj.e.t) || Date.now(), lastClearedTimestamp + 100),
                     version: Number(stateObj.e.v) || 1,
@@ -1763,6 +1828,7 @@
                                         collectedRecords.push({
                                             id: data.e.i,
                                             name: data.e.n,
+                                            username: data.e.u || '',
                                             score: Number(data.e.s),
                                             updatedAt: Math.max(Number(data.e.t) || 0, maxClearTime + 100),
                                             version: Number(data.e.v) || 1,
@@ -1776,7 +1842,8 @@
                                             if (item && typeof item.s === "number") {
                                                 collectedRecords.push({
                                                     id: item.i,
-                                                    name: item.n,
+                                                     name: item.n,
+                                                    username: item.u || '',
                                                     score: Number(item.s),
                                                     updatedAt: Math.max(Number(item.t) || 0, maxClearTime + 100),
                                                     version: Number(item.v) || 1,
@@ -1847,6 +1914,7 @@
                 return {
                     id: r.id,
                     name: r.name,
+                    username: r.username||'',
                     score: Number(r.score),
                     updatedAt: Math.max(Number(r.updatedAt) || Date.now(), effectiveClear + 100),
                     version: Number(r.version) || 1,
@@ -1932,7 +2000,8 @@
                     var compactSnapshot = cleanList.slice(0, 12).map(function(r) {
                         return {
                             i: r.id,
-                            n: String(r.name).slice(0, 50),
+                             n: String(r.name).slice(0, 50),
+                            u: r.username||'',
                             s: r.score,
                             t: r.updatedAt,
                             v: r.version || 1
@@ -1954,7 +2023,8 @@
                             c: effectiveClear,
                             e: singleEntryObj ? {
                                 i: singleEntryObj.id,
-                                n: singleEntryObj.name,
+                                 n: singleEntryObj.name,
+                                u: singleEntryObj.username||'',
                                 s: Number(singleEntryObj.score),
                                 t: Math.max(Number(singleEntryObj.updatedAt) || Date.now(), effectiveClear + 100),
                                 v: Number(singleEntryObj.version) || 1
@@ -2033,6 +2103,7 @@
             var cleanEntry = {
                 id: String(entry.id),
                 name: String(entry.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
+                username: String(entry.username||'').slice(0,40).toLowerCase(),
                 score: Number(entry.score),
                 updatedAt: safeTimestamp,
                 version: Number(entry.version) || 1,
@@ -2045,10 +2116,11 @@
             renderLeaderboardUI();
 
             var rankIndex = leaderboardData.findIndex(function(item) { return item.id === currentSessionEntryId; });
-            if (rankIndex !== -1) {
-                var winRecEl = document.getElementById("winBestRecord");
-                if (winRecEl) winRecEl.textContent = "#" + (rankIndex + 1);
+            if (rankIndex === -1 && cleanEntry.username) {
+                rankIndex = leaderboardData.findIndex(function(item) { return item.username === cleanEntry.username; });
             }
+            var winRecEl = document.getElementById("winBestRecord");
+            if (winRecEl) winRecEl.textContent = rankIndex >= 0 ? "#" + (rankIndex + 1) : "Ngoài Top 100";
 
             if (syncChannel) {
                 try {
@@ -2097,6 +2169,17 @@
         }
 
         function renderLeaderboardUI() {
+            var player=ntsLoggedInPlayer();
+            if(player){
+                var remoteBest=leaderboardData.find(function(row){return row.username===player.username.toLowerCase();});
+                if(remoteBest && Number.isFinite(remoteBest.score) && remoteBest.score>0 &&
+                   (localBestScore===null || remoteBest.score<localBestScore)){
+                    localBestScore=remoteBest.score;
+                    try{localStorage.setItem(playerPersonalBestKey(),String(remoteBest.score));}catch(e){}
+                    var bestSub=document.getElementById('localBestSub');
+                    if(bestSub)bestSub.textContent='Cá nhân: '+remoteBest.score+' lần';
+                }
+            }
             var bestScoreEl = document.getElementById("bestScore");
             var bestHolderEl = document.getElementById("bestHolderText");
             var miniListEl = document.getElementById("miniLeaderboardList");
@@ -2173,6 +2256,8 @@
             maxPossible = MAX_NUMBER;
             currentSessionEntryId = null;
             currentEntryVersion = 1;
+            roundStartedAt = Date.now();
+            refreshPlayerIdentity();
 
             var guessInput = document.getElementById("guessInput");
             guessInput.value = "";
@@ -2228,21 +2313,14 @@
 
                 if (localBestScore === null || attempts < localBestScore) {
                     localBestScore = attempts;
-                    try { localStorage.setItem(LOCAL_BEST_KEY, String(localBestScore)); } catch (e) {}
+                    try { localStorage.setItem(playerPersonalBestKey(), String(localBestScore)); } catch (e) {}
                     document.getElementById("localBestSub").textContent = "Cá nhân: " + localBestScore + " lần";
                 }
 
                 currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
                 currentEntryVersion = 1;
-                var savedName = "";
-                try { savedName = localStorage.getItem(PLAYER_NAME_KEY) || ""; } catch (e) {}
-
-                // Nếu tên đã lưu trước đó bị trùng trên BXH hiện tại thì để trống ô nhập để người chơi nhập tên mới
-                if (savedName.trim() && isPlayerNameDuplicate(savedName.trim(), currentSessionEntryId)) {
-                    savedName = "";
-                }
-
-                showWinModal(savedName.trim());
+                showWinModal();
+                autoPublishWin();
                 return;
             } else if (guess < targetNumber) {
                 guesses.push({ value: guess, status: "low" });
@@ -2274,124 +2352,67 @@
             }
         }
 
-        function showWinModal(prefilledName) {
+        function showWinModal() {
             document.getElementById("winSecretNumber").textContent = targetNumber;
             document.getElementById("winAttemptsCount").textContent = attempts + " lần";
             document.getElementById("winSubtitleText").textContent = "Bạn đã giải mã thành công con số bí mật trong " + attempts + " lần thử!";
-
-            var expectedRank = 1;
-            for (var i = 0; i < leaderboardData.length; i++) {
-                if (leaderboardData[i].score <= attempts && leaderboardData[i].id !== currentSessionEntryId) {
-                    expectedRank++;
-                }
-            }
-            document.getElementById("winBestRecord").textContent = "#" + expectedRank;
-
-            var nameInput = document.getElementById("recordHolderInput");
-            var saveBtn = document.getElementById("saveRecordBtn");
-            var nameErrorEl = document.getElementById("recordNameError");
-            nameInput.value = prefilledName || "";
-            nameInput.classList.remove("input-error");
-            if (nameErrorEl) nameErrorEl.style.display = "none";
-            saveBtn.disabled = false;
-            saveBtn.textContent = "Ghi danh";
-
+            document.getElementById("winBestRecord").textContent = "Đang cập nhật";
+            document.getElementById("ntsAutoRecordStatus").textContent = "Đang cập nhật bảng xếp hạng...";
             document.getElementById("winModal").classList.add("active");
             launchConfetti();
-
-            var completionSound = document.getElementById("completionSound");
-            if (completionSound) {
-                completionSound.currentTime = 0;
-                completionSound.play().catch(function() {});
-            }
-
-            setTimeout(function() {
-                nameInput.focus();
-            }, 100);
+            var completionSound=document.getElementById("completionSound");
+            if(completionSound){completionSound.currentTime=0;completionSound.play().catch(function(){});}
         }
 
-        // BẤM GHI DANH: KIỂM TRA CHỐNG TRÙNG TÊN TRƯỚC KHI LƯU LÊN BẢNG XẾP HẠNG
-        function savePlayerName() {
-            var nameInput = document.getElementById("recordHolderInput");
-            var saveBtn = document.getElementById("saveRecordBtn");
-            var nameErrorEl = document.getElementById("recordNameError");
-            var rawName = (nameInput.value || "").replace(/\s+/g, " ").trim();
-
-            if (!rawName) {
-                nameInput.classList.add("input-error");
-                if (nameErrorEl) {
-                    nameErrorEl.textContent = "⚠️ Vui lòng nhập tên của bạn trước khi ghi danh!";
-                    nameErrorEl.style.display = "block";
-                }
-                showToast("Vui lòng nhập tên của bạn!", "warning");
-                nameInput.focus();
+        function autoPublishWin() {
+            var player=ntsLoggedInPlayer();
+            var status=document.getElementById('ntsAutoRecordStatus');
+            var card=document.getElementById('recordFormBox');
+            var loginLink=document.getElementById('ntsLoginFromGame');
+            if(!player){
+                card.classList.add('is-guest');
+                status.textContent='Bạn đã thắng! Hãy đăng nhập trên trang chủ NTS để lưu các ván tiếp theo.';
+                loginLink.hidden=false;
+                document.getElementById('winBestRecord').textContent='—';
                 return;
             }
-
-            if (!currentSessionEntryId) {
-                currentSessionEntryId = "entry_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
-            }
-
-            // Kiểm tra trùng tên với những người đã có trên Bảng Xếp Hạng
-            if (isPlayerNameDuplicate(rawName, currentSessionEntryId)) {
-                nameInput.classList.remove("input-error");
-                void nameInput.offsetWidth; // Kích hoạt lại hiệu ứng rung
-                nameInput.classList.add("input-error");
-                if (nameErrorEl) {
-                    nameErrorEl.textContent = "⚠️ Tên \"" + rawName + "\" đã tồn tại trên Bảng Xếp Hạng! Vui lòng đặt tên khác.";
-                    nameErrorEl.style.display = "block";
-                }
-                showToast("Tên \"" + escapeHtml(rawName) + "\" đã có người dùng! Hãy chọn tên khác.", "error");
-                nameInput.focus();
-                return;
-            }
-
-            nameInput.classList.remove("input-error");
-            if (nameErrorEl) nameErrorEl.style.display = "none";
-
-            try { localStorage.setItem(PLAYER_NAME_KEY, rawName); } catch (e) {}
-
-            currentEntryVersion = currentEntryVersion + 1;
-
+            card.classList.remove('is-guest');
+            loginLink.hidden=true;
+            currentEntryVersion+=1;
+            // Gửi điểm bằng họ tên đang dùng trong hồ sơ; mã tài khoản ngầm ngăn trùng tên.
             publishScoreEntryInstant({
-                id: currentSessionEntryId,
-                name: rawName,
-                score: attempts > 0 ? attempts : 1,
-                updatedAt: Math.max(Date.now(), lastClearedTimestamp + 1000),
-                version: currentEntryVersion
+                id:currentSessionEntryId,
+                username:player.username,
+                name:player.fullName,
+                score:attempts,
+                updatedAt:Math.max(Date.now(),lastClearedTimestamp+1000),
+                version:currentEntryVersion
             });
-
-            saveBtn.disabled = false;
-            saveBtn.textContent = "Đã lưu ✓";
-            showToast("Đã ghi danh " + escapeHtml(rawName) + " lên Bảng Xếp Hạng!", "success");
+            status.textContent='Đã lưu thành tích cho '+player.fullName+' ('+attempts+' lần thử). Bảng xếp hạng đang tự đồng bộ.';
+            showToast('Đã tự động ghi thành tích của '+player.fullName+'!', 'success');
+            // Mỗi ván thắng gửi một kết quả riêng về Lịch sử game NTS.
+            if(window.NTSGameTracker && typeof window.NTSGameTracker.report==='function'){
+                try{window.NTSGameTracker.report({
+                    status:'win',attempts:attempts,
+                    durationSeconds:Math.max(0,Math.round((Date.now()-roundStartedAt)/1000))
+                });}catch(e){}
+            }
         }
 
         function clearLeaderboard() {
-            document.getElementById("adminUsername").value = "";
-            document.getElementById("adminPassword").value = "";
-            document.getElementById("adminErrorMsg").style.display = "none";
-            document.getElementById("adminAuthModal").classList.add("active");
-            setTimeout(function() {
-                document.getElementById("adminUsername").focus();
-            }, 100);
-        }
-
-        function closeAdminModal() {
-            document.getElementById("adminAuthModal").classList.remove("active");
-        }
-
-        function confirmAdminClearLeaderboard() {
-            var username = document.getElementById("adminUsername").value.trim();
-            var password = document.getElementById("adminPassword").value;
-            var errorMsg = document.getElementById("adminErrorMsg");
-
-            if (username !== "admin" || password !== "admin123@admin") {
-                errorMsg.style.display = "block";
-                showToast("Sai tài khoản hoặc mật khẩu Admin!", "error");
+            // Không chỉ ẩn nút: kiểm tra lại tại thời điểm thao tác xóa.
+            if (!ntsCanClearLeaderboard()) {
+                refreshClearLeaderboardAccess();
+                showToast('Chỉ tài khoản Admin đang đăng nhập mới được xóa Bảng Xếp Hạng.', 'error');
                 return;
             }
-
-            closeAdminModal();
+            if (!window.confirm('Bạn có chắc muốn xóa toàn bộ Bảng Xếp Hạng Đoán Số?')) return;
+            // Kiểm tra lại ngay trước khi thay đổi dữ liệu.
+            if (!ntsCanClearLeaderboard()) {
+                refreshClearLeaderboardAccess();
+                showToast('Phiên Admin không còn hợp lệ. Vui lòng đăng nhập lại.', 'error');
+                return;
+            }
             lastClearedTimestamp = Date.now();
             lastResetId = String(lastClearedTimestamp) + "_" + Math.random().toString(36).substring(2, 6);
             pinnedLocalEntries = {};
@@ -2418,7 +2439,7 @@
             }
 
             pushCloudState([], lastClearedTimestamp, null, "CLEAR_ALL");
-            showToast("Admin đã xóa toàn bộ Bảng Xếp Hạng trên mọi trình duyệt!", "success");
+            showToast("Đã xóa Bảng Xếp Hạng và đang đồng bộ thay đổi.", "success");
         }
 
         function closeWinModal() {
@@ -2438,6 +2459,7 @@
 
         function showLeaderboard() {
             closeWinModal();
+            refreshClearLeaderboardAccess();
             renderLeaderboardUI();
             syncAllChannels(false, true);
             document.getElementById("leaderboardModal").classList.add("active");
@@ -2488,12 +2510,9 @@
         window.closeLeaderboard = closeLeaderboard;
         window.manualSyncLeaderboard = manualSyncLeaderboard;
         window.clearLeaderboard = clearLeaderboard;
-        window.closeAdminModal = closeAdminModal;
-        window.confirmAdminClearLeaderboard = confirmAdminClearLeaderboard;
         window.showInstructions = showInstructions;
         window.closeInstructions = closeInstructions;
         window.closeWinModal = closeWinModal;
-        window.savePlayerName = savePlayerName;
         window.goBack = goBack;
 
         function launchConfetti() {
@@ -2546,6 +2565,7 @@
         }
 
         // Khởi tạo ngay khi mở trang và tự động hiển thị Hướng dẫn chơi
+        refreshClearLeaderboardAccess();
         initGame();
         showInstructions();
         leaderboardData = normalizeAndSortRecords(loadLocalBackup());
@@ -2558,31 +2578,17 @@
             syncAllChannels(false, false);
         }, 4000);
 
-        window.addEventListener("focus", function() { syncAllChannels(false, false); });
+        window.addEventListener("focus", function() { syncAllChannels(false, false); refreshPlayerIdentity(); });
+        window.addEventListener('storage', function(e) {
+            if ([NTS_SESSION_KEY,NTS_USERS_KEY,NTS_ROLES_KEY,NTS_OWNER_KEY,NTS_DELETED_KEY].indexOf(e.key)!==-1)
+                refreshPlayerIdentity();
+        });
         document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === "visible") syncAllChannels(false, false);
+            if (document.visibilityState === "visible") {syncAllChannels(false, false);refreshPlayerIdentity();}
         });
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
             if (e.key === "Enter") checkGuess();
-        });
-
-        document.getElementById("recordHolderInput").addEventListener("input", function() {
-            this.classList.remove("input-error");
-            var errEl = document.getElementById("recordNameError");
-            if (errEl) errEl.style.display = "none";
-        });
-
-        document.getElementById("recordHolderInput").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") savePlayerName();
-        });
-
-        document.getElementById("adminUsername").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") document.getElementById("adminPassword").focus();
-        });
-
-        document.getElementById("adminPassword").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") confirmAdminClearLeaderboard();
         });
 
         // Lắng nghe sự kiện cuộn trên Bảng Xếp Hạng để hiện/ẩn nút mũi tên lên đầu
