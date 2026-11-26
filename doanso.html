@@ -831,21 +831,87 @@
             font-weight: 800;
         }
 
+        /* NTS / Thẻ tài khoản đang chơi — đồng bộ avatar, họ tên và quyền từ trang chủ. */
         .nts-player-chip {
-            margin: -4px 0 18px; padding: 10px 12px; border-radius: 13px;
-            display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px;
-            background: #eef2ff; border: 1px solid #c7d2fe;
-            color:#3730a3; font-size:.81rem; font-weight:700;
-            text-align:center;
+            position:relative; isolation:isolate; overflow:hidden;
+            display:flex; align-items:center; gap:12px;
+            width:100%; margin:-3px 0 20px; padding:12px 14px;
+            border:1px solid #dbe0fc; border-radius:19px;
+            background:linear-gradient(115deg,#fff 0%,#f5f4ff 57%,#eff8ff 100%);
+            box-shadow:0 9px 24px rgba(77,68,157,.075),inset 0 1px 0 rgba(255,255,255,.95);
+            color:#1e2745; text-align:left;
         }
-        .nts-player-chip.is-guest {background:#f8fafc;border-color:#e2e8f0;color:#64748b}
-        .nts-player-chip a {color:#4f46e5;text-decoration:underline;text-underline-offset:2px}
-        .nts-auto-record { background: #eefaf4; border-color:#a7f3d0; text-align:center; }
-        .nts-auto-record .record-form-title {color:#047857;font-size:.88rem}
-        .nts-auto-record-message {font-size:.86rem;font-weight:600;color:#065f46;line-height:1.6}
-        .nts-auto-record.is-guest {background:#f8fafc;border-color:#cbd5e1}
-        .nts-auto-record.is-guest .record-form-title {color:#475569}
-        .nts-auto-record.is-guest .nts-auto-record-message {color:#475569}
+        .nts-player-chip::before {
+            content:''; position:absolute; inset:0 0 auto; height:3px; z-index:0;
+            background:linear-gradient(90deg,#34d399 0%,#6366f1 43%,#a855f7 78%,#38bdf8 100%);
+            opacity:.9;
+        }
+        .nts-player-chip::after {
+            content:''; position:absolute; width:145px; height:145px; border-radius:50%;
+            right:-84px; top:-104px; pointer-events:none; z-index:0;
+            background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);
+        }
+        .nts-player-chip > * {position:relative;z-index:1}
+        .nts-player-avatar {
+            width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;
+            overflow:hidden;border-radius:17px;
+            background:linear-gradient(145deg,#e1eaff,#d5ddff);
+            border:2px solid #fff;
+            box-shadow:0 0 0 1px rgba(109,116,209,.17),0 5px 12px rgba(58,56,115,.16);
+            color:#4f46e5;
+        }
+        .nts-player-avatar img {display:block;width:100%;height:100%;object-fit:cover;border-radius:15px}
+        .nts-player-avatar svg {width:27px;height:27px}
+        .nts-player-info {flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+        .nts-player-presence {display:flex;align-items:center;gap:6px;font-size:.64rem;font-weight:800;
+            letter-spacing:.09em;text-transform:uppercase;color:#64748b;line-height:1.3}
+        .nts-player-presence-dot {width:7px;height:7px;flex:0 0 7px;border-radius:50%;
+            background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.13)}
+        .nts-player-name {max-width:100%;font-size:.98rem;font-weight:800;color:#151b38;
+            line-height:1.32;overflow-wrap:anywhere}
+        .nts-player-username {max-width:100%;font-size:.74rem;font-weight:600;color:#697699;
+            line-height:1.35;overflow-wrap:anywhere}
+        .nts-player-role {flex:0 0 auto;align-self:center;display:inline-flex;align-items:center;justify-content:center;
+            gap:5px;padding:7px 10px;border-radius:999px;
+            background:#e9eaff;border:1px solid #d5d8ff;color:#4f46e5;
+            font-size:.72rem;font-weight:800;white-space:nowrap}
+        .nts-player-role svg {width:13px;height:13px;flex:0 0 13px}
+        .nts-player-chip.is-admin .nts-player-role {
+            background:linear-gradient(120deg,#fffbeb,#fef3c7);border-color:#fbd98c;color:#a85a06;
+        }
+        .nts-player-chip.is-guest {background:linear-gradient(115deg,#fff,#f6f8ff);border-color:#e0e6f3}
+        .nts-player-chip.is-guest .nts-player-presence-dot {background:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.14)}
+        .nts-player-chip.is-guest .nts-player-role {display:none}
+        .nts-player-chip.is-guest .nts-player-avatar {background:#f1f5f9;color:#94a3b8;box-shadow:0 0 0 1px #e2e8f0}
+        .nts-player-chip a {display:inline-flex;align-items:center;gap:5px;margin-top:4px;
+            color:#4f46e5;text-decoration:none;font-size:.75rem;font-weight:800}
+        .nts-player-chip a:hover {color:#3730a3;text-decoration:underline;text-underline-offset:3px}
+        .nts-player-chip a:focus-visible {outline:2px solid #6366f1;outline-offset:3px;border-radius:3px}
+        @media(max-width:380px) {
+            .nts-player-chip {gap:10px;padding:11px 10px}
+            .nts-player-avatar {width:46px;height:46px;flex-basis:46px;border-radius:14px}
+            .nts-player-avatar img {border-radius:12px}
+            .nts-player-name {font-size:.86rem}
+            .nts-player-role {font-size:.65rem;padding:6px 7px}
+        }
+        @media(prefers-reduced-motion:reduce) {.nts-player-chip,.nts-player-chip * {animation:none!important}}
+        .nts-guest-win-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 11px 13px;
+            margin-bottom: 16px;
+            font-size: .82rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .nts-guest-win-login[hidden] { display: none !important; }
         .nts-login-redirect {display:inline-flex;margin-top:9px;padding:8px 13px;border-radius:9px;
             background:#4f46e5;color:#fff;text-decoration:none;font-size:.83rem;font-weight:700}
         .nts-login-redirect[hidden] {display:none}
@@ -1016,8 +1082,150 @@
             .buttons { grid-template-columns: 1fr; }
         }
         /* Hiển thị thông báo lưu tự động bằng xanh thành công, không phải vàng của biểu mẫu cũ. */
-        #recordFormBox.nts-auto-record { background:#ecfdf5; border-color:#a7f3d0; }
-        #recordFormBox.nts-auto-record.is-guest { background:#f8fafc; border-color:#cbd5e1; }
+
+
+        /* ===== NTS / BẢNG XẾP HẠNG CÓ AVATAR ===== */
+        #leaderboardModal { padding: clamp(10px, 2.5vw, 26px); }
+        #leaderboardModal .nts-lb-panel {
+            width: min(100%, 830px); max-width: 830px; padding: 0;
+            border-radius: 28px; overflow: hidden;
+            background: #fbfbff; border: 1px solid rgba(233, 230, 255, .9);
+            box-shadow: 0 28px 100px rgba(4, 8, 34, .52), 0 1px 1px rgba(255,255,255,.8) inset;
+            max-height: min(92dvh, 900px); display: flex; flex-direction: column;
+        }
+        .nts-lb-head {
+            flex: 0 0 auto; position: relative; isolation: isolate;
+            padding: 28px 28px 21px;
+            background: linear-gradient(120deg, #f4f0ff 0%, #f8f8ff 54%, #eef8ff 100%);
+            border-bottom: 1px solid #e8e7fa;
+        }
+        .nts-lb-head::before {
+            content: ''; position: absolute; width: 230px; height: 230px;
+            top: -145px; right: 38px; border-radius: 50%; z-index: -1;
+            background: radial-gradient(circle,rgba(141,106,255,.30),rgba(154,146,245,.06) 50%,transparent 72%);
+            pointer-events: none;
+        }
+        .nts-lb-titleline {display:flex; align-items:center; gap:14px; padding-right:42px;}
+        .nts-lb-trophy {
+            width:57px;height:57px; flex:0 0 57px;display:grid;place-items:center;
+            border-radius:18px; color:#ffedb0;
+            background:linear-gradient(145deg,#ffa52f,#ed7600);
+            box-shadow:0 10px 23px rgba(237,118,0,.22), inset 0 1px 0 rgba(255,255,255,.5);
+        }
+        .nts-lb-trophy svg {width:31px;height:31px;}
+        .nts-lb-heading {min-width:0;}
+        .nts-lb-eyebrow {display:block; color:#716bc0; font-size:.65rem; font-weight:800; letter-spacing:.135em; text-transform:uppercase; margin-bottom:2px;}
+        .nts-lb-heading h2 {color:#25205b; margin:0; font-size:clamp(1.35rem,2.6vw,1.85rem);line-height:1.18;font-weight:800;letter-spacing:-.035em;}
+        .nts-lb-heading p {color:#737b9a; margin:6px 0 0; font-size:.78rem; line-height:1.55; font-weight:600;}
+        .nts-lb-title-count {display:inline-flex;vertical-align:middle;margin-left:7px;padding:5px 8px;
+            color:#6354d8;background:#e9e5ff;border:1px solid #d8d0fc;
+            border-radius:99px;font-size:.57em;line-height:1.1;font-weight:800;letter-spacing:0;}
+        #leaderboardModal .nts-lb-close {
+            position:absolute;right:20px;top:20px;width:39px;height:39px;z-index:20;
+            border-radius:13px;background:#fff;color:#5f6389;
+            border:1px solid #deddf0;box-shadow:0 4px 12px rgba(41,29,102,.06);
+        }
+        #leaderboardModal .nts-lb-close:hover {background:#eeeaff;color:#5b3fc6;}
+        .nts-lb-toolbar {display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:22px;}
+        .nts-lb-toolbar .mini-lb-more,
+        .nts-lb-toolbar .mini-lb-clear {
+            display:inline-flex;align-items:center;justify-content:center;gap:8px;
+            padding:10px 16px;min-height:41px;border-radius:12px;
+            font-size:.78rem;font-weight:800;letter-spacing:0;transition:transform .16s,background .16s;
+        }
+        .nts-lb-toolbar .mini-lb-more {background:linear-gradient(110deg,#6154e9,#8d53e9);color:#fff;border:1px solid rgba(113,72,220,.2);box-shadow:0 7px 18px rgba(97,84,233,.20);}
+        .nts-lb-toolbar .mini-lb-more:hover {background:linear-gradient(110deg,#5341d9,#8044d7);transform:translateY(-1px);}
+        .nts-lb-toolbar .mini-lb-clear {background:#fff1f3;color:#c2354b;border:1px solid #ffced7;box-shadow:none;}
+        .nts-lb-toolbar .mini-lb-clear:hover {background:#ffe5ea;transform:translateY(-1px);}
+        .nts-lb-toolbar .mini-lb-clear[hidden] {display:none!important;}
+        .nts-lb-toolbar svg {width:16px;height:16px;flex:0 0 16px;}
+        .nts-lb-body {padding:20px 22px 22px; min-height:0; overflow:hidden;display:flex;flex-direction:column;}
+        .nts-lb-table-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 3px 12px;
+            color:#64708f;font-size:.7rem;letter-spacing:.09em;font-weight:800;text-transform:uppercase;}
+        .nts-lb-table-heading #ntsLbCount {color:#6963ac;letter-spacing:0;text-transform:none;white-space:nowrap;}
+        #leaderboardModal .leaderboard-scroll-wrapper {min-height:0;}
+        #leaderboardModal .leaderboard-scroll-area {max-height:min(58vh,590px);overflow-y:auto;overscroll-behavior:contain;padding:2px 5px 5px 1px;}
+        #leaderboardModal .leaderboard-list {gap:10px;}
+        #leaderboardModal .lb-row {
+            display:grid;grid-template-columns:minmax(0,1fr) auto;gap:13px;
+            align-items:center;min-height:91px;padding:12px 14px;border-radius:17px;
+            background:#fff;border:1px solid #e4e5f2;box-shadow:0 5px 15px rgba(47,38,116,.05);
+            transition:border-color .16s,transform .16s,box-shadow .16s;
+        }
+        #leaderboardModal .lb-row:hover {transform:translateY(-1px);border-color:#ccc6f7;box-shadow:0 7px 22px rgba(47,38,116,.11);}
+        #leaderboardModal .lb-row.rank-1 {background:linear-gradient(100deg,#fff9e5,#fff0c8);border-color:#ffd46f;box-shadow:0 5px 16px rgba(225,168,32,.12);}
+        #leaderboardModal .lb-row.rank-2 {background:linear-gradient(100deg,#f7f9ff,#ebefff);border-color:#d6ddf8;}
+        #leaderboardModal .lb-row.rank-3 {background:linear-gradient(100deg,#fff9f4,#ffede7);border-color:#f3cfc1;}
+        #leaderboardModal .lb-row.is-mine {outline:2px solid rgba(110,87,232,.22);outline-offset:-2px;}
+        #leaderboardModal .lb-left {gap:12px;min-width:0;}
+        #leaderboardModal .lb-rank {width:40px;min-width:40px;height:40px;border-radius:13px;font-size:.85rem;
+            background:#eeebff;color:#6359a7;box-shadow:inset 0 1px 0 rgba(255,255,255,.65);}
+        #leaderboardModal .rank-1 .lb-rank {background:linear-gradient(135deg,#ffa91e,#e47a03);color:#fff;box-shadow:0 4px 12px rgba(228,122,3,.25);}
+        #leaderboardModal .rank-2 .lb-rank {background:linear-gradient(140deg,#94a5c7,#5d759e);color:#fff;}
+        #leaderboardModal .rank-3 .lb-rank {background:linear-gradient(140deg,#edab89,#bd785e);color:#fff;}
+        #leaderboardModal .lb-avatar {width:56px;height:56px;flex:0 0 56px;overflow:hidden;display:grid;place-items:center;
+            background:#e7e9ff;border-radius:50%;border:3px solid white;box-shadow:0 0 0 1px #d6d6ed,0 4px 10px rgba(29,30,75,.1);}
+        #leaderboardModal .rank-1 .lb-avatar {box-shadow:0 0 0 2px #f4c456,0 5px 13px rgba(217,146,7,.18);}
+        #leaderboardModal .rank-2 .lb-avatar {box-shadow:0 0 0 2px #c1cce2,0 5px 13px rgba(77,92,148,.11);}
+        #leaderboardModal .rank-3 .lb-avatar {box-shadow:0 0 0 2px #e7b29f,0 5px 13px rgba(166,93,64,.1);}
+        #leaderboardModal .lb-avatar img {display:block;width:100%;height:100%;object-fit:cover;border-radius:50%;}
+        #leaderboardModal .lb-identity {min-width:0;flex:1;}
+        #leaderboardModal .lb-name-wrap {gap:7px;min-width:0;}
+        #leaderboardModal .lb-name {font-size:.88rem;color:#1f2542;font-weight:800;}
+        #leaderboardModal .lb-status-tag {font-size:.62rem;letter-spacing:0;background:#eeebff;color:#6753c8;border-radius:999px;padding:3px 7px;}
+        #leaderboardModal .rank-1 .lb-status-tag {background:#ffe4a1;color:#8b4706;}
+        #leaderboardModal .rank-2 .lb-status-tag {background:#e1e8ff;color:#4a619a;}
+        #leaderboardModal .rank-3 .lb-status-tag {background:#ffe2d2;color:#9a4a25;}
+        #leaderboardModal .lb-handle {display:block;font-size:.73rem;line-height:1.45;color:#7b83a0;font-weight:600;margin:2px 0;overflow-wrap:anywhere;}
+        #leaderboardModal .lb-time {display:block;font-size:.68rem;line-height:1.5;color:#8290a8;font-weight:600;margin:3px 0 0;}
+        #leaderboardModal .lb-time .lb-rel {color:#6a7197;}
+        #leaderboardModal .lb-score {display:flex;align-items:center;gap:6px;padding:9px 13px;
+            font-size:.79rem;line-height:1.2;font-weight:800;border-radius:999px;border:1px solid #ddd6ff;
+            color:#5542b8;background:#f0ecff;box-shadow:0 3px 9px rgba(66,50,160,.06);white-space:nowrap;}
+        #leaderboardModal .lb-score svg {width:16px;height:16px;flex:0 0 16px;}
+        #leaderboardModal .rank-1 .lb-score {background:#ffdf8b;color:#935006;border-color:#f4c364;}
+        #leaderboardModal .rank-2 .lb-score {background:#e7ecff;color:#4d559b;border-color:#c7d1fb;}
+        #leaderboardModal .rank-3 .lb-score {background:#ffeadc;color:#aa5b38;border-color:#f7ccb9;}
+        #leaderboardModal .lb-empty {padding:45px 12px;color:#78829d;}
+        @media(max-width:600px) {
+            #leaderboardModal {padding:8px;}
+            #leaderboardModal .nts-lb-panel {max-height:calc(100dvh - 16px);border-radius:20px;}
+            .nts-lb-head {padding:20px 17px 16px;}
+            .nts-lb-trophy {height:45px;width:45px;flex-basis:45px;border-radius:14px;}
+            .nts-lb-trophy svg {height:25px;width:25px;}
+            .nts-lb-titleline {gap:10px;padding-right:31px;}
+            .nts-lb-heading h2 {font-size:clamp(1.12rem,4.9vw,1.5rem);}
+            .nts-lb-heading p {font-size:.69rem;}
+            .nts-lb-eyebrow {font-size:.56rem;}
+            #leaderboardModal .nts-lb-close {top:13px;right:13px;width:33px;height:33px;border-radius:10px;}
+            .nts-lb-toolbar {margin-top:15px;gap:8px;}
+            .nts-lb-toolbar .mini-lb-more,.nts-lb-toolbar .mini-lb-clear {min-height:37px;padding:8px 13px;}
+            .nts-lb-body {padding:14px 10px 12px;}
+            #leaderboardModal .leaderboard-scroll-area {max-height:calc(100dvh - 215px);padding-right:4px;}
+            #leaderboardModal .lb-row {min-height:80px;padding:10px 9px;gap:7px;border-radius:13px;}
+            #leaderboardModal .lb-left {gap:7px;}
+            #leaderboardModal .lb-rank {width:30px;min-width:30px;height:34px;font-size:.68rem;border-radius:10px;}
+            #leaderboardModal .lb-avatar {width:43px;height:43px;flex-basis:43px;border-width:2px;}
+            #leaderboardModal .lb-name {font-size:.77rem;}
+            #leaderboardModal .lb-name-wrap {gap:3px;}
+            #leaderboardModal .lb-status-tag {font-size:.57rem;padding:2px 6px;}
+            #leaderboardModal .lb-handle {font-size:.65rem;}
+            #leaderboardModal .lb-time {font-size:.58rem;}
+            #leaderboardModal .lb-time .lb-rel {display:none;}
+            #leaderboardModal .lb-score {padding:7px 9px;font-size:.68rem;gap:4px;}
+            #leaderboardModal .lb-score svg {width:13px;height:13px;flex-basis:13px;}
+        }
+        @media(max-width:360px) {
+            #leaderboardModal .lb-avatar {width:37px;height:37px;flex-basis:37px;}
+            #leaderboardModal .lb-rank {width:27px;min-width:27px;}
+            #leaderboardModal .lb-status-tag {display:none;}
+            #leaderboardModal .lb-score {padding:6px 7px;font-size:.63rem;}
+            #leaderboardModal .lb-time {font-size:.53rem;}
+        }
+        @media(prefers-reduced-motion:reduce) {
+            #leaderboardModal .lb-row, #leaderboardModal .nts-lb-panel {animation:none!important;transition:none!important;}
+        }
+
     </style>
 </head>
 <body>
@@ -1055,7 +1263,7 @@
         </div>
 
         <p class="subtitle">Tìm con số bí mật ẩn giấu từ <span>1</span> đến <span>200</span></p>
-        <div id="ntsPlayerChip" class="nts-player-chip" aria-live="polite">Đang kiểm tra tài khoản NTS...</div>
+        <div id="ntsPlayerChip" class="nts-player-chip" aria-live="polite">Đang tải thông tin người chơi...</div>
 
         <!-- Stats Cards -->
         <div class="game-info">
@@ -1176,10 +1384,9 @@
                 </div>
             </div>
 
-            <div class="record-form nts-auto-record" id="recordFormBox" role="status" aria-live="polite">
-                <div class="record-form-title">🏅 Tự động ghi thành tích</div>
-                <p class="nts-auto-record-message" id="ntsAutoRecordStatus">Đang cập nhật bảng xếp hạng...</p>
-                <a class="nts-login-redirect" href="index.html" id="ntsLoginFromGame" hidden>Đăng nhập ở trang chủ NTS</a>
+            <div class="nts-guest-win-login" id="ntsGuestSaveNotice" hidden>
+                <span>Đăng nhập tài khoản NTS để lưu thành tích.</span>
+                <a class="nts-login-redirect" href="index.html">Đăng nhập</a>
             </div>
 
             <div class="win-actions">
@@ -1189,30 +1396,48 @@
         </div>
     </div>
 
-    <!-- Modal Bảng Xếp Hạng Top 100 -->
-    <div id="leaderboardModal" class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content">
-            <button type="button" class="close-btn" onclick="closeLeaderboard()" aria-label="Đóng">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bảng xếp hạng có ảnh đại diện đồng bộ với hồ sơ NTS. -->
+    <div id="leaderboardModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="ntsLbTitle">
+        <div class="modal-content nts-lb-panel">
+            <button type="button" class="close-btn nts-lb-close" onclick="closeLeaderboard()" title="Đóng bảng xếp hạng" aria-label="Đóng">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; padding-right: 36px; flex-wrap:wrap; gap:8px;">
-                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">🏆 Bảng Xếp Hạng Top 100</h2>
-                <div style="display:flex; gap:6px;">
-                    <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()">↻ Làm mới</button>
-                    <button type="button" class="mini-lb-clear" id="ntsClearLeaderboardBtn" onclick="clearLeaderboard()" hidden title="Chỉ tài khoản Admin mới có thể xóa bảng xếp hạng">Xóa BXH</button>
+            <div class="nts-lb-head">
+                <div class="nts-lb-titleline">
+                    <span class="nts-lb-trophy" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 21h8M12 17v4M7 4h10v7a5 5 0 0 1-10 0V4Z"/><path d="M7 7H4a2 2 0 0 0 0 4h3M17 7h3a2 2 0 0 1 0 4h-3"/><path d="m12 6 1 2.2 2.4.3-1.8 1.6.5 2.3-2.1-1.1-2.1 1.1.4-2.3-1.7-1.6 2.4-.3z"/>
+                        </svg>
+                    </span>
+                    <div class="nts-lb-heading">
+                        <span class="nts-lb-eyebrow">Đoán Số · Thành tích người chơi</span>
+                        <h2 id="ntsLbTitle">Bảng xếp hạng <span class="nts-lb-title-count">TOP 100</span></h2>
+                        <p>Avatar và thành tích gắn với tài khoản NTS</p>
+                    </div>
+                </div>
+                <div class="nts-lb-toolbar">
+                    <button type="button" class="mini-lb-more" onclick="manualSyncLeaderboard()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 12.8-2L20 12M4 12l1.6 3a7 7 0 0 0 12.8 0"/></svg>
+                        Làm mới
+                    </button>
+                    <button type="button" class="mini-lb-clear" id="ntsClearLeaderboardBtn" onclick="clearLeaderboard()" hidden title="Chỉ Admin có quyền xóa bảng xếp hạng">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m5 4v6m4-6v6"/></svg>
+                        Xóa BXH
+                    </button>
                 </div>
             </div>
-            <div class="leaderboard-scroll-wrapper">
-                <div class="leaderboard-list leaderboard-scroll-area" id="fullLeaderboardList">
-                    <div class="lb-empty">Chưa có kỷ lục nào.</div>
+            <div class="nts-lb-body">
+                <div class="nts-lb-table-heading"><span>Thứ hạng người chơi</span><span id="ntsLbCount">0 người chơi</span></div>
+                <div class="leaderboard-scroll-wrapper">
+                    <div class="leaderboard-list leaderboard-scroll-area" id="fullLeaderboardList">
+                        <div class="lb-empty">Chưa có kỷ lục nào.</div>
+                    </div>
+                    <button type="button" id="lbScrollTopBtn" class="lb-scroll-top-btn" onclick="scrollLeaderboardToTop()" title="Lên đầu Bảng Xếp Hạng" aria-label="Lên đầu Bảng Xếp Hạng">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                    </button>
                 </div>
-                <button type="button" id="lbScrollTopBtn" class="lb-scroll-top-btn" onclick="scrollLeaderboardToTop()" title="Lên đầu Bảng Xếp Hạng" aria-label="Lên đầu Bảng Xếp Hạng">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m18 15-6-6-6 6"/>
-                    </svg>
-                </button>
             </div>
         </div>
     </div>
@@ -1241,6 +1466,120 @@
     <audio id="completionSound" src="hoanthanh.mp3" preload="auto"></audio>
 
     <!-- Ghi kết quả thực tế về Lịch sử game NTS (sử dụng cùng tên miền với trang chủ). -->
+    <!-- Cùng kho avatar SVG 1 triệu chân dung với trang chủ NTS. -->
+    <!-- KHO 1 TRIỆU AVATAR SVG: CHỈ VẼ NHỮNG ẢNH ĐANG XEM -->
+    <script>
+    (() => {
+      'use strict';
+      const COUNT = 1000000, cache = new Map(), CACHE_LIMIT = 320;
+      const normalizeId = value => {
+        const id = Number(value);
+        return Number.isInteger(id) && id >= 0 && id < COUNT ? id : 0;
+      };
+      function playerFor(id) {
+        id = normalizeId(id);
+        if (cache.has(id)) { const found = cache.get(id); cache.delete(id); cache.set(id, found); return found; }
+        const item = { id, avatarURL: null };
+        cache.set(id, item);
+        if (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value);
+        return item;
+      }
+      function randomId() {
+        if (window.crypto && window.crypto.getRandomValues) {
+          const values = new Uint32Array(1);
+          window.crypto.getRandomValues(values);
+          return values[0] % COUNT;
+        }
+        return Math.floor(Math.random() * COUNT);
+      }
+      function defaultId(username) {
+        let hash = 5381;
+        for (const character of String(username || 'NTS')) hash = ((hash * 33) ^ character.charCodeAt(0)) >>> 0;
+        return hash % COUNT;
+      }
+      function applyAvatar(node, id) {
+        if (!node) return;
+        const img = document.createElement('img');
+        img.src = makeAvatarURL(playerFor(id));
+        img.alt = '';
+        img.decoding = 'async';
+        img.className = 'nts-avatar-img';
+        node.replaceChildren(img);
+      }
+function makeAvatarURL(player){
+  if(player.avatarURL) return player.avatarURL;
+  const n = player.id;
+  const backgrounds = ['#23596A','#6E4477','#315F54','#826043','#3A547D','#7A4B56','#477B75','#655A82','#8B556B','#536838'];
+  const skinTones = ['#F4CEAB','#E2B58F','#DFA17B','#B97B5D','#9D644D','#F0C09B','#BB8063','#E7AE86'];
+  const hairColors = ['#201A1A','#382420','#674126','#161F2A','#4C352E','#826044','#251F2E'];
+  const shirts = ['#D3B477','#509D8E','#A96E85','#85A3C3','#CE8A64','#7777B0','#B4A073','#5781A0'];
+  const back = backgrounds[(n * 7) % backgrounds.length];
+  const skin = skinTones[(n * 3 + Math.floor(n / 7)) % skinTones.length];
+  const hair = hairColors[(n * 5 + Math.floor(n / 5)) % hairColors.length];
+  const shirt = shirts[(n * 11 + Math.floor(n / 3)) % shirts.length];
+  const hairMode = n % 8;
+  const accessoryMode = Math.floor(n / 8) % 6;
+  const bgShapes = n % 3 === 0
+    ? '<circle cx="55" cy="14" r="25" fill="#FFFFFF" opacity=".11"/><circle cx="8" cy="63" r="27" fill="#000000" opacity=".08"/>'
+    : n % 3 === 1
+      ? '<path d="M-2 52L55-5M9 70L69 8" stroke="#FFFFFF" opacity=".10" stroke-width="11"/>'
+      : '<circle cx="3" cy="6" r="23" fill="#FFFFFF" opacity=".1"/><path d="M0 52Q34 11 70 48" fill="none" stroke="#FFFFFF" stroke-width="8" opacity=".09"/>';
+
+  const hairStyles = [
+    `<path d="M14 32Q11 9 29 11Q49 4 52 31L48 22Q42 13 35 18Q22 14 17 30Z" fill="${hair}"/>`,
+    `<path d="M14 33Q8 7 32 8Q55 8 51 34L45 28Q46 14 34 19Q20 14 18 32Z" fill="${hair}"/><path d="M14 20Q6 37 13 51L19 49Q14 27 22 19Z" fill="${hair}"/>`,
+    `<path d="M14 28Q14 9 31 10Q51 6 50 31L46 24Q40 22 33 17Q23 26 17 28Z" fill="${hair}"/>`,
+    `<path d="M13 33Q10 8 30 8Q54 8 52 33L47 31L45 22Q36 10 22 24L18 34Z" fill="${hair}"/><path d="M47 29Q57 46 50 55L46 51Z" fill="${hair}"/>`,
+    `<path d="M15 33Q12 16 22 15Q27 5 35 11Q52 10 50 30L46 24Q41 28 33 21Q25 29 17 28Z" fill="${hair}"/>`,
+    `<path d="M15 29Q14 12 32 12Q50 12 49 30Q36 19 16 28Z" fill="${hair}"/><path d="M20 17Q33 10 46 20" fill="none" stroke="#FFFFFF" stroke-opacity=".13" stroke-width="2"/>`,
+    `<path d="M14 31Q8 7 31 7Q56 7 50 32L46 30L43 21L31 18L20 25L17 34Z" fill="${hair}"/><circle cx="16" cy="22" r="5" fill="${hair}"/><circle cx="44" cy="13" r="6" fill="${hair}"/>`,
+    `<path d="M14 30Q9 11 32 11Q51 11 51 30L47 28L44 20Q34 15 17 29Z" fill="${hair}"/><path d="M12 30Q10 39 16 46L19 35Z" fill="${hair}"/>`
+  ];
+  let extra = '';
+  if(accessoryMode === 1){
+    extra = '<g fill="none" stroke="#393F46" stroke-width="1.8"><circle cx="24.4" cy="32" r="5.2"/><circle cx="39.6" cy="32" r="5.2"/><path d="M30 31h4M19 31l-3-2M45 31l3-2"/></g>';
+  }else if(accessoryMode === 2){
+    extra = '<circle cx="18" cy="39" r="1.8" fill="#F7DE7D"/><circle cx="46" cy="39" r="1.8" fill="#F7DE7D"/>';
+  }else if(accessoryMode === 3){
+    extra = '<path d="M14 23Q30 8 50 25" fill="none" stroke="#D8CCB4" stroke-width="3" stroke-linecap="round"/>';
+  }else if(accessoryMode === 4){
+    extra = '<path d="M22 50L32 59 42 50" fill="none" stroke="#F8E3AB" stroke-width="2" opacity=".8"/>';
+  }else if(accessoryMode === 5){
+    extra = '<path d="M12 27Q9 39 14 44M52 27Q55 39 50 44" fill="none" stroke="#DAD8C8" stroke-width="3" stroke-linecap="round"/>';
+  }
+  const brows = (n % 4 === 0)
+    ? '<path d="M20 28l8-1M36 27l8 1" stroke="#42342C" stroke-width="1.7" stroke-linecap="round"/>'
+    : '<path d="M20 28q4-2 8 0M36 28q4-2 8 0" stroke="#42342C" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
+  const eyes = (n % 5 === 0)
+    ? '<path d="M21 33q3 2 6 0M37 33q3 2 6 0" stroke="#332621" stroke-width="1.8" stroke-linecap="round" fill="none"/>'
+    : '<ellipse cx="24.5" cy="33" rx="1.6" ry="2" fill="#342521"/><ellipse cx="39.5" cy="33" rx="1.6" ry="2" fill="#342521"/>';
+  const mouth = (n % 3 === 0)
+    ? '<path d="M28 42q4 3 8 0" stroke="#9B534D" stroke-width="1.5" fill="none" stroke-linecap="round"/>'
+    : '<path d="M28 42q4 5 8 0" stroke="#98564C" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="${back}"/>${bgShapes}
+  <ellipse cx="32" cy="70" rx="31" ry="23" fill="${shirt}"/>
+  <path d="M25 51L32 59L39 51" fill="#F5E3C5" opacity=".8"/>
+  <rect x="27" y="43" width="10" height="13" rx="4" fill="${skin}"/>
+  <ellipse cx="16.5" cy="34" rx="3.5" ry="5" fill="${skin}"/>
+  <ellipse cx="47.5" cy="34" rx="3.5" ry="5" fill="${skin}"/>
+  <ellipse cx="32" cy="32" rx="16" ry="20" fill="${skin}"/>
+  ${hairStyles[hairMode]}${brows}${eyes}
+  <path d="M32 34l-1 4q1 1 3 0" stroke="#9C6D59" stroke-width="1" opacity=".65" fill="none"/>
+  ${mouth}${extra}
+  <rect x="15" y="54" width="48" height="9" rx="3" fill="#07120f" opacity=".74"/>
+  <text x="39" y="61" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="bold" fill="#f7e2a4">#${String(n+1).padStart(7,'0')}</text>
+  <rect x=".8" y=".8" width="62.4" height="62.4" rx="12" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1.6"/>
+</svg>`;
+  player.avatarURL = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  return player.avatarURL;
+}
+      window.NTSAvatars = Object.freeze({ count: COUNT, normalizeId,
+        randomId, defaultId, getURL: id => makeAvatarURL(playerFor(id)), applyAvatar });
+    })();
+    </script>
+
+
     <script src="nts-game-result.js"></script>
     <script>
         var MAX_NUMBER = 200;
@@ -1262,11 +1601,25 @@
         var NTS_DELETED_KEY = 'nts_admin_local_deleted_v1';
         var NTS_ROLES_KEY = 'nts_account_roles_v1';
         var NTS_OWNER_KEY = 'nts_admin_local_owner_v1';
+        // Đọc avatar mới từ CÙNG KHO HỒ SƠ với trang chủ NTS (v22).
+        // Avatar trong BXH là ảnh chụp ở thời điểm đạt điểm; hồ sơ NTS có quyền ưu tiên.
+        var NTS_CLOUD_PROFILE_PTR_KEY = 'nts_profiles_ptr_v22';
+        var NTS_CLOUD_PROFILE_TOPIC = 'nts_doanso_global_leaderboard_sync_2026_v22';
+        var NTS_CLOUD_PROFILE_SSE_URL = 'https://ntfy.sh/' + NTS_CLOUD_PROFILE_TOPIC + '/sse';
+        var ntsProfilePullPromise = null;
+        var ntsProfileLastPullAt = 0;
+        var ntsProfileNoticeStream = null;
+        var ntsProfileNoticeRetry = null;
         function ntsReadJSON(storage,key) {
             try {return JSON.parse(storage.getItem(key)||'null');} catch(e){return null;}
         }
         function ntsAccountName(input) {
             return String(input||'').replace(/\s+/g,' ').trim().slice(0,80);
+        }
+        function ntsValidAvatarId(input) {
+            if (input === undefined || input === null || input === '') return null;
+            var n = Number(input);
+            return Number.isInteger(n) && n >= 0 && n < window.NTSAvatars.count ? n : null;
         }
         // Cùng khóa phiên với index.html, có cả chế độ ghi nhớ và chỉ dùng tab hiện tại.
         function ntsLoggedInPlayer() {
@@ -1285,7 +1638,95 @@
             var registryNewer=fromRegistry && (!fromProfile ||
                 Number(account.profileUpdatedAt||0)>Number(profile.updatedAt||0));
             var fullName=registryNewer?fromRegistry:(fromProfile||fromRegistry||ntsAccountName(sess.fullName)||username);
-            return {username:username,fullName:fullName||username};
+            var profileAvatar=ntsValidAvatarId(profile.avatarId);
+            var accountAvatar=ntsValidAvatarId(account.avatarId);
+            var profileAt=Number(profile.avatarUpdatedAt)||0;
+            var accountAt=Number(account.avatarUpdatedAt)||0;
+            var useProfile=profileAvatar!==null && (accountAvatar===null || profileAt>=accountAt);
+            var savedAvatar=useProfile ? profileAvatar : accountAvatar;
+            if(savedAvatar===null) savedAvatar=window.NTSAvatars.defaultId(username);
+            var avatarUpdatedAt=useProfile ? profileAt : accountAt;
+            return {username:username,fullName:fullName||username,avatarId:savedAvatar,avatarUpdatedAt:avatarUpdatedAt};
+        }
+        // Các trình duyệt đều lấy mã avatar từ kho hồ sơ NTS dùng chung.
+        // Chỉ nhận metadata công khai: không đụng mật khẩu, phiên hay phân quyền.
+        function ntsMergeSharedProfileAvatars(remoteProfiles) {
+            if (!remoteProfiles || typeof remoteProfiles !== 'object' || Array.isArray(remoteProfiles)) return 0;
+            var profiles=ntsReadJSON(localStorage,NTS_PROFILES_KEY)||{};
+            var changed=0;
+            var now=Date.now();
+            Object.keys(remoteProfiles).forEach(function(rawKey){
+                var incoming=remoteProfiles[rawKey];
+                if(!incoming || typeof incoming!=='object' || Array.isArray(incoming))return;
+                var key=String(rawKey||'').trim().toLowerCase();
+                if(!key || key.length>40 || ['__proto__','constructor','prototype'].indexOf(key)!==-1 ||
+                   String(incoming.username||rawKey).trim().toLowerCase()!==key)return;
+                var avatarId=ntsValidAvatarId(incoming.avatarId);
+                var at=Number(incoming.avatarUpdatedAt);
+                if(avatarId===null || !Number.isFinite(at) || at<=0 || at>now+60000)return;
+                var old=profiles[key]||{};
+                var oldAvatar=ntsValidAvatarId(old.avatarId);
+                var oldAt=Number(old.avatarUpdatedAt)||0;
+                if(oldAvatar===null || at>oldAt){
+                    profiles[key]=Object.assign({},old,{avatarId:avatarId,avatarUpdatedAt:at});
+                    changed++;
+                }
+            });
+            if(changed){
+                try{localStorage.setItem(NTS_PROFILES_KEY,JSON.stringify(profiles));}catch(e){}
+                refreshPlayerIdentity();
+                renderLeaderboardUI();
+            }
+            return changed;
+        }
+        // Kho hồ sơ riêng của index.html là nguồn dữ liệu lâu dài cho browser mở sau.
+        async function ntsRefreshSharedProfileAvatars(force) {
+            if(ntsProfilePullPromise)return ntsProfilePullPromise;
+            if(!force && Date.now()-ntsProfileLastPullAt<30000)return 0;
+            ntsProfileLastPullAt=Date.now();
+            ntsProfilePullPromise=(async function(){
+                try{
+                    var res=await fetchWithTimeout(
+                        'https://keyvalue.immanuel.co/api/KeyVal/GetValue/453b380w/'+NTS_CLOUD_PROFILE_PTR_KEY,
+                        {cache:'no-store'},3500);
+                    if(!res.ok)return 0;
+                    var ptr=(await res.text()).trim().replace(/^"|"$/g,'');
+                    if(!/^[a-zA-Z0-9_-]{9,100}$/.test(ptr))return 0;
+                    var blob=await fetchWithTimeout('https://jsonblob.com/api/jsonBlob/'+ptr,
+                        {cache:'no-store',headers:{Accept:'application/json'}},4200);
+                    if(!blob.ok)return 0;
+                    var data=await blob.json();
+                    return ntsMergeSharedProfileAvatars(data&&data.profiles);
+                }catch(e){return 0;}
+            })().finally(function(){ntsProfilePullPromise=null;});
+            return ntsProfilePullPromise;
+        }
+        // NTS thông báo đổi avatar qua topic v22. Nhận và cập nhật BXH ngay, không
+        // cần người chơi ghi thêm kỷ lục hay tải lại trang.
+        function ntsListenForAvatarChanges(){
+            if(!('EventSource' in window) || ntsProfileNoticeStream)return;
+            try{
+                ntsProfileNoticeStream=new EventSource(NTS_CLOUD_PROFILE_SSE_URL);
+                ntsProfileNoticeStream.onmessage=function(ev){
+                    try{
+                        var packet=JSON.parse(ev.data);
+                        if(packet&&packet.event==='message'&&packet.message){
+                            var eventData=JSON.parse(packet.message);
+                            if(eventData&&eventData.a==='PROFILE_AVATAR_UPDATE')
+                                ntsMergeSharedProfileAvatars(eventData.profiles);
+                        }
+                    }catch(e){}
+                };
+                ntsProfileNoticeStream.onerror=function(){
+                    try{ntsProfileNoticeStream.close();}catch(e){}
+                    ntsProfileNoticeStream=null;
+                    if(ntsProfileNoticeRetry)clearTimeout(ntsProfileNoticeRetry);
+                    ntsProfileNoticeRetry=setTimeout(function(){
+                        ntsProfileNoticeRetry=null;
+                        if(document.visibilityState==='visible')ntsListenForAvatarChanges();
+                    },9000);
+                };
+            }catch(e){ntsProfileNoticeStream=null;}
         }
         // Kiểm tra phiên đăng nhập & quyền quản trị đúng theo cơ chế NTS ở index.html.
         // Chỉ tài khoản có bản ghi hợp lệ, cùng mã băm phiên và quyền admin mới thấy nút Xóa BXH.
@@ -1321,9 +1762,39 @@
             var badge=document.getElementById('ntsPlayerChip');
             var player=ntsLoggedInPlayer();
             if(badge){
-                badge.classList.toggle('is-guest',!player);
-                if(player){badge.textContent='👤 Đang chơi: '+player.fullName+' (@'+player.username+')';}
-                else {badge.innerHTML='👤 Khách · <a href="index.html">Đăng nhập NTS để lưu thành tích</a>';}
+                var isAdmin=!!(player&&ntsCanClearLeaderboard());
+                var identity=player?[player.username,player.fullName,player.avatarId,isAdmin].join('|'):'guest';
+                if(badge.dataset.identity!==identity){
+                    badge.dataset.identity=identity;
+                    badge.classList.toggle('is-guest',!player);
+                    badge.classList.toggle('is-admin',isAdmin);
+                    badge.innerHTML='<span class="nts-player-avatar" aria-hidden="true" id="ntsGameAvatar"></span>'+
+                        '<span class="nts-player-info">'+
+                          '<span class="nts-player-presence"><span class="nts-player-presence-dot"></span><span id="ntsGamePresence"></span></span>'+
+                          '<strong class="nts-player-name" id="ntsGamePlayerName"></strong>'+
+                          '<span class="nts-player-username" id="ntsGamePlayerUsername"></span>'+
+                        '</span><span class="nts-player-role" id="ntsGamePlayerRole"></span>';
+                    var avatar=document.getElementById('ntsGameAvatar');
+                    var presence=document.getElementById('ntsGamePresence');
+                    var name=document.getElementById('ntsGamePlayerName');
+                    var handle=document.getElementById('ntsGamePlayerUsername');
+                    var role=document.getElementById('ntsGamePlayerRole');
+                    if(player){
+                        window.NTSAvatars.applyAvatar(avatar,player.avatarId);
+                        presence.textContent='Đang chơi';
+                        name.textContent=player.fullName;
+                        handle.textContent='@'+player.username;
+                        role.innerHTML=isAdmin
+                            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l7 4v5c0 5-3.5 8.5-7 11-3.5-2.5-7-6-7-11V6z"/><path d="m9.5 12 1.7 1.7 3.4-3.5"/></svg>Admin'
+                            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>User';
+                    }else{
+                        avatar.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+                        presence.textContent='Chưa đăng nhập';
+                        name.textContent='Khách';
+                        handle.innerHTML='<a href="index.html">Đăng nhập NTS để lưu thành tích <span aria-hidden="true">→</span></a>';
+                        role.textContent='';
+                    }
+                }
             }
             var best=null;
             try {var value=localStorage.getItem(playerPersonalBestKey());
@@ -1443,6 +1914,8 @@
                     i: entryObj.id,
                     n: String(entryObj.name || "Người chơi").slice(0, 35),
                     u: String(entryObj.username||'').slice(0,40),
+                    a: ntsValidAvatarId(entryObj.avatarId),
+                    ap: Number(entryObj.avatarUpdatedAt)||0,
                     s: Number(entryObj.score),
                     t: Number(entryObj.updatedAt),
                     v: Number(entryObj.version) || 1,
@@ -1468,6 +1941,8 @@
                     id: mini.i,
                     name: mini.n,
                     username: mini.u || '',
+                    avatarId: mini.a,
+                    avatarUpdatedAt: Number(mini.ap)||0,
                     score: Number(mini.s),
                     updatedAt: Number(mini.t),
                     version: Number(mini.v) || 1,
@@ -1541,6 +2016,8 @@
                     id: id,
                     name: String(item.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
                     username: String(item.username||'').replace(/\s+/g,' ').trim().slice(0,40).toLowerCase(),
+                    avatarId: ntsValidAvatarId(item.avatarId),
+                    avatarUpdatedAt: Number(item.avatarUpdatedAt)||0,
                     score: Number(item.score),
                     updatedAt: itemTime,
                     version: itemVer,
@@ -1552,11 +2029,23 @@
                 } else {
                     var existing = byId.get(id);
                     var exVer = Number(existing.version) || 1;
-                    if (
-                        cleanItem.version > exVer ||
-                        (cleanItem.version === exVer && cleanItem.updatedAt >= existing.updatedAt)
-                    ) {
-                        byId.set(id, cleanItem);
+                    // Một bản sao cũ của trò chơi có thể thiếu trường avatar.
+                    // Không để bản sao ấy xóa ảnh đã đồng bộ của cùng thành tích.
+                    var oldAvatar=ntsValidAvatarId(existing.avatarId);
+                    var newAvatar=ntsValidAvatarId(cleanItem.avatarId);
+                    var oldAt=Number(existing.avatarUpdatedAt)||0;
+                    var newAt=Number(cleanItem.avatarUpdatedAt)||0;
+                    var newerScore=cleanItem.version>exVer ||
+                        (cleanItem.version===exVer && cleanItem.updatedAt>=existing.updatedAt);
+                    if(newerScore){
+                        if(oldAvatar!==null && (newAvatar===null || oldAt>newAt)){
+                            cleanItem.avatarId=oldAvatar;
+                            cleanItem.avatarUpdatedAt=oldAt;
+                        }
+                        byId.set(id,cleanItem);
+                    }else if(newAvatar!==null && (oldAvatar===null || newAt>oldAt)){
+                        existing.avatarId=newAvatar;
+                        existing.avatarUpdatedAt=newAt;
                     }
                 }
             });
@@ -1573,12 +2062,21 @@
                 } else {
                     var currentHolder = byName.get(nameKey);
                     // Nếu cùng 1 tên: ưu tiên bản ghi có số lần đoán ít hơn, hoặc ghi danh trước
-                    if (
-                        item.score < currentHolder.score ||
-                        (item.score === currentHolder.score && item.updatedAt < currentHolder.updatedAt)
-                    ) {
-                        byName.set(nameKey, item);
+                    var newerAvatar=ntsValidAvatarId(item.avatarId)!==null &&
+                        (ntsValidAvatarId(currentHolder.avatarId)===null ||
+                         (Number(item.avatarUpdatedAt)||Number(item.updatedAt)||0) >
+                         (Number(currentHolder.avatarUpdatedAt)||Number(currentHolder.updatedAt)||0));
+                    var bestIsItem=item.score<currentHolder.score ||
+                        (item.score===currentHolder.score && item.updatedAt<currentHolder.updatedAt);
+                    var best=bestIsItem ? item : currentHolder;
+                    if(newerAvatar && !bestIsItem){
+                        best.avatarId=item.avatarId;
+                        best.avatarUpdatedAt=item.avatarUpdatedAt;
+                    }else if(bestIsItem && !newerAvatar && ntsValidAvatarId(currentHolder.avatarId)!==null){
+                        best.avatarId=currentHolder.avatarId;
+                        best.avatarUpdatedAt=currentHolder.avatarUpdatedAt;
                     }
+                    byName.set(nameKey,best);
                 }
             });
 
@@ -1644,6 +2142,8 @@
                             id: item.i,
                             name: item.n,
                             username: item.u || '',
+                            avatarId: item.a,
+                            avatarUpdatedAt: Number(item.ap)||0,
                             score: Number(item.s),
                             updatedAt: Math.max(Number(item.t) || Date.now(), lastClearedTimestamp + 100),
                             version: Number(item.v) || 1,
@@ -1663,6 +2163,8 @@
                     id: stateObj.e.i,
                     name: stateObj.e.n,
                     username: stateObj.e.u || '',
+                    avatarId: stateObj.e.a,
+                    avatarUpdatedAt: Number(stateObj.e.ap)||0,
                     score: Number(stateObj.e.s),
                     updatedAt: Math.max(Number(stateObj.e.t) || Date.now(), lastClearedTimestamp + 100),
                     version: Number(stateObj.e.v) || 1,
@@ -1829,6 +2331,8 @@
                                             id: data.e.i,
                                             name: data.e.n,
                                             username: data.e.u || '',
+                                            avatarId: data.e.a,
+                                            avatarUpdatedAt: Number(data.e.ap)||0,
                                             score: Number(data.e.s),
                                             updatedAt: Math.max(Number(data.e.t) || 0, maxClearTime + 100),
                                             version: Number(data.e.v) || 1,
@@ -1844,6 +2348,8 @@
                                                     id: item.i,
                                                      name: item.n,
                                                     username: item.u || '',
+                                                    avatarId: item.a,
+                                                    avatarUpdatedAt: Number(item.ap)||0,
                                                     score: Number(item.s),
                                                     updatedAt: Math.max(Number(item.t) || 0, maxClearTime + 100),
                                                     version: Number(item.v) || 1,
@@ -1915,6 +2421,8 @@
                     id: r.id,
                     name: r.name,
                     username: r.username||'',
+                    avatarId: ntsValidAvatarId(r.avatarId),
+                    avatarUpdatedAt: Number(r.avatarUpdatedAt)||0,
                     score: Number(r.score),
                     updatedAt: Math.max(Number(r.updatedAt) || Date.now(), effectiveClear + 100),
                     version: Number(r.version) || 1,
@@ -2002,6 +2510,8 @@
                             i: r.id,
                              n: String(r.name).slice(0, 50),
                             u: r.username||'',
+                            a: ntsValidAvatarId(r.avatarId),
+                            ap: Number(r.avatarUpdatedAt)||0,
                             s: r.score,
                             t: r.updatedAt,
                             v: r.version || 1
@@ -2025,6 +2535,8 @@
                                 i: singleEntryObj.id,
                                  n: singleEntryObj.name,
                                 u: singleEntryObj.username||'',
+                                a: ntsValidAvatarId(singleEntryObj.avatarId),
+                                ap: Number(singleEntryObj.avatarUpdatedAt)||0,
                                 s: Number(singleEntryObj.score),
                                 t: Math.max(Number(singleEntryObj.updatedAt) || Date.now(), effectiveClear + 100),
                                 v: Number(singleEntryObj.version) || 1
@@ -2104,6 +2616,8 @@
                 id: String(entry.id),
                 name: String(entry.name || "Người chơi").replace(/\s+/g, " ").trim().slice(0, 100),
                 username: String(entry.username||'').slice(0,40).toLowerCase(),
+                avatarId: ntsValidAvatarId(entry.avatarId),
+                avatarUpdatedAt: Number(entry.avatarUpdatedAt)||0,
                 score: Number(entry.score),
                 updatedAt: safeTimestamp,
                 version: Number(entry.version) || 1,
@@ -2168,6 +2682,27 @@
             return div.innerHTML;
         }
 
+        function leaderboardAvatarId(item, profiles, registry) {
+            var user=String(item.username||'').toLowerCase();
+            var current=ntsValidAvatarId(item.avatarId);
+            var time=Number(item.avatarUpdatedAt)||0;
+            if(user){
+                var profile=profiles[user]||{};
+                var account=registry[user]||{};
+                var profileId=ntsValidAvatarId(profile.avatarId);
+                var accountId=ntsValidAvatarId(account.avatarId);
+                var profileTime=Number(profile.avatarUpdatedAt)||0;
+                var accountTime=Number(account.avatarUpdatedAt)||0;
+                if(profileId!==null && (current===null || profileTime>=time)) {
+                    current=profileId;time=profileTime;
+                }
+                if(accountId!==null && (current===null || accountTime>time)) {
+                    current=accountId;time=accountTime;
+                }
+            }
+            return current===null ? window.NTSAvatars.defaultId(user||item.name||'NTS') : current;
+        }
+
         function renderLeaderboardUI() {
             var player=ntsLoggedInPlayer();
             if(player){
@@ -2180,48 +2715,52 @@
                     if(bestSub)bestSub.textContent='Cá nhân: '+remoteBest.score+' lần';
                 }
             }
-            var bestScoreEl = document.getElementById("bestScore");
-            var bestHolderEl = document.getElementById("bestHolderText");
-            var miniListEl = document.getElementById("miniLeaderboardList");
-            var fullListEl = document.getElementById("fullLeaderboardList");
+            var bestScoreEl=document.getElementById('bestScore');
+            var bestHolderEl=document.getElementById('bestHolderText');
+            var fullListEl=document.getElementById('fullLeaderboardList');
+            var miniListEl=document.getElementById('miniLeaderboardList');
+            var counter=document.getElementById('ntsLbCount');
+            if(counter)counter.textContent=(leaderboardData?leaderboardData.length:0)+' người chơi';
 
-            if (!leaderboardData || leaderboardData.length === 0) {
-                bestScoreEl.textContent = "--";
-                bestHolderEl.textContent = "Chưa có kỷ lục";
-                var emptyHtml = '<div class="lb-empty">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh!</div>';
-                if (miniListEl) miniListEl.innerHTML = emptyHtml;
-                if (fullListEl) fullListEl.innerHTML = emptyHtml;
+            if(!leaderboardData || leaderboardData.length===0){
+                bestScoreEl.textContent='--';
+                bestHolderEl.textContent='Chưa có kỷ lục';
+                var empty='<div class="lb-empty">Chưa có kỷ lục nào. Hãy trở thành người đầu tiên!</div>';
+                if(miniListEl)miniListEl.innerHTML=empty;
+                if(fullListEl)fullListEl.innerHTML=empty;
                 return;
             }
-
-            var top1 = leaderboardData[0];
-            bestScoreEl.textContent = "Top 1: " + top1.score;
-            bestHolderEl.innerHTML = "👑 " + escapeHtml(top1.name);
-
-            var buildRow = function(item, idx) {
-                var rank = idx + 1;
-                var rankClass = rank <= 3 ? "rank-" + rank : "";
-                var medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "#" + rank;
-                var relText = formatRelativeTime(item.updatedAt);
-                return (
-                    '<div class="lb-row ' + rankClass + '">' +
-                        '<div class="lb-left">' +
-                            '<div class="lb-rank">' + medal + '</div>' +
-                            '<div style="min-width:0; flex:1;">' +
-                                '<div class="lb-name-wrap">' +
-                                    '<span class="lb-name">' + escapeHtml(item.name) + '</span>' +
-                                    '<span class="lb-status-tag">' + relText + '</span>' +
-                                '</div>' +
-                                '<div class="lb-time">' + formatExactDateTime(item.updatedAt) + '</div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="lb-score">' + item.score + ' lần thử</div>' +
-                    '</div>'
-                );
+            var top1=leaderboardData[0];
+            bestScoreEl.textContent='Top 1: '+top1.score;
+            bestHolderEl.innerHTML='👑 '+escapeHtml(top1.name);
+            var profileDb=ntsReadJSON(localStorage,NTS_PROFILES_KEY)||{};
+            var userDb=ntsReadJSON(localStorage,NTS_USERS_KEY)||{};
+            var myName=player?player.username.toLowerCase():'';
+            var targetIcon='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>';
+            var buildRow=function(item,idx){
+                var rank=idx+1;
+                var rankClass=rank<=3?'rank-'+rank:'';
+                var status=rank===1?'👑 Dẫn đầu':rank===2?'Á quân':rank===3?'Hạng ba':'';
+                var myClass=myName&&item.username===myName?' is-mine':'';
+                var avatarId=leaderboardAvatarId(item,profileDb,userDb);
+                var avatarUrl=window.NTSAvatars.getURL(avatarId);
+                var handle=item.username?'@'+item.username:'Người chơi NTS';
+                return '<div class="lb-row '+rankClass+myClass+'">'+
+                    '<div class="lb-left">'+
+                      '<span class="lb-rank">#'+rank+'</span>'+
+                      '<span class="lb-avatar"><img src="'+escapeHtml(avatarUrl)+'" alt="Ảnh đại diện '+escapeHtml(item.name)+'" loading="lazy" decoding="async"></span>'+
+                      '<span class="lb-identity">'+
+                        '<span class="lb-name-wrap"><span class="lb-name">'+escapeHtml(item.name)+'</span>'+
+                        (status?'<span class="lb-status-tag">'+status+'</span>':'')+'</span>'+
+                        '<span class="lb-handle">'+escapeHtml(handle)+'</span>'+
+                        '<span class="lb-time">'+formatExactDateTime(item.updatedAt)+'<span class="lb-rel"> · '+formatRelativeTime(item.updatedAt)+'</span></span>'+
+                      '</span>'+
+                    '</div>'+
+                    '<span class="lb-score">'+targetIcon+item.score+' lần thử</span>'+
+                  '</div>';
             };
-
-            if (miniListEl) miniListEl.innerHTML = leaderboardData.slice(0, 5).map(buildRow).join("");
-            if (fullListEl) fullListEl.innerHTML = leaderboardData.slice(0, 100).map(buildRow).join("");
+            if(miniListEl)miniListEl.innerHTML=leaderboardData.slice(0,5).map(buildRow).join('');
+            if(fullListEl)fullListEl.innerHTML=leaderboardData.slice(0,100).map(buildRow).join('');
         }
 
         function showToast(message, type) {
@@ -2357,7 +2896,7 @@
             document.getElementById("winAttemptsCount").textContent = attempts + " lần";
             document.getElementById("winSubtitleText").textContent = "Bạn đã giải mã thành công con số bí mật trong " + attempts + " lần thử!";
             document.getElementById("winBestRecord").textContent = "Đang cập nhật";
-            document.getElementById("ntsAutoRecordStatus").textContent = "Đang cập nhật bảng xếp hạng...";
+            document.getElementById("ntsGuestSaveNotice").hidden = true;
             document.getElementById("winModal").classList.add("active");
             launchConfetti();
             var completionSound=document.getElementById("completionSound");
@@ -2366,30 +2905,25 @@
 
         function autoPublishWin() {
             var player=ntsLoggedInPlayer();
-            var status=document.getElementById('ntsAutoRecordStatus');
-            var card=document.getElementById('recordFormBox');
-            var loginLink=document.getElementById('ntsLoginFromGame');
+            var guestLoginNotice=document.getElementById('ntsGuestSaveNotice');
             if(!player){
-                card.classList.add('is-guest');
-                status.textContent='Bạn đã thắng! Hãy đăng nhập trên trang chủ NTS để lưu các ván tiếp theo.';
-                loginLink.hidden=false;
+                guestLoginNotice.hidden=false;
                 document.getElementById('winBestRecord').textContent='—';
                 return;
             }
-            card.classList.remove('is-guest');
-            loginLink.hidden=true;
+            guestLoginNotice.hidden=true;
             currentEntryVersion+=1;
             // Gửi điểm bằng họ tên đang dùng trong hồ sơ; mã tài khoản ngầm ngăn trùng tên.
             publishScoreEntryInstant({
                 id:currentSessionEntryId,
                 username:player.username,
                 name:player.fullName,
+                avatarId:player.avatarId,
+                avatarUpdatedAt:player.avatarUpdatedAt||Date.now(),
                 score:attempts,
                 updatedAt:Math.max(Date.now(),lastClearedTimestamp+1000),
                 version:currentEntryVersion
             });
-            status.textContent='Đã lưu thành tích cho '+player.fullName+' ('+attempts+' lần thử). Bảng xếp hạng đang tự đồng bộ.';
-            showToast('Đã tự động ghi thành tích của '+player.fullName+'!', 'success');
             // Mỗi ván thắng gửi một kết quả riêng về Lịch sử game NTS.
             if(window.NTSGameTracker && typeof window.NTSGameTracker.report==='function'){
                 try{window.NTSGameTracker.report({
@@ -2462,6 +2996,7 @@
             refreshClearLeaderboardAccess();
             renderLeaderboardUI();
             syncAllChannels(false, true);
+            ntsRefreshSharedProfileAvatars(true);
             document.getElementById("leaderboardModal").classList.add("active");
             var fullListEl = document.getElementById("fullLeaderboardList");
             var scrollTopBtn = document.getElementById("lbScrollTopBtn");
@@ -2482,6 +3017,7 @@
 
         function manualSyncLeaderboard() {
             syncAllChannels(true, true);
+            ntsRefreshSharedProfileAvatars(true);
         }
 
         function showInstructions() {
@@ -2572,19 +3108,37 @@
         renderLeaderboardUI();
         syncAllChannels(false, true);
         startRealtimeStream();
+        ntsRefreshSharedProfileAvatars(true);
+        ntsListenForAvatarChanges();
+        // Dữ liệu hồ sơ được lấy định kỳ, không chạy cùng vòng quét BXH 4 giây.
+        setInterval(function(){
+            if(document.visibilityState==='visible')ntsRefreshSharedProfileAvatars(false);
+        },30000);
 
         // Quét nhẹ KeyValue + JSONBlob mỗi 4 giây (KHÔNG gọi ntfy poll lặp lại để tránh lỗi 429)
         setInterval(function() {
             syncAllChannels(false, false);
         }, 4000);
 
-        window.addEventListener("focus", function() { syncAllChannels(false, false); refreshPlayerIdentity(); });
+        window.addEventListener("focus", function() {
+            syncAllChannels(false, false);
+            refreshPlayerIdentity();
+            ntsRefreshSharedProfileAvatars(true);
+            ntsListenForAvatarChanges();
+        });
         window.addEventListener('storage', function(e) {
-            if ([NTS_SESSION_KEY,NTS_USERS_KEY,NTS_ROLES_KEY,NTS_OWNER_KEY,NTS_DELETED_KEY].indexOf(e.key)!==-1)
+            if ([NTS_SESSION_KEY,NTS_USERS_KEY,NTS_PROFILES_KEY,NTS_ROLES_KEY,NTS_OWNER_KEY,NTS_DELETED_KEY].indexOf(e.key)!==-1){
                 refreshPlayerIdentity();
+                renderLeaderboardUI();
+            }
         });
         document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === "visible") {syncAllChannels(false, false);refreshPlayerIdentity();}
+            if (document.visibilityState === "visible") {
+                syncAllChannels(false, false);
+                refreshPlayerIdentity();
+                ntsRefreshSharedProfileAvatars(true);
+                ntsListenForAvatarChanges();
+            }
         });
 
         document.getElementById("guessInput").addEventListener("keydown", function(e) {
