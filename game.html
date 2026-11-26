@@ -1155,6 +1155,21 @@
             .game-card, .card-media img, .play-btn, .cat-btn, .game-search-box { transition-duration: .01ms !important; }
         }
 
+        /* NTS editorial game badges from Admin, independent from click counters. */
+        .nts-managed-game-labels {position:absolute;z-index:14;top:11px;right:11px;max-width:76%;display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none}
+        .nts-managed-label {display:inline-flex;align-items:center;gap:5px;max-width:100%;border-radius:9px;padding:6px 10px;border:1px solid rgba(255,255,255,.3);font:800 .66rem/1.1 'Be Vietnam Pro',sans-serif;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 6px 17px rgba(0,0,0,.27)}
+        .nts-managed-label--hot {background:linear-gradient(120deg,#ee5733,#e32650)}
+        .nts-managed-label--popular {background:linear-gradient(115deg,#d88915,#e9ad30);color:#23160a}
+        .nts-managed-label--new {background:linear-gradient(115deg,#10949d,#21bca7)}
+        .nts-managed-label--recommend {background:linear-gradient(115deg,#6d5ae6,#a35cd9)}
+        .nts-managed-label--event {background:linear-gradient(115deg,#bf3c8d,#e5689c)}
+        .nts-managed-label--coming {background:linear-gradient(115deg,#42587e,#6874a6)}
+        .nts-managed-label--custom {background:linear-gradient(115deg,#086f7e,#675bce)}
+        .game-card[data-nts-label-managed="true"] .spotlight-new,
+        .game-card[data-nts-label-managed="true"] .spotlight-hot {display:none!important}
+        .game-card .nts-managed-game-labels:empty {display:none}
+        .orbit-card .nts-managed-game-labels {max-width:69%}
+        @media(max-width:640px) {.nts-managed-label {font-size:.62rem;padding:5px 8px}.nts-managed-game-labels {gap:4px}}
         /* ===== NOVARIS / GLOBAL HOT & NEW BADGES ===== */
         .card-spotlights {
             position: absolute;
@@ -3061,6 +3076,330 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
             </div>
         </div>
     </footer>
+
+    <script>
+/* NTS GAME LABELS v2 - shared catalog metadata (public, no account data). */
+(() => {
+  'use strict';
+  if (window.NTSGameLabels) return;
+  const GAMES = ["xucxac", "quayten", "dua", "tthcp", "caro", "timketqua3so", "danhbai", "taixiu", "dovui", "mecung", "cardgame", "dapchuot", "keobuabao", "doanso", "trinhomausac", "nhamgiay", "thamtumk", "goboom", "duoihinhbatchu", "vongquaymayman"];
+  const GAME_IDS = new Set(GAMES);
+  const TYPES = Object.freeze({
+    hot: {vi:'HOT', en:'HOT', zh:'热门', emoji:'🔥'},
+    popular: {vi:'Nhiều người chơi', en:'Popular', zh:'人气游戏', emoji:'👥'},
+    new: {vi:'MỚI', en:'NEW', zh:'最新', emoji:'✨'},
+    recommend: {vi:'Đề xuất', en:'Recommended', zh:'推荐', emoji:'⭐'},
+    event: {vi:'Sự kiện', en:'Event', zh:'活动', emoji:'🎉'},
+    coming: {vi:'Sắp ra mắt', en:'Coming soon', zh:'即将推出', emoji:'⏳'}
+  });
+  // Keep the old keys so deployed browsers retain their previous choices.
+  const STORAGE = 'nts_game_labels_public_v1';
+  const PENDING = 'nts_game_labels_pending_v1';
+  const POINTER_LOCAL = 'nts_game_labels_blob_id_v2';
+  const POINTER_KEY = 'nts_game_labels_pointer_2026_v1';
+  const POINTER_API = 'https://keyvalue.immanuel.co/api/KeyVal/';
+  const APP_KEY = '453b380w';
+  const BLOB_API = 'https://jsonblob.com/api/jsonBlob';
+  const FEED = 'https://ntfy.sh/nts_game_labels_2026_v1';
+  const FEED_TYPE = 'nts-game-labels-change-v1';
+  const MAX_WAIT = 6000;
+  const store = Object.create(null);
+  const pending = new Set();
+  const pointerHints = new Set();
+  let inFlight = null;
+  let eventStream = null;
+  let lastSync = {ledger:false,feed:false,pending:0,source:'local',lastAt:0};
+  let refreshTimer = null;
+  const now = () => Date.now();
+  const canWrite = () => Boolean(window.NTSAccount?.isAdmin?.());
+  const parse = (value) => {try {return JSON.parse(value);} catch {return null;}};
+  const cleanText = (value,max=26) => String(value||'').replace(/[\u0000-\u001f\u007f<>]/g,'').replace(/\s+/g,' ').trim().slice(0,max);
+  const notify = () => document.dispatchEvent(new CustomEvent('nts:game-labels-updated'));
+  function normalize(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const labels = [...new Set((Array.isArray(value.labels)?value.labels:[]).filter(s=>typeof s==='string' && Object.hasOwn(TYPES,s)))].slice(0,6);
+    const updatedAt = Number(value.updatedAt);
+    if (!Number.isSafeInteger(updatedAt) || updatedAt<1 || updatedAt>now()+86400000) return null;
+    return {labels,custom:cleanText(value.custom),updatedAt,revision:typeof value.revision==='string'?value.revision.slice(0,45):''};
+  }
+  const compare = (a,b) => a.updatedAt-b.updatedAt || a.revision.localeCompare(b.revision);
+  function snapshot() {
+    return Object.fromEntries(Object.entries(store).map(([id,data])=>[id,{...data,labels:[...data.labels]}]));
+  }
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE,JSON.stringify({version:2,games:snapshot()}));
+      localStorage.setItem(PENDING,JSON.stringify([...pending]));
+    } catch { /* Read-only / private browsing still renders latest fetched data. */ }
+  }
+  function merge(raw, fromRemote=false) {
+    if (!raw || typeof raw!=='object' || Array.isArray(raw)) return false;
+    let changed=false;
+    for (const [id,candidate] of Object.entries(raw)) {
+      if (!GAME_IDS.has(id)) continue;
+      const entry=normalize(candidate);
+      if (!entry) continue;
+      const previous=store[id];
+      if (!previous || compare(entry,previous)>0) {
+        store[id]=entry;
+        if (fromRemote) pending.delete(id);
+        changed=true;
+      } else if (fromRemote && compare(entry,previous)===0) {
+        // Our pending change has been seen on the shared service.
+        // Durable confirmation is handled separately when reading the blob.
+      }
+    }
+    if (changed) {persist();notify();}
+    return changed;
+  }
+  function pointerFrom(value) {
+    const s=String(value||'').trim().replace(/^"|"$/g,'');
+    return /^[a-zA-Z0-9_-]{9,100}$/.test(s) ? s : '';
+  }
+  function rememberPointer(value) {
+    const id=pointerFrom(value);
+    if (!id) return '';
+    pointerHints.delete(id);
+    pointerHints.add(id);
+    while(pointerHints.size>4) pointerHints.delete(pointerHints.values().next().value);
+    try {localStorage.setItem(POINTER_LOCAL,id);} catch {}
+    return id;
+  }
+  try {
+    const local=parse(localStorage.getItem(STORAGE));
+    const queue=parse(localStorage.getItem(PENDING));
+    // Restore the pending queue BEFORE merge() persists the local snapshot.
+    // Otherwise a reload wipes unsent changes from an offline browser.
+    if (Array.isArray(queue)) queue.forEach(id=>{
+      if (GAME_IDS.has(id) && normalize(local?.games?.[id])) pending.add(id);
+    });
+    merge(local?.games||{},false);
+    rememberPointer(localStorage.getItem(POINTER_LOCAL));
+  } catch {}
+  async function request(url,options={},duration=MAX_WAIT) {
+    const abort=new AbortController();
+    const timer=setTimeout(()=>abort.abort(),duration);
+    try {return await fetch(url,{...options,signal:abort.signal,cache:options.cache||'no-store'});}
+    finally {clearTimeout(timer);}
+  }
+  async function getPointer() {
+    const res=await request(POINTER_API+'GetValue/'+APP_KEY+'/'+POINTER_KEY,{},5000);
+    if (!res.ok) throw new Error('pointer HTTP '+res.status);
+    return pointerFrom(await res.text());
+  }
+  async function publishPointer(id) {
+    const res=await request(POINTER_API+'UpdateValue/'+APP_KEY+'/'+POINTER_KEY+'/'+id,{method:'POST'},5000);
+    if (!res.ok) throw new Error('pointer write HTTP '+res.status);
+    // Do not claim cross-browser persistence until a fresh GET confirms it.
+    return await getPointer()===id;
+  }
+  async function readBlob(id) {
+    const res=await request(BLOB_API+'/'+id,{},5500);
+    if (!res.ok) throw new Error('blob read HTTP '+res.status);
+    const data=await res.json();
+    if (!data || typeof data!=='object' || Array.isArray(data) ||
+        !data.games || typeof data.games!=='object' || Array.isArray(data.games)) throw new Error('invalid blob body');
+    return data.games;
+  }
+  const asDocument = games => ({version:2,updatedAt:now(),games});
+  async function putBlob(id,games) {
+    const res=await request(BLOB_API+'/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(asDocument(games))},5500);
+    if (!res.ok) throw new Error('blob write HTTP '+res.status);
+  }
+  async function createBlob(games) {
+    const res=await request(BLOB_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(asDocument(games))},6000);
+    if (!res.ok) throw new Error('blob create HTTP '+res.status);
+    const headerId=res.headers.get('X-jsonblob')||'';
+    const headerLocation=res.headers.get('Location')||'';
+    let id=pointerFrom(headerId) || pointerFrom(headerId.split('/').pop()) ||
+      pointerFrom(headerLocation.split('/').pop());
+    if (!id) {
+      // Some blob implementations return the ID in the JSON response body.
+      const body=parse(await res.text());
+      id=pointerFrom(body?.id||body?.blobId||body?.url?.split('/').pop());
+    }
+    if (!id) throw new Error('blob id missing');
+    return rememberPointer(id);
+  }
+  function processFeed(raw) {
+    if (!raw || raw.event!=='message' || typeof raw.message!=='string') return false;
+    const packet=parse(raw.message);
+    if (!packet || packet.type!==FEED_TYPE) return false;
+    if (packet.pointer) rememberPointer(packet.pointer);
+    if (packet.games) merge(packet.games,true);
+    return true;
+  }
+  async function readFeed() {
+    // The ntfy cache is short-lived. "since=all" asks for every item still cached,
+    // which is more reliable than a fixed 48h window but not durable storage.
+    const res=await request(FEED+'/json?poll=1&since=all',{},5500);
+    if (!res.ok) throw new Error('feed HTTP '+res.status);
+    const body=await res.text();
+    if (body.length>1500000) throw new Error('feed too large');
+    let seen=0;
+    body.split(/\r?\n/).forEach(line=>{if(line && processFeed(parse(line))) seen++;});
+    return seen;
+  }
+  async function sendFeed(allIds,blobId='') {
+    // A snapshot permits a fresh browser to recover all labels from the ntfy
+    // cache if the pointer service is temporarily down. Split at 3 KB/message.
+    const rows=allIds.filter(id=>GAME_IDS.has(id)&&store[id]);
+    const chunks=[];
+    let chunk={};
+    for (const id of rows) {
+      const next={...chunk,[id]:store[id]};
+      if (JSON.stringify(next).length>2400 && Object.keys(chunk).length) {
+        chunks.push(chunk);chunk={[id]:store[id]};
+      } else chunk=next;
+    }
+    if (Object.keys(chunk).length) chunks.push(chunk);
+    if (!chunks.length && blobId) chunks.push({});
+    if (!chunks.length) return false;
+    for (const games of chunks) {
+      const payload=JSON.stringify({type:FEED_TYPE,version:2,pointer:blobId||undefined,games});
+      const res=await request(FEED,{method:'POST',headers:{'Content-Type':'text/plain; charset=utf-8'},body:payload},5500);
+      if (!res.ok) throw new Error('feed publish HTTP '+res.status);
+    }
+    return true;
+  }
+  async function synchronize() {
+    if (inFlight) return inFlight;
+    inFlight=(async()=>{
+      let keyPointer='',pointerValid=false,ledger=false,feed=false,source='local';
+      let durableChanges=Object.create(null);
+      let lastError='';
+      // Ask both services concurrently; a full feed snapshot can recover state
+      // before the index service responds.
+      const [feedResult,indexResult]=await Promise.allSettled([readFeed(),getPointer()]);
+      if (feedResult.status==='fulfilled') {feed=true;source='feed';}
+      else lastError=String(feedResult.reason?.message||'feed unavailable');
+      if (indexResult.status==='fulfilled') {
+        keyPointer=indexResult.value;pointerValid=Boolean(keyPointer);
+        if (keyPointer) rememberPointer(keyPointer);
+      } else lastError=String(indexResult.reason?.message||'pointer unavailable');
+      const candidates=[...new Set([keyPointer,...[...pointerHints].reverse()].filter(Boolean))].slice(0,4);
+      let writePointer='';
+      // Merge every known snapshot. A stale pointer from a previous browser is
+      // not allowed to overwrite newer per-game changes.
+      for (const id of candidates) {
+        try {
+          const remote=await readBlob(id);
+          merge(remote,true);
+          for (const [game,entry] of Object.entries(remote)) {
+            if (!GAME_IDS.has(game)) continue;
+            const normalized=normalize(entry);
+            if (!normalized) continue;
+            if (!durableChanges[game]||compare(normalized,durableChanges[game])>0) durableChanges[game]=normalized;
+          }
+          if (!writePointer) writePointer=id;
+          if (keyPointer===id) {ledger=true;writePointer=id;source='ledger';}
+        } catch(err) {lastError=String(err?.message||'blob unavailable');}
+      }
+      // Upgrade/repair older deployments: an Admin may already have labels
+      // cached locally, but the old publisher lost its shared index or queue.
+      // Republish only entries newer than everything we could retrieve.
+      if (canWrite()) {
+        let rescued=false;
+        for (const [game,entry] of Object.entries(store)) {
+          const remote=durableChanges[game];
+          if (!remote || compare(entry,remote)>0) {
+            if (!pending.has(game)) {pending.add(game);rescued=true;}
+          }
+        }
+        if (rescued) persist();
+      }
+      let sent=false;
+      if (pending.size && canWrite()) {
+        try {
+          let id=keyPointer||writePointer;
+          if (!id) {
+            id=await createBlob(snapshot());
+          } else {
+            const union={...durableChanges};
+            for (const [game,entry] of Object.entries(store)) {
+              if (!union[game] || compare(entry,union[game])>0) union[game]=entry;
+            }
+            await putBlob(id,union);
+          }
+          rememberPointer(id);
+          let indexConfirmed=keyPointer===id && pointerValid;
+          if (!indexConfirmed) {
+            try {indexConfirmed=await publishPointer(id);} catch {}
+          }
+          const verified=await readBlob(id);
+          merge(verified,true);
+          const done=[...pending].filter(game=>{
+            const remote=normalize(verified[game]);
+            return remote && compare(remote,store[game])>=0;
+          });
+          // The temporary event feed is not proof of durable discoverability.
+          if (indexConfirmed) {
+            done.forEach(game=>pending.delete(game));
+            persist();
+            ledger=true;
+            source='ledger';
+          }
+          try {sent=await sendFeed(GAMES,id);} catch {}
+          feed=feed||sent;
+        } catch(err) {
+          lastError=String(err?.message||'write unavailable');
+          try {sent=await sendFeed(GAMES,writePointer||keyPointer);} catch {}
+          feed=feed||sent;
+        }
+      }
+      const result={ledger,feed,source,pending:pending.size,lastAt:now(),error:lastError,
+        // Durable flag means the index and document were both accessible.
+        complete:ledger && pending.size===0};
+      lastSync=result;
+      return result;
+    })().finally(()=>{inFlight=null;});
+    return inFlight;
+  }
+  async function saveGame(id,labels,custom) {
+    if (!canWrite()) return {ok:false,error:'Chỉ Admin mới được đổi nhãn trong giao diện.'};
+    if (!GAME_IDS.has(id)) return {ok:false,error:'Không tìm thấy game.'};
+    const safeLabels=[...new Set((Array.isArray(labels)?labels:[]).filter(k=>Object.hasOwn(TYPES,k)))];
+    const stamp=Math.max(now(),(store[id]?.updatedAt||0)+1);
+    const entry={labels:safeLabels,custom:cleanText(custom),updatedAt:stamp,
+      revision:(globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2)).slice(0,45)};
+    store[id]=entry;
+    pending.add(id);
+    persist();notify();
+    let result=await synchronize();
+    if (pending.has(id)) result=await synchronize();
+    return {ok:true,synced:result.ledger && !pending.has(id),feed:result.feed};
+  }
+  function get(id) {const data=store[id];return data?{...data,labels:[...data.labels]}:null;}
+  function openStream() {
+    if (eventStream || document.hidden || !('EventSource' in window)) return;
+    try {
+      eventStream=new EventSource(FEED+'/sse');
+      eventStream.onmessage=e=>{
+        if(processFeed(parse(e.data))) {
+          // Notifications are immediate; the durable index is checked shortly after.
+          if (!refreshTimer) refreshTimer=setTimeout(()=>{refreshTimer=null;synchronize().catch(()=>{});},1400);
+        }
+      };
+    } catch {eventStream=null;}
+  }
+  function closeStream() {if(eventStream){eventStream.close();eventStream=null;}}
+  window.NTSGameLabels=Object.freeze({get,saveGame,refresh:synchronize,types:TYPES,games:GAMES,
+    status:()=>({...lastSync,pending:pending.size})});
+  window.addEventListener('online',()=>synchronize().catch(()=>{}));
+  window.addEventListener('focus',()=>{if(!document.hidden)synchronize().catch(()=>{});});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)closeStream();
+    else {openStream();synchronize().catch(()=>{});}
+  });
+  window.addEventListener('storage',e=>{
+    if(e.key===STORAGE)merge(parse(e.newValue)?.games||{},true);
+  });
+  openStream();
+  setTimeout(()=>synchronize().catch(()=>{}),200);
+  // Poll while visible for browsers that block SSE, and sync pending updates.
+  setInterval(()=>{if(!document.hidden)synchronize().catch(()=>{});},35000);
+})();
+</script>
 
     <script>
     'use strict';
@@ -5206,6 +5545,7 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
             clones.push(clone);
           });
           wheel.appendChild(fragment);
+          document.dispatchEvent(new Event('nts:game-orbit-rendered'));
           active = Math.max(0, shown.findIndex(card => card.dataset.gameId === previouslySelectedId));
           phaseSteps = active; // After filter rebuild, restart with the correct position
           stage.hidden = view !== 'orbit';
@@ -5495,5 +5835,107 @@ html.low-motion .game-orbit-halos i { animation: none !important; }
     })();
     </script>
 
+<script>
+/* NTS: paint shared admin-selected tags on both grid cards and orbit clones. */
+(() => {
+  'use strict';
+  const api=window.NTSGameLabels;
+  if(!api)return;
+  const translate=(value)=>{const l=(document.documentElement.lang||'vi').toLowerCase();return l.startsWith('en')?'en':l.startsWith('zh')?'zh':'vi';};
+  function updateCard(card){
+    const id=card.dataset.gameId;
+    if(!id)return;
+    const data=api.get(id);
+    const media=card.querySelector('.card-media');
+    if(!media)return;
+    let target=media.querySelector('.nts-managed-game-labels');
+    if(!data) {
+      card.removeAttribute('data-nts-label-managed');
+      target?.remove();
+      return;
+    }
+    card.dataset.ntsLabelManaged='true';
+    if(!target){target=document.createElement('div');target.className='nts-managed-game-labels';media.appendChild(target);}
+    const all=[];
+    const lang=translate();
+    for(const label of data.labels){
+      const meta=api.types[label];if(!meta)continue;
+      const el=document.createElement('span');el.className='nts-managed-label nts-managed-label--'+label;
+      el.textContent=meta.emoji+' '+(meta[lang]||meta.vi);
+      all.push(el);
+    }
+    if(data.custom){const el=document.createElement('span');el.className='nts-managed-label nts-managed-label--custom';el.textContent='✦ '+data.custom;all.push(el);}
+    target.replaceChildren(...all);
+  }
+  function paint(){document.querySelectorAll('.game-card[data-game-id]').forEach(updateCard);}
+  document.addEventListener('nts:game-labels-updated',paint);
+  document.addEventListener('nts:game-orbit-rendered',paint);
+  window.addEventListener('nts:languagechange',paint);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',paint,{once:true});else paint();
+})();
+</script>
+
+<script>
+/* NTS game history: only signed-in account metadata and PLAY NOW events.
+   No password, chat, form input, actual rounds, or anonymous browsing collected.
+   Browser-side public sync is best effort; not authenticated server analytics. */
+(() => {
+  'use strict';
+  const QUEUE='nts_game_activity_pending_v1';
+  const SESSION='nts_doan_so_current_user_v22';
+  const USERS='nts_doan_so_users_db_v22';
+  const ROLES='nts_account_roles_v1';
+  const FEED='https://ntfy.sh/nts_activity_updates_2026_v22';
+  const ACTION_TYPE='nts-activity-events-v3';
+  const getJSON=(storage,key)=>{try{return JSON.parse(storage.getItem(key)||'null');}catch{return null;}};
+  const userSession=()=>{
+    const current=getJSON(sessionStorage,SESSION)||getJSON(localStorage,SESSION);
+    if(!current||typeof current.username!=='string'||typeof current.passHash!=='string')return null;
+    const username=current.username.trim().slice(0,60);
+    const key=username.toLowerCase();
+    if(!username||/[\u0000-\u001f<>]/.test(username))return null;
+    // Match the same-origin registry when present. Do not trust a fake session
+    // if its password hash differs from the locally known account record.
+    const registered=getJSON(localStorage,USERS)||{};
+    const account=registered[key];
+    if(account && account.passHash!==current.passHash)return null;
+    const roles=getJSON(localStorage,ROLES)||{};
+    const role=key==='admin'||roles[key]==='admin'?'admin':'user';
+    return {username,role};
+  };
+  const readQueue=()=>{const rows=getJSON(localStorage,QUEUE);return Array.isArray(rows)?rows:[];};
+  function send(row,keepalive=true){
+    const packet=JSON.stringify({type:ACTION_TYPE,version:3,events:[row]});
+    // sendBeacon survives navigation from game.html to the actual game page.
+    try{if(keepalive&&navigator.sendBeacon?.(FEED,new Blob([packet],{type:'text/plain;charset=utf-8'})))return;}
+    catch{}
+    try{fetch(FEED,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:packet,keepalive}).catch(()=>{});}catch{}
+  }
+  function record(action,target){
+    const account=userSession();
+    if(!account)return;
+    if(action!=='game.launch')return;
+    if(!/^[a-z0-9]{2,40}$/.test(target))return;
+    const stamp=Date.now();
+    const rand=typeof crypto!=='undefined' && crypto.randomUUID
+      ?crypto.randomUUID().replace(/-/g,'').slice(0,12):Math.random().toString(36).slice(2,14);
+    const row={id:stamp.toString(36)+'-'+rand,at:stamp,actor:account.username,
+      role:account.role,action,target};
+    try{localStorage.setItem(QUEUE,JSON.stringify([...readQueue(),row]));}catch{}
+    send(row,true);
+  }
+  function onGameClick(event){
+    const node=event.target;
+    if(!(node instanceof Element))return;
+    const link=node.closest('.game-card a.play-btn[href]');
+    if(!link)return;
+    const card=link.closest('.game-card[data-game-id]');
+    if(!card)return;
+    record('game.launch',card.dataset.gameId);
+  }
+  document.addEventListener('click',onGameClick,true);
+  // Viewing this page is not a game play event; no catalog log is created.
+})();
+</script>
 </body>
 </html>
