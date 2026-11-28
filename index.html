@@ -3058,6 +3058,27 @@
           .nts-game-ranking-dialog .nts-game-top-progress {margin-top:7px}
         }
         @media(prefers-reduced-motion:reduce){.nts-game-ranking-dialog .nts-game-top-row {transition:none}}
+        /* Mobile auth: prevent automatic input-focus zoom (iOS Safari) and double-tap zoom. */
+        @media (max-width: 767px), (pointer: coarse) {
+            #ntsAuthDialog {
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+            }
+            #ntsAuthDialog input.nts-auth-input {
+                font-size: 16px;
+                line-height: 1.5;
+                min-width: 0;
+            }
+            #ntsAuthDialog input.nts-auth-input::placeholder {
+                font-size: 16px;
+            }
+            #ntsAuthDialog button,
+            #ntsAuthDialog input,
+            #ntsAuthDialog label,
+            .nts-account-btn {
+                touch-action: manipulation;
+            }
+        }
 </style>
 </head>
 <body id="top">
@@ -7944,7 +7965,13 @@ function makeAvatarURL(player){
             updateAuthHeading();
             resetAlert();
             const target = registering ? $('ntsRegFullName') : $('ntsLoginUsername');
-            if (!dom.overlay.hidden) window.setTimeout(() => target?.focus(), 40);
+            // Mobile: open the form without automatically opening the keyboard or zooming.
+            // Desktop keeps automatic focus for keyboard navigation.
+            if (!dom.overlay.hidden && !window.matchMedia('(max-width: 767px), (pointer: coarse)').matches) {
+                window.setTimeout(() => {
+                    if (!dom.overlay.hidden && !target?.closest('[hidden]')) target?.focus({ preventScroll: true });
+                }, 40);
+            }
             if (!registering && !dom.overlay.hidden) refillRememberedCredentials();
             else ++rememberAutofillSequence;
         }
