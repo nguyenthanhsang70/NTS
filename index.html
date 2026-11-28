@@ -6389,12 +6389,32 @@ function makeAvatarURL(player){
             const preloader = document.getElementById('preloader');
             const pct = document.getElementById('load-percentage');
             let p = 0;
+            let loadingComplete = false;
+            let finishTimeout;
+            const finishLoading = () => {
+                if (loadingComplete) return;
+                loadingComplete = true;
+                clearTimeout(finishTimeout);
+                preloader?.removeEventListener('transitionend', onPreloaderTransitionEnd);
+                document.documentElement.dataset.ntsLoadingComplete = 'true';
+                document.dispatchEvent(new CustomEvent('nts:loading-complete'));
+            };
+            const onPreloaderTransitionEnd = event => {
+                if (event.target === preloader && event.propertyName === 'opacity') finishLoading();
+            };
             const iv = setInterval(() => {
                 p = Math.min(100, p + Math.floor(Math.random() * 26) + 14);
                 if (pct) pct.textContent = `${p}%`;
                 if (p >= 100) {
                     clearInterval(iv);
-                    setTimeout(() => preloader?.classList.add('preloader-finish'), 160);
+                    setTimeout(() => {
+                        if (!preloader) return finishLoading();
+                        // Chỉ mở tài khoản sau khi hiệu ứng loading đã kết thúc.
+                        preloader.addEventListener('transitionend', onPreloaderTransitionEnd);
+                        preloader.classList.add('preloader-finish');
+                        // Dự phòng khi trình duyệt bỏ qua sự kiện chuyển cảnh.
+                        finishTimeout = setTimeout(finishLoading, 750);
+                    }, 160);
                 }
             }, 95);
         }
@@ -9405,6 +9425,15 @@ function makeAvatarURL(player){
         // kể cả khi tab trước đóng quá nhanh lúc tác vụ IndexedDB chưa hoàn tất.
         if (!rememberCredentialsChecked()) forgetEncryptedCredentials();
         updateLocaleHints();
+        // Khách chưa đăng nhập sẽ thấy ngay hai tab Đăng nhập / Đăng ký sau loading.
+        const showAuthAfterLoading = () => {
+            if (!currentUser && dom.overlay.hidden) openAuth('login');
+        };
+        if (document.documentElement.dataset.ntsLoadingComplete === 'true') {
+            showAuthAfterLoading();
+        } else {
+            document.addEventListener('nts:loading-complete', showAuthAfterLoading, { once: true });
+        }
         // Đẩy dữ liệu họ tên đã tồn tại trên trình duyệt cũ, chỉ sau khi đọc
         // bản mới nhất từ kho chung để tránh ghi đè bản cập nhật mới hơn.
         (async () => {
