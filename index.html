@@ -6435,7 +6435,7 @@ function makeAvatarURL(player){
     </script>
 
     <script>
-    /* NTS Activity v2: best-effort cross-browser synchronization using public storage.
+    /* NTS Activity v3: verified shared ledger, durable retry queue and live browser updates.
        PUBLIC and UNVERIFIED: no server authentication or tamper protection.
        Only send allowlisted action identifiers and short account/target labels.
        Never record passwords, password hashes, messages or search terms.
@@ -6469,8 +6469,12 @@ function makeAvatarURL(player){
       const EXTERNAL_GAME_QUEUE_KEY = 'nts_game_activity_pending_v1';
       const FEED_EVENT_TYPE = 'nts-activity-events-v3';
       const FEED_BATCH_SIZE = 12; // stay below ntfy's message size limits
-      const MAX_READ_MS = 4500;
-      const SYNC_DEBOUNCE_MS = 9500;
+      const MAX_READ_MS = 10000;
+      const SYNC_DEBOUNCE_MS = 700;
+      const MIN_SYNC_GAP_MS = 1500;
+      const POLL_INTERVAL_MS = 15000;
+      const FEED_MAX_BYTES = 3000;
+      const FEED_RETRY_MS = 120000;
       const ACTIONS = Object.freeze({
         'auth.login': ['Đăng nhập thành công','auth'],
         'auth.login_failed': ['Đăng nhập không thành công','auth'],
@@ -6685,6 +6689,13 @@ function makeAvatarURL(player){
         return guestPending.size ? safeRead().filter(row=>guestPending.has(row.id) && isGuestFailure(row)) : [];
       }
       const pendingCount = () => new Set([...feedOutbox,...guestPending]).size;
+      const pendingRows = () => {
+        const ids=new Set([...feedOutbox,...guestPending]);
+        return publishable(safeRead()).filter(row=>ids.has(row.id));
+      };
+      // Pending local events remain eligible even after logout, but signed-out
+      // pages never import the complete shared history.
+      const hasSyncWork = () => Boolean(current()) || pendingCount()>0;
       function readOutbox() {return [...feedOutbox];}
       function writeOutbox(ids) {
         const previous=feedOutbox;
@@ -6746,7 +6757,10 @@ function makeAvatarURL(player){
           broadcast.onmessage = event => {
             const row = asRow(event.data?.row);
             if (!row) return;
-            if (saveMerged([row])) scheduleSync(5500);
+            if (saveMerged([row])) {
+              if (publishable([row]).length) queueForFeed(row.id);
+              scheduleSync();
+            }
           };
         }
       } catch { /* BroadcastChannel is optional. */ }
@@ -6765,7 +6779,7 @@ function makeAvatarURL(player){
         if (!records.length) return 0;
         const added=saveMerged(records);
         for (const item of records) queueForFeed(item.id);
-        if (current()) scheduleSync(1800);
+        scheduleSync();
         return added;
       }
       function pruneGameQueue(remoteIds) {
@@ -6786,7 +6800,7 @@ function makeAvatarURL(player){
         const role = opts.role === 'admin' || opts.role === 'user' ? opts.role :
           user?.role === 'admin' ? 'admin' : user ? 'user' : 'guest';
         const row = {
-          id: `${now().toString(36)}-${Math.random().toString(36).slice(2,11)}`,
+          id: window.crypto?.randomUUID?.() || `${now().toString(36)}-${Math.random().toString(36).slice(2,11)}`,
           at: now(), actor, role, action, target: cleanName(opts.target || ''),
           ...(action === 'game.result' ? {detail: cleanGameResult(opts.detail)} : {})
         };
@@ -6795,20 +6809,13 @@ function makeAvatarURL(player){
           try {broadcast?.postMessage({row});} catch {}
           if (row.role !== 'guest' || isGuestFailure(row)) {
             queueForFeed(row.id);
-            // A direct link may navigate away before the normal sync timer.
-            // Send this one minimal, allowlisted event with the browser beacon
-            // without removing it from the durable retry queue.
-            if (action === 'site.feature' && opts.navigation === true) {
-              try {
-                navigator.sendBeacon?.(CLOUD_NTFY_URL,
-                  new Blob([JSON.stringify({type:FEED_EVENT_TYPE,version:3,events:[row]})],
-                    {type:'text/plain;charset=UTF-8'}));
-              } catch { /* Pending queue will retry later. */ }
-            }
-            // A feed acknowledgement is temporary. Retain guest failures until
-            // the shared ledger confirms them, even after the guest leaves.
             if (isGuestFailure(row)) markGuestPending(row.id);
-            scheduleSync(isGuestFailure(row) ? 1600 : SYNC_DEBOUNCE_MS);
+            // Navigation and logout may terminate the page before a timed fetch.
+            // A beacon is only a delivery attempt; the durable queue is retained.
+            if (opts.navigation === true || action === 'site.open' || action === 'auth.logout') {
+              try { sendFeedBeacon([row]); } catch {}
+            }
+            scheduleSync();
           }
           return true;
         } catch {return false;}
@@ -6818,7 +6825,9 @@ function makeAvatarURL(player){
       // Removing application-side age/count caps does not remove browser/server quotas.
       // Re-read, merge by event ID, and retry on subsequent visits to repair races.
       let syncPromise = null, syncTimer = null, eventSource = null;
-      let lastSyncStart = 0;
+      let syncDue = 0, lastSyncStart = 0, failureCount = 0, lastExitFlush = 0;
+      // Feed receipts are temporary and must NOT acknowledge durable storage.
+      const feedReceipts = new Map();
       let syncInfo = {online:false, ledgerOnline:false, feedOnline:false,
         lastOk:0, lastLedgerOk:0, lastFeedOk:0, pending:0, error:''};
       function emitSync(status) {
@@ -6828,193 +6837,249 @@ function makeAvatarURL(player){
       async function fetchLimited(url, options = {}, timeout = MAX_READ_MS) {
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = controller ? setTimeout(() => controller.abort(), timeout) : null;
-        try {return await fetch(url,{...options, ...(controller ? {signal:controller.signal} : {})});}
+        try {return await fetch(url,{cache:'no-store',...options, ...(controller ? {signal:controller.signal} : {})});}
         finally {if (timeoutId !== null) clearTimeout(timeoutId);}
       }
+      const pointerId = value => {
+        const raw=String(value || '').trim().replace(/^"|"$/g,'');
+        const id=raw.replace(/\/$/,'').split('/').pop();
+        return /^[a-zA-Z0-9_-]{9,100}$/.test(id) ? id : '';
+      };
+      async function readPointer() {
+        const response=await fetchLimited(CLOUD_POINTER_URL+'GetValue/'+CLOUD_APP_KEY+'/'+CLOUD_POINTER_KEY);
+        if (!response.ok) throw new Error('Activity pointer HTTP '+response.status);
+        const value=(await response.text()).trim().replace(/^"|"$/g,'');
+        if (['','null','EMPTY','undefined'].includes(value)) return '';
+        const id=pointerId(value);
+        if (!id) throw new Error('Invalid activity pointer');
+        return id;
+      }
       async function readLedger() {
-        const ptr = await fetchLimited(CLOUD_POINTER_URL+'GetValue/'+CLOUD_APP_KEY+'/'+CLOUD_POINTER_KEY,
-          {cache:'no-store'}, 4000);
-        if (!ptr.ok) throw new Error('Could not resolve activity pointer');
-        const id = (await ptr.text()).trim().replace(/^"|"$/g,'');
-        if (!id || ['null','EMPTY','undefined'].includes(id)) {
-          return {empty:true,url:null,data:{version:2,events:[]},events:[]};
-        }
-        if (!/^[a-zA-Z0-9_-]{9,100}$/.test(id)) throw new Error('Invalid activity pointer');
-        const url = CLOUD_BLOB_URL+'/'+id;
-        const response = await fetchLimited(url,{cache:'no-store'});
-        if (!response.ok) throw new Error('Activity ledger temporarily unavailable');
-        const data = await response.json();
-        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid activity ledger');
-        return {empty:false,url,data,events:limit(Array.isArray(data.events) ? data.events : [])};
+        const id=await readPointer();
+        if (!id) return {empty:true,id:'',url:null,events:[]};
+        const url=CLOUD_BLOB_URL+'/'+id;
+        const response=await fetchLimited(url);
+        if (!response.ok) throw new Error('Activity ledger HTTP '+response.status);
+        const data=await response.json();
+        // An invalid response is NOT an empty ledger: never overwrite it.
+        if (!data || typeof data !== 'object' || !Array.isArray(data.events))
+          throw new Error('Invalid activity ledger');
+        return {empty:false,id,url,data,events:limit(data.events)};
       }
       async function announceChange() {
         try {
-          await fetchLimited(CLOUD_NTFY_URL,{method:'POST',body:JSON.stringify({type:'nts-activity-updated',at:now()})},3000);
-        } catch { /* Polling also picks up changes. */ }
+          await fetchLimited(CLOUD_NTFY_URL,{method:'POST',headers:{'Content-Type':'text/plain; charset=utf-8'},
+            body:JSON.stringify({type:'nts-activity-updated',at:now()})},5000);
+        } catch { /* Periodic polling also picks up changes. */ }
       }
-      async function saveLedger(ledger, rows) {
-        const payload = JSON.stringify({version:2,events:rows});
+      async function saveLedger(rows) {
+        // Re-read immediately before writing and merge by ID. This reduces
+        // concurrent snapshot conflicts; periodic reconciliation repairs races.
+        const ledger=await readLedger();
+        const merged=limit([...ledger.events,...rows]);
+        const known=new Set(ledger.events.map(row=>row.id));
+        if (merged.every(row=>known.has(row.id))) return ledger;
+        const payload=JSON.stringify({version:2,events:merged});
         if (!ledger.empty) {
-          const res = await fetchLimited(ledger.url,{
-            method:'PUT',headers:{'Content-Type':'application/json'},body:payload
-          });
-          if (!res.ok) throw new Error('Unable to publish activity');
+          const res=await fetchLimited(ledger.url,{method:'PUT',headers:{'Content-Type':'application/json'},body:payload});
+          if (!res.ok) throw new Error('Activity ledger write HTTP '+res.status);
         } else {
-          // Never replace an existing pointer if a concurrent browser initialized it.
-          const check = await fetchLimited(CLOUD_POINTER_URL+'GetValue/'+CLOUD_APP_KEY+'/'+CLOUD_POINTER_KEY,
-            {cache:'no-store'},4000);
-          if (!check.ok) throw new Error('Pointer recheck unavailable');
-          const pointer = (await check.text()).trim().replace(/^"|"$/g,'');
-          if (!['','null','EMPTY','undefined'].includes(pointer)) throw new Error('Pointer created by another browser');
-          const created = await fetchLimited(CLOUD_BLOB_URL,{
+          const created=await fetchLimited(CLOUD_BLOB_URL,{
             method:'POST',headers:{'Content-Type':'application/json'},body:payload
           });
-          if (!created.ok) throw new Error('Unable to create activity ledger');
-          let id = created.headers.get('X-jsonblob') || created.headers.get('x-jsonblob') || '';
-          if (!id) id = (created.headers.get('Location') || created.url || '').split('/').pop();
-          if (!/^[a-zA-Z0-9_-]{9,100}$/.test(id)) throw new Error('Missing activity blob id');
-          const pointed = await fetchLimited(CLOUD_POINTER_URL+'UpdateValue/'+CLOUD_APP_KEY+'/'+CLOUD_POINTER_KEY+'/'+id,
-            {method:'POST',mode:'cors'},4000);
-          if (!pointed.ok) throw new Error('Unable to publish activity pointer');
+          if (!created.ok) throw new Error('Activity ledger create HTTP '+created.status);
+          let id=pointerId(created.headers.get('X-jsonblob')) || pointerId(created.headers.get('Location'));
+          if (!id) {
+            try { const data=await created.json(); id=pointerId(data?.id || data?.blobId || data?.url); } catch {}
+          }
+          if (!id) throw new Error('Missing activity blob id');
+          // Another browser may have initialized the pointer while POST ran.
+          // Never intentionally replace a nonempty shared index.
+          if (await readPointer()) throw new Error('Activity pointer initialized concurrently; retry');
+          const pointed=await fetchLimited(CLOUD_POINTER_URL+'UpdateValue/'+CLOUD_APP_KEY+'/'+CLOUD_POINTER_KEY+'/'+id,
+            {method:'POST',mode:'cors'});
+          if (!pointed.ok) throw new Error('Activity pointer write HTTP '+pointed.status);
         }
-        // Verify event IDs were actually readable from the shared pointer.
-        const verified = await readLedger();
-        if (rows.some(row => !verified.events.some(remote => remote.id === row.id)))
-          throw new Error('Activity write is not yet confirmed');
-        await announceChange();
+        // A successful PUT or temporary feed is not enough: check that the
+        // canonical pointer actually exposes all the events we just merged.
+        const verified=await readLedger();
+        const verifiedIds=new Set(verified.events.map(row=>row.id));
+        if (merged.some(row=>!verifiedIds.has(row.id))) throw new Error('Activity write not yet confirmed; retry');
+        void announceChange();
+        return verified;
       }
-      // ntfy delivers newline-delimited JSON when polling, and an equivalent
-      // packet on its SSE feed. Both paths accept *event content*, not just a
-      // notification that the JSONBlob ledger changed.
-      function receiveFeedPacket(packet) {
-        if (!packet || packet.event !== 'message' || typeof packet.message !== 'string') return 0;
+      const feedPayload = events => JSON.stringify({type:FEED_EVENT_TYPE,version:3,events});
+      function feedBatches(rows, maxBatches=4) {
+        const chunks=[];
+        let batch=[];
+        const bytes=value=>new TextEncoder().encode(feedPayload(value)).length;
+        for (const row of rows) {
+          if (batch.length && (batch.length>=FEED_BATCH_SIZE || bytes([...batch,row])>FEED_MAX_BYTES)) {
+            chunks.push(batch);batch=[];
+            if (chunks.length>=maxBatches) return chunks;
+          }
+          batch.push(row);
+        }
+        if (batch.length && chunks.length<maxBatches) chunks.push(batch);
+        return chunks;
+      }
+      function sendFeedBeacon(rows) {
+        for (const batch of feedBatches(rows,3)) {
+          try {
+            navigator.sendBeacon?.(CLOUD_NTFY_URL,new Blob([feedPayload(batch)],{type:'text/plain;charset=UTF-8'}));
+          } catch {}
+        }
+      }
+      function flushOnExit() {
+        if (now()-lastExitFlush<2000) return;
+        lastExitFlush=now();
+        sendFeedBeacon(pendingRows().filter(row=>!feedReceipts.has(row.id)));
+      }
+      function receiveFeedPacket(packet, live=false) {
+        if (!packet || packet.event!=='message' || typeof packet.message!=='string' || !current()) return 0;
         let body;
         try {body=JSON.parse(packet.message);} catch {return 0;}
-        if (body?.type === FEED_EVENT_TYPE && Array.isArray(body.events)) {
-          return saveMerged(body.events.slice(0,FEED_BATCH_SIZE));
+        if (body?.type===FEED_EVENT_TYPE && Array.isArray(body.events)) {
+          // Do not queue received rows for feed re-broadcast. The shared ledger
+          // reconciliation can still recover events after a sender disconnects.
+          const added=saveMerged(publishable(limit(body.events.slice(0,FEED_BATCH_SIZE))));
+          if (added) scheduleSync(2500);
+          return added;
         }
-        if (body?.type === 'nts-activity-updated') scheduleSync(1800);
+        if (live && body?.type==='nts-activity-updated') scheduleSync(900);
         return 0;
       }
       async function pollFeed() {
-        let since='48h';
+        let since='all';
         try {
           const last=Math.floor(Number(localStorage.getItem(FEED_CURSOR_KEY)) || 0);
-          if (last > 0 && last < Math.floor(now()/1000)+60)
-            since=String(Math.max(last-120,Math.floor(now()/1000)-48*3600));
+          const seconds=Math.floor(now()/1000);
+          if (last>seconds-12*3600 && last<seconds+60) since=String(Math.max(0,last-120));
         } catch {}
-        const response=await fetchLimited(CLOUD_NTFY_URL+'/json?poll=1&since='+encodeURIComponent(since),
-          {cache:'no-store'},6500);
-        if (!response.ok) throw new Error('Không đọc được sự kiện trực tuyến ('+response.status+').');
+        const response=await fetchLimited(CLOUD_NTFY_URL+'/json?poll=1&since='+encodeURIComponent(since));
+        if (!response.ok) throw new Error('Activity feed read HTTP '+response.status);
         const payload=await response.text();
-        if (payload.length>3_000_000) throw new Error('Bộ nhớ đệm sự kiện vượt giới hạn.');
+        if (payload.length>3_000_000) throw new Error('Activity feed exceeds local read limit');
         let count=0,latest=0;
         for (const line of payload.split(/\r?\n/)) {
           if (!line.trim()) continue;
           let packet;
           try {packet=JSON.parse(line);} catch {continue;}
-          latest=Math.max(latest,Number(packet?.time)||0);
           count+=receiveFeedPacket(packet);
+          if (packet?.event==='message') latest=Math.max(latest,Number(packet.time)||0);
         }
-        try {
-          // Overlap by 2 minutes on subsequent polls so same-second messages
-          // and temporary races are not silently dropped.
-          const cursor=Math.max(latest,Math.floor(now()/1000)-120);
-          localStorage.setItem(FEED_CURSOR_KEY,String(cursor));
+        // Only advance to a real server event, never a possibly skewed local clock.
+        if (latest) try {
+          const previous=Number(localStorage.getItem(FEED_CURSOR_KEY))||0;
+          localStorage.setItem(FEED_CURSOR_KEY,String(Math.max(previous,latest)));
         } catch {}
         return count;
       }
-      async function sendPendingFeed(guestOnly=false) {
-        const ids=readOutbox();
-        if (!ids.length) return {sent:0,remaining:0};
-        const existing=new Map(publishable(safeRead()).map(row=>[row.id,row]));
-        // On a signed-out page, never send a previous account's queued events
-        // or delete them from its outbox. Send only guest failure records.
-        const stale=ids.filter(id=>!existing.has(id));
-        if (stale.length) removeFromOutbox(stale);
-        const valid=ids.filter(id=>existing.has(id) && (!guestOnly || isGuestFailure(existing.get(id))));
+      async function sendPendingFeed() {
+        const time=now();
+        for (const [id,at] of feedReceipts) if (time-at>=FEED_RETRY_MS) feedReceipts.delete(id);
+        const rows=pendingRows().filter(row=>!feedReceipts.has(row.id));
         let sent=0;
-        // At most four small requests per sync. Background retries make progress
-        // without a long UI freeze or flooding an unauthenticated public service.
-        for (let start=0;start<Math.min(valid.length,FEED_BATCH_SIZE*4);start+=FEED_BATCH_SIZE) {
-          const batchIds=valid.slice(start,start+FEED_BATCH_SIZE);
-          const events=batchIds.map(id=>existing.get(id));
+        for (const events of feedBatches(rows)) {
           const response=await fetchLimited(CLOUD_NTFY_URL,{
-            method:'POST',headers:{'Content-Type':'text/plain; charset=utf-8'},
-            body:JSON.stringify({type:FEED_EVENT_TYPE,version:3,events})
-          },4000);
-          if (!response.ok) throw new Error('Không gửi được sự kiện trực tuyến ('+response.status+').');
-          removeFromOutbox(batchIds);
+            method:'POST',headers:{'Content-Type':'text/plain; charset=utf-8'},body:feedPayload(events)
+          });
+          if (!response.ok) throw new Error('Activity feed write HTTP '+response.status);
+          for (const row of events) feedReceipts.set(row.id,now());
           sent+=events.length;
+          // Keep the IDs in IndexedDB until a canonical ledger GET confirms them.
         }
-        return {sent,remaining:readOutbox().length};
+        return sent;
+      }
+      async function reconcileLedger(signedIn) {
+        let ledger=await readLedger();
+        let downloaded=0;
+        if (signedIn && current()) downloaded+=saveMerged(ledger.events);
+        const local=signedIn && current() ? publishable(safeRead()) : pendingRows();
+        const remoteIds=new Set(ledger.events.map(row=>row.id));
+        const missing=local.filter(row=>!remoteIds.has(row.id));
+        if (missing.length) ledger=await saveLedger(limit([...ledger.events,...local]));
+        if (signedIn && current()) downloaded+=saveMerged(ledger.events);
+        const confirmed=new Set(ledger.events.map(row=>row.id));
+        // Remove only actually confirmed IDs, not a hypothetical merged snapshot.
+        removeFromOutbox([...confirmed]);
+        acknowledgeGuestPending([...confirmed]);
+        pruneGameQueue(confirmed);
+        for (const id of confirmed) feedReceipts.delete(id);
+        return {downloaded,uploaded:missing.filter(row=>confirmed.has(row.id)).length};
       }
       async function syncNow() {
         if (syncPromise) return syncPromise;
-        const signedIn=Boolean(current());
-        // A guest with a failed login must be allowed to publish its own event.
-        // Guests never download the full activity log into their local storage.
-        if (!signedIn && !pendingGuestRows().length)
-          return {online:false,ledgerOnline:false,feedOnline:false,pending:pendingCount(),downloaded:0};
+        if (syncTimer) {clearTimeout(syncTimer);syncTimer=null;syncDue=0;}
         syncPromise=(async()=>{
+          // Opening IndexedDB is asynchronous. Never discard queued events or
+          // start publishing before the full local archive has been restored.
+          if (archivePromise) await archivePromise.catch(()=>{});
+          const signedIn=Boolean(current());
+          if (!hasSyncWork()) return {...syncInfo,pending:pendingCount()};
           lastSyncStart=now();
-          let ledgerOnline=false,feedOnline=false,downloaded=0,uploaded=0,errors=[];
-          let feedSent=0;
-          try {
-            const sent=await sendPendingFeed(!signedIn);
-            feedSent=sent.sent;
-            if (sent.sent) feedOnline=true;
-          } catch(e) {errors.push('Gửi sự kiện: '+(e?.message||'không kết nối'));}
-          if (signedIn) {
-            try {
-              downloaded+=await pollFeed();
-              feedOnline=true;
-            } catch(e) {errors.push('Tải sự kiện: '+(e?.message||'không kết nối'));}
-          }
-          try {
-            const ledger=await readLedger();
-            if (signedIn) downloaded+=saveMerged(ledger.events);
-            const local=signedIn ? publishable(safeRead()) : pendingGuestRows();
-            const remoteIds=new Set(ledger.events.map(row=>row.id));
-            const combined=limit([...ledger.events,...local]);
-            const missing=combined.filter(row=>!remoteIds.has(row.id));
-            if (missing.length) await saveLedger(ledger,combined);
-            ledgerOnline=true;
-            uploaded=missing.length;
-            // Durable ledger contains every locally retained publishable event.
-            removeFromOutbox(combined.map(row=>row.id));
-            acknowledgeGuestPending(combined.filter(isGuestFailure).map(row=>row.id));
-            pruneGameQueue(new Set(combined.map(row=>row.id)));
-          } catch(e) {errors.push('Kho chung: '+(e?.message||'không kết nối'));}
+          let ledgerOnline=false,feedOnline=false,downloaded=0,uploaded=0,feedSent=0;
+          const errors=[];
+          // Start outgoing and incoming work independently. A slow/blocked feed
+          // must not prevent the shared ledger from being read or written.
+          const results=await Promise.allSettled([
+            sendPendingFeed(),
+            signedIn ? pollFeed() : Promise.resolve(0),
+            reconcileLedger(signedIn)
+          ]);
+          if (results[0].status==='fulfilled') {feedSent=results[0].value;feedOnline=feedSent>0;}
+          else errors.push('Gửi sự kiện: '+(results[0].reason?.message||'không kết nối'));
+          if (results[1].status==='fulfilled') {downloaded+=results[1].value;feedOnline=feedOnline||signedIn;}
+          else errors.push('Tải sự kiện: '+(results[1].reason?.message||'không kết nối'));
+          if (results[2].status==='fulfilled') {
+            ledgerOnline=true;downloaded+=results[2].value.downloaded;uploaded=results[2].value.uploaded;
+          } else errors.push('Kho chung: '+(results[2].reason?.message||'không kết nối'));
+          failureCount=ledgerOnline?0:Math.min(failureCount+1,5);
           const result={online:ledgerOnline||feedOnline,ledgerOnline,feedOnline,
             lastOk:(ledgerOnline||feedOnline)?now():syncInfo.lastOk,
             lastLedgerOk:ledgerOnline?now():syncInfo.lastLedgerOk,
             lastFeedOk:feedOnline?now():syncInfo.lastFeedOk,
-            pending:pendingCount(),downloaded,uploaded,feedSent,
-            error:errors.join(' | ').slice(0,260)};
+            pending:pendingCount(),downloaded,uploaded,feedSent,error:errors.join(' | ').slice(0,260)};
           emitSync(result);
-          // There may be a small backlog on an older browser. Retry later only
-          // after successful progress, not on an offline retry loop.
-          if (result.pending && feedSent) setTimeout(()=>scheduleSync(14000),250);
           return result;
-        })().finally(()=>{syncPromise=null;});
+        })().finally(()=>{
+          syncPromise=null;
+          // Continue even if the first send failed, the user logged out, or an
+          // event was added during the previous request. Never strand the queue.
+          if (hasSyncWork() && (pendingCount()>0 || failureCount>0)) {
+            scheduleSync(failureCount?Math.min(60000,2000*2**failureCount):1000);
+          }
+        });
         return syncPromise;
       }
       function scheduleSync(delay=SYNC_DEBOUNCE_MS) {
-        if (syncTimer || document.visibilityState === 'hidden' || (!current() && !pendingGuestRows().length)) return;
-        const remaining=Math.max(0,5000-(now()-lastSyncStart));
-        syncTimer=setTimeout(()=>{syncTimer=null;syncNow().catch(()=>{});},Math.max(delay,remaining));
+        if (!hasSyncWork()) return;
+        const due=now()+Math.max(delay,MIN_SYNC_GAP_MS-(now()-lastSyncStart),0);
+        // Focus, reconnect and a newly recorded event can bring an existing
+        // timer forward instead of silently waiting behind an old timer.
+        if (syncTimer && syncDue<=due) return;
+        if (syncTimer) clearTimeout(syncTimer);
+        syncDue=due;
+        syncTimer=setTimeout(()=>{
+          syncTimer=null;syncDue=0;
+          if (syncPromise) {syncPromise.finally(()=>scheduleSync(500)).catch(()=>{});return;}
+          syncNow().catch(()=>{});
+        },Math.max(0,due-now()));
       }
       function connectFeed() {
-        if (eventSource || !current() || document.visibilityState === 'hidden' || !('EventSource' in window)) return;
+        if (!current() || !('EventSource' in window)) return;
+        if (eventSource && eventSource.readyState!==2) return;
+        disconnectFeed();
         try {
           eventSource=new EventSource(CLOUD_NTFY_URL+'/sse');
+          eventSource.onopen=()=>scheduleSync(500);
           eventSource.onmessage=event=>{
-            try {
-              const packet=JSON.parse(event.data);
-              if (packet?.event !== 'message') return;
-              receiveFeedPacket(packet);
-            } catch {}
+            try {receiveFeedPacket(JSON.parse(event.data),true);} catch {}
+          };
+          eventSource.onerror=()=>{
+            // Native EventSource retries automatically; polling covers networks
+            // that block SSE (including browser privacy configurations).
+            if (document.visibilityState!=='hidden') scheduleSync(3000);
           };
         } catch {eventSource=null;}
       }
@@ -7037,29 +7102,44 @@ function makeAvatarURL(player){
         syncNow,importGameQueue,status:()=>({...syncInfo}),retentionDays:null,maxItems:null});
       window.addEventListener('storage',event=>{
         if (event.key === EXTERNAL_GAME_QUEUE_KEY && event.newValue) importGameQueue();
+        if (event.key === OUTBOX_KEY || event.key === GUEST_PENDING_KEY) {
+          // A different tab may have queued an event immediately before closing.
+          const key=event.key;
+          const ids=loadPendingIds(key);
+          if (key===OUTBOX_KEY) for (const id of ids) feedOutbox.add(id);
+          else for (const id of ids) guestPending.add(id);
+          if (ids.length) scheduleSync();
+        }
         if (event.key === STORE) {
           try {
             const rows=JSON.parse(event.newValue || '[]');
             if (Array.isArray(rows)) saveMerged(rows);
           } catch {}
           document.dispatchEvent(new Event('nts:activity-changed'));
-          scheduleSync(4000);
+          scheduleSync();
         }
       });
       document.addEventListener('nts:auth-changed',()=>{
-        if (current()) {connectFeed();scheduleSync(2400);}
-        else {disconnectFeed();scheduleSync(1500);}
+        if (current()) connectFeed(); else disconnectFeed();
+        scheduleSync(300);
       });
-      window.addEventListener('focus',()=>scheduleSync(650));
-      window.addEventListener('online',()=>scheduleSync(400));
+      const resumeActivity=()=>{connectFeed();importGameQueue();scheduleSync(200);};
+      window.addEventListener('focus',resumeActivity);
+      window.addEventListener('pageshow',resumeActivity);
+      window.addEventListener('online',()=>{failureCount=0;resumeActivity();});
+      window.addEventListener('pagehide',flushOnExit);
       document.addEventListener('visibilitychange',()=>{
-        if (document.visibilityState === 'hidden') disconnectFeed();
-        else {connectFeed();scheduleSync(700);}
+        if (document.visibilityState==='hidden') flushOnExit();
+        else resumeActivity();
       });
-      // Low-frequency polling repairs missed SSE notifications and stale snapshots.
+      // Keep SSE running when possible; browsers may suspend background tabs.
+      // The fallback reads the shared history even if SSE never connects.
       window.setInterval(()=>{
-        if ((current() || pendingGuestRows().length) && document.visibilityState !== 'hidden') scheduleSync(300);
-      },110000);
+        if (!hasSyncWork()) return;
+        if (document.visibilityState==='hidden' && !pendingCount() && now()-lastSyncStart<60000) return;
+        if (failureCount && now()-lastSyncStart<Math.min(60000,2000*2**failureCount)) return;
+        connectFeed();scheduleSync(200);
+      },POLL_INTERVAL_MS);
       // Load ALL previously stored events from IndexedDB. They do not expire
       // automatically. Existing localStorage history is imported on first load.
       archivePromise=loadAuditArchive();
@@ -7067,7 +7147,7 @@ function makeAvatarURL(player){
         migrateRecentLogs();
         migrateGuestFailures();
         importGameQueue();
-        scheduleSync(1200);
+        scheduleSync(200);
       }).catch(()=>{
         // Private mode or browser policy can block IndexedDB entirely.
         // Fall back to untruncated localStorage until its actual quota runs out.
@@ -7078,8 +7158,9 @@ function makeAvatarURL(player){
         migrateRecentLogs();
         migrateGuestFailures();
         importGameQueue();
+        scheduleSync(200);
       });
-      window.setTimeout(()=>{connectFeed();scheduleSync(4200);},1900);
+      window.setTimeout(resumeActivity,800);
       // Observe safe, explicit page interactions; never collect input values, typed text, or messages.
       document.addEventListener('click', event => {
         if (!current()) return;
@@ -7109,7 +7190,7 @@ function makeAvatarURL(player){
               const url = new URL(link.href, location.href);
               const lastPart = url.pathname.split('/').pop() || 'trang chủ';
               if (url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'file:')
-                record('site.open',{target:lastPart.slice(0,56)});
+                record('site.open',{target:lastPart.slice(0,56),navigation:true});
             } catch {}
           }
           return;
@@ -10745,12 +10826,14 @@ document.addEventListener('nts:game-labels-updated',()=>{
         try {
           const result=await activityAPI.syncNow();
           renderActivity();
-          notify(result.ledgerOnline
+          notify(result.ledgerOnline && !result.pending
             ? 'Đã đồng bộ nhật ký với kho dữ liệu chung.'
-            : result.feedOnline
-              ? 'Đã tải/gửi các hoạt động gần đây; kho lịch sử chung chưa kết nối.'
-              : 'Chưa kết nối được dịch vụ đồng bộ; nhật ký vẫn lưu trên máy.',
-            Boolean(result.ledgerOnline || result.feedOnline));
+            : result.ledgerOnline
+              ? 'Đã kết nối kho chung; còn '+result.pending+' sự kiện đang chờ xác nhận.'
+              : result.feedOnline
+                ? 'Đã kết nối luồng cập nhật; '+result.pending+' sự kiện đang chờ kho chung xác nhận.'
+                : 'Chưa kết nối được kho chung. Nhật ký được giữ trên máy và sẽ tự gửi lại.',
+            Boolean(result.ledgerOnline && !result.pending));
         } finally {
           btn.disabled=false;
           btn.removeAttribute('aria-busy');
